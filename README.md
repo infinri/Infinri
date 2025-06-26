@@ -14,6 +14,7 @@ A modern, high-performance web application built with PHP 8.4, RoadRunner, and a
 
 - [🚀 Features](#-features)
 - [🛠 Tech Stack](#-tech-stack)
+- [🧩 Module System](#-module-system)
 - [🏗 Project Structure](#-project-structure)
 - [🚀 Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
@@ -35,6 +36,62 @@ A modern, high-performance web application built with PHP 8.4, RoadRunner, and a
 - **Modern Frontend**: HTMX + Alpine.js for interactive UIs
 - **Observability**: Built-in logging, metrics, and tracing
 - **Developer Experience**: Comprehensive tooling and testing setup
+
+## 🧩 Module System
+
+The application uses a modular architecture to organize code into self-contained, reusable components. Each module encapsulates related functionality, making the codebase more maintainable and scalable.
+
+### Key Concepts
+
+- **Module Structure**: Each module follows a consistent directory structure with dedicated folders for controllers, models, services, and views.
+- **Service Registration**: Modules register their services in the container during the registration phase.
+- **Dependency Injection**: The application uses constructor injection for dependencies.
+- **Lifecycle Hooks**: Modules can implement `register()` and `boot()` methods for initialization.
+- **Event-Driven**: Built-in event system for module lifecycle management following PSR-14 standard.
+
+### Event System
+
+The module system includes a powerful event system that allows you to hook into various stages of the module lifecycle:
+
+- **Module Registration Events**: Triggered when modules are registered
+- **Dependency Resolution Events**: Fired during dependency resolution
+- **Module Boot Events**: Triggered when modules are booted
+
+Example of listening to module events:
+
+```php
+use App\Modules\Events\ModuleBootEvent;
+use Psr\EventDispatcher\ListenerProviderInterface;
+
+// In your service provider or bootstrap code
+$listenerProvider = $container->get(ListenerProviderInterface::class);
+
+// Listen to module boot events
+$listenerProvider->addListener(ModuleBootEvent::class, function (ModuleBootEvent $event) {
+    $module = $event->getModule();
+    if ($event->isSuccessful()) {
+        // Module was successfully booted
+    } else {
+        // Handle boot failure
+        $error = $event->getError();
+    }
+});
+```
+
+For more details, see the [Event System Documentation](docs/events/README.md).
+
+### Getting Started
+
+1. [Module Development Guide](docs/modules/README.md) - Comprehensive documentation on the module system
+2. [Quick Start](docs/modules/quick-start.md) - Step-by-step guide to creating your first module
+3. [API Reference](docs/modules/api.md) - Detailed reference for module interfaces and base classes
+
+### Built-in Modules
+
+- **Core**: Essential application services and configurations
+- **Contact**: Contact form functionality
+- **Pages**: Static page management
+- **Shared**: Cross-cutting concerns and utilities
 
 ## 🛠 Tech Stack
 
@@ -62,6 +119,21 @@ A modern, high-performance web application built with PHP 8.4, RoadRunner, and a
 - **CI/CD**: GitHub Actions
 
 ## 🏗 Project Structure
+
+### Module Structure
+
+```
+ModuleName/
+├── Controllers/     # Module controllers
+├── Models/          # Database models
+├── Services/        # Business logic services
+├── Middleware/      # HTTP middleware
+├── Views/           # View templates
+├── ModuleName.php   # Main module class
+└── routes.php       # Module routes (optional)
+```
+
+### Application Structure
 
 ```
 Infinri/
@@ -98,6 +170,16 @@ Infinri/
 │   └── assets/         # Source assets
 │       ├── js/         # JavaScript source
 │       └── less/       # LESS source files
+│
+├── tests/             # Test suite
+│   ├── Unit/           # Unit tests
+│   ├── Feature/        # Feature tests
+│   └── Browser/        # Browser tests
+│
+├── docs/              # Documentation
+│   └── modules/        # Module system documentation
+│       ├── README.md   # Module system overview
+│       └── quick-start.md # Getting started guide
 │
 ├── storage/           # Storage directory
 │   ├── cache/          # Application cache

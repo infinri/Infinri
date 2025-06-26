@@ -11,10 +11,14 @@
         "vlucas/phpdotenv": "^5.6",
         "cycle/orm": "^2.10",
         "cycle/migrations": "^4.2",
-        "spiral/roadrunner": "^2025.1"
+        "spiral/roadrunner": "^2025.1",
+        "getbrevo/brevo-php": "^2.0",
+        "psr/event-dispatcher": "^1.0"
     },
     "require-dev": {
-        "spiral/roadrunner-cli": "^2.7"
+        "spiral/roadrunner-cli": "^2.7",
+        "cycle/schema-builder": "^2.11",
+        "phpunit/phpunit": "^12.2"
     },
     "autoload": {
         "psr-4": {

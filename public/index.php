@@ -93,15 +93,19 @@ $container->set('view', function (ContainerInterface $c) {
 });
 
 // Initialize and register modules
-$moduleProvider = new \App\Modules\ModuleServiceProvider($container);
-$modules = [
-    'App\\Modules\\Core\\CoreModule',
-    'App\\Modules\\Pages\\PagesModule',
-    'App\\Modules\\Contact\\ContactModule',
-];
+$moduleProvider = new \App\Providers\ModuleServiceProvider(
+    $container,
+    dirname(__DIR__) . '/app/Modules'
+);
 
-// Register all modules
-$moduleProvider->register($modules);
+// Register all modules (will auto-discover if no modules provided)
+try {
+    $modules = $moduleProvider->register();
+    $container->get(LoggerInterface::class)->info('Registered modules: ' . implode(', ', $modules));
+} catch (\Exception $e) {
+    $container->get(LoggerInterface::class)->error('Module registration failed: ' . $e->getMessage());
+    throw $e;
+}
 
 // Create App instance
 $app = AppFactory::create(container: $container);

@@ -3,23 +3,59 @@
 namespace App\Modules\Shared;
 
 use App\Modules\Module;
+use App\Modules\Shared\Middleware\RateLimitMiddleware;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Redis;
 
+/**
+ * Shared module for cross-cutting concerns
+ * 
+ * This module provides shared functionality used across multiple modules,
+ * such as middleware, utilities, and common services.
+ */
 class SharedModule extends Module
 {
+    /**
+     * Register shared services and middleware
+     * 
+     * Registers rate limiting middleware and other shared services.
+     */
     public function register(): void
     {
-        // Register shared services and middleware here
-        $this->container->set('App\\Modules\\Shared\\Middleware\\RateLimitMiddleware', function($c) {
-            return new Middleware\RateLimitMiddleware(
-                $c->get('redis'), // Assuming Redis is available in the container
-                $c->get('settings')['rate_limiting'] ?? []
+        $this->registerMiddleware();
+        $this->registerServices();
+    }
+
+    /**
+     * Boot the shared module
+     * 
+     * This method is called after all modules have been registered.
+     */
+    public function boot(): void
+    {
+        // Shared module bootstrapping logic can be added here
+    }
+
+    /**
+     * Register shared middleware
+     */
+    private function registerMiddleware(): void
+    {
+        $this->container->set(RateLimitMiddleware::class, function(ContainerInterface $c) {
+            return new RateLimitMiddleware(
+                $c->get(Redis::class),
+                $c->get('settings')['rate_limiting'] ?? [],
+                $c->get(LoggerInterface::class)
             );
         });
     }
 
-    public function boot(): void
+    /**
+     * Register shared services
+     */
+    private function registerServices(): void
     {
-        // Boot shared module
+        // Register additional shared services here
     }
 }
