@@ -1,0 +1,142 @@
+## 🛠️ Current Tech Stack
+
+## Core Stack
+- **Runtime**: PHP 8.4 + RoadRunner 3
+- **Web**: Caddy 2 (auto-TLS/HTTP3)
+- **Database**: PostgreSQL 16 + PgBouncer
+- **ORM**: Cycle 3 + Migrations
+- **Cache/Queue**: Redis 7
+
+## Frontend
+- **Templates**: Plates
+- **Interactivity**: HTMX + Alpine.js
+- **Build**: esbuild + LightningCSS
+- **Package Manager**: Bun (faster npm alternative)
+
+## Observability
+- **Logs**: Monolog → Loki
+- **Metrics**: Prometheus + Grafana
+- **Tracing**: OpenTelemetry
+
+## Development
+- **Testing**: Pest
+- **Static Analysis**: PHPStan
+- **CI**: GitHub Actions
+
+## 🏗 Project Structure
+
+```
+Infinri/
+├── app/
+│   └── Modules/          # Feature modules (self-contained components)
+│       ├── ModuleName/    # Example module structure (e.g., Core, Contact, Pages)
+│       │   ├── Actions/   # Module action classes
+│       │   ├── Console/   # Module CLI commands
+│       │   ├── Controllers/ # Module controllers
+│       │   ├── Models/    # Module models
+│       │   ├── Services/  # Module services
+│       │   ├── Support/   # Module support classes
+│       │   └── Views/     # Module views and layouts
+│       │
+│       └── Shared/       # Cross-cutting concerns
+│           ├── Middleware/
+│           ├── Traits/
+│           └── Helpers/
+│
+├── bin/                 # Console scripts
+├── config/              # Configuration files
+│   ├── containers/      # DI container configs
+│   ├── migrations/      # Database migrations
+│   └── routes/          # Route definitions
+│
+├── public/            # Web server root
+│   ├── assets/          # Compiled assets (JS/CSS)
+│   └── index.php        # Front controller
+│
+├── resources/         # Source assets and templates
+│   ├── views/          # Plates templates
+│   │   ├── layouts/    # Base layouts
+│   │   └── components/ # Reusable components
+│   └── assets/         # Source assets
+│       ├── js/         # JavaScript source
+│       └── less/       # LESS source files
+│
+├── storage/           # Storage directory
+│   ├── cache/          # Application cache
+│   ├── logs/           # Log files
+│   └── sessions/       # Session files
+│
+└── tests/             # Test suite
+    ├── Unit/          # Unit tests
+    ├── Feature/       # Feature tests
+    └── Browser/       # Browser tests
+│   └── uploads/         # User uploads
+├── tests/               # Test suite
+│   ├── Unit/           # Unit tests
+│   ├── Feature/        # Feature tests
+│   └── Browser/        # Browser tests
+├── .env                # Environment config
+├── .env.example        # Example env
+├── composer.json       # PHP dependencies
+├── package.json        # Frontend dependencies
+└── roadrunner.yaml     # RoadRunner config
+```
+
+## 🚀 Performance & Efficiency Guidelines
+
+### Big-O Considerations
+- **O(1)**: Always prefer constant time operations
+- **O(log n)**: Acceptable for search operations
+- **O(n)**: Use with caution for large datasets
+- **O(n log n)**: Only for necessary sorting operations
+- **O(n²)**: Avoid in hot paths
+- **O(2ⁿ)**: Never use in production
+
+### Database Optimization
+- Use indexes on frequently queried columns
+- Implement pagination for large datasets
+- Use `SELECT` with specific columns, not `*`
+- Implement database-level caching
+- Use transactions for multiple related operations
+
+### Memory Management
+- Free resources explicitly when done
+- Use generators for large datasets
+- Implement proper pagination
+- Cache expensive computations
+- Use weak references where appropriate
+
+### Frontend Performance
+- Minimize DOM manipulation
+- Use event delegation
+- Implement lazy loading
+- Optimize images and assets
+- Use CSS transforms for animations
+
+### Caching Strategy
+- Implement multiple cache levels:
+  - OpCache for PHP bytecode
+  - Redis for application cache
+  - Browser caching for static assets
+- Set appropriate TTL values
+- Use cache tags for invalidation
+
+### Asynchronous Operations
+- Use promises/async-await
+- Implement queue workers for long tasks
+- Use WebSockets for real-time updates
+- Offload CPU-intensive tasks to workers
+
+### Testing & Monitoring
+- Profile code regularly
+- Set up performance budgets
+- Monitor memory usage
+- Track query performance
+- Set up alerts for performance regressions
+
+### Security & Performance
+- Implement rate limiting
+- Use prepared statements
+- Sanitize all inputs
+- Implement proper CORS policies
+- Use HTTP/2 or HTTP/3
