@@ -1,84 +1,65 @@
-# Web Development Services Portfolio
+<div align="center">
 
-Professional web development services focused on delivering quick, impactful solutions for small businesses and companies. Specializing in completing the small meaningless tasks to that your Dev team can truly focus on more complex result drivent work that make a big difference in your online presence.
+# Infinri
 
-## 🛠 Services
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PHP Version](https://img.shields.io/badge/PHP-8.4+-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![RoadRunner](https://img.shields.io/badge/RoadRunner-3.x-FF6B00?logo=go&logoColor=white)](https://roadrunner.dev/)
 
-- **Frontend Adjustments**
-  - UI/UX improvements
-  - Color scheme and styling updates
-  - Responsive design fixes
-  - Component modifications
+A modern, high-performance web application built with PHP 8.4, RoadRunner, and a modular architecture.
 
-- **Backend Tweaks**
-  - Small feature implementations
-  - Bug fixes and performance optimizations
-  - Form handling and validation
-  - API integrations
+</div>
 
-- **Quick Turnarounds**
-  - Small tasks completed efficiently
-  - Focus on business impact
-  - Clear communication throughout the process
+## 📋 Table of Contents
 
----
+- [🚀 Features](#-features)
+- [🛠 Tech Stack](#-tech-stack)
+- [🏗 Project Structure](#-project-structure)
+- [🚀 Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [🔧 Development](#-development)
+  - [Running Tests](#running-tests)
+  - [Code Quality](#code-quality)
+  - [Database Migrations](#database-migrations)
+- [🌍 Environment Configuration](#-environment-configuration)
+- [🚀 Deployment](#-deployment)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [💼 Professional Services](#-professional-services)
 
-## 💼 Technical Expertise
+## 🚀 Features
+
+- **High Performance**: Built on PHP 8.4 with RoadRunner for optimal performance
+- **Modular Architecture**: Clean, maintainable codebase with feature modules
+- **Modern Frontend**: HTMX + Alpine.js for interactive UIs
+- **Observability**: Built-in logging, metrics, and tracing
+- **Developer Experience**: Comprehensive tooling and testing setup
+
+## 🛠 Tech Stack
+
+### Core
+- **Runtime**: PHP 8.4 + RoadRunner 3
+- **Web Server**: Caddy 2 (auto-TLS/HTTP3)
+- **Database**: PostgreSQL 16 + PgBouncer
+- **Cache/Queue**: Redis 7
+- **ORM**: Cycle 3 + Migrations
 
 ### Frontend
-- HTML, CSS (with **Less** preprocessor)
-- JavaScript
-- Responsive and mobile-first design principles
-- Modern CSS features (Flexbox, Grid, custom properties)
-
-### Backend
-- **PHP 7.4+** with  **Magent 2** framework
-- RESTful API development
-- Database integration and optimization
-- Server-side form handling and validation
-
-## 🛠️ Current Tech Stack
-
-## Core Stack
-- **Runtime**: PHP 8.4 + RoadRunner 3
-- **Web**: Caddy 2 (auto-TLS/HTTP3)
-- **Database**: PostgreSQL 16 + PgBouncer
-- **ORM**: Cycle 3 + Migrations
-- **Cache/Queue**: Redis 7
-
-## Frontend
-- **Templates**: Plates
+- **Templating**: Plates
 - **Interactivity**: HTMX + Alpine.js
-- **Build**: esbuild + LightningCSS
-- **Package Manager**: Bun (faster npm alternative)
+- **Build Tools**: esbuild + LightningCSS
+- **Package Manager**: Bun
 
-## Observability
-- **Logs**: Monolog → Loki
+### Observability
+- **Logging**: Monolog → Loki
 - **Metrics**: Prometheus + Grafana
 - **Tracing**: OpenTelemetry
 
-## Development
+### Development
 - **Testing**: Pest
 - **Static Analysis**: PHPStan
-- **CI**: GitHub Actions
-
----
-
-## 📬 Get In Touch
-
-I'm currently available for freelance and contract opportunities. Whether you need a small tweak or have a specific project in mind, I'd love to hear from you.
-
-- **Email**: [infinri@gmail.com](nfinri@gmail.com)
-- **LinkedIn**: [Lucio Saldivar](https://linkedin.com/in/lucio-saldivar)
-
-## 💡 Why Work With Me?
-
-- **Focused on Impact**: I specialize in small, meaningful improvements that make a real difference
-- **Quick Turnaround**: Get your updates implemented and deployed fast
-- **Clear Communication**: I keep you informed throughout the process
-- **No Overhead**: Pay only for what you need, when you need it
-
----
+- **CI/CD**: GitHub Actions
 
 ## 🏗 Project Structure
 
@@ -127,18 +108,147 @@ Infinri/
     ├── Unit/          # Unit tests
     ├── Feature/       # Feature tests
     └── Browser/       # Browser tests
-│   └── uploads/         # User uploads
-├── tests/               # Test suite
-│   ├── Unit/           # Unit tests
-│   ├── Feature/        # Feature tests
-│   └── Browser/        # Browser tests
-├── .env                # Environment config
-├── .env.example        # Example env
-├── composer.json       # PHP dependencies
-├── package.json        # Frontend dependencies
-└── roadrunner.yaml     # RoadRunner config
 ```
 
-## 📝 License
+## 🚀 Quick Start
+
+### Prerequisites
+
+- PHP 8.4 or higher
+- Composer (latest version)
+- PostgreSQL 16
+- Redis 7
+- Node.js 18+ and Bun (or npm/yarn)
+- RoadRunner 3
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/infinri/Infinri.git
+   cd Infinri
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Install frontend dependencies**
+   ```bash
+   bun install
+   # or
+   npm install
+   ```
+
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database and application settings
+   ```
+
+5. **Set up database**
+   ```bash
+   # Run migrations
+   php app/cli.php migrations:migrate
+   
+   # Seed initial data (if available)
+   # php app/cli.php db:seed
+   ```
+
+6. **Build assets**
+   ```bash
+   bun run build
+   # or
+   npm run build
+   ```
+
+7. **Start the development server**
+   ```bash
+   # Start RoadRunner
+   ./rr serve -d -c .rr.yaml
+   ```
+
+8. **Access the application**
+   Open your browser to `http://localhost:8080`
+
+## 🛠 Development
+
+### Running Tests
+
+```bash
+# Run PHPUnit tests
+./vendor/bin/phpunit
+
+# Run Pest tests
+./vendor/bin/pest
+```
+
+### Code Quality
+
+```bash
+# Run PHP-CS-Fixer
+composer cs-fix
+
+# Run PHPStan
+composer analyse
+
+# Run all code quality checks
+composer check
+```
+
+### Database Migrations
+
+```bash
+# Create new migration
+php app/cli.php migrations:create [migration_name]
+
+# Run migrations
+php app/cli.php migrations:migrate
+
+# Rollback last migration
+php app/cli.php migrations:rollback
+```
+
+## 🚀 Deployment
+
+### Development vs Production
+
+#### Development
+For local development, follow the [Quick Start](#-quick-start) guide above. This will set up a development environment with debugging enabled.
+
+#### Production
+For production deployment, follow these additional steps:
+
+1. **Server Requirements**
+   - Linux server (Ubuntu 22.04 LTS recommended)
+   - PHP 8.4 with required extensions
+   - PostgreSQL 16
+   - Redis 7
+   - Node.js 18+ & Bun
+   - Nginx or Caddy as reverse proxy
+
+2. **Deployment Steps**
+   - Clone the repository to `/var/www/infinri`
+   - Install production dependencies: `composer install --optimize-autoloader --no-dev`
+   - Build frontend assets: `bun install --production && bun run build`
+   - Set up environment variables in `.env`
+   - Run database migrations: `php app/cli.php migrations:migrate --force`
+   - Configure RoadRunner service
+   - Set up web server (Nginx/Caddy) with SSL
+   - Configure process manager (e.g., Supervisor) to keep RoadRunner running
+   - Set up log rotation and monitoring
+
+3. **Monitoring** (Recommended)
+   - Prometheus for metrics
+   - Grafana for dashboards
+   - Alerting for critical issues
+
+4. **Backup Strategy**
+   - Regular database dumps
+   - Off-site backup of user uploads
+   - Test restoration process periodically
+
+## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
