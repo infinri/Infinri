@@ -6,12 +6,13 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use App\Modules\Core\Controllers\Controller;
+use League\Plates\Engine;
 
 class ContactController extends Controller
 {
     private LoggerInterface $logger;
 
-    public function __construct(PlatesRenderer $view, LoggerInterface $logger)
+    public function __construct(Engine $view, LoggerInterface $logger)
     {
         parent::__construct($view);
         $this->logger = $logger;

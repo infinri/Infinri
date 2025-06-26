@@ -4,13 +4,15 @@ namespace App\Modules\Core\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Views\PlatesRenderer;
+use League\Plates\Engine;
+use Slim\Psr7\Response as SlimResponse;
 
 abstract class Controller
 {
-    protected PlatesRenderer $view;
+    protected Engine $view;
+    protected array $data = [];
 
-    public function __construct(PlatesRenderer $view)
+    public function __construct(Engine $view)
     {
         $this->view = $view;
     }
@@ -20,7 +22,21 @@ abstract class Controller
      */
     protected function render(Response $response, string $template, array $data = []): Response
     {
-        return $this->view->render($response, $template, $data);
+        // Merge with any existing data
+        $data = array_merge($this->data, $data);
+        
+        // Create a new response if none was provided
+        if (!$response instanceof SlimResponse) {
+            $response = new SlimResponse();
+        }
+        
+        // Render the template
+        $output = $this->view->render($template, $data);
+        
+        // Write the output to the response
+        $response->getBody()->write($output);
+        
+        return $response->withHeader('Content-Type', 'text/html');
     }
 
     /**

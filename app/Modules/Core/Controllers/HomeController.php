@@ -17,6 +17,6 @@ class HomeController extends Controller
             'description' => 'We build fast, modern, and reliable web applications that help businesses grow.'
         ];
         
-        return $this->render($response, 'core/home.php', $data);
+        return $this->render($response, 'core/home', $data);
     }
 }

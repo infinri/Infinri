@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Processor\UidProcessor;
 use Monolog\Level;
 use Slim\Factory\AppFactory;
 use Slim\Views\PlatesRenderer;
@@ -62,15 +63,18 @@ $container->set(LoggerInterface::class, function (ContainerInterface $c) {
     return $logger;
 });
 
-// Register Plates view renderer
+// Register Plates view engine
 $container->set('view', function (ContainerInterface $c) {
     $settings = $c->get('settings');
     
-    // Create view with empty path (paths will be added by modules)
-    $view = new PlatesEngine(null, 'phtml');
+    // Set the default templates directory (relative to the project root)
+    $templatesPath = __DIR__ . '/../resources/views';
+    
+    // Create view engine with the templates directory
+    $engine = new \League\Plates\Engine($templatesPath, 'php');
     
     // Add app data to all views
-    $view->addData([
+    $engine->addData([
         'app' => [
             'name' => $settings['app']['name'],
             'env' => $settings['app']['env'],
@@ -78,11 +82,18 @@ $container->set('view', function (ContainerInterface $c) {
         ]
     ]);
     
-    return $view;
+    // Enable debug mode if in development
+    if ($settings['app']['debug']) {
+        $engine->addData(['debug' => true]);
+        // Set file extension to empty string to match our template files without extension
+        $engine->setFileExtension('');
+    }
+    
+    return $engine;
 });
 
 // Initialize and register modules
-$moduleProvider = new ModuleServiceProvider($container);
+$moduleProvider = new \App\Modules\ModuleServiceProvider($container);
 $modules = [
     'App\\Modules\\Core\\CoreModule',
     'App\\Modules\\Pages\\PagesModule',
@@ -106,13 +117,31 @@ $app->add(function ($request, $handler) use ($container) {
     return $handler->handle($request);
 });
 
-// Add error middleware
+// Add error middleware with detailed error reporting
 $errorMiddleware = $app->addErrorMiddleware(
-    ($_ENV['APP_DEBUG'] ?? '') === 'true',
+    true, // Always enable error details for now
     true,
     true,
     $container->get(LoggerInterface::class)
 );
+
+// Custom error handler
+$errorMiddleware->setDefaultErrorHandler(function (
+    Psr\Http\Message\ServerRequestInterface $request,
+    Throwable $exception,
+    bool $displayErrorDetails,
+    bool $logErrors,
+    bool $logErrorDetails
+) use ($app) {
+    $response = $app->getResponseFactory()->createResponse();
+    $response->getBody()->write(
+        '<h1>Application Error</h1>' .
+        '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>' .
+        '<pre>' . htmlspecialchars($exception->getTraceAsString()) . '</pre>'
+    );
+    
+    return $response->withStatus(500);
+});
 
 // Add routing middleware
 $app->addRoutingMiddleware();

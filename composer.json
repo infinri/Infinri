@@ -14,15 +14,16 @@
         "spiral/roadrunner": "^2025.1"
     },
     "require-dev": {
-        "spiral/roadrunner-cli": "^2.7",
-        "phpunit/phpunit": "^11.5",
-        "pestphp/pest": "^3.8",
-        "phpstan/phpstan": "^2.1",
-        "squizlabs/php_codesniffer": "^3.13"
+        "spiral/roadrunner-cli": "^2.7"
     },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     }
 }

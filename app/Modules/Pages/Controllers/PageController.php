@@ -5,6 +5,7 @@ namespace App\Modules\Pages\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Modules\Core\Controllers\Controller;
+use League\Plates\Engine;
 
 class PageController extends Controller
 {
