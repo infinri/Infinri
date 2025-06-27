@@ -77,6 +77,9 @@ private function hasSearch(): bool
 
 ### Version Constraints
 
+For a full explanation of the constraint syntax and best-practices, see the dedicated guide: [`docs/modules/versioning.md`](versioning.md)
+
+
 Version constraints use Composer's version constraint syntax:
 
 - `^1.2.3`: >=1.2.3 <2.0.0

@@ -93,6 +93,35 @@ For more details, see the [Event System Documentation](docs/events/README.md).
 - **Pages**: Static page management
 - **Shared**: Cross-cutting concerns and utilities
 
+### Module Versioning Quick-Start
+
+Modules now declare their own version and dependency constraints using Composer-style SemVer.
+
+```php
+use App\Modules\ValueObject\VersionConstraint;
+use App\Modules\ValueObject\ModuleMetadata;
+
+public function getMetadata(): ModuleMetadata
+{
+    return new ModuleMetadata(
+        name: 'Blog',
+        version: '1.3.0',
+        requires: [
+            'Core' => new VersionConstraint('^2.0'),
+        ]
+    );
+}
+```
+
+If a required module is missing or out of range the application fails fast during bootstrap.  See the full guide: [`docs/modules/versioning.md`](docs/modules/versioning.md).
+
+
+
+- **Core**: Essential application services and configurations
+- **Contact**: Contact form functionality
+- **Pages**: Static page management
+- **Shared**: Cross-cutting concerns and utilities
+
 ## 🛠 Tech Stack
 
 ### Core
