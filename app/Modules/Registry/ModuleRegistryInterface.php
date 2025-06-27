@@ -4,49 +4,32 @@ namespace App\Modules\Registry;
 
 use App\Modules\ModuleInterface;
 
+/** Defines the contract for module registration and retrieval */
 interface ModuleRegistryInterface
 {
-    /**
-     * Register a module instance
-     * 
-     * @throws \RuntimeException If the module is already registered
-     */
+    /** @throws \RuntimeException If module already registered */
     public function register(ModuleInterface $module): void;
     
     /**
-     * Get a module by its class name
-     * 
+     * Get a module by class name
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass
      * @return T
-     * @throws \OutOfBoundsException If the module is not found
+     * @throws \OutOfBoundsException If module not found
      */
     public function get(string $moduleClass): ModuleInterface;
     
-    /**
-     * Check if a module is registered
-     * 
-     * @param string|ModuleInterface $module Module class name or instance
-     */
+    /** @param string|ModuleInterface $module Class name or instance */
     public function has($module): bool;
     
-    /**
-     * Get all registered modules
-     * 
-     * @return array<class-string, ModuleInterface>
-     */
+    /** @return array<class-string, ModuleInterface> All registered modules */
     public function all(): array;
     
-    /**
-     * Get modules by tag
-     * 
-     * @return array<ModuleInterface>
-     */
+    /** @return array<class-string, ModuleInterface> Modules with the given tag */
     public function getByTag(string $tag): array;
     
     /**
-     * Get modules that implement a specific interface
-     * 
+     * Get modules implementing an interface
      * @template T of object
      * @param class-string<T> $interface
      * @return array<class-string, T>

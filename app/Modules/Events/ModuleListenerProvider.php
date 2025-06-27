@@ -47,13 +47,16 @@ class ModuleListenerProvider implements ListenerProviderInterface
     {
         $eventClass = \get_class($event);
         
-        // Return listeners for the specific event class
-        if (isset($this->listeners[$eventClass])) {
-            foreach ($this->listeners[$eventClass] as $listener) {
-                yield $listener;
+        // Return listeners registered for the specific event class and its parents
+        $classes = array_merge([$eventClass], class_parents($event));
+        foreach ($classes as $class) {
+            if (isset($this->listeners[$class])) {
+                foreach ($this->listeners[$class] as $listener) {
+                    yield $listener;
+                }
             }
         }
-        
+
         // Also return listeners for interfaces the event implements
         $interfaces = class_implements($event);
         foreach ($interfaces as $interface) {

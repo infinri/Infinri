@@ -3,7 +3,7 @@
 namespace App\Modules\Test;
 
 use App\Modules\Concerns\RegistersViewPaths;
-use App\Modules\Module;
+use App\Modules\BaseModule;
 use App\Modules\Core\CoreModule;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Test module for demonstrating module dependencies
  */
-class TestModule extends Module
+class TestModule extends BaseModule
 {
     use RegistersViewPaths;
     
@@ -64,5 +64,13 @@ class TestModule extends Module
         if ($this->container->has(LoggerInterface::class)) {
             $this->container->get(LoggerInterface::class)->debug('Booting TestModule');
         }
+    }
+
+    /**
+     * Check environment compatibility. For now always true.
+     */
+    public function isCompatible(): bool
+    {
+        return true;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Shared;
 
-use App\Modules\Module;
+use App\Modules\BaseModule;
 use App\Modules\Shared\Middleware\RateLimitMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,7 +14,7 @@ use Redis;
  * This module provides shared functionality used across multiple modules,
  * such as middleware, utilities, and common services.
  */
-class SharedModule extends Module
+class SharedModule extends BaseModule
 {
     /**
      * Register shared services and middleware
@@ -57,5 +57,13 @@ class SharedModule extends Module
     private function registerServices(): void
     {
         // Register additional shared services here
+    }
+
+    /**
+     * Check environment compatibility (stub).
+     */
+    public function isCompatible(): bool
+    {
+        return true;
     }
 }

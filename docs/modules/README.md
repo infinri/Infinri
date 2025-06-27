@@ -1,53 +1,163 @@
 # Module System Documentation
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [Module Structure](#module-structure)
-3. [Core Concepts](#core-concepts)
-   - [Module Lifecycle](#module-lifecycle)
-   - [Service Registration](#service-registration)
-   - [Dependency Injection](#dependency-injection)
-   - [Module Dependencies](#module-dependencies)
-4. [Creating a New Module](#creating-a-new-module)
-5. [Best Practices](#best-practices)
-6. [Advanced Topics](#advanced-topics)
-   - [Module Discovery](#module-discovery)
-   - [View Registration](#view-registration)
-   - [Controller Registration](#controller-registration)
-7. [Testing Modules](#testing-modules)
-8. [Troubleshooting](#troubleshooting)
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+  - [Creating a Module](#creating-a-module)
+  - [Module Structure](#module-structure)
+- [Core Components](#core-components)
+  - [Module Lifecycle](module-lifecycle.md)
+  - [Module Discovery](discovery.md)
+  - [Module Registry](registry.md)
+  - [Dependency Resolution](dependency-resolution.md)
+- [Development Guide](development-guide.md)
+- [Advanced Topics](#advanced-topics)
+  - [Service Providers](#service-providers)
+  - [Event System](#event-system)
+  - [Testing](#testing)
+- [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
+- [API Reference](#api-reference)
 
 ## Overview
 
-The module system is designed to provide a clean, organized way to structure your application's features. Each module is a self-contained component that can be developed and tested independently, then integrated into the main application.
+The module system provides a powerful way to organize your application into reusable, independent components. Each module is a self-contained unit that can be developed, tested, and maintained separately.
 
-Key benefits:
-- **Separation of Concerns**: Each module focuses on a specific feature or domain
-- **Reusability**: Modules can be reused across different projects
-- **Maintainability**: Smaller, focused modules are easier to maintain
-- **Testability**: Modules can be tested in isolation
+### Key Features
+
+- **Modular Architecture**: Build your application from independent, reusable modules
+- **Dependency Management**: Declare and resolve module dependencies automatically
+- **Service Discovery**: Automatic registration of services and components
+- **Lifecycle Management**: Clear hooks for module initialization and cleanup
+- **Performance Optimized**: Lazy loading and intelligent caching
+
+## Getting Started
+
+### Creating a Module
+
+1. Create a new module class that implements `ModuleInterface`
+2. Define your module's dependencies
+3. Register services in the `register()` method
+4. Initialize your module in the `boot()` method
+
+Example:
+
+```php
+namespace App\Modules\MyModule;
+
+use App\Modules\ModuleInterface;
+use Psr\Container\ContainerInterface;
+
+class MyModule implements ModuleInterface
+{
+    public function __construct(private ContainerInterface $container) {}
+    
+    public function register(): void
+    {
+        // Register services here
+    }
+    
+    public function boot(): void
+    {
+        // Initialize your module
+    }
+}
+```
+
+For a complete guide, see the [Development Guide](development-guide.md).
 
 ## Module Structure
 
-A typical module has the following structure:
+A well-structured module follows these conventions:
 
 ```
-app/Modules/
-  ├── ModuleName/
-  │   ├── Controllers/     # Module controllers
-  │   ├── Models/          # Module models
-  │   ├── Services/        # Business logic services
-  │   ├── Middleware/      # HTTP middleware
-  │   ├── Views/           # View templates
-  │   ├── ModuleName.php   # Main module class
-  │   └── routes.php       # Module routes (optional)
+app/Modules/YourModule/
+├── Config/                  # Configuration files
+│   └── config.php
+├── Controllers/             # HTTP controllers
+│   └── YourController.php
+├── Models/                  # Database models
+│   └── YourModel.php
+├── Services/                # Business logic
+│   └── YourService.php
+├── Events/                  # Event classes
+│   └── YourEvent.php
+├── Listeners/               # Event listeners
+│   └── YourListener.php
+├── Resources/               # Templates, translations, etc.
+│   ├── views/
+│   └── translations/
+├── Tests/                   # Test classes
+│   └── YourServiceTest.php
+├── YourModule.php           # Main module class
+└── composer.json            # Module metadata and dependencies
 ```
 
-## Core Concepts
+### Core Components
 
-### Module Lifecycle
+- **[Module Lifecycle](module-lifecycle.md)**: Understand how modules are loaded and initialized
+- **[Module Discovery](discovery.md)**: How the system finds and loads modules
+- **[Module Registry](registry.md)**: Manage module instances and metadata
+- **[Dependency Resolution](dependency-resolution.md)**: Handle module dependencies and versioning
 
-1. **Registration Phase**
+## Advanced Topics
+
+### Service Providers
+
+Service providers allow you to organize your service registration into separate classes:
+
+```php
+class YourServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->container->set('your_service', function() {
+            return new YourService();
+        });
+    }
+}
+```
+
+### Event System
+
+Modules can publish and subscribe to events:
+
+```php
+// Dispatching an event
+$event = new UserRegisteredEvent($user);
+$dispatcher = $container->get('event_dispatcher');
+$dispatcher->dispatch($event, UserRegisteredEvent::NAME);
+
+// Listening to an event
+$dispatcher->addListener(
+    UserRegisteredEvent::NAME,
+    function (UserRegisteredEvent $event) {
+        // Handle the event
+    }
+);
+```
+
+### Testing
+
+Test your modules in isolation:
+
+```php
+class YourModuleTest extends ModuleTestCase
+{
+    protected function getModules(): array
+    {
+        return [
+            new YourModule($this->container),
+        ];
+    }
+    
+    public function testModuleRegistration()
+    {
+        $this->assertTrue($this->container->has('your_service'));
+    }
+}
+```
    - The module's `register()` method is called
    - Register services, controllers, and other resources
    - Should not depend on other modules' services
@@ -238,14 +348,52 @@ class MyModule extends Module
 
 ## Best Practices
 
-- **Single Responsibility**: Each module should have a single responsibility
-- **Dependency Injection**: Use constructor injection for all dependencies
-- **Thin Controllers**: Keep controllers thin, move business logic to services
-- **Testing**: Write unit and integration tests for your modules
-- **Documentation**: Document your module's purpose and usage
-- **Error Handling**: Implement proper error handling and logging
-- **Configuration**: Use environment variables for configuration
-- **Performance**: Be mindful of performance in the register() method
+1. **Single Responsibility**: Each module should have a single, well-defined purpose
+2. **Loose Coupling**: Depend on interfaces rather than concrete implementations
+3. **Explicit Dependencies**: Clearly declare all module dependencies
+4. **Configuration**: Make your module configurable through the container
+5. **Error Handling**: Provide clear, actionable error messages
+6. **Documentation**: Document your module's purpose, configuration, and API
+7. **Testing**: Include unit and integration tests
+8. **Performance**: Be mindful of initialization time in the `register()` method
+9. **Versioning**: Follow semantic versioning for your modules
+10. **Backward Compatibility**: Maintain backward compatibility in public APIs
+
+## Troubleshooting
+
+### Common Issues
+
+#### Module Not Found
+- Verify the module class exists and is autoloadable
+- Check the module's namespace and file location
+- Run `composer dump-autoload` if using Composer
+
+#### Dependency Issues
+- Check module dependencies in `getDependencies()`
+- Verify required modules are installed
+- Check version constraints for compatibility
+
+#### Service Not Available
+- Ensure the service is registered in the container
+- Verify the service name matches exactly
+- Check for typos in the service name
+
+## API Reference
+
+For detailed API documentation, see:
+
+- [ModuleInterface](path/to/ModuleInterface.md)
+- [ModuleLoader](path/to/ModuleLoader.md)
+- [ModuleRegistry](path/to/ModuleRegistry.md)
+- [DependencyResolver](path/to/DependencyResolver.md)
+
+## Contributing
+
+We welcome contributions! Please see our [contributing guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Module Discovery
 

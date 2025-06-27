@@ -18,7 +18,8 @@
     "require-dev": {
         "spiral/roadrunner-cli": "^2.7",
         "cycle/schema-builder": "^2.11",
-        "phpunit/phpunit": "^12.2"
+        "phpunit/phpunit": "^12.2",
+        "mikey179/vfsstream": "^1.6"
     },
     "autoload": {
         "psr-4": {

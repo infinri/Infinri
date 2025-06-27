@@ -5,102 +5,47 @@ namespace App\Modules;
 use Psr\Container\ContainerInterface;
 
 /**
- * Defines the contract that all modules must implement.
- * 
- * Modules are the building blocks of the application, providing self-contained
- * functionality that can be enabled, disabled, and managed independently.
- * 
- * @version 2.0.0
+ * Contract for application modules.
+ * @see https://github.com/infinri/Infinri/docs/modules/development-guide.md
  */
 interface ModuleInterface
 {
-    /**
-     * Get the module's unique identifier
-     * 
-     * This should be a unique string that identifies the module, typically
-     * in the format "vendor/package-name".
-     * 
-     * @return string The module's unique identifier
-     */
+    /** @return string Unique module identifier (e.g., "vendor/package") */
     public function getId(): string;
     
-    /**
-     * Get the module's display name
-     * 
-     * @return string A human-readable name for the module
-     */
+    /** @return string Human-readable module name */
     public function getName(): string;
     
-    /**
-     * Get the module's version
-     * 
-     * @return string The module's version in semantic versioning format (e.g., "1.0.0")
-     */
+    /** @return string Semantic version (e.g., "1.0.0") */
     public function getVersion(): string;
     
-    /**
-     * Get the module's description
-     * 
-     * @return string A brief description of what the module does
-     */
+    /** @return string Brief module description */
     public function getDescription(): string;
     
-    /**
-     * Get the module's author information
-     * 
-     * @return array{name: string, email?: string, url?: string} The module author's details
-     */
+    /** @return array{name: string, email?: string, url?: string} Author information */
     public function getAuthor(): array;
     
-    /**
-     * Register module services and configurations
-     * 
-     * This method is called when the module is first loaded and should be used
-     * to register any services, controllers, or other resources with the container.
-     * 
-     * @throws \RuntimeException If the module cannot be registered
+    /** 
+     * Register module services and configurations.
+     * @throws \RuntimeException On registration failure
      */
     public function register(): void;
     
-    /**
-     * Bootstrap the module
-     * 
-     * This method is called after all modules have been registered and can be
-     * used to perform any initialization that requires access to other services.
-     */
+    /** Bootstrap the module after all modules are registered. */
     public function boot(): void;
     
-    /**
-     * Get the module's base path
-     * 
-     * @return string The absolute path to the module's root directory
-     */
+    /** @return string Absolute path to module root */
     public function getBasePath(): string;
     
-    /**
-     * Get the path to the module's views directory
-     * 
-     * @return string The path to the module's views directory
-     */
+    /** @return string Path to module's views directory */
     public function getViewsPath(): string;
     
-    /**
-     * Get the module's namespace
-     * 
-     * @return string The module's root namespace
-     */
+    /** @return string Module's root namespace */
     public function getNamespace(): string;
     
     /**
-     * Get the module's dependencies
-     * 
-     * Return an array where keys are module class names and values are version constraints.
-     * Example: [
-     *     'App\\Modules\\Core\\CoreModule' => '^1.0',
-     *     'App\\Modules\\Auth\\AuthModule' => '>=2.0 <3.0',
-     * ]
-     * 
-     * @return array<string,string> Map of module class names to version constraints
+     * @return array<class-string,string|\App\Modules\ValueObject\VersionConstraint> Map of module class names to version constraints
+     * @example ['App\\Modules\\Core\\CoreModule' => '^1.0']
      */
     public function getDependencies(): array;
     
@@ -110,7 +55,7 @@ interface ModuleInterface
      * These modules will be loaded if available, but their absence won't prevent
      * this module from being loaded.
      * 
-     * @return array<string,string> Map of module class names to version constraints
+     * @return array<class-string,string|\App\Modules\ValueObject\VersionConstraint> Map of module class names to version constraints
      */
     public function getOptionalDependencies(): array;
     
@@ -119,7 +64,7 @@ interface ModuleInterface
      * 
      * If any of these modules are loaded, this module will not be loaded.
      * 
-     * @return array<string,string> Map of module class names to version constraints
+     * @return array<class-string,string|\App\Modules\ValueObject\VersionConstraint> Map of module class names to version constraints
      */
     public function getConflicts(): array;
     
@@ -140,7 +85,7 @@ interface ModuleInterface
      *     'ext-pdo' => '>=1.0',
      * ]
      * 
-     * @return array<string,string> Map of requirement names to version constraints
+     * @return array<string,string|\App\Modules\ValueObject\VersionConstraint> Map of requirement names to version constraints
      */
     public function getRequirements(): array;
 }

@@ -9,9 +9,6 @@ use Psr\Container\ContainerInterface;
  */
 trait RegistersViewPaths
 {
-    /**
-     * Register view paths for the module
-     */
     protected function registerViewPaths(): void
     {
         $this->container->extend('view.paths', function (array $paths, ContainerInterface $c) {

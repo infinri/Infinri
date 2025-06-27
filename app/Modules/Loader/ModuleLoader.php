@@ -6,7 +6,9 @@ use App\Modules\ModuleInterface;
 use App\Modules\Registry\ModuleRegistryInterface;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
+use Throwable;
 
+/** Handles module loading, registration, and bootstrapping */
 class ModuleLoader
 {
     private ContainerInterface $container;
@@ -22,11 +24,11 @@ class ModuleLoader
     
     /**
      * Load and initialize a module
-     * 
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass
      * @return T
-     * @throws RuntimeException If the module cannot be loaded
+     * @throws RuntimeException If module cannot be loaded or initialized
+     * @throws \InvalidArgumentException If module class is invalid or doesn't exist
      */
     public function load(string $moduleClass): ModuleInterface
     {
@@ -53,11 +55,7 @@ class ModuleLoader
         }
     }
     
-    /**
-     * Boot all registered modules
-     * 
-     * @throws RuntimeException If a module fails to boot
-     */
+    /** Boot all registered modules in dependency order */
     public function bootAll(): void
     {
         foreach ($this->registry->all() as $module) {
@@ -66,9 +64,8 @@ class ModuleLoader
     }
     
     /**
-     * Boot a module
-     * 
-     * @throws RuntimeException If the module fails to boot
+     * Boot a single module
+     * @throws RuntimeException If boot fails
      */
     public function boot(ModuleInterface $module): void
     {
@@ -85,23 +82,24 @@ class ModuleLoader
     
     /**
      * Create a module instance
-     * 
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass
      * @return T
-     * @throws RuntimeException If the module cannot be instantiated
+     * @throws RuntimeException If instantiation fails
+     * @throws \InvalidArgumentException If module class is invalid
+     * @internal
      */
     private function createModule(string $moduleClass): ModuleInterface
     {
         if (!class_exists($moduleClass)) {
-            throw new RuntimeException(sprintf('Module class %s does not exist', $moduleClass));
+            throw new \InvalidArgumentException(sprintf('Module class %s does not exist', $moduleClass));
         }
         
         try {
             $module = new $moduleClass($this->container);
             
             if (!$module instanceof ModuleInterface) {
-                throw new RuntimeException(sprintf(
+                throw new \InvalidArgumentException(sprintf(
                     'Module %s must implement %s',
                     $moduleClass,
                     ModuleInterface::class

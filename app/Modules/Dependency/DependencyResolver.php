@@ -4,23 +4,26 @@ namespace App\Modules\Dependency;
 
 use App\Modules\ModuleInterface;
 use App\Modules\Registry\ModuleRegistryInterface;
+use App\Modules\Validation\VersionValidator;
 use RuntimeException;
 
+/** Resolves and validates module dependencies and loading order */
 class DependencyResolver
 {
     private ModuleRegistryInterface $registry;
+    private VersionValidator $versionValidator;
     
-    public function __construct(ModuleRegistryInterface $registry)
+    public function __construct(ModuleRegistryInterface $registry, ?VersionValidator $versionValidator = null)
     {
         $this->registry = $registry;
+        $this->versionValidator = $versionValidator ?? new VersionValidator();
     }
     
     /**
-     * Resolve module dependencies and return modules in the correct order
-     * 
+     * Resolve module dependencies and return in correct load order
      * @param array<ModuleInterface> $modules
      * @return array<ModuleInterface>
-     * @throws RuntimeException If there are dependency issues
+     * @throws RuntimeException On circular/missing dependencies or version conflicts
      */
     public function resolveDependencies(array $modules): array
     {
@@ -37,11 +40,11 @@ class DependencyResolver
     
     /**
      * Visit a module and its dependencies (depth-first search)
-     * 
-     * @param array<string, bool> $visited
-     * @param array<string, bool> $visiting
-     * @param array<ModuleInterface> $sorted
-     * @throws RuntimeException For circular dependencies or version conflicts
+     * @param array<string, bool> $visited Map of visited modules
+     * @param array<string, bool> $visiting Map of modules being visited (cycle detection)
+     * @param array<ModuleInterface> $sorted Output parameter for sorted modules
+     * @throws RuntimeException On circular dependencies
+     * @internal
      */
     private function visitModule(
         ModuleInterface $module,
@@ -92,9 +95,12 @@ class DependencyResolver
     }
     
     /**
-     * Check if a module dependency is satisfied
-     * 
-     * @throws RuntimeException If the dependency is not satisfied
+     * Check if a required module dependency is satisfied
+     * @param ModuleInterface $module Module with the dependency
+     * @param class-string $dependency Required module class name
+     * @param string $constraint Version constraint (e.g., '^1.0', '>=2.0 <3.0')
+     * @throws RuntimeException If dependency is missing or version constraint fails
+     * @see https://getcomposer.org/doc/articles/versions.md Version constraint syntax
      */
     private function checkDependency(
         ModuleInterface $module,
@@ -114,11 +120,7 @@ class DependencyResolver
         $this->checkVersionConstraint($module, $depModule, $constraint);
     }
     
-    /**
-     * Check if a module version satisfies a constraint
-     * 
-     * @throws RuntimeException If the version constraint is not satisfied
-     */
+    /** @throws RuntimeException If version constraint is not satisfied */
     private function checkVersionConstraint(
         ModuleInterface $requester,
         ModuleInterface $dependency,
@@ -128,12 +130,11 @@ class DependencyResolver
             return; // No version constraint
         }
         
-        $requiredVersion = $constraint;
+        $requiredVersion = $constraint instanceof \App\Modules\ValueObject\VersionConstraint ? (string)$constraint : $constraint;
         $installedVersion = $dependency->getVersion();
         
-        // Simple version comparison for now
-        // In a real implementation, use something like composer/semver
-        if (version_compare($installedVersion, $requiredVersion, '>=')) {
+        // Use VersionValidator to evaluate constraint
+        if ($this->versionValidator->satisfies($installedVersion, $requiredVersion)) {
             return;
         }
         

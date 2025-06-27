@@ -96,7 +96,8 @@ class ModuleVersion implements \Stringable
         $firstChar = $constraint[0];
         if (in_array($firstChar, ['>', '<', '=', '~', '^'], true)) {
             $operator = $firstChar;
-            $version = new self(substr($constraint, 1));
+            $base = substr($constraint, 1);
+            $version = new self(self::normaliseVersionString($base));
             
             return match ($operator) {
                 '>' => $this->greaterThan($version),
@@ -106,7 +107,7 @@ class ModuleVersion implements \Stringable
                 '=' => $this->equals($version),
                 '~' => $this->satisfiesTilde($version),
                 '^' => $this->satisfiesCaret($version),
-                default => false,
+            default => false,
             };
         }
 
@@ -160,6 +161,23 @@ class ModuleVersion implements \Stringable
         return 0;
     }
 
+    /**
+     * Normalize a version string to full MAJOR.MINOR.PATCH format.
+     * 1      -> 1.0.0
+     * 1.2    -> 1.2.0
+     * v1.2.3 -> 1.2.3
+     */
+    private static function normaliseVersionString(string $version): string
+    {
+        $version = ltrim($version, 'v');
+        $parts = explode('.', $version);
+        return match (count($parts)) {
+            1 => $parts[0] . '.0.0',
+            2 => $parts[0] . '.' . $parts[1] . '.0',
+            default => $version,
+        };
+    }
+
     private function satisfiesTilde(self $version): bool
     {
         // ~1.2.3 is >=1.2.3 <1.3.0
@@ -179,7 +197,7 @@ class ModuleVersion implements \Stringable
             $max = new self(sprintf('%d.0.0', $version->major + 1));
         }
         
-        return $this->greaterThan($min) || $this->equals($min) && $this->lessThan($max);
+        return ($this->greaterThan($min) || $this->equals($min)) && $this->lessThan($max);
     }
 
     private function satisfiesCaret(self $version): bool
@@ -201,6 +219,6 @@ class ModuleVersion implements \Stringable
             $max = new self(sprintf('0.0.%d', $version->patch + 1));
         }
         
-        return $this->greaterThan($min) || $this->equals($min) && $this->lessThan($max);
+        return ($this->greaterThan($min) || $this->equals($min)) && $this->lessThan($max);
     }
 }

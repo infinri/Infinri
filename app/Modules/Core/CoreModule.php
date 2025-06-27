@@ -7,7 +7,7 @@ use App\Modules\Concerns\RegistersControllers;
 use App\Modules\Core\Controllers\Controller as CoreController;
 use App\Modules\Core\Controllers\HomeController;
 use App\Modules\Core\Services\NotificationService;
-use App\Modules\Module;
+use App\Modules\BaseModule;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Interfaces\RouteParserInterface;
@@ -19,7 +19,7 @@ use Slim\Interfaces\RouteParserInterface;
  * for the application to function properly. It's automatically loaded and booted
  * during the application bootstrap process.
  */
-class CoreModule extends Module
+class CoreModule extends BaseModule
 {
     use RegistersViewPaths, RegistersControllers;
 
@@ -104,7 +104,56 @@ class CoreModule extends Module
         // Register home controller
         $this->registerController(HomeController::class, [
             'view',
-            'container' => ContainerInterface::class
+            'router' => RouteParserInterface::class,
         ]);
+    }
+    
+    /**
+     * Check if the module is compatible with the current environment
+     * 
+     * @return bool True if the module can be loaded, false otherwise
+     */
+    public function isCompatible(): bool
+    {
+        // Check for required PHP extensions
+        $requiredExtensions = [
+            'pdo',
+            'pdo_mysql',
+            'json',
+            'mbstring',
+            'openssl',
+        ];
+        
+        foreach ($requiredExtensions as $ext) {
+            if (!extension_loaded($ext)) {
+                trigger_error(
+                    sprintf('Missing required PHP extension: %s', $ext),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+        
+        // Check for required environment variables
+        $requiredEnvVars = [
+            'APP_ENV',
+            'DB_HOST',
+            'DB_NAME',
+            'DB_USER',
+            'DB_PASS',
+            'APP_SECRET',
+        ];
+        
+        foreach ($requiredEnvVars as $var) {
+            if (empty($_ENV[$var] ?? null)) {
+                trigger_error(
+                    sprintf('Missing required environment variable: %s', $var),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

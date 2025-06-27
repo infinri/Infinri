@@ -6,7 +6,7 @@ use App\Modules\Concerns\RegistersViewPaths;
 use App\Modules\Concerns\RegistersControllers;
 use App\Modules\Contact\Controllers\ContactController;
 use App\Modules\Core\Services\NotificationService;
-use App\Modules\Module;
+use App\Modules\BaseModule;
 use League\Plates\Engine;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
  * This module provides contact form handling and notification services.
  * It integrates with the notification system to send contact form submissions.
  */
-class ContactModule extends Module
+class ContactModule extends BaseModule
 {
     use RegistersViewPaths, RegistersControllers;
     
@@ -72,5 +72,47 @@ class ContactModule extends Module
             LoggerInterface::class,
             NotificationService::class
         ]);
+    }
+    
+    /**
+     * Check if the module is compatible with the current environment
+     * 
+     * @return bool True if the module can be loaded, false otherwise
+     */
+    public function isCompatible(): bool
+    {
+        // Check for required environment variables
+        $requiredEnvVars = [
+            'MAIL_FROM_ADDRESS',
+            'MAIL_FROM_NAME',
+        ];
+        
+        foreach ($requiredEnvVars as $var) {
+            if (empty($_ENV[$var] ?? null)) {
+                trigger_error(
+                    sprintf('Missing required environment variable: %s', $var),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+        
+        // Check for required PHP extensions
+        $requiredExtensions = [
+            'pdo',
+            'pdo_mysql',
+        ];
+        
+        foreach ($requiredExtensions as $ext) {
+            if (!extension_loaded($ext)) {
+                trigger_error(
+                    sprintf('Missing required PHP extension: %s', $ext),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

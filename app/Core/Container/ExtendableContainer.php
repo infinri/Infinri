@@ -5,23 +5,20 @@ namespace App\Core\Container;
 use DI\Container as BaseContainer;
 use Psr\Container\ContainerInterface;
 
-/**
- * Extends the base DI container with additional functionality
- */
+/** Extends DI container with service extension capability */
 class ExtendableContainer extends BaseContainer
 {
     /**
-     * Extend an existing service
-     * 
+     * Extend a service with additional functionality
      * @template T
-     * @param string $id The service identifier
-     * @param callable(mixed, ContainerInterface): T $extender Function to extend the service
+     * @param string $id Service identifier
+     * @param callable(mixed, ContainerInterface): T $extender Callback that extends the service
      */
     public function extend(string $id, callable $extender): void
     {
         $original = $this->get($id);
         
-        $this->set($id, function (ContainerInterface $c) use ($original, $extender, $id) {
+        $this->set($id, function (ContainerInterface $c) use ($original, $extender) {
             return $extender($original, $c);
         });
     }

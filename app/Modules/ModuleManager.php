@@ -6,15 +6,13 @@ use App\Modules\Discovery\ModuleDiscovery;
 use App\Modules\Loader\ModuleLoader;
 use App\Modules\Registry\ModuleRegistry;
 use App\Modules\Dependency\DependencyResolver;
+use App\Modules\Validation\DependencyValidator;
+use App\Modules\Validation\VersionValidator;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use RuntimeException;
 
-/**
- * ModuleManager is a facade for the module system
- * 
- * This class provides a simple interface for working with modules while
- * delegating the actual work to specialized components.
- */
+/** Facade for module system operations */
 class ModuleManager
 {
     private ModuleRegistry $registry;
@@ -22,74 +20,146 @@ class ModuleManager
     private ModuleLoader $loader;
     private DependencyResolver $resolver;
     
-    /**
-     * ModuleManager constructor
-     */
     public function __construct(
         private ContainerInterface $container,
         private string $modulesPath,
-        private bool $enableCache = true
+        private bool $enableCache = true,
+        ?DependencyValidator $dependencyValidator = null,
+        ?VersionValidator $versionValidator = null,
+        ?EventDispatcherInterface $dispatcher = null
     ) {
         $this->registry = new ModuleRegistry();
         $this->discovery = new ModuleDiscovery($modulesPath, $enableCache);
         $this->loader = new ModuleLoader($container, $this->registry);
         $this->resolver = new DependencyResolver($this->registry);
+        $this->dependencyValidator = $dependencyValidator ?? new DependencyValidator();
+        $this->versionValidator = $versionValidator ?? new VersionValidator();
+        $this->dispatcher = $dispatcher;
     }
     
-    /**
-     * Discover and register all available modules
-     * 
-     * @return array<class-string> Array of discovered module class names
-     */
+    /** @return array<class-string> Discovered module class names */
     public function discoverModules(): array
     {
         return $this->discovery->discover();
     }
     
     /**
-     * Register a module by class name
-     * 
+     * Register a module by class name with validation
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass
      * @return T
-     * @throws RuntimeException If the module cannot be registered
+     * @throws RuntimeException If registration or validation fails
      */
     public function registerModule(string $moduleClass): ModuleInterface
     {
-        return $this->loader->load($moduleClass);
+        if (!class_exists($moduleClass)) {
+            throw new RuntimeException(sprintf('Module class %s does not exist', $moduleClass));
+        }
+
+        if (!is_a($moduleClass, ModuleInterface::class, true)) {
+            throw new RuntimeException(sprintf(
+                'Module %s must implement %s',
+                $moduleClass,
+                ModuleInterface::class
+            ));
+        }
+
+        // Load the module
+        $module = $this->loader->load($moduleClass);
+        $metadata = $module->getMetadata();
+
+        try {
+            // Validate requirements
+            $this->validateModuleRequirements($metadata);
+            
+            // Register the module
+            $this->registry->register($module);
+            
+            // Validate dependencies against already registered modules
+            $this->validateModuleDependencies($metadata);
+            
+            return $module;
+        } catch (\Throwable $e) {
+            $this->registry->unregister($moduleClass);
+            throw new RuntimeException(
+                sprintf('Failed to register module %s: %s', $moduleClass, $e->getMessage()),
+                $e->getCode(),
+                $e
+            );
+        }
+    }
+    
+    /**
+     * Validate module requirements
+     * @throws RuntimeException If requirements are not met
+     */
+    private function validateModuleRequirements(ModuleMetadata $metadata): void
+    {
+        $requirements = $metadata->getRequirements();
+        
+        // Validate PHP version
+        if (isset($requirements['php'])) {
+            $this->versionValidator->validatePhpVersion($requirements['php']);
+        }
+        
+        // Validate extensions
+        $this->versionValidator->validateExtensions($requirements);
+    }
+    
+    /**
+     * Validate module dependencies against registered modules
+     * @throws RuntimeException If dependencies are not met or conflicts exist
+     */
+    private function validateModuleDependencies(ModuleMetadata $metadata): void
+    {
+        $registeredModules = [];
+        foreach ($this->registry->all() as $module) {
+            $registeredModules[get_class($module)] = $module->getMetadata();
+        }
+        
+        // Check for conflicts
+        $this->dependencyValidator->validateNoConflicts($metadata, $registeredModules);
+        
+        // Check required dependencies
+        $this->dependencyValidator->validateDependencies($metadata, $registeredModules);
+        
+        // Check optional dependencies (just log any issues)
+        $missingOptional = $this->dependencyValidator->validateOptionalDependencies($metadata, $registeredModules);
+        if (!empty($missingOptional)) {
+            // Log missing optional dependencies if needed
+            error_log(sprintf(
+                'Module %s is missing optional dependencies: %s',
+                $metadata->getId(),
+                implode(', ', array_map(
+                    fn($dep, $constraint) => "$dep ($constraint)",
+                    array_keys($missingOptional),
+                    $missingOptional
+                ))
+            ));
+        }
     }
     
     /**
      * Register multiple modules
-     * 
      * @param array<class-string> $moduleClasses
      * @return array<ModuleInterface>
      */
     public function registerModules(array $moduleClasses): array
     {
-        $modules = [];
-        
-        foreach ($moduleClasses as $moduleClass) {
-            $modules[] = $this->registerModule($moduleClass);
-        }
-        
-        return $modules;
+        return array_map(
+            fn($class) => $this->registerModule($class),
+            $moduleClasses
+        );
     }
     
-    /**
-     * Resolve module dependencies and return modules in the correct order
-     * 
-     * @return array<ModuleInterface>
-     */
+    /** @return array<ModuleInterface> Modules in dependency order */
     public function resolveDependencies(): array
     {
         $modules = $this->registry->all();
-        
         if (empty($modules)) {
             return [];
         }
         
-        // Create a temporary module for the event
         $tempModule = new class implements ModuleInterface {
             public function register(): void {}
             public function boot(): void {}
@@ -98,55 +168,35 @@ class ModuleManager
             public function getName(): string { return 'Dependency Resolver'; }
         };
         
-        // Dispatch before resolution event
-        $event = new ModuleDependencyEvent(
-            $tempModule,
-            array_keys($modules)
-        );
-        
+        $event = new ModuleDependencyEvent($tempModule, array_keys($modules));
         $this->dispatcher->dispatch($event);
         
         if ($event->isPropagationStopped()) {
             throw new RuntimeException(sprintf(
-                'Dependency resolution was stopped by an event listener: %s',
+                'Dependency resolution stopped: %s',
                 $event->getError()?->getMessage() ?? 'No reason provided'
             ));
         }
         
         try {
             $resolved = $this->resolver->resolveDependencies($modules);
-            
-            // Dispatch after successful resolution
-            $this->dispatcher->dispatch(new ModuleDependencyEvent(
-                $tempModule,
-                array_keys($resolved)
-            ));
-            
+            $this->dispatcher->dispatch(
+                new ModuleDependencyEvent($tempModule, array_keys($resolved))
+            );
             return $resolved;
         } catch (\Throwable $e) {
-            // Dispatch resolution error event
             $this->dispatcher->dispatch(new ModuleDependencyEvent(
-                $tempModule,
-                array_keys($modules),
-                [],
-                [],
-                $e
+                $tempModule, array_keys($modules), [], [], $e
             ));
-            
             throw $e;
         }
     }
     
-    /**
-     * Boot all registered modules
-     */
+    /** Boot all registered modules */
     public function boot(): void
     {
-        $modules = $this->registry->all();
-        
-        foreach ($modules as $module) {
+        foreach ($this->registry->all() as $module) {
             try {
-                // Dispatch before boot event
                 $event = new ModuleBootEvent($module, false, null, ['module' => $module]);
                 $this->dispatcher->dispatch($event);
                 
@@ -154,27 +204,15 @@ class ModuleManager
                     continue;
                 }
                 
-                // Boot the module
                 $module->boot();
-                
-                // Dispatch after successful boot
                 $this->dispatcher->dispatch(new ModuleBootEvent(
-                    $module,
-                    true,
-                    null,
-                    ['module' => $module]
+                    $module, true, null, ['module' => $module]
                 ));
                 
             } catch (\Throwable $e) {
-                // Dispatch boot error event
                 $this->dispatcher->dispatch(new ModuleBootEvent(
-                    $module,
-                    false,
-                    $e,
-                    ['module' => $module]
+                    $module, false, $e, ['module' => $module]
                 ));
-                
-                // Re-throw the exception to maintain backward compatibility
                 throw $e;
             }
         }
@@ -182,40 +220,30 @@ class ModuleManager
     
     /**
      * Get a module by its class name
-     * 
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass
      * @return T
-     * @throws \OutOfBoundsException If the module is not found
+     * @throws \OutOfBoundsException If module not found
      */
     public function getModule(string $moduleClass): ModuleInterface
     {
         return $this->registry->get($moduleClass);
     }
     
-    /**
-     * Check if a module is registered
-     * 
-     * @param string|ModuleInterface $module Module class name or instance
-     */
+    /** @param string|ModuleInterface $module Class name or instance */
     public function hasModule($module): bool
     {
         return $this->registry->has($module);
     }
     
-    /**
-     * Get all registered modules
-     * 
-     * @return array<class-string, ModuleInterface>
-     */
+    /** @return array<class-string, ModuleInterface> All registered modules */
     public function getModules(): array
     {
         return $this->registry->all();
     }
     
     /**
-     * Get modules that implement a specific interface
-     * 
+     * Get modules implementing a specific interfaces
      * @template T of object
      * @param class-string<T> $interface
      * @return array<class-string, T>
