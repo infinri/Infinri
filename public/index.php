@@ -31,6 +31,16 @@ if (!in_array(PHP_SAPI, ['cli', 'phpdbg'], true) && extension_loaded('opcache'))
 // Create Container using PHP-DI
 $container = new Container();
 
+// Create Slim App early so router is available for modules
+$app = AppFactory::create(container: $container);
+// Expose router via container for modules expecting it
+$container->set('router', $app);
+$container->set(\Slim\Interfaces\RouteParserInterface::class, function (ContainerInterface $c) {
+    /** @var \Slim\App $router */
+    $router = $c->get('router');
+    return $router->getRouteCollector()->getRouteParser();
+});
+
 // Register app settings
 $container->set('settings', function () {
     return [
@@ -61,6 +71,15 @@ $container->set(LoggerInterface::class, function (ContainerInterface $c) {
     $logger->pushHandler($handler);
     
     return $logger;
+});
+
+// Register simple navigation service
+$container->set('navigation', function () {
+    return new class {
+        private array $items = [];
+        public function addItem(string $key, array $config): void { $this->items[$key] = $config; }
+        public function getItems(): array { return $this->items; }
+    };
 });
 
 // Register Plates view engine
@@ -107,8 +126,7 @@ try {
     throw $e;
 }
 
-// Create App instance
-$app = AppFactory::create(container: $container);
+// Slim app already created above
 
 // Add Plates middleware to inject common view data
 $app->add(function ($request, $handler) use ($container) {

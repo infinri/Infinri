@@ -38,6 +38,11 @@ class ContactModule extends BaseModule
      * 
      * This method is called after all modules have been registered.
      */
+    public function getViewsPath(): string
+    {
+        return __DIR__ . '/Views';
+    }
+
     public function boot(): void
     {
         // Contact module bootstrapping logic can be added here

@@ -11,12 +11,15 @@ use Psr\EventDispatcher\StoppableEventInterface;
 class ModuleEvent implements StoppableEventInterface
 {
     private bool $propagationStopped = false;
-    private ?string $error = null;
+    private ?\Throwable $error = null;
 
     public function __construct(
         private ModuleInterface $module,
-        private array $arguments = []
-    ) {}
+        private array $arguments = [],
+        ?\Throwable $error = null
+    ) {
+        $this->error = $error;
+    }
 
     public function getModule(): ModuleInterface
     {
@@ -43,12 +46,12 @@ class ModuleEvent implements StoppableEventInterface
         return $this->arguments;
     }
 
-    public function setError(?string $error): void
+    public function setError(?\Throwable $error): void
     {
         $this->error = $error;
     }
 
-    public function getError(): ?string
+    public function getError(): ?\Throwable
     {
         return $this->error;
     }

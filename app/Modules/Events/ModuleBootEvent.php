@@ -22,7 +22,7 @@ class ModuleBootEvent extends ModuleEvent
         parent::__construct($module, $arguments);
         
         if ($error) {
-            $this->setError($error->getMessage());
+            $this->setError($error);
             $this->setArgument('exception', $error);
         }
     }

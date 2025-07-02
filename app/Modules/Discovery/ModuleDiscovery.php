@@ -130,6 +130,43 @@ class ModuleDiscovery
         $this->logger?->error('[ModuleDiscovery] ' . $message, $context);
     }
     
+    /**
+     * Check if the module cache is still valid
+     * @return bool True if cache is valid, false otherwise
+     */
+    private function isCacheValid(): bool
+    {
+        if (!file_exists($this->cacheFile)) {
+            $this->logDebug('Cache file does not exist: {file}', ['file' => $this->cacheFile]);
+            return false;
+        }
+        
+        // Check if cache is older than modules directory
+        $cacheTime = filemtime($this->cacheFile);
+        $dirTime = filemtime($this->modulesPath);
+        
+        if ($dirTime > $cacheTime) {
+            $this->logDebug('Modules directory modified after cache was created');
+            return false;
+        }
+        
+        // Check if any module file was modified after cache was created
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($this->modulesPath, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getMTime() > $cacheTime) {
+                $this->logDebug('File modified after cache was created: {file}', ['file' => $file->getPathname()]);
+                return false;
+            }
+        }
+        
+        $this->logDebug('Cache is valid');
+        return true;
+    }
+    
     /** @return class-string<ModuleInterface>|null */
     private function findModuleClass(string $moduleDir, string $moduleName): ?string
     {

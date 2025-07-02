@@ -3,7 +3,7 @@
 namespace Tests\Unit\Modules;
 
 use App\Modules\Module;
-use App\Modules\ModuleMetadata;
+use App\Modules\ValueObject\ModuleMetadata;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Unit\Modules\ModuleTestCase;
 
@@ -17,17 +17,18 @@ class BaseModuleTest extends ModuleTestCase
         
         // Define a test module class
         if (!class_exists($this->testModuleClass)) {
-            eval("
+            eval(<<<'PHP'
+
                 namespace Tests\Unit\Modules;
                 
-                use App\Modules\BaseModule;
-                use App\Modules\ModuleMetadata;
+                use App\Modules\Module;
+                use App\Modules\ValueObject\ModuleMetadata;
                 
-                class TestModule extends BaseModule {
-                    protected static string $id = 'test/module';
-                    protected static string $name = 'Test Module';
-                    protected static string $version = '1.0.0';
-                    protected static string $description = 'A test module';
+                class TestModule extends Module {
+                    // id inherited
+                    // name inherited
+                    // version inherited
+                    // description inherited
                     
                     public function register(): void {}
                     public function boot(): void {}
@@ -35,48 +36,92 @@ class BaseModuleTest extends ModuleTestCase
                     public function getViewsPath(): string { return __DIR__ . '/views'; }
                     public function getNamespace(): string { return __NAMESPACE__; }
                     
-                    public static function getMetadata(): ModuleMetadata
-                    {
-                        return new ModuleMetadata([
-                            'id' => static::$id,
-                            'name' => static::$name,
-                            'version' => static::$version,
-                            'description' => static::$description,
-                        ]);
-                    }
+                    public function getId(): string
+                     {
+                         return 'test/module';
+                     }
+
+                     public function getName(): string
+                     {
+                         return 'Test Module';
+                     }
+
+                     public function getVersion(): string
+                     {
+                         return '1.0.0';
+                     }
+
+                     public function getDescription(): string
+                     {
+                         return 'A test module';
+                     }
+
+                     public function getAuthor(): array
+                     {
+                         return [
+                             'name' => 'Tester',
+                             'email' => null,
+                             'url' => null,
+                         ];
+                     }
                     
-                    public function isCompatible(): bool
-                    {
-                        return true;
-                    }
+                    protected function generateDefaultId(): string
+                     {
+                         return 'test/module';
+                     }
+
+                     protected function generateDefaultName(): string
+                     {
+                         return 'Test Module';
+                     }
+
+                     public function isCompatible(): bool
+                     {
+                         return true;
+                     }
                 }
-            
-                namespace Tests\Unit\Modules;
                 
                 class TestModuleWithDeps extends TestModule {
-                    protected static string $id = 'test/module-with-deps';
-                    protected static array $dependencies = ['test/dependency' => '^1.0'];
+                    // id inherited
+                    // dependencies overridden in getMetadata
                     
-                    public static function getMetadata(): ModuleMetadata
-                    {
-                        $metadata = parent::getMetadata();
-                        $metadata->setDependencies(static::$dependencies);
-                        return $metadata;
-                    }
+                    public function getId(): string
+                     {
+                         return 'test/module-with-deps';
+                     }
+
+                     protected function generateDefaultId(): string
+                      {
+                          return 'test/module-with-deps';
+                      }
+
+                      public function getDependencies(): array
+                      {
+                          return ['test/dependency' => '^1.0'];
+                      }
                 }
                 
                 class TestModuleWithConflicts extends TestModule {
-                    protected static string $id = 'test/module-with-conflicts';
-                    protected static array $conflicts = ['test/conflict' => '*'];
+                    // id inherited
+                    // conflicts overridden in getMetadata
                     
-                    public static function getMetadata(): ModuleMetadata
-                    {
-                        $metadata = parent::getMetadata();
-                        $metadata->setConflicts(static::$conflicts);
-                        return $metadata;
-                    }
+                    public function getId(): string
+                     {
+                         return 'test/module-with-conflicts';
+                     }
+
+                     protected function generateDefaultId(): string
+                      {
+                          return 'test/module-with-conflicts';
+                      }
+
+                      public function getConflicts(): array
+                      {
+                          return ['test/conflict' => '*'];
+                      }
                 }
-            ");
+            PHP
+            );
         }
     }
     

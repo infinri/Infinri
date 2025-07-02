@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+(Changes since `1.1.0` will appear here.)
+
+## [1.1.0] - 2025-07-01
+
 ### Added
+- **Documentation**: Added MVP Quick-Start in README and docs (`getting-started.md`, `deployment.md`).
 - **Module Event System**: New PSR-14 compliant event system for module lifecycle management
   - `ModuleEvent` base class and specialized event classes for different lifecycle stages
   - `ModuleEventDispatcher` implementing PSR-14 `EventDispatcherInterface`
   - `ModuleListenerProvider` for managing event listeners
   - Comprehensive documentation in `docs/events/README.md`
   - Migration guide in `docs/events/MIGRATION.md`
+  - Documentation for module event system
 
 ### Changed
 - **ModuleManager**: Updated to dispatch events during module lifecycle
@@ -21,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dependency resolution events
   - Module boot events
 - **Dependency Injection**: Added `EventServiceProvider` for registering event services
+
+### Fixed
+- **Testing**: Resolved failing PHPUnit test suite.
+  - Corrected syntax error in `TestCase.php`.
+  - Fixed dynamic test module class definitions and metadata validation issues.
+  - Updated container mock in tests to support `extend()` and proper service handling.
+  - Added `hasErrors()` to `ModuleDependencyEvent` and enhanced `ModuleDiscoveryEvent` constructor.
+  - All unit tests now pass on PHPUnit 12.2.
 
 ### Deprecated
 - Direct module method calls for lifecycle management in favor of event-driven approach

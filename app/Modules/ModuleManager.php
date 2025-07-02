@@ -72,8 +72,10 @@ class ModuleManager
             // Validate requirements
             $this->validateModuleRequirements($metadata);
             
-            // Register the module
-            $this->registry->register($module);
+            // Register the module only if not already registered by the loader
+            if (!$this->registry->has($module)) {
+                $this->registry->register($module);
+            }
             
             // Validate dependencies against already registered modules
             $this->validateModuleDependencies($metadata);
@@ -93,7 +95,7 @@ class ModuleManager
      * Validate module requirements
      * @throws RuntimeException If requirements are not met
      */
-    private function validateModuleRequirements(ModuleMetadata $metadata): void
+    private function validateModuleRequirements(\App\Modules\ValueObject\ModuleMetadata $metadata): void
     {
         $requirements = $metadata->getRequirements();
         
@@ -110,7 +112,7 @@ class ModuleManager
      * Validate module dependencies against registered modules
      * @throws RuntimeException If dependencies are not met or conflicts exist
      */
-    private function validateModuleDependencies(ModuleMetadata $metadata): void
+    private function validateModuleDependencies(\App\Modules\ValueObject\ModuleMetadata $metadata): void
     {
         $registeredModules = [];
         foreach ($this->registry->all() as $module) {
@@ -251,5 +253,32 @@ class ModuleManager
     public function getByInterface(string $interface): array
     {
         return $this->registry->getByInterface($interface);
+    }
+
+    /**
+     * Register all discovered modules (helper for legacy code)
+     * @return array<class-string> Registered module class names
+     */
+    public function registerAll(): array
+    {
+        $classes = $this->discoverModules();
+        foreach ($classes as $class) {
+            if (!$this->registry->has($class)) {
+                try {
+                    $this->registerModule($class);
+                } catch (\RuntimeException $e) {
+                    // swallow or log
+                }
+            }
+        }
+        return array_keys($this->registry->all());
+    }
+
+    /**
+     * Boot all registered modules (helper for legacy code)
+     */
+    public function bootAll(): void
+    {
+        $this->loader->bootAll();
     }
 }

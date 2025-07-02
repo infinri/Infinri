@@ -58,6 +58,25 @@ class ModuleRegistry implements ModuleRegistryInterface
     {
         return $this->modules;
     }
+
+    /**
+     * Unregister a module by class name
+     * @param class-string $moduleClass
+     */
+    public function unregister(string $moduleClass): void
+    {
+        if (!$this->has($moduleClass)) {
+            return;
+        }
+        unset($this->modules[$moduleClass]);
+        // Remove from tag index
+        foreach ($this->tags as $tag => $classes) {
+            $this->tags[$tag] = array_values(array_filter($classes, fn($c) => $c !== $moduleClass));
+            if (empty($this->tags[$tag])) {
+                unset($this->tags[$tag]);
+            }
+        }
+    }
     
     /** @return array<class-string, ModuleInterface> Modules with the given tag */
     public function getByTag(string $tag): array

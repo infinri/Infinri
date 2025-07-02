@@ -11,6 +11,12 @@ interface ModuleRegistryInterface
     public function register(ModuleInterface $module): void;
     
     /**
+     * Unregister a module by class name
+     * @param class-string $moduleClass
+     */
+    public function unregister(string $moduleClass): void;
+    
+    /**
      * Get a module by class name
      * @template T of ModuleInterface
      * @param class-string<T> $moduleClass

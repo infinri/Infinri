@@ -223,6 +223,22 @@ Infinri/
 
 ## 🚀 Quick Start
 
+### MVP Quick-Start (tl;dr)
+For a fresh clone you can have the MVP running locally in under a minute:
+
+```bash
+composer install
+cp .env.example .env        # adjust DB credentials if needed
+php app/cli.php migrations:migrate
+./rr serve -d               # RoadRunner on :8080
+```
+
+Open http://localhost:8080 — that’s it.
+
+*Default admin login*: `admin@example.com / changeme` (update the password immediately in Admin → Users).
+
+---
+
 ### Prerequisites
 
 - PHP 8.4 or higher

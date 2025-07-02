@@ -40,7 +40,7 @@ class ModuleDependencyEvent extends ModuleEvent
         $this->versionConflicts = $versionConflicts;
         
         if ($error) {
-            $this->setError($error->getMessage());
+            $this->setError($error);
             $this->setArgument('exception', $error);
         }
     }
@@ -82,5 +82,14 @@ class ModuleDependencyEvent extends ModuleEvent
     public function getError(): ?\Throwable
     {
         return $this->getArgument('exception');
+    }
+
+    /**
+     * Determine if the dependency resolution resulted in errors.
+     * Currently considered an error when no dependencies could be resolved.
+     */
+    public function hasErrors(): bool
+    {
+        return empty($this->dependencies);
     }
 }

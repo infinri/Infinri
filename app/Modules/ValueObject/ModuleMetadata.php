@@ -126,22 +126,29 @@ final class ModuleMetadata
     /** @return array<class-string,VersionConstraint> */
     public function getAllDependencies(): array
     {
-        return array_merge($this->dependencies, $this->optionalDependencies);
+        $dependencies = $this->normaliseConstraints($this->dependencies);
+        $optionalDependencies = $this->normaliseConstraints($this->optionalDependencies);
+        return array_merge($dependencies, $optionalDependencies);
     }
 
     /**
      * Convert all constraint strings to VersionConstraint objects.
      *
-     * @param array<class-string,string|VersionConstraint> $map
+     * @param array<class-string,string|VersionConstraint>|array<int,class-string> $map  Arrays may be associative (class => constraint) or a numeric list of class names which will default to a wildcard (*) constraint
      * @return array<class-string,VersionConstraint>
      */
     private function normaliseConstraints(array $map): array
     {
+        $result = [];
         foreach ($map as $moduleClass => $constraint) {
-            if (!$constraint instanceof VersionConstraint) {
-                $map[$moduleClass] = new VersionConstraint((string)$constraint);
+            if (is_int($moduleClass)) {
+                $result[$constraint] = new VersionConstraint('*');
+            } elseif (!$constraint instanceof VersionConstraint) {
+                $result[$moduleClass] = new VersionConstraint((string)$constraint);
+            } else {
+                $result[$moduleClass] = $constraint;
             }
         }
-        return $map;
+        return $result;
     }
 }

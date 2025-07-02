@@ -22,9 +22,8 @@ abstract class ModuleTestCase extends TestCase
         // Create a mock container that supports the extend method
         $this->container = $this->createMock(TestContainer::class);
         
-        // Configure the mock container to handle basic operations
-        $this->container->method('has')->willReturn(false);
-        $this->container->method('get')->willReturnArgument(0);
+        // Configure the mock container to handle basic operations using callbacks
+        // Stubs are defined below to track services and apply extensions.
         
         // Implement extend method to store extensions
         $services = [];

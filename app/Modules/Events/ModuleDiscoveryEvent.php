@@ -15,12 +15,22 @@ class ModuleDiscoveryEvent extends ModuleEvent
     /** @var array<class-string> */
     private array $modules = [];
     
+    private string $modulesPath = '';
+
     public function __construct(
-        private string $modulesPath,
+        string|array $modulesPathOrModules,
         bool $fromCache = false,
         ?ModuleInterface $module = null,
         array $arguments = []
     ) {
+        // If an array is passed for the first argument, treat it as the discovered modules list.
+        if (is_array($modulesPathOrModules)) {
+            $this->modules = $modulesPathOrModules;
+            $this->modulesPath = '';
+        } else {
+            $this->modulesPath = $modulesPathOrModules;
+        }
+
         parent::__construct($module ?? new class implements ModuleInterface {
             public function register(): void {}
             public function boot(): void {}
