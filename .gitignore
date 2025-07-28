@@ -1,0 +1,136 @@
+# Windsurf rules file (contains sensitive AI configuration)
+.windsurfrules
+
+# Documentation directory (contains architectural blueprints)
+docs/
+
+# === PHP DEPENDENCIES ===
+/vendor/
+composer.phar
+composer.lock
+
+# === NODE.JS DEPENDENCIES ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# === ENVIRONMENT & CONFIG ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+config/environments/production/
+config/environments/staging/
+
+# === LOGS ===
+storage/logs/
+*.log
+logs/
+
+# === CACHE & TEMPORARY FILES ===
+storage/cache/
+storage/sessions/
+storage/tmp/
+.cache/
+tmp/
+temp/
+
+# === UPLOADS & USER CONTENT ===
+storage/uploads/
+public/uploads/
+uploads/
+
+# === DATABASE ===
+*.sqlite
+*.db
+database.sqlite
+
+# === IDE & EDITOR FILES ===
+# VS Code
+.vscode/
+*.code-workspace
+
+# PhpStorm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# === SYSTEM FILES ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# === BUILD ARTIFACTS ===
+/build/
+/dist/
+/public/build/
+/public/hot
+/public/storage
+/storage/*.key
+
+# === TESTING ===
+.phpunit.result.cache
+coverage/
+.coverage
+phpunit.xml
+.phpunit.cache
+
+# === DOCKER ===
+.docker/
+docker-compose.override.yml
+
+# === SECURITY ===
+*.pem
+*.key
+*.crt
+*.p12
+.secrets/
+
+# === BACKUP FILES ===
+*.bak
+*.backup
+*.old
+*.orig
+
+# === MISC ===
+.htaccess.backup
+error_log
+access_log
