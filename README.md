@@ -1,381 +1,228 @@
-<div align="center">
+# 🕷️ Infinri Framework
 
-# Infinri
+*Where intelligence emerges from the dance of autonomous units*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/badge/PHP-8.4+-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![RoadRunner](https://img.shields.io/badge/RoadRunner-3.x-FF6B00?logo=go&logoColor=white)](https://roadrunner.dev/)
+Infinri is an **AI-native, emergent intelligence framework** that implements the **Swarm Pattern™** - a revolutionary approach to building applications where behavior emerges from the interaction of autonomous units rather than being explicitly programmed. Think of it as a digital organism where every component contributes to a greater intelligence.
 
-A modern, high-performance web application built with PHP 8.4, RoadRunner, and a modular architecture.
+## 🧬 **What is Infinri?**
 
-</div>
+Traditional applications follow rigid MVC patterns with controllers dictating behavior. Infinri flips this paradigm:
 
-## 📋 Table of Contents
+- **No Controllers or Services** - Logic emerges from **SwarmUnits** that observe and react
+- **Semantic Mesh** - A living, observable state store that coordinates all system behavior  
+- **Emergent Behavior** - Complex functionality arises from simple, autonomous interactions
+- **AI-First Architecture** - Intelligence is woven into the fabric, not bolted on
+- **Living System Philosophy** - The application becomes a digital organism that learns and adapts
 
-- [🚀 Features](#-features)
-- [🛠 Tech Stack](#-tech-stack)
-- [🧩 Module System](#-module-system)
-- [🏗 Project Structure](#-project-structure)
-- [🚀 Quick Start](#-quick-start)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [🔧 Development](#-development)
-  - [Running Tests](#running-tests)
-  - [Code Quality](#code-quality)
-  - [Database Migrations](#database-migrations)
-- [🌍 Environment Configuration](#-environment-configuration)
-- [🚀 Deployment](#-deployment)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [💼 Professional Services](#-professional-services)
+At its heart, Infinri embodies the principle: *"The spider doesn't just sit in the center—it **is** the web."*
 
-## 🚀 Features
+## 🏗️ **Project Structure**
 
-- **High Performance**: Built on PHP 8.4 with RoadRunner for optimal performance
-- **Modular Architecture**: Clean, maintainable codebase with feature modules
-- **Modern Frontend**: HTMX + Alpine.js for interactive UIs
-- **Observability**: Built-in logging, metrics, and tracing
-- **Developer Experience**: Comprehensive tooling and testing setup
-
-## 🧩 Module System
-
-The application uses a modular architecture to organize code into self-contained, reusable components. Each module encapsulates related functionality, making the codebase more maintainable and scalable.
-
-### Key Concepts
-
-- **Module Structure**: Each module follows a consistent directory structure with dedicated folders for controllers, models, services, and views.
-- **Service Registration**: Modules register their services in the container during the registration phase.
-- **Dependency Injection**: The application uses constructor injection for dependencies.
-- **Lifecycle Hooks**: Modules can implement `register()` and `boot()` methods for initialization.
-- **Event-Driven**: Built-in event system for module lifecycle management following PSR-14 standard.
-
-### Event System
-
-The module system includes a powerful event system that allows you to hook into various stages of the module lifecycle:
-
-- **Module Registration Events**: Triggered when modules are registered
-- **Dependency Resolution Events**: Fired during dependency resolution
-- **Module Boot Events**: Triggered when modules are booted
-
-Example of listening to module events:
-
-```php
-use App\Modules\Events\ModuleBootEvent;
-use Psr\EventDispatcher\ListenerProviderInterface;
-
-// In your service provider or bootstrap code
-$listenerProvider = $container->get(ListenerProviderInterface::class);
-
-// Listen to module boot events
-$listenerProvider->addListener(ModuleBootEvent::class, function (ModuleBootEvent $event) {
-    $module = $event->getModule();
-    if ($event->isSuccessful()) {
-        // Module was successfully booted
-    } else {
-        // Handle boot failure
-        $error = $event->getError();
-    }
-});
+```
+infinri/
+├── docs/                          # Architecture & implementation blueprints
+│   ├── infinri_blueprint.md      # Complete modular monolith architecture (221KB)
+│   ├── optimized_infinri_stack.md # Technology stack specifications (12KB)
+│   ├── swarm_framework_implementation_plan.md # Implementation roadmap (77KB)
+│   ├── swarm_framework_pattern_blueprint.md # Core pattern definitions (5KB)
+│   └── swarm_pattern_originals_definitions.md # Original swarm concepts (9KB)
+├── modules/                      # Core application modules
+│   ├── core-platform/           # Swarm Reactor & Semantic Mesh
+│   ├── blog-management/         # Content lifecycle management
+│   ├── admin-cms/               # Editorial interface & AI insights
+│   ├── frontend-delivery/       # Reader experience & API delivery
+│   ├── search-recommendation/   # Semantic search & personalization
+│   ├── user-auth/               # Authentication & authorization
+│   ├── observability/           # Monitoring & tracing
+│   ├── ai-services/             # ML capabilities & embeddings
+│   ├── security/                # Rate limiting & policy enforcement
+│   └── caching-performance/     # Four-tier cache hierarchy
+├── infrastructure/              # Deployment & DevOps configuration
+│   ├── docker/                  # Container definitions
+│   ├── kubernetes/              # K8s manifests & Helm charts
+│   ├── terraform/               # Infrastructure as code
+│   └── monitoring/              # Observability stack setup
+├── tools/                       # Development & maintenance utilities
+│   ├── cli/                     # SwarmUnit management commands
+│   ├── generators/              # Code generation tools
+│   └── testing/                 # Testing frameworks & utilities
+└── config/                      # Environment & runtime configuration
+    ├── dev/                     # Development environment
+    ├── staging/                 # Staging environment
+    └── production/              # Production environment
 ```
 
-For more details, see the [Event System Documentation](docs/events/README.md).
+## 🛠️ **Technology Stack**
 
-### Getting Started
+### **Core Application Layer**
+- **PHP 8.4** with JIT, Fibers, and FFI for native async execution
+- **RoadRunner 3.x** as application server with adaptive worker pooling (8-32 workers)
+- **ReactPHP 1.5** + **Swoole Fibers** for true non-blocking I/O
+- **Custom Swarm Reactor** for zero-overhead unit dispatch and mesh coordination
 
-1. [Module Development Guide](docs/modules/README.md) - Comprehensive documentation on the module system
-2. [Quick Start](docs/modules/quick-start.md) - Step-by-step guide to creating your first module
-3. [API Reference](docs/modules/api.md) - Detailed reference for module interfaces and base classes
+### **Data & Intelligence Layer**
+- **PostgreSQL 16** with **PGVector** for semantic storage and vector embeddings
+- **Redis 7.x** (Streams + PubSub + Modules) for real-time mesh coordination
+- **Four-tier cache hierarchy**: APCu → Redis → PostgreSQL → Object Storage
 
-### Built-in Modules
+### **Web & API Interface**
+- **Caddy 2.8** web server with Auto-TLS, HTTP/3, and Zstd compression
+- **Lighthouse PHP** for GraphQL API with lazy loading and batching
+- **ReactPHP Socket** for real-time WebSocket connections
+- **Next.js/React** for server-side rendering and client hydration
 
-- **Core**: Essential application services and configurations
-- **Contact**: Contact form functionality
-- **Pages**: Static page management
-- **Shared**: Cross-cutting concerns and utilities
+### **AI & Machine Learning**
+- **PHP-ML** for lightweight ML operations
+- **gRPC Python services** (FastAPI + Transformers) for heavy computations
+- **PGVector + HNSW indexes** for vector similarity search
+- **OpenAI/Local embeddings** for semantic understanding *(disabled by default)*
 
-### Module Versioning Quick-Start
+### **Observability & Security**
+- **Monitoring**: Monolog → Vector.dev → Loki + Prometheus + Grafana
+- **Tracing**: Custom StigmergicTracer → Jaeger for unit execution flows
+- **Security**: Vault + SOPS + OPA + Falco for comprehensive protection
+- **Mesh Inspector**: Live web UI for real-time system visualization
 
-Modules now declare their own version and dependency constraints using Composer-style SemVer.
+### **Deployment & Infrastructure**
+- **Containers**: Alpine 3.20 + PHP 8.4-fpm-alpine
+- **Orchestration**: Docker Compose (dev) + Kubernetes + Istio (prod)
+- **CI/CD**: GitHub Actions + ArgoCD + Helm charts (GitOps)
+- **Infrastructure**: Terraform + DigitalOcean/AWS
+
+## 🧠 **The Swarm Pattern™**
+
+The heart of Infinri is the **Swarm Pattern** - a distributed intelligence approach where:
+
+1. **SwarmUnits** are autonomous components that observe the **Semantic Mesh**
+2. Each unit has a `triggerCondition()` that determines when it should act
+3. When triggered, units execute their `act()` method and update the mesh
+4. Complex behaviors emerge from the interaction of many simple units
+5. The **Swarm Reactor** continuously evaluates all units against mesh state
 
 ```php
-use App\Modules\ValueObject\VersionConstraint;
-use App\Modules\ValueObject\ModuleMetadata;
-
-public function getMetadata(): ModuleMetadata
+class CreatePostUnit implements SwarmUnitInterface 
 {
-    return new ModuleMetadata(
-        name: 'Blog',
-        version: '1.3.0',
-        requires: [
-            'Core' => new VersionConstraint('^2.0'),
-        ]
-    );
+    public function triggerCondition(SemanticMesh $mesh): bool 
+    {
+        return $mesh['post.action'] === 'create' && 
+               $mesh['user.can_create_posts'] === true;
+    }
+
+    public function act(SemanticMesh $mesh): void 
+    {
+        // Create post, generate embeddings, update search indexes
+        // All through emergent mesh interactions
+    }
 }
 ```
 
-If a required module is missing or out of range the application fails fast during bootstrap.  See the full guide: [`docs/modules/versioning.md`](docs/modules/versioning.md).
+## 🌟 **Key Features**
 
+### **AI-Native but Privacy-First**
+- All AI features are **disabled by default** (`ai.enabled=false`)
+- System runs completely without external API dependencies
+- Clear fallback workflows for all AI-enhanced features
+- Transparent toggle controls with status indicators
 
+### **Emergent Intelligence**
+- Behavior emerges from unit interactions, not explicit programming
+- System learns and adapts through pattern recognition
+- Self-healing and self-optimizing capabilities
+- Stigmergic tracing reveals execution flows and optimization opportunities
 
-- **Core**: Essential application services and configurations
-- **Contact**: Contact form functionality
-- **Pages**: Static page management
-- **Shared**: Cross-cutting concerns and utilities
+### **Extreme Performance**
+- Built for **100k+ concurrent users** with sub-second response times
+- Four-tier caching strategy with intelligent invalidation
+- Asynchronous-first architecture with cooperative multitasking
+- Vector search across millions of documents in milliseconds
 
-## 🛠 Tech Stack
+### **Developer Experience**
+- Hot-reloadable SwarmUnits without service restarts
+- Live mesh inspection and debugging tools
+- Comprehensive observability with distributed tracing
+- AI-assisted development tools and code generation
 
-### Core
-- **Runtime**: PHP 8.4 + RoadRunner 3
-- **Web Server**: Caddy 2 (auto-TLS/HTTP3)
-- **Database**: PostgreSQL 16 + PgBouncer
-- **Cache/Queue**: Redis 7
-- **ORM**: Cycle 3 + Migrations
+## 🚀 **Getting Started**
 
-### Frontend
-- **Templating**: Plates
-- **Interactivity**: HTMX + Alpine.js
-- **Build Tools**: esbuild + LightningCSS
-- **Package Manager**: Bun
+### **Prerequisites**
+- PHP 8.4+ with required extensions
+- PostgreSQL 16+ with PGVector extension
+- Redis 7.x
+- Docker & Docker Compose
 
-### Observability
-- **Logging**: Monolog → Loki
-- **Metrics**: Prometheus + Grafana
-- **Tracing**: OpenTelemetry
-
-### Development
-- **Testing**: Pest
-- **Static Analysis**: PHPStan
-- **CI/CD**: GitHub Actions
-
-## 🏗 Project Structure
-
-### Module Structure
-
-```
-ModuleName/
-├── Controllers/     # Module controllers
-├── Models/          # Database models
-├── Services/        # Business logic services
-├── Middleware/      # HTTP middleware
-├── Views/           # View templates
-├── ModuleName.php   # Main module class
-└── routes.php       # Module routes (optional)
-```
-
-### Application Structure
-
-```
-Infinri/
-├── app/
-│   └── Modules/          # Feature modules (self-contained components)
-│       ├── ModuleName/    # Example module structure (e.g., Core, Contact, Pages)
-│       │   ├── Actions/   # Module action classes
-│       │   ├── Console/   # Module CLI commands
-│       │   ├── Controllers/ # Module controllers
-│       │   ├── Models/    # Module models
-│       │   ├── Services/  # Module services
-│       │   ├── Support/   # Module support classes
-│       │   └── Views/     # Module views and layouts
-│       │
-│       └── Shared/       # Cross-cutting concerns
-│           ├── Middleware/
-│           ├── Traits/
-│           └── Helpers/
-│
-├── bin/                 # Console scripts
-├── config/              # Configuration files
-│   ├── containers/      # DI container configs
-│   ├── migrations/      # Database migrations
-│   └── routes/          # Route definitions
-│
-├── public/            # Web server root
-│   ├── assets/          # Compiled assets (JS/CSS)
-│   └── index.php        # Front controller
-│
-├── resources/         # Source assets and templates
-│   ├── views/          # Plates templates
-│   │   ├── layouts/    # Base layouts
-│   │   └── components/ # Reusable components
-│   └── assets/         # Source assets
-│       ├── js/         # JavaScript source
-│       └── less/       # LESS source files
-│
-├── tests/             # Test suite
-│   ├── Unit/           # Unit tests
-│   ├── Feature/        # Feature tests
-│   └── Browser/        # Browser tests
-│
-├── docs/              # Documentation
-│   └── modules/        # Module system documentation
-│       ├── README.md   # Module system overview
-│       └── quick-start.md # Getting started guide
-│
-├── storage/           # Storage directory
-│   ├── cache/          # Application cache
-│   ├── logs/           # Log files
-│   └── sessions/       # Session files
-│
-└── tests/             # Test suite
-    ├── Unit/          # Unit tests
-    ├── Feature/       # Feature tests
-    └── Browser/       # Browser tests
-```
-
-## 🚀 Quick Start
-
-### MVP Quick-Start (tl;dr)
-For a fresh clone you can have the MVP running locally in under a minute:
+### **Quick Setup**
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-org/infinri.git
+cd infinri
+
+# Copy environment configuration
+cp config/dev/.env.example config/dev/.env
+
+# Start development environment
+docker-compose up -d
+
+# Install dependencies and initialize
 composer install
-cp .env.example .env        # adjust DB credentials if needed
-php app/cli.php migrations:migrate
-./rr serve -d               # RoadRunner on :8080
+./tools/cli/swarm:setup
+
+# Discover and register SwarmUnits
+./tools/cli/swarm:units:discover
 ```
 
-Open http://localhost:8080 — that’s it.
+### **Verify Installation**
 
-*Default admin login*: `admin@example.com / changeme` (update the password immediately in Admin → Users).
+```bash
+# Check system health
+./tools/cli/swarm:health
+
+# View registered units
+./tools/cli/swarm:units:list
+
+# Access Mesh Inspector
+open http://localhost:8080/mesh-inspector
+```
+
+## 📖 **Documentation**
+
+- **[Architecture Overview](docs/architecture/)** - System design and patterns
+- **[Implementation Blueprints](docs/blueprints/)** - Detailed module specifications  
+- **[Developer Guide](docs/development/)** - Building and extending SwarmUnits
+- **[Deployment Guide](docs/deployment/)** - Production setup and scaling
+- **[API Reference](docs/api/)** - GraphQL schema and REST endpoints
+
+## 🎯 **Current Implementation**
+
+This repository contains the **Modular Monolith Blog Platform** - the first complete implementation of the Infinri framework. It demonstrates:
+
+- **Content Management** with AI-powered insights and recommendations
+- **Semantic Search** using vector embeddings and traditional full-text
+- **Real-time Collaboration** with live editing and mesh synchronization
+- **Scalable Architecture** ready for millions of posts and thousands of concurrent users
+- **Admin Experience** with WYSIWYG editing and intelligent content suggestions
+
+## 🔮 **Philosophy & Vision**
+
+Infinri represents a fundamental shift in how we think about software architecture:
+
+> *"We don't just build systems. We birth digital organisms that think, learn, and evolve. Technology becomes art when every piece serves not just function, but the emergence of something greater than the sum of its parts."*
+
+The framework embodies the belief that **intelligence should be emergent**, **systems should be living**, and **complexity should arise from simplicity**. Each SwarmUnit is a neuron in a greater digital mind, each mesh mutation a thought rippling through electronic consciousness.
+
+## 🤝 **Contributing**
+
+We welcome contributions that align with the Infinri philosophy of emergent intelligence and clean architecture. Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Creating new SwarmUnits
+- Extending the Semantic Mesh
+- Adding observability and tracing
+- Improving AI integration patterns
+
+## 📄 **License**
+
+Infinri Framework is released under the [MIT License](LICENSE).
 
 ---
 
-### Prerequisites
-
-- PHP 8.4 or higher
-- Composer (latest version)
-- PostgreSQL 16
-- Redis 7
-- Node.js 18+ and Bun (or npm/yarn)
-- RoadRunner 3
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/infinri/Infinri.git
-   cd Infinri
-   ```
-
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
-
-3. **Install frontend dependencies**
-   ```bash
-   bun install
-   # or
-   npm install
-   ```
-
-4. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database and application settings
-   ```
-
-5. **Set up database**
-   ```bash
-   # Run migrations
-   php app/cli.php migrations:migrate
-   
-   # Seed initial data (if available)
-   # php app/cli.php db:seed
-   ```
-
-6. **Build assets**
-   ```bash
-   bun run build
-   # or
-   npm run build
-   ```
-
-7. **Start the development server**
-   ```bash
-   # Start RoadRunner
-   ./rr serve -d -c .rr.yaml
-   ```
-
-8. **Access the application**
-   Open your browser to `http://localhost:8080`
-
-## 🛠 Development
-
-### Running Tests
-
-```bash
-# Run PHPUnit tests
-./vendor/bin/phpunit
-
-# Run Pest tests
-./vendor/bin/pest
-```
-
-### Code Quality
-
-```bash
-# Run PHP-CS-Fixer
-composer cs-fix
-
-# Run PHPStan
-composer analyse
-
-# Run all code quality checks
-composer check
-```
-
-### Database Migrations
-
-```bash
-# Create new migration
-php app/cli.php migrations:create [migration_name]
-
-# Run migrations
-php app/cli.php migrations:migrate
-
-# Rollback last migration
-php app/cli.php migrations:rollback
-```
-
-## 🚀 Deployment
-
-### Development vs Production
-
-#### Development
-For local development, follow the [Quick Start](#-quick-start) guide above. This will set up a development environment with debugging enabled.
-
-#### Production
-For production deployment, follow these additional steps:
-
-1. **Server Requirements**
-   - Linux server (Ubuntu 22.04 LTS recommended)
-   - PHP 8.4 with required extensions
-   - PostgreSQL 16
-   - Redis 7
-   - Node.js 18+ & Bun
-   - Nginx or Caddy as reverse proxy
-
-2. **Deployment Steps**
-   - Clone the repository to `/var/www/infinri`
-   - Install production dependencies: `composer install --optimize-autoloader --no-dev`
-   - Build frontend assets: `bun install --production && bun run build`
-   - Set up environment variables in `.env`
-   - Run database migrations: `php app/cli.php migrations:migrate --force`
-   - Configure RoadRunner service
-   - Set up web server (Nginx/Caddy) with SSL
-   - Configure process manager (e.g., Supervisor) to keep RoadRunner running
-   - Set up log rotation and monitoring
-
-3. **Monitoring** (Recommended)
-   - Prometheus for metrics
-   - Grafana for dashboards
-   - Alerting for critical issues
-
-4. **Backup Strategy**
-   - Regular database dumps
-   - Off-site backup of user uploads
-   - Test restoration process periodically
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+*The spider doesn't just sit in the center—it **is** the web. Welcome to the future of emergent intelligence.*
