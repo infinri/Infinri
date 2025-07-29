@@ -5,6 +5,7 @@ namespace Infinri\SwarmFramework\Core\Dependency;
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\ValidationResultFactory;
+use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
 use Infinri\SwarmFramework\Core\Utils\VersionUtil;
 use Infinri\SwarmFramework\Interfaces\ValidationResult;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ final class VersionValidator
     public function validateConstraints(array $graph = []): ValidationResult
     {
         $workingGraph = $graph ?: $this->graph;
-        $startTime = microtime(true);
+        $startTime = PerformanceTimer::now();
         $this->logOperationStart('version_constraint_validation');
 
         try {
@@ -75,15 +76,15 @@ final class VersionValidator
             ]);
 
             return empty($errors) 
-                ? ValidationResultFactory::createSuccess()
-                : ValidationResultFactory::createFailure($errors);
+                ? ValidationResultFactory::success(['Version compatibility validated'])
+                : ValidationResultFactory::failure($errors);
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('version_validation', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return ValidationResultFactory::createFailure(["Version validation failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(['Version validation failed: ' . $e->getMessage()]);
         }
     }
 

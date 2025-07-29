@@ -106,9 +106,9 @@ final class TopologicalSorter
     private function visit(string $moduleName, array &$visited, array &$tempMark, array &$sorted): void
     {
         if (isset($tempMark[$moduleName])) {
-            throw ExceptionFactory::createCircularDependencyException(
-                "Circular dependency detected involving: {$moduleName}",
-                ['module_name' => $moduleName, 'visited_modules' => array_keys($this->visited)]
+            throw ExceptionFactory::runtime(
+                'Circular dependency detected',
+                ['cycle' => $visited, 'module_name' => $moduleName]
             );
         }
 

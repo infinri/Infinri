@@ -2,15 +2,20 @@
 
 namespace Infinri\SwarmFramework\Core\Tracing;
 
+use Infinri\SwarmFramework\Core\Attributes\Injectable;
+use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\ExceptionFactory;
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
-use Infinri\SwarmFramework\Core\Common\ConfigManager;
-use Infinri\SwarmFramework\Core\Attributes\Injectable;
-use Infinri\SwarmFramework\Core\Attributes\UnitIdentity;
-use Infinri\SwarmFramework\Core\Tracing\TraceSpan;
-use Infinri\SwarmFramework\Core\Tracing\PheromoneAnalyzer;
+use Infinri\SwarmFramework\Core\Common\ValidationResultFactory;
 use Infinri\SwarmFramework\Core\Tracing\BehavioralAnalyzer;
 use Infinri\SwarmFramework\Core\Tracing\CausalityAnalyzer;
+use Infinri\SwarmFramework\Core\Tracing\PheromoneAnalyzer;
+use Infinri\SwarmFramework\Core\Tracing\TraceSpan;
+use Infinri\SwarmFramework\Interfaces\SemanticMeshInterface;
+use Infinri\SwarmFramework\Interfaces\ValidationResult;
+use Infinri\SwarmFramework\Interfaces\SwarmUnitInterface;
+use Infinri\SwarmFramework\Core\Attributes\UnitIdentity;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -26,10 +31,12 @@ use Psr\Log\LoggerInterface;
  * @author Infinri Framework
  * @version 1.0.0
  */
-#[Injectable(dependencies: ['LoggerInterface', 'PheromoneAnalyzer', 'BehavioralAnalyzer', 'CausalityAnalyzer'])]
+#[Injectable(dependencies: ['PheromoneAnalyzer', 'BehavioralAnalyzer', 'CausalityAnalyzer'])]
 final class StigmergicTracer
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
+
+    private SemanticMeshInterface $mesh;
     private PheromoneAnalyzer $pheromoneAnalyzer;
     private BehavioralAnalyzer $behavioralAnalyzer;
     private CausalityAnalyzer $causalityAnalyzer;

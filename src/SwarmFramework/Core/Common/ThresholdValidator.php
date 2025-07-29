@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface'])]
 final class ThresholdValidator
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
     private array $config;
 
     public function __construct(LoggerInterface $logger, array $config = [])

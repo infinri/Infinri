@@ -37,7 +37,7 @@ abstract class BaseValidator
             }
         }
         
-        return ValidationResultFactory::createConditional($errors);
+        return ValidationResultFactory::conditional($errors);
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class BaseValidator
             }
         }
         
-        return ValidationResultFactory::createConditional($errors);
+        return ValidationResultFactory::conditional($errors);
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class BaseValidator
             }
         }
         
-        return ValidationResultFactory::createConditional($errors);
+        return ValidationResultFactory::conditional($errors);
     }
 
     /**
@@ -104,7 +104,7 @@ abstract class BaseValidator
             }
         }
         
-        return ValidationResultFactory::createConditional($errors);
+        return ValidationResultFactory::conditional($errors);
     }
 
     /**
@@ -121,7 +121,7 @@ abstract class BaseValidator
         }
         
         return empty($allErrors) 
-            ? ValidationResult::success($allWarnings)
-            : ValidationResult::failure($allErrors, $allWarnings);
+            ? ValidationResultFactory::success($allWarnings)
+            : ValidationResultFactory::failure($allErrors, $allWarnings);
     }
 }

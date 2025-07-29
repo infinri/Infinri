@@ -29,7 +29,6 @@ final class ModuleRegistry
 {
     use LoggerTrait;
 
-    private LoggerInterface $logger;
     private SemanticMeshInterface $mesh;
     private ThresholdValidator $thresholdValidator;
     private ModuleDiscovery $discovery;
@@ -61,7 +60,7 @@ final class ModuleRegistry
      */
     private function initializeComponents(): void
     {
-        $this->discovery = new ModuleDiscovery($this->logger, $this->config);
+        $this->discovery = new ModuleDiscovery($this->config);
         
         // Ensure ThresholdValidator is properly typed
         /** @var ThresholdValidator $thresholdValidator */

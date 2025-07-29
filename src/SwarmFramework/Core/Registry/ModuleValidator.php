@@ -56,11 +56,11 @@ final class ModuleValidator extends BaseValidator
             // Use centralized path validation
             $pathResult = $this->validateRequiredFields(['path' => $modulePath], ['path']);
             if (!$pathResult->isValid()) {
-                return ValidationResult::failure($pathResult->getErrors());
+                return ValidationResultFactory::failure($pathResult->getErrors());
             }
             
             if (!is_dir($modulePath)) {
-                return ValidationResultFactory::createFailure(["Module path does not exist: {$modulePath}"]);
+                return ValidationResultFactory::failure(["Module path does not exist: {$modulePath}"]);
             }
 
             $errors = [];
@@ -69,7 +69,7 @@ final class ModuleValidator extends BaseValidator
             // Manifest validation using centralized error handling
             $manifest = $this->validateManifest($modulePath, $errors, $warnings);
             if ($manifest === null) {
-                return ValidationResultFactory::createFailure($errors, $warnings);
+                return ValidationResultFactory::failure($errors, $warnings);
             }
 
             // Directory structure validation
@@ -106,8 +106,8 @@ final class ModuleValidator extends BaseValidator
             ]);
 
             return $isValid 
-                ? ValidationResultFactory::createSuccess($warnings)
-                : ValidationResultFactory::createFailure($errors, $warnings);
+                ? ValidationResultFactory::success($warnings)
+                : ValidationResultFactory::failure($errors, $warnings);
 
         } catch (\Throwable $e) {
             PerformanceTimer::stop('module_validation');
@@ -117,7 +117,7 @@ final class ModuleValidator extends BaseValidator
                 'error' => $e->getMessage()
             ]);
             
-            return ValidationResultFactory::createFailure(["Validation failed with exception: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Validation failed with exception: {$e->getMessage()}"]);
         }
     }
 
@@ -162,8 +162,8 @@ final class ModuleValidator extends BaseValidator
             ]);
 
             return empty($errors) 
-                ? ValidationResult::success($warnings)
-                : ValidationResult::failure($errors, $warnings);
+                ? ValidationResultFactory::success($warnings)
+                : ValidationResultFactory::failure($errors, $warnings);
 
         } catch (\Throwable $e) {
             PerformanceTimer::stop('compatibility_validation');

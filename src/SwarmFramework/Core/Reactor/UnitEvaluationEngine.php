@@ -6,6 +6,7 @@ use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\ExceptionFactory;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Safety\SafetyLimitsEnforcer;
+use Infinri\SwarmFramework\Interfaces\SwarmUnitInterface;
 use Infinri\SwarmFramework\Core\Validation\MeshDataValidator;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
@@ -23,7 +24,8 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface', 'SafetyLimitsEnforcer', 'RuntimeValidator'])]
 final class UnitEvaluationEngine
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
+
     private SafetyLimitsEnforcer $safetyEnforcer;
     private MeshDataValidator $validator;
     private array $config;
@@ -52,10 +54,10 @@ final class UnitEvaluationEngine
         foreach ($registeredUnits as $unitId => $unit) {
             // Check evaluation timeout
             if ((PerformanceTimer::now() - $evaluationStart) * 1000 > $this->config['evaluation_timeout_ms']) {
-                $this->logger->warning('Unit evaluation timeout reached', [
-                    'units_evaluated' => $unitsEvaluated,
-                    'units_remaining' => count($registeredUnits) - $unitsEvaluated
-                ]);
+                $this->logger->warning('Unit evaluation timeout reached', $this->buildPerformanceContext('unit_evaluation', $evaluationStart, [
+                    'timeout_ms' => $this->config['evaluation_timeout_ms'],
+                    'units_processed' => $unitsEvaluated
+                ]));
                 break;
             }
 
@@ -63,10 +65,10 @@ final class UnitEvaluationEngine
             try {
                 $this->safetyEnforcer->checkExecutionStart($unitId);
             } catch (\Exception $e) {
-                $this->logger->warning('Unit skipped due to safety limits', [
-                    'unit_id' => $unitId,
-                    'reason' => $e->getMessage()
-                ]);
+                $this->logger->warning('Unit skipped due to safety limits', $this->buildSecurityContext('safety_violation', [
+                    'unit_id' => $unit->getIdentity()->getId(),
+                    'reason' => 'safety_violation'
+                ]));
                 continue;
             }
 
@@ -80,16 +82,20 @@ final class UnitEvaluationEngine
                 // Basic unit validation - ensure unit has valid identity
                 $identity = $unit->getIdentity();
                 if (empty($identity) || !is_string($identity)) {
-                    throw ExceptionFactory::createArgumentException(
+                    throw ExceptionFactory::invalidArgument(
                         'Unit has invalid identity',
                         ['unit_class' => get_class($unit), 'identity' => $identity]
                     );
                 }
             } catch (\Exception $e) {
-                $this->logger->error('Unit validation failed', [
-                    'unit_id' => $unitId,
-                    'error' => $e->getMessage()
-                ]);
+                $this->logger->error('Unit validation failed', $this->buildValidationContext(
+                    ['Unit validation failed'],
+                    [],
+                    [
+                        'unit_id' => $unitId,
+                        'unit_class' => get_class($unit)
+                    ]
+                ));
                 continue;
             }
 
@@ -107,9 +113,10 @@ final class UnitEvaluationEngine
 
             // Safety check for max units per evaluation
             if ($unitsEvaluated >= $this->config['max_units_per_evaluation']) {
-                $this->logger->warning('Max units per evaluation reached', [
-                    'max_units' => $this->config['max_units_per_evaluation']
-                ]);
+                $this->logger->warning('Max units per evaluation reached', $this->buildPerformanceContext('unit_evaluation_limit', $evaluationStart, [
+                    'max_units' => $this->config['max_units_per_evaluation'],
+                    'units_evaluated' => $unitsEvaluated
+                ]));
                 break;
             }
         }
@@ -117,11 +124,11 @@ final class UnitEvaluationEngine
         // Sort by priority (higher priority first)
         usort($triggeredUnits, fn($a, $b) => $b['priority'] <=> $a['priority']);
 
-        $this->logger->debug('Unit evaluation completed', [
+        $this->logger->debug('Unit evaluation completed', $this->buildPerformanceContext('unit_evaluation_completed', $evaluationStart, [
             'units_evaluated' => $unitsEvaluated,
             'units_triggered' => count($triggeredUnits),
             'evaluation_duration_ms' => (PerformanceTimer::now() - $evaluationStart) * 1000
-        ]);
+        ]));
 
         return $triggeredUnits;
     }

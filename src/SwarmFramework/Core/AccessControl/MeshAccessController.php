@@ -5,6 +5,7 @@ namespace Infinri\SwarmFramework\Core\AccessControl;
 use Infinri\SwarmFramework\Exceptions\MeshAccessException;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\ExceptionFactory;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Psr\Log\LoggerInterface;
 
@@ -20,7 +21,7 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface'])]
 final class MeshAccessController
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
     private array $aclRules = [];
     private array $config;
 
@@ -44,11 +45,11 @@ final class MeshAccessController
         try {
             // Check global deny rules first
             if ($this->isGloballyDenied($key, $operation)) {
-                $this->logger->warning('Access denied by global rule', [
+                $this->logger->warning('Access denied by global rule', $this->buildSecurityContext('access_denied', [
                     'key' => $key,
                     'operation' => $operation,
                     'context' => $context
-                ]);
+                ]));
                 return false;
             }
 
@@ -58,12 +59,12 @@ final class MeshAccessController
                     $allowed = $this->evaluateRule($rule, $operation, $context);
                     
                     if (!$allowed) {
-                        $this->logger->warning('Access denied by ACL rule', [
+                        $this->logger->warning('Access denied by ACL rule', $this->buildSecurityContext('acl_denied', [
                             'key' => $key,
                             'operation' => $operation,
                             'rule' => $rule['name'] ?? 'unnamed',
                             'context' => $context
-                        ]);
+                        ]));
                     }
                     
                     return $allowed;
@@ -74,11 +75,10 @@ final class MeshAccessController
             return $this->checkDefaultPermissions($key, $operation);
 
         } catch (\Exception $e) {
-            $this->logger->error('ACL check failed', [
+            $this->logger->error('ACL check failed', $this->buildErrorContext('acl_check', $e, [
                 'key' => $key,
-                'operation' => $operation,
-                'error' => $e->getMessage()
-            ]);
+                'operation' => $operation
+            ]));
             
             // Fail secure - deny access on error
             return false;
@@ -130,18 +130,19 @@ final class MeshAccessController
     public function addRule(array $rule): void
     {
         if (!$this->validateRule($rule)) {
-            throw ExceptionFactory::createArgumentException(
-                'Invalid ACL rule format',
-                ['rule' => $rule, 'expected_keys' => ['resource', 'action', 'permission']]
-            );
+            throw ExceptionFactory::invalidArgument('Invalid ACL rule structure', [
+                'rule' => $rule,
+                'required_fields' => ['name', 'pattern', 'operations', 'allow']
+            ]);
         }
 
         $this->aclRules[] = $rule;
         
-        $this->logger->debug('ACL rule added', [
-            'rule_name' => $rule['name'] ?? 'unnamed',
-            'pattern' => $rule['pattern'] ?? 'unknown'
-        ]);
+        $this->logger->debug('ACL rule added', $this->buildOperationContext('add_acl_rule', [
+            'rule_name' => $rule['name'],
+            'pattern' => $rule['pattern'],
+            'operations' => $rule['operations']
+        ]));
     }
 
     /**
@@ -159,7 +160,7 @@ final class MeshAccessController
         $removed = count($this->aclRules) < $initialCount;
         
         if ($removed) {
-            $this->logger->info('ACL rule removed', ['rule_name' => $ruleName]);
+            $this->logger->info('ACL rule removed', $this->buildOperationContext('remove_acl_rule', ['rule_name' => $ruleName]));
         }
         
         return $removed;
@@ -184,11 +185,11 @@ final class MeshAccessController
             if ($this->validateRule($rule)) {
                 $this->aclRules[] = $rule;
             } else {
-                $this->logger->warning('Invalid ACL rule in configuration', ['rule' => $rule]);
+                $this->logger->warning('ACL rule validation failed', $this->buildValidationContext(['acl_rule_validation'], [], ['rule' => $rule]));
             }
         }
 
-        $this->logger->info('ACL rules loaded', ['count' => count($this->aclRules)]);
+        $this->logger->info('ACL rules loaded', $this->buildOperationContext('load_acl_rules', ['count' => count($this->aclRules)]));
     }
 
     /**

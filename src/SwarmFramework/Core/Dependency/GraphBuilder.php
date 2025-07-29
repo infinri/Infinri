@@ -58,15 +58,15 @@ final class GraphBuilder extends BaseValidator
             ]);
 
             return empty($errors) 
-                ? ValidationResultFactory::createSuccess()
-                : ValidationResultFactory::createFailure($errors);
+                ? ValidationResultFactory::success(['Dependency graph built successfully'])
+                : ValidationResultFactory::failure($errors);
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('dependency_graph_build', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return ValidationResultFactory::createFailure(["Graph build failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(['Failed to build dependency graph: ' . $e->getMessage()]);
         }
     }
 

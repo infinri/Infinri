@@ -2,9 +2,10 @@
 
 namespace Infinri\SwarmFramework\Core\Reactor;
 
-use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
+use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,7 +20,9 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface'])]
 final class ThrottlingController
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
+    
+    private array $throttleConfig;
     private array $config;
     private float $currentThrottleRate = 1.0;
     private array $performanceHistory = [];
@@ -58,14 +61,14 @@ final class ThrottlingController
 
             $this->adjustmentCounter++;
 
-            $this->logger->info('Throttling adjusted', [
+            $this->logger->info('Throttling adjusted', $this->buildOperationContext('throttle_adjustment', [
                 'tick_duration_ms' => $tickDuration,
                 'target_duration_ms' => $targetDuration,
                 'old_throttle_rate' => $oldRate,
                 'new_throttle_rate' => $this->currentThrottleRate,
                 'adjustment' => $adjustment,
                 'adjustment_count' => $this->adjustmentCounter
-            ]);
+            ]));
 
             // Apply throttling delay if needed
             if ($this->currentThrottleRate < 1.0) {
@@ -221,7 +224,9 @@ final class ThrottlingController
         $this->performanceHistory = [];
         $this->adjustmentCounter = 0;
         
-        $this->logger->info('Throttling reset to default state');
+        $this->logger->info('Throttling reset to default state', $this->buildOperationContext('throttle_reset', [
+            'reason' => 'manual_reset'
+        ]));
     }
 
     /**
@@ -233,10 +238,11 @@ final class ThrottlingController
         $oldRate = $this->currentThrottleRate;
         $this->currentThrottleRate = $rate;
         
-        $this->logger->warning('Throttle rate forced', [
+        $this->logger->warning('Throttle rate forced', $this->buildOperationContext('throttle_forced', [
             'old_rate' => $oldRate,
-            'new_rate' => $rate
-        ]);
+            'new_rate' => $rate,
+            'reason' => 'forced_override'
+        ]));
     }
 
     /**

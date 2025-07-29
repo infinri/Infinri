@@ -1,7 +1,5 @@
 # 🕷️ Infinri Framework
 
-*Where intelligence emerges from the dance of autonomous units*
-
 Infinri is an **AI-native, emergent intelligence framework** that implements the **Swarm Pattern™** - a revolutionary approach to building applications where behavior emerges from the interaction of autonomous units rather than being explicitly programmed. Think of it as a digital organism where every component contributes to a greater intelligence.
 
 ## 🧬 **What is Infinri?**
@@ -18,7 +16,7 @@ At its heart, Infinri embodies the principle: *"The spider doesn't just sit in t
 
 ## 🏗️ **Project Structure**
 
-```
+``` doc
 infinri/
 ├── docs/                          # Architecture & implementation blueprints
 │   ├── infinri_blueprint.md      # Complete modular monolith architecture (221KB)
@@ -55,35 +53,41 @@ infinri/
 ## 🛠️ **Technology Stack**
 
 ### **Core Application Layer**
+
 - **PHP 8.4** with JIT, Fibers, and FFI for native async execution
 - **RoadRunner 3.x** as application server with adaptive worker pooling (8-32 workers)
 - **ReactPHP 1.5** + **Swoole Fibers** for true non-blocking I/O
 - **Custom Swarm Reactor** for zero-overhead unit dispatch and mesh coordination
 
 ### **Data & Intelligence Layer**
+
 - **PostgreSQL 16** with **PGVector** for semantic storage and vector embeddings
 - **Redis 7.x** (Streams + PubSub + Modules) for real-time mesh coordination
 - **Four-tier cache hierarchy**: APCu → Redis → PostgreSQL → Object Storage
 
 ### **Web & API Interface**
+
 - **Caddy 2.8** web server with Auto-TLS, HTTP/3, and Zstd compression
 - **Lighthouse PHP** for GraphQL API with lazy loading and batching
 - **ReactPHP Socket** for real-time WebSocket connections
 - **Next.js/React** for server-side rendering and client hydration
 
 ### **AI & Machine Learning**
+
 - **PHP-ML** for lightweight ML operations
 - **gRPC Python services** (FastAPI + Transformers) for heavy computations
 - **PGVector + HNSW indexes** for vector similarity search
 - **OpenAI/Local embeddings** for semantic understanding *(disabled by default)*
 
 ### **Observability & Security**
+
 - **Monitoring**: Monolog → Vector.dev → Loki + Prometheus + Grafana
 - **Tracing**: Custom StigmergicTracer → Jaeger for unit execution flows
 - **Security**: Vault + SOPS + OPA + Falco for comprehensive protection
 - **Mesh Inspector**: Live web UI for real-time system visualization
 
 ### **Deployment & Infrastructure**
+
 - **Containers**: Alpine 3.20 + PHP 8.4-fpm-alpine
 - **Orchestration**: Docker Compose (dev) + Kubernetes + Istio (prod)
 - **CI/CD**: GitHub Actions + ArgoCD + Helm charts (GitOps)
@@ -119,24 +123,28 @@ class CreatePostUnit implements SwarmUnitInterface
 ## 🌟 **Key Features**
 
 ### **AI-Native but Privacy-First**
+
 - All AI features are **disabled by default** (`ai.enabled=false`)
 - System runs completely without external API dependencies
 - Clear fallback workflows for all AI-enhanced features
 - Transparent toggle controls with status indicators
 
 ### **Emergent Intelligence**
+
 - Behavior emerges from unit interactions, not explicit programming
 - System learns and adapts through pattern recognition
 - Self-healing and self-optimizing capabilities
 - Stigmergic tracing reveals execution flows and optimization opportunities
 
 ### **Extreme Performance**
+
 - Built for **100k+ concurrent users** with sub-second response times
 - Four-tier caching strategy with intelligent invalidation
 - Asynchronous-first architecture with cooperative multitasking
 - Vector search across millions of documents in milliseconds
 
 ### **Developer Experience**
+
 - Hot-reloadable SwarmUnits without service restarts
 - Live mesh inspection and debugging tools
 - Comprehensive observability with distributed tracing
@@ -145,6 +153,7 @@ class CreatePostUnit implements SwarmUnitInterface
 ## 🚀 **Getting Started**
 
 ### **Prerequisites**
+
 - PHP 8.4+ with required extensions
 - PostgreSQL 16+ with PGVector extension
 - Redis 7.x
@@ -224,5 +233,3 @@ We welcome contributions that align with the Infinri philosophy of emergent inte
 Infinri Framework is released under the [MIT License](LICENSE).
 
 ---
-
-*The spider doesn't just sit in the center—it **is** the web. Welcome to the future of emergent intelligence.*

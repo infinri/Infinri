@@ -91,7 +91,7 @@ final class ModuleManifest
     public static function fromJsonFile(string $filePath): self
     {
         if (!file_exists($filePath)) {
-            throw ExceptionFactory::createFileOperationException(
+            throw ExceptionFactory::runtime(
                 "Manifest file not found: {$filePath}",
                 ['file_path' => $filePath]
             );
@@ -101,7 +101,7 @@ final class ModuleManifest
             $data = json_decode(file_get_contents($filePath), true, 512, JSON_THROW_ON_ERROR);
             return self::fromArray($data);
         } catch (\JsonException $e) {
-            throw ExceptionFactory::createValidationException(
+            throw ExceptionFactory::validation(
                 "Invalid JSON in manifest file: {$e->getMessage()}",
                 ['file_path' => $filePath, 'json_error' => $e->getMessage()]
             );

@@ -2,6 +2,9 @@
 
 namespace Infinri\SwarmFramework\Core\Common;
 
+use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Psr\Log\LoggerInterface;
 use Redis;
@@ -13,11 +16,11 @@ use RedisCluster;
  * Eliminates redundant Redis try/catch patterns and provides
  * consistent error handling, logging, and fallback behavior.
  */
-#[Injectable(dependencies: ['Redis', 'LoggerInterface'])]
+#[Injectable(dependencies: ['LoggerInterface'])]
 final class RedisOperationWrapper
 {
+    use LoggerTrait;
     private Redis|RedisCluster $redis;
-    private LoggerInterface $logger;
     private array $config;
 
     public function __construct(
@@ -46,23 +49,20 @@ final class RedisOperationWrapper
             
             $duration = PerformanceTimer::stop("redis_{$operation}");
             
-            $this->logger->debug("Redis {$operation} successful", array_merge([
-                'operation' => $operation,
+            $this->logger->debug("Redis {$operation} successful", $this->buildOperationContext($operation, [
                 'duration_ms' => round($duration * 1000, 2),
                 'result_type' => gettype($result)
-            ], $context));
+            ] + $context));
             
             return $result;
             
         } catch (\RedisException $e) {
             $duration = PerformanceTimer::stop("redis_{$operation}");
             
-            $this->logger->error("Redis {$operation} failed", array_merge([
-                'operation' => $operation,
-                'error' => $e->getMessage(),
+            $this->logger->error("Redis {$operation} failed", $this->buildErrorContext($operation, $e, [
                 'duration_ms' => round($duration * 1000, 2),
                 'fallback_used' => $fallbackValue !== null
-            ], $context));
+            ] + $context));
             
             if ($fallbackValue !== null) {
                 return $fallbackValue;
@@ -88,21 +88,20 @@ final class RedisOperationWrapper
         
         while ($attempt <= $maxRetries) {
             try {
-                return $this->execute($operation, $redisOperation, null, array_merge($context, [
+                return $this->execute($operation, $redisOperation, null, $this->buildOperationContext($operation, [
                     'attempt' => $attempt,
                     'max_retries' => $maxRetries
-                ]));
+                ] + $context));
                 
             } catch (\Throwable $e) {
                 $lastException = $e;
                 
                 if ($attempt < $maxRetries) {
-                    $this->logger->warning("Redis {$operation} retry {$attempt}/{$maxRetries}", [
-                        'operation' => $operation,
+                    $this->logger->warning("Redis {$operation} retry {$attempt}/{$maxRetries}", $this->buildOperationContext($operation, [
                         'attempt' => $attempt,
                         'error' => $e->getMessage(),
                         'retry_delay_ms' => $retryDelayMs
-                    ]);
+                    ]));
                     
                     usleep($retryDelayMs * 1000); // Convert to microseconds
                     $retryDelayMs *= 2; // Exponential backoff
@@ -113,11 +112,9 @@ final class RedisOperationWrapper
         }
         
         // All retries failed
-        $this->logger->error("Redis {$operation} failed after {$maxRetries} retries", [
-            'operation' => $operation,
-            'max_retries' => $maxRetries,
-            'final_error' => $lastException->getMessage()
-        ]);
+        $this->logger->error("Redis {$operation} failed after {$maxRetries} retries", $this->buildErrorContext($operation, $lastException, [
+            'max_retries' => $maxRetries
+        ]));
         
         if ($fallbackValue !== null) {
             return $fallbackValue;

@@ -216,7 +216,7 @@ final class PerformanceTimer
     /**
      * Format duration for human-readable output
      */
-    public static function formatDuration(float $duration): string
+    public static function formatDuration(float $duration, int $precision = 2): string
     {
         if ($duration < 0.001) {
             return round($duration * 1000000, 2) . 'μs';
@@ -246,7 +246,7 @@ final class PerformanceTimer
     /**
      * Format duration in milliseconds with precision
      */
-    public static function formatDuration(float $duration, int $precision = 2): float
+    public static function formatDurationMs(float $duration, int $precision = 2): float
     {
         return round($duration * 1000, $precision);
     }
@@ -256,7 +256,7 @@ final class PerformanceTimer
      */
     public static function durationMs(float $startTime, ?float $endTime = null): float
     {
-        return self::formatDuration(self::duration($startTime, $endTime));
+        return self::formatDurationMs(self::duration($startTime, $endTime));
     }
 
     /**
@@ -286,42 +286,12 @@ final class PerformanceTimer
         
         return array_merge([
             'operation' => $operation,
-            'duration_ms' => self::formatDuration($duration),
+            'duration_ms' => self::formatDurationMs($duration),
             'timestamp' => self::now()
         ], $additionalContext);
     }
 
-    /**
-     * Measure execution time of a callable
-     */
-    public static function measure(callable $callback, string $name = 'operation'): array
-    {
-        $startTime = self::now();
-        
-        try {
-            $result = $callback();
-            $duration = self::duration($startTime);
-            
-            return [
-                'result' => $result,
-                'duration' => $duration,
-                'duration_ms' => self::formatDuration($duration),
-                'success' => true,
-                'operation' => $name
-            ];
-        } catch (\Throwable $e) {
-            $duration = self::duration($startTime);
-            
-            return [
-                'result' => null,
-                'duration' => $duration,
-                'duration_ms' => self::formatDuration($duration),
-                'success' => false,
-                'operation' => $name,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
+
 
     /**
      * Start timing with automatic context creation
@@ -346,7 +316,7 @@ final class PerformanceTimer
         
         return array_merge($startContext, [
             'duration' => $duration,
-            'duration_ms' => self::formatDuration($duration),
+            'duration_ms' => self::formatDurationMs($duration),
             'end_timestamp' => self::now()
         ]);
     }

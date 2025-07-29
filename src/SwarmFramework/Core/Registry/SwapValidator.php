@@ -48,7 +48,7 @@ final class SwapValidator
             }
 
             if (!empty($errors)) {
-                return ValidationResult::failure($errors);
+                return ValidationResultFactory::failure($errors);
             }
 
             // Validate module manifest
@@ -72,14 +72,14 @@ final class SwapValidator
             $this->logOperationComplete('pre_swap_validation', [
                 'duration_ms' => PerformanceTimer::formatDuration($startTime)
             ]);
-            return ValidationResult::success(['Pre-swap validation passed']);
+            return ValidationResultFactory::success(['Pre-swap validation passed']);
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('validate_swap', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return ValidationResultFactory::createFailure(["Pre-swap validation failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Pre-swap validation failed: {$e->getMessage()}"]);
         }
     }
 
@@ -118,15 +118,15 @@ final class SwapValidator
             ]);
 
             return empty($errors) 
-                ? ValidationResult::success(['Post-swap validation passed'])
-                : ValidationResult::failure($errors);
+                ? ValidationResultFactory::success(['Post-swap validation passed'])
+                : ValidationResultFactory::failure($errors);
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('post_swap_validation', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return ValidationResultFactory::createFailure(["Post-swap validation failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Post-swap validation failed: {$e->getMessage()}"]);
         }
     }
 
@@ -155,11 +155,11 @@ final class SwapValidator
             }
 
             return empty($errors) 
-                ? ValidationResultFactory::createSuccess()
-                : ValidationResultFactory::createFailure($errors);
+                ? ValidationResultFactory::success()
+                : ValidationResultFactory::failure($errors);
 
         } catch (\Throwable $e) {
-            return ValidationResultFactory::createFailure(["Dependency validation failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Dependency validation failed: {$e->getMessage()}"]);
         }
     }
 
@@ -169,12 +169,12 @@ final class SwapValidator
             // Check file integrity (size, permissions, etc.)
             $fileInfo = stat($modulePath);
             if ($fileInfo === false) {
-                return ValidationResultFactory::createFailure(['Cannot read module file information']);
+                return ValidationResultFactory::failure(['Cannot read module file information']);
             }
 
             // Validate file size is reasonable
             if ($fileInfo['size'] > 10 * 1024 * 1024) { // 10MB limit
-                return ValidationResultFactory::createFailure(['Module file too large (>10MB)']);
+                return ValidationResultFactory::failure(['Module file too large (>10MB)']);
             }
 
             // Check PHP syntax
@@ -183,10 +183,10 @@ final class SwapValidator
                 return $syntaxCheck;
             }
 
-            return ValidationResultFactory::createSuccess();
+            return ValidationResultFactory::success();
 
         } catch (\Throwable $e) {
-            return ValidationResultFactory::createFailure(["Module integrity check failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Module integrity check failed: {$e->getMessage()}"]);
         }
     }
 
@@ -198,10 +198,10 @@ final class SwapValidator
         exec("php -l " . escapeshellarg($filePath) . " 2>&1", $output, $returnCode);
         
         if ($returnCode !== 0) {
-            return ValidationResultFactory::createFailure(['PHP syntax error: ' . implode(' ', $output)]);
+            return ValidationResultFactory::failure(['PHP syntax error: ' . implode(' ', $output)]);
         }
 
-        return ValidationResultFactory::createSuccess();
+        return ValidationResultFactory::success();
     }
 
     private function validateUnitsAvailable($module): ValidationResult
@@ -215,8 +215,8 @@ final class SwapValidator
         }
 
         return empty($errors) 
-            ? ValidationResultFactory::createSuccess()
-            : ValidationResultFactory::createFailure($errors);
+            ? ValidationResultFactory::success()
+            : ValidationResultFactory::failure($errors);
     }
 
     private function satisfiesVersionConstraint(string $version, string $constraint): bool

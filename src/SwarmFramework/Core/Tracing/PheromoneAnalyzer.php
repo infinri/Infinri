@@ -3,6 +3,7 @@
 namespace Infinri\SwarmFramework\Core\Tracing;
 
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 
 /**
@@ -30,7 +31,7 @@ final class PheromoneAnalyzer
     public function extractPheromoneTrails(array $meshBefore, array $meshAfter): array
     {
         $trails = [];
-        $timestamp = microtime(true);
+        $timestamp = PerformanceTimer::now();
 
         foreach ($meshAfter as $key => $value) {
             $beforeValue = $meshBefore[$key] ?? null;
@@ -167,7 +168,7 @@ final class PheromoneAnalyzer
     public function updatePheromoneTrails(TraceSpan $span, array $mutations): array
     {
         $trails = [];
-        $timestamp = microtime(true);
+        $timestamp = PerformanceTimer::now();
 
         foreach ($mutations as $mutation) {
             $intensity = $this->calculateChangeIntensity($mutation);

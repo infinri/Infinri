@@ -27,7 +27,6 @@ final class MeshSubscriptionManager
     use LoggerTrait;
 
     private RedisOperationWrapper $redis;
-    private LoggerInterface $logger;
     private ThresholdValidator $thresholdValidator;
     private array $subscriptions = [];
     private array $config;

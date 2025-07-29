@@ -34,6 +34,7 @@ final class UnitLifecycleManager
 
     public function gracefulShutdown(array $unitClasses): void
     {
+        $startTime = PerformanceTimer::now();
         $context = PerformanceTimer::startWithContext('graceful_shutdown', ['units' => count($unitClasses)]);
         $this->logOperationStart('graceful_shutdown', $context);
 
@@ -48,7 +49,7 @@ final class UnitLifecycleManager
 
             if (empty($unitIds)) {
                 $finalContext = PerformanceTimer::stopWithContext('graceful_shutdown', $context);
-                $this->logOperationComplete('graceful_shutdown', array_merge($finalContext, ['units_found' => 0]));
+                $this->logOperationComplete('graceful_shutdown', $this->buildOperationContext('graceful_shutdown', array_merge($finalContext, ['units_found' => 0])));
                 return;
             }
 
@@ -62,9 +63,9 @@ final class UnitLifecycleManager
             $this->waitForShutdown($unitIds);
 
             $finalContext = PerformanceTimer::stopWithContext('graceful_shutdown', $context);
-            $this->logOperationComplete('graceful_shutdown', array_merge($finalContext, [
+            $this->logOperationComplete('graceful_shutdown', $this->buildOperationContext('graceful_shutdown', array_merge($finalContext, [
                 'units_shutdown' => count($unitIds)
-            ]));
+            ])));
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('graceful_shutdown', $this->buildErrorContext('graceful_shutdown', $e, [
@@ -75,6 +76,7 @@ final class UnitLifecycleManager
 
     public function initializeUnits(ModuleManifest $manifest): void
     {
+        $startTime = PerformanceTimer::now();
         $context = PerformanceTimer::startWithContext('initialize_units', ['module' => $manifest->getName()]);
         $this->logOperationStart('initialize_units', $context);
 
@@ -115,6 +117,7 @@ final class UnitLifecycleManager
 
     public function restartUnits(array $unitIds): void
     {
+        $startTime = PerformanceTimer::now();
         $context = PerformanceTimer::startWithContext('restart_units', ['units' => count($unitIds)]);
         $this->logOperationStart('restart_units', $context);
 

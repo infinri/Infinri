@@ -3,7 +3,9 @@
 namespace Infinri\SwarmFramework\Core\Registry;
 
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Interfaces\ValidationResult;
+use Infinri\SwarmFramework\Core\Registry\SwapOrchestrator;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -15,7 +17,7 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface', 'SwapOrchestrator'])]
 final class HotSwapManager
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
     private SwapOrchestrator $orchestrator;
 
     public function __construct(LoggerInterface $logger, SwapOrchestrator $orchestrator)

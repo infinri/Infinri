@@ -3,6 +3,7 @@
 namespace Infinri\SwarmFramework\Core\Reactor;
 
 use Infinri\SwarmFramework\Interfaces\SwarmUnitInterface;
+use Infinri\SwarmFramework\Interfaces\SemanticMeshInterface;
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
 use Infinri\SwarmFramework\Core\Common\ExceptionFactory;
@@ -24,7 +25,8 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface', 'SafetyLimitsEnforcer', 'StigmergicTracer'])]
 final class ExecutionMonitor
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
+
     private SafetyLimitsEnforcer $safetyEnforcer;
     private StigmergicTracer $tracer;
     private array $healthMetrics = [];
@@ -66,11 +68,11 @@ final class ExecutionMonitor
                 $this->updateUnitHealthMetrics($unitId, $result);
 
             } catch (\Exception $e) {
-                $this->logger->error('Unit execution failed', [
+                $this->logger->error('Unit execution failed', $this->buildErrorContext('unit_execution', $e, [
                     'unit_id' => $unitId,
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
-                ]);
+                ]));
 
                 $executionResults[] = [
                     'unit_id' => $unitId,
@@ -82,13 +84,13 @@ final class ExecutionMonitor
             }
         }
 
-        $totalDuration = PerformanceTimer::calculateDuration($executionStart);
+        $totalDuration = PerformanceTimer::duration($executionStart);
         
-        $this->logger->info('Unit execution batch completed', [
+        $this->logger->info('Unit execution batch completed', $this->buildPerformanceContext('batch_execution', $executionStart, [
             'units_executed' => count($prioritizedUnits),
             'successful_executions' => count(array_filter($executionResults, fn($r) => $r['success'])),
             'total_duration' => $totalDuration
-        ]);
+        ]));
 
         return $executionResults;
     }
@@ -150,7 +152,7 @@ final class ExecutionMonitor
             $executionEnd = PerformanceTimer::now();
             $duration = $executionEnd - $executionStart;
 
-            throw ExceptionFactory::createRuntimeException(
+            throw ExceptionFactory::runtime(
                 "Unit execution failed: {$e->getMessage()}",
                 ['unit_id' => $unitId, 'duration' => $duration, 'original_error' => $e->getMessage()],
                 $e

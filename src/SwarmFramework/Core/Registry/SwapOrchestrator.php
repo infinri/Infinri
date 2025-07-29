@@ -101,7 +101,7 @@ final class SwapOrchestrator
                 'duration' => round($duration, 3)
             ]);
 
-            return ValidationResult::success(['Hot swap completed successfully']);
+            return ValidationResultFactory::success(['Hot swap completed successfully']);
 
         } catch (\Throwable $e) {
             $this->logger->error('Hot swap failed with exception', [
@@ -117,7 +117,7 @@ final class SwapOrchestrator
             }
 
             $this->recordSwapFailure($swapId, $moduleName, $e->getMessage());
-            return ValidationResultFactory::createFailure(['Hot swap failed: ' . $e->getMessage()]);
+            return ValidationResultFactory::failure(['Hot swap failed: ' . $e->getMessage()]);
         }
     }
 
@@ -177,10 +177,10 @@ final class SwapOrchestrator
             $this->mesh->set("module:{$moduleName}:path", $newModulePath);
             $this->mesh->set("module:{$moduleName}:swapped_at", time());
 
-            return ValidationResultFactory::createSuccess();
+            return ValidationResultFactory::success();
 
         } catch (\Throwable $e) {
-            return ValidationResultFactory::createFailure(["Swap execution failed: {$e->getMessage()}"]);
+            return ValidationResultFactory::failure(["Swap execution failed: {$e->getMessage()}"]);
         }
     }
 

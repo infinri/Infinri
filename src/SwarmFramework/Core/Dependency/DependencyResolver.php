@@ -8,6 +8,7 @@ use Infinri\SwarmFramework\Core\Dependency\CircularDetector;
 use Infinri\SwarmFramework\Core\Dependency\VersionValidator;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
+use Infinri\SwarmFramework\Core\Common\ValidationResultFactory;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Utils\VersionUtil;
 use Infinri\SwarmFramework\Interfaces\ValidationResult;
@@ -79,7 +80,7 @@ final class DependencyResolver
         if (!$this->config['allow_circular_dependencies']) {
             $cycles = $this->circularDetector->detectCircularDependencies();
             if (!empty($cycles)) {
-                return ValidationResult::failure($cycles);
+                return ValidationResultFactory::failure($cycles);
             }
         }
 

@@ -4,7 +4,10 @@ namespace Infinri\SwarmFramework\Core\Reactor;
 
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\ExceptionFactory;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
+use Infinri\SwarmFramework\Core\Common\ValidationResultFactory;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,7 +22,7 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['LoggerInterface'])]
 final class MutexResolutionEngine
 {
-    private LoggerInterface $logger;
+    use LoggerTrait;
     private array $config;
 
     public function __construct(LoggerInterface $logger, array $config = [])

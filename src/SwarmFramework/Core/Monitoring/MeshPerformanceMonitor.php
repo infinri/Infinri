@@ -27,8 +27,7 @@ final class MeshPerformanceMonitor
 {
     use LoggerTrait;
 
-    private RedisOperationWrapper $redis;
-    private LoggerInterface $logger;
+    private RedisOperationWrapper $redisWrapper;
     private HealthCheckManager $healthChecker;
     private CacheManager $cache;
     private ThresholdValidator $thresholdValidator;
@@ -167,16 +166,19 @@ final class MeshPerformanceMonitor
         $performanceStats = $this->redis->getPerformanceStats();
         $memoryStats = $this->redis->getMemoryUsage();
         
-        $stats = StatisticsCalculator::buildStatsArray(array_merge($redisInfo, [
-            'hits' => $performanceStats['keyspace_hits'],
-            'misses' => $performanceStats['keyspace_misses'],
+        $stats = StatisticsCalculator::buildStatsArray($redisInfo + [
+            'connections_active' => $redisInfo['connected_clients'] ?? 0,
+            'memory_used_mb' => round(($redisInfo['used_memory'] ?? 0) / 1024 / 1024, 2)
+        ]);
+        
+        $stats = array_merge($stats, [
             'total_ops' => $performanceStats['total_commands_processed'],
             'uptime' => $redisInfo['uptime_in_seconds'] ?? 0,
             'used_memory' => $memoryStats['used_memory'],
             'allocated_memory' => $memoryStats['used_memory_peak'],
             'current' => $this->redis->getDbSize(),
             'maximum' => $this->config['max_keys']
-        ]));
+        ]);
         
         $this->logOperationComplete('compute_stats');
         

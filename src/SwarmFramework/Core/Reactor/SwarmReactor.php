@@ -7,6 +7,7 @@ use Infinri\SwarmFramework\Interfaces\SwarmUnitInterface;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
 use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
+use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Reactor\UnitEvaluationEngine;
 use Infinri\SwarmFramework\Core\Reactor\MutexResolutionEngine;
 use Infinri\SwarmFramework\Core\Reactor\ExecutionMonitor;
@@ -37,8 +38,8 @@ use Psr\Log\LoggerInterface;
 ])]
 final class SwarmReactor
 {
+    use LoggerTrait;
     private SemanticMeshInterface $mesh;
-    private LoggerInterface $logger;
     private UnitEvaluationEngine $evaluationEngine;
     private MutexResolutionEngine $mutexEngine;
     private ExecutionMonitor $executionMonitor;
@@ -180,7 +181,7 @@ final class SwarmReactor
 
             // Check if already registered
             if (isset($this->registeredUnits[$unitId])) {
-                $this->logger->warning('Unit already registered', ['unit_id' => $unitId]);
+                $this->logger->warning('Unit already registered', $this->buildOperationContext('unit_registration', ['unit_id' => $unitId, 'status' => 'already_exists']));
                 return false;
             }
 
@@ -214,7 +215,7 @@ final class SwarmReactor
     public function unregisterUnit(string $unitId): bool
     {
         if (!isset($this->registeredUnits[$unitId])) {
-            $this->logger->warning('Attempted to unregister non-existent unit', ['unit_id' => $unitId]);
+            $this->logger->warning('Attempted to unregister non-existent unit', $this->buildOperationContext('unit_unregistration', ['unit_id' => $unitId, 'status' => 'not_found']));
             return false;
         }
 

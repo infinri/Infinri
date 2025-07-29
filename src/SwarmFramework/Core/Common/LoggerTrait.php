@@ -21,7 +21,7 @@ trait LoggerTrait
     {
         $this->logger->debug("Starting {$operation}", array_merge([
             'operation' => $operation,
-            'timestamp' => microtime(true)
+            'timestamp' => PerformanceTimer::now()
         ], $context));
     }
 
@@ -32,7 +32,7 @@ trait LoggerTrait
     {
         $this->logger->info("Completed {$operation}", array_merge([
             'operation' => $operation,
-            'timestamp' => microtime(true)
+            'timestamp' => PerformanceTimer::now()
         ], $context));
     }
 
@@ -43,7 +43,7 @@ trait LoggerTrait
     {
         $this->logger->error("Failed {$operation}", array_merge([
             'operation' => $operation,
-            'timestamp' => microtime(true)
+            'timestamp' => PerformanceTimer::now()
         ], $context));
     }
 
@@ -57,7 +57,7 @@ trait LoggerTrait
                 'operation' => $operation,
                 'duration_ms' => round($duration * 1000, 2),
                 'threshold_ms' => round($threshold * 1000, 2),
-                'timestamp' => microtime(true)
+                'timestamp' => PerformanceTimer::now()
             ], $context));
         }
     }
@@ -71,7 +71,7 @@ trait LoggerTrait
             'context' => $context,
             'error_count' => count($errors),
             'errors' => $errors,
-            'timestamp' => microtime(true)
+            'timestamp' => PerformanceTimer::now()
         ]);
     }
 

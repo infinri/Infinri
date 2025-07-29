@@ -4,6 +4,7 @@ namespace Infinri\SwarmFramework\Core\Tracing;
 
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Psr\Log\LoggerInterface;
 
@@ -99,7 +100,7 @@ final class CausalityAnalyzer
 
         // Boost confidence for temporal proximity
         $recentCauses = array_filter($causes, fn($cause) => 
-            (microtime(true) - $cause['timestamp']) < 30
+            (PerformanceTimer::now() - $cause['timestamp']) < 30
         );
         if (!empty($recentCauses)) {
             $baseConfidence += 0.2;

@@ -47,7 +47,6 @@ final class SemanticMesh implements SemanticMeshInterface
     use LoggerTrait;
 
     private Redis|RedisCluster $redis;
-    private LoggerInterface $logger;
     private RedisOperationWrapper $redisWrapper;
     private CacheManager $cacheManager;
     private MeshAccessController $accessController;

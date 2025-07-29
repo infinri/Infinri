@@ -56,10 +56,12 @@ final class SwapBackupManager
             // Store backup metadata in mesh
             $this->mesh->set("backup:{$moduleName}:metadata", serialize($backupData));
 
+            $startTime = PerformanceTimer::now();
+            $duration = PerformanceTimer::duration($startTime);
             $this->logOperationComplete('create_backup', [
                 'snapshot_keys' => count($backupData['mesh_snapshot']),
                 'temp_files' => count($backupData['temp_files']),
-                'duration_ms' => round($context->getDuration() * 1000, 2)
+                'duration_ms' => PerformanceTimer::formatDurationMs($duration)
             ]);
 
             return $backupData;
@@ -67,7 +69,7 @@ final class SwapBackupManager
         } catch (\Throwable $e) {
             $this->logOperationFailure('create_backup', [
                 'error' => $e->getMessage(),
-                'trace' => ExceptionFactory::getTraceAsString($e)
+                'trace' => $e->getTraceAsString()
             ]);
             return [];
         }
@@ -92,14 +94,16 @@ final class SwapBackupManager
             // Clean up backup metadata
             $this->mesh->delete("backup:{$moduleName}:metadata");
 
+            $startTime = PerformanceTimer::now();
+            $duration = PerformanceTimer::duration($startTime);
             $this->logOperationComplete('restore_backup', [
-                'duration_ms' => round($context->getDuration() * 1000, 2)
+                'duration_ms' => PerformanceTimer::formatDurationMs($duration)
             ]);
 
         } catch (\Throwable $e) {
             $this->logOperationFailure('restore_module', [
                 'error' => $e->getMessage(),
-                'trace' => ExceptionFactory::getTraceAsString($e)
+                'trace' => $e->getTraceAsString()
             ]);
         }
     }
@@ -124,10 +128,12 @@ final class SwapBackupManager
                 $this->mesh->delete("backup:{$backupData['module_name']}:metadata");
             }
 
+            $startTime = PerformanceTimer::now();
+            $duration = PerformanceTimer::duration($startTime);
             $this->logOperationComplete('backup_module', [
                 'module' => $backupData['module_name'],
                 'backup_path' => $backupData['backup_path'] ?? '',
-                'duration_ms' => round((microtime(true) - $startTime) * 1000, 2)
+                'duration_ms' => $duration
             ]);
 
         } catch (\Throwable $e) {
@@ -223,7 +229,7 @@ final class SwapBackupManager
             ];
         }
 
-        throw ExceptionFactory::createFileOperationException(
+        throw ExceptionFactory::runtime(
             "Failed to backup module file: {$originalPath}",
             ['original_path' => $originalPath, 'backup_dir' => $this->config['backup_directory']]
         );
@@ -232,21 +238,21 @@ final class SwapBackupManager
     private function restoreModuleFile(array $backupInfo): void
     {
         if (!isset($backupInfo['backup_path']) || !isset($backupInfo['original_path'])) {
-            throw ExceptionFactory::createValidationException(
+            throw ExceptionFactory::validation(
                 'Invalid backup information for module file restore',
                 ['backup_info' => $backupInfo]
             );
         }
 
         if (!file_exists($backupInfo['backup_path'])) {
-            throw ExceptionFactory::createFileOperationException(
+            throw ExceptionFactory::runtime(
                 "Backup file not found: {$backupInfo['backup_path']}",
                 ['backup_path' => $backupInfo['backup_path']]
             );
         }
 
         if (!copy($backupInfo['backup_path'], $backupInfo['original_path'])) {
-            throw ExceptionFactory::createFileOperationException(
+            throw ExceptionFactory::runtime(
                 "Failed to restore module file: {$backupInfo['original_path']}",
                 ['original_path' => $backupInfo['original_path'], 'backup_path' => $backupInfo['backup_path']]
             );

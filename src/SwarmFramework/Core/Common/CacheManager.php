@@ -14,8 +14,9 @@ use Psr\Log\LoggerInterface;
 #[Injectable(dependencies: ['RedisOperationWrapper', 'LoggerInterface'])]
 final class CacheManager
 {
-    private RedisOperationWrapper $redis;
-    private LoggerInterface $logger;
+    use LoggerTrait;
+    
+    private RedisOperationWrapper $redisWrapper;
     private array $config;
 
     public function __construct(
@@ -23,8 +24,7 @@ final class CacheManager
         LoggerInterface $logger,
         array $config = []
     ) {
-        $this->redis = $redis;
-        $this->logger = $logger;
+        $this->redisWrapper = $redis;
         $this->config = ConfigManager::getConfig('CacheManager', $config);
     }
 
@@ -36,7 +36,7 @@ final class CacheManager
         $timer = PerformanceTimer::start("cache_get_{$key}");
         
         try {
-            $value = $this->redis->get($key, $jsonDecode);
+            $value = $this->redisWrapper->get($key, $jsonDecode);
             $duration = PerformanceTimer::stop("cache_get_{$key}");
             
             $hit = $value !== false;
@@ -70,7 +70,7 @@ final class CacheManager
         $timer = PerformanceTimer::start("cache_set_{$key}");
         
         try {
-            $success = $this->redis->setWithTtl($key, $value, $ttl);
+            $success = $this->redisWrapper->setWithTtl($key, $value, $ttl);
             $duration = PerformanceTimer::stop("cache_set_{$key}");
             
             $this->logger->debug('Cache set operation', [
@@ -142,7 +142,7 @@ final class CacheManager
     public function delete(string $key): bool
     {
         try {
-            $deleted = $this->redis->delete($key) > 0;
+            $deleted = $this->redisWrapper->delete($key) > 0;
             
             $this->logger->debug('Cache delete operation', [
                 'key' => $key,
@@ -167,7 +167,7 @@ final class CacheManager
     public function exists(string $key): bool
     {
         try {
-            return $this->redis->execute(
+            return $this->redisWrapper->execute(
                 'exists',
                 fn($redis) => $redis->exists($key) > 0,
                 false
@@ -199,7 +199,7 @@ final class CacheManager
         $cleared = 0;
         
         try {
-            $keys = $this->redis->execute(
+            $keys = $this->redisWrapper->execute(
                 'keys',
                 fn($redis) => $redis->keys($pattern),
                 []
@@ -269,7 +269,7 @@ final class CacheManager
         try {
             // Note: This is a simplified implementation
             // In production, you might want to use Redis SCAN for large datasets
-            $keys = $this->redis->execute(
+            $keys = $this->redisWrapper->execute(
                 'keys',
                 fn($redis) => $redis->keys($pattern),
                 []
@@ -366,7 +366,7 @@ final class CacheManager
         if ($value !== false) {
             // Check remaining TTL
             try {
-                $ttl = $this->redis->execute(
+                $ttl = $this->redisWrapper->execute(
                     'ttl',
                     fn($redis) => $redis->ttl($key),
                     -1

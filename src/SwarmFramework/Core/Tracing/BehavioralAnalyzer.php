@@ -4,9 +4,11 @@ namespace Infinri\SwarmFramework\Core\Tracing;
 
 use Infinri\SwarmFramework\Core\Common\LoggerTrait;
 use Infinri\SwarmFramework\Core\Common\ConfigManager;
+use Infinri\SwarmFramework\Core\Common\PerformanceTimer;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Psr\Log\LoggerInterface;
 use Infinri\SwarmFramework\Core\Attributes\UnitIdentity;
+use Infinri\SwarmFramework\Interfaces\SwarmUnitInterface;
 
 /**
  * Behavioral Analyzer - Pattern Recognition in Digital Consciousness
@@ -277,7 +279,7 @@ final class BehavioralAnalyzer
     private function analyzeTemporalPattern(UnitIdentity $identity): array
     {
         return [
-            'execution_timestamp' => microtime(true),
+            'execution_timestamp' => PerformanceTimer::now(),
             'unit_version' => $identity->version,
             'unit_hash' => $identity->hash
         ];

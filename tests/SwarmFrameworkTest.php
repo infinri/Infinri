@@ -2,16 +2,15 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Infinri\SwarmFramework\Core\UnitIdentity;
-use Infinri\SwarmFramework\Core\Tactic;
-use Infinri\SwarmFramework\Core\Goal;
-use Infinri\SwarmFramework\Core\Injectable;
-use Infinri\SwarmFramework\Core\SafetyLimitsEnforcer;
-use Infinri\SwarmFramework\Core\RuntimeValidator;
-use Infinri\SwarmFramework\Core\SemanticMesh;
-use Infinri\SwarmFramework\Core\SwarmReactor;
-use Infinri\SwarmFramework\Core\StigmergicTracer;
-use Infinri\SwarmFramework\Core\ModuleRegistry;
+use Infinri\SwarmFramework\Core\Attributes\UnitIdentity;
+use Infinri\SwarmFramework\Core\Attributes\Tactic;
+use Infinri\SwarmFramework\Core\Attributes\Goal;
+use Infinri\SwarmFramework\Core\Attributes\Injectable;
+use Infinri\SwarmFramework\Core\Safety\SafetyLimitsEnforcer;
+use Infinri\SwarmFramework\Core\Safety\RuntimeValidator;
+use Infinri\SwarmFramework\Core\Mesh\SemanticMesh;
+use Infinri\SwarmFramework\Core\Tracing\StigmergicTracer;
+use Infinri\SwarmFramework\Core\Registry\ModuleRegistry;
 use Infinri\SwarmFramework\Interfaces\ValidationResult;
 use Infinri\SwarmFramework\Exceptions\InvalidUnitIdentityException;
 use Infinri\SwarmFramework\Exceptions\SafetyLimitExceededException;
@@ -322,7 +321,10 @@ class SwarmFrameworkTest
             public function log($level, $message, array $context = []): void {}
         };
 
-        $tracer = new StigmergicTracer($logger);
+        $pheromoneAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\PheromoneAnalyzer();
+        $behavioralAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\BehavioralAnalyzer();
+        $causalityAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\CausalityAnalyzer();
+        $tracer = new StigmergicTracer($logger, $pheromoneAnalyzer, $behavioralAnalyzer, $causalityAnalyzer);
 
         // Test pheromone intensity calculation
         $this->runTest('StigmergicTracer - Pheromone Intensity', function() use ($tracer) {
@@ -351,7 +353,23 @@ class SwarmFrameworkTest
             public function log($level, $message, array $context = []): void {}
         };
 
-        $registry = new ModuleRegistry($logger);
+        // Create a simple mock mesh for testing
+        $mockMesh = new class implements \Infinri\SwarmFramework\Interfaces\SemanticMeshInterface {
+            public function get(string $key, ?string $namespace = null): mixed { return null; }
+            public function set(string $key, mixed $value, ?string $namespace = null): bool { return true; }
+            public function compareAndSet(string $key, mixed $expected, mixed $value): bool { return true; }
+            public function snapshot(array $keyPatterns = ['*']): array { return []; }
+            public function getVersion(string $key): int { return 1; }
+            public function subscribe(string $pattern, callable $callback): void {}
+            public function publish(string $channel, array $data): void {}
+            public function all(): array { return []; }
+            public function exists(string $key, ?string $namespace = null): bool { return false; }
+            public function delete(string $key, ?string $namespace = null): bool { return true; }
+            public function getStats(): array { return []; }
+            public function clear(?string $namespace = null): bool { return true; }
+        };
+        $thresholdValidator = new \Infinri\SwarmFramework\Core\Common\ThresholdValidator($logger);
+        $registry = new ModuleRegistry($logger, $mockMesh, $thresholdValidator);
 
         // Test registry initialization
         $this->runTest('ModuleRegistry - Initialization', function() use ($registry) {
