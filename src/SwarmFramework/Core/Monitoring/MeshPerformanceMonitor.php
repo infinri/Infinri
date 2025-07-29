@@ -41,8 +41,7 @@ final class MeshPerformanceMonitor
         ThresholdValidator $thresholdValidator,
         array $config = []
     ) {
-        $this->redis = $redis;
-        $this->logger = $logger;
+        $this->redisWrapper = $redis;
         $this->healthChecker = $healthChecker;
         $this->cache = $cache;
         $this->thresholdValidator = $thresholdValidator;
@@ -66,7 +65,7 @@ final class MeshPerformanceMonitor
      */
     public function isCapacityExceeded(): bool
     {
-        $currentKeys = $this->redis->getDbSize();
+        $currentKeys = $this->redisWrapper->getDbSize();
         
         $result = $this->thresholdValidator->validateCapacity(
             'MeshPerformanceMonitor',
@@ -83,7 +82,7 @@ final class MeshPerformanceMonitor
      */
     public function isMemoryExceeded(): bool
     {
-        $memoryStats = $this->redis->getMemoryUsage();
+        $memoryStats = $this->redisWrapper->getMemoryUsage();
         
         $result = $this->thresholdValidator->validateCapacity(
             'MeshPerformanceMonitor',
@@ -103,7 +102,7 @@ final class MeshPerformanceMonitor
         $checks = [
             'connectivity' => $this->healthChecker->checkConnectivity(
                 'Redis',
-                fn() => $this->redis->testConnectivity()
+                fn() => $this->redisWrapper->testConnectivity()
             ),
             'capacity' => $this->checkCapacityHealth(),
             'memory' => $this->checkMemoryHealth(),
@@ -118,8 +117,8 @@ final class MeshPerformanceMonitor
      */
     public function getPerformanceMetrics(): array
     {
-        $performanceStats = $this->redis->getPerformanceStats();
-        $memoryStats = $this->redis->getMemoryUsage();
+        $performanceStats = $this->redisWrapper->getPerformanceStats();
+        $memoryStats = $this->redisWrapper->getMemoryUsage();
         
         return StatisticsCalculator::buildStatsArray([
             'hits' => $performanceStats['keyspace_hits'],
@@ -128,7 +127,7 @@ final class MeshPerformanceMonitor
             'uptime' => $this->getRedisUptime(),
             'used_memory' => $memoryStats['used_memory'],
             'allocated_memory' => $memoryStats['used_memory_peak'],
-            'current' => $this->redis->getDbSize(),
+            'current' => $this->redisWrapper->getDbSize(),
             'maximum' => $this->config['max_keys']
         ]);
     }
@@ -144,7 +143,7 @@ final class MeshPerformanceMonitor
         ]);
 
         // Store in Redis for aggregation
-        $this->redis->hSet(
+        $this->redisWrapper->hSet(
             'mesh_operations',
             $operation,
             json_encode([
@@ -162,9 +161,9 @@ final class MeshPerformanceMonitor
     {
         $this->logOperationStart('compute_stats');
         
-        $redisInfo = $this->redis->getInfo();
-        $performanceStats = $this->redis->getPerformanceStats();
-        $memoryStats = $this->redis->getMemoryUsage();
+        $redisInfo = $this->redisWrapper->getInfo();
+        $performanceStats = $this->redisWrapper->getPerformanceStats();
+        $memoryStats = $this->redisWrapper->getMemoryUsage();
         
         $stats = StatisticsCalculator::buildStatsArray($redisInfo + [
             'connections_active' => $redisInfo['connected_clients'] ?? 0,
@@ -176,7 +175,7 @@ final class MeshPerformanceMonitor
             'uptime' => $redisInfo['uptime_in_seconds'] ?? 0,
             'used_memory' => $memoryStats['used_memory'],
             'allocated_memory' => $memoryStats['used_memory_peak'],
-            'current' => $this->redis->getDbSize(),
+            'current' => $this->redisWrapper->getDbSize(),
             'maximum' => $this->config['max_keys']
         ]);
         
@@ -190,7 +189,7 @@ final class MeshPerformanceMonitor
      */
     private function checkCapacityHealth(): array
     {
-        $currentKeys = $this->redis->getDbSize();
+        $currentKeys = $this->redisWrapper->getDbSize();
         
         return $this->healthChecker->checkThresholdHealth(
             'MeshPerformanceMonitor',
@@ -205,7 +204,7 @@ final class MeshPerformanceMonitor
      */
     private function checkMemoryHealth(): array
     {
-        $memoryStats = $this->redis->getMemoryUsage();
+        $memoryStats = $this->redisWrapper->getMemoryUsage();
         
         return $this->healthChecker->checkThresholdHealth(
             'MeshPerformanceMonitor',
@@ -220,7 +219,7 @@ final class MeshPerformanceMonitor
      */
     private function checkPerformanceHealth(): array
     {
-        $performanceStats = $this->redis->getPerformanceStats();
+        $performanceStats = $this->redisWrapper->getPerformanceStats();
         
         $result = $this->thresholdValidator->validatePerformance(
             'MeshPerformanceMonitor',
@@ -241,7 +240,7 @@ final class MeshPerformanceMonitor
      */
     private function getRedisUptime(): int
     {
-        $info = $this->redis->getInfo('server');
+        $info = $this->redisWrapper->getInfo('server');
         return $info['uptime_in_seconds'] ?? 0;
     }
 }
