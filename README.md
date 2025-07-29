@@ -193,14 +193,6 @@ composer install
 open http://localhost:8080/mesh-inspector
 ```
 
-## 📖 **Documentation**
-
-- **[Architecture Overview](docs/architecture/)** - System design and patterns
-- **[Implementation Blueprints](docs/blueprints/)** - Detailed module specifications  
-- **[Developer Guide](docs/development/)** - Building and extending SwarmUnits
-- **[Deployment Guide](docs/deployment/)** - Production setup and scaling
-- **[API Reference](docs/api/)** - GraphQL schema and REST endpoints
-
 ## 🎯 **Current Implementation**
 
 This repository contains the **Modular Monolith Blog Platform** - the first complete implementation of the Infinri framework. It demonstrates:
