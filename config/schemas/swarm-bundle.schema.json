@@ -1,0 +1,366 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://infinri.com/schemas/swarm-bundle.schema.json",
+  "title": "Swarm Bundle Schema",
+  "description": "Schema for validating Swarm Framework bundle specifications",
+  "type": "object",
+  "required": ["name", "version", "units", "manifest_version"],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "pattern": "^1\\.0$",
+      "description": "Manifest schema version"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "minLength": 2,
+      "maxLength": 50,
+      "description": "Bundle name in kebab-case"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$",
+      "description": "Semantic version (e.g., 1.0.0 or 1.0.0-alpha)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Human-readable bundle description"
+    },
+    "author": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["name"]
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/unit_definition"
+      },
+      "description": "Array of SwarmUnit definitions"
+    },
+    "dependencies": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9-]*[a-z0-9]$": {
+          "type": "string",
+          "pattern": "^(\\*|\\^?\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?)$"
+        }
+      },
+      "description": "Module dependencies with version constraints"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*[A-Z0-9]$"
+      },
+      "uniqueItems": true,
+      "description": "Capabilities provided by this bundle"
+    },
+    "api_endpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/api_endpoint"
+      },
+      "description": "API endpoints exposed by this bundle"
+    },
+    "admin_interfaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/admin_interface"
+      },
+      "description": "Admin interface components"
+    },
+    "mesh_namespaces": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+      },
+      "uniqueItems": true,
+      "description": "Mesh namespaces used by this bundle"
+    },
+    "performance_targets": {
+      "type": "object",
+      "properties": {
+        "max_execution_time_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30000
+        },
+        "max_memory_mb": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "target_throughput_ops_sec": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "description": "Performance targets and constraints"
+    },
+    "security_requirements": {
+      "type": "object",
+      "properties": {
+        "required_permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["mesh.read", "mesh.write", "mesh.admin", "api.access", "admin.access"]
+          }
+        },
+        "mesh_acl_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/acl_rule"
+          }
+        }
+      },
+      "description": "Security requirements and ACL rules"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": ["core", "blog", "admin", "frontend", "search", "auth", "observability", "ai", "security", "performance"]
+        },
+        "stability": {
+          "type": "string",
+          "enum": ["experimental", "alpha", "beta", "stable", "deprecated"]
+        },
+        "license": {
+          "type": "string"
+        }
+      },
+      "description": "Additional metadata"
+    }
+  },
+  "definitions": {
+    "unit_definition": {
+      "type": "object",
+      "required": ["class", "id", "version", "hash"],
+      "properties": {
+        "class": {
+          "type": "string",
+          "pattern": "^[A-Z][a-zA-Z0-9\\\\]*Unit$",
+          "description": "Fully qualified class name ending with 'Unit'"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "Unique unit identifier"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$",
+          "description": "Unit version"
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 hash of unit implementation"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50,
+          "description": "Execution priority (0-100)"
+        },
+        "cooldown_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300000,
+          "default": 0,
+          "description": "Cooldown period in milliseconds"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 30000,
+          "default": 5000,
+          "description": "Execution timeout in milliseconds"
+        },
+        "mutex_group": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$",
+          "description": "Mutex group identifier"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*[A-Z0-9]$"
+          },
+          "uniqueItems": true
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*[A-Z0-9]$"
+          },
+          "uniqueItems": true
+        },
+        "mesh_keys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._]*[a-z0-9]$"
+          },
+          "uniqueItems": true,
+          "description": "Mesh keys accessed by this unit"
+        },
+        "tactics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^TAC-[A-Z]+-\\d{3}$"
+          },
+          "uniqueItems": true,
+          "description": "Architectural tactics implemented"
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^FR-[A-Z]+-\\d{3}$"
+          },
+          "uniqueItems": true,
+          "description": "Functional requirements addressed"
+        }
+      }
+    },
+    "api_endpoint": {
+      "type": "object",
+      "required": ["path", "method", "handler"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/[a-z0-9/_-]*$",
+          "description": "API endpoint path"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "description": "HTTP method"
+        },
+        "handler": {
+          "type": "string",
+          "description": "Handler class or method"
+        },
+        "middleware": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Middleware stack"
+        },
+        "rate_limit": {
+          "type": "object",
+          "properties": {
+            "requests_per_minute": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "burst_limit": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "admin_interface": {
+      "type": "object",
+      "required": ["name", "component"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z][a-zA-Z0-9 ]*$",
+          "description": "Display name for admin interface"
+        },
+        "component": {
+          "type": "string",
+          "description": "Component class or path"
+        },
+        "route": {
+          "type": "string",
+          "pattern": "^/admin/[a-z0-9/_-]*$",
+          "description": "Admin route path"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required permissions"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Display order"
+        }
+      }
+    },
+    "acl_rule": {
+      "type": "object",
+      "required": ["pattern", "permissions"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Mesh key pattern (supports wildcards)"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["read", "write", "delete", "admin"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles that have these permissions"
+        },
+        "conditions": {
+          "type": "object",
+          "description": "Additional conditions for access"
+        }
+      }
+    }
+  }
+}

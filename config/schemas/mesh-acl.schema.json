@@ -1,0 +1,425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://infinri.com/schemas/mesh-acl.schema.json",
+  "title": "Mesh ACL Schema",
+  "description": "Schema for validating Semantic Mesh Access Control Lists",
+  "type": "object",
+  "required": ["version", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^1\\.0$",
+      "description": "ACL schema version"
+    },
+    "default_policy": {
+      "type": "string",
+      "enum": ["allow", "deny"],
+      "default": "deny",
+      "description": "Default policy when no rules match"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/acl_rule"
+      },
+      "description": "Array of ACL rules evaluated in order"
+    },
+    "roles": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*[a-z0-9]$": {
+          "$ref": "#/definitions/role_definition"
+        }
+      },
+      "description": "Role definitions with inherited permissions"
+    },
+    "mesh_partitions": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*[a-z0-9]$": {
+          "$ref": "#/definitions/partition_config"
+        }
+      },
+      "description": "Mesh partition configurations"
+    },
+    "audit_settings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "log_level": {
+          "type": "string",
+          "enum": ["debug", "info", "warning", "error"],
+          "default": "info"
+        },
+        "retention_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 30
+        },
+        "sensitive_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keys that should not be logged in audit trails"
+        }
+      },
+      "description": "Audit logging configuration"
+    }
+  },
+  "definitions": {
+    "acl_rule": {
+      "type": "object",
+      "required": ["name", "pattern", "effect"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_\\s-]*$",
+          "maxLength": 100,
+          "description": "Human-readable rule name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Rule description and purpose"
+        },
+        "pattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Mesh key pattern (supports * and ? wildcards)"
+        },
+        "effect": {
+          "type": "string",
+          "enum": ["allow", "deny"],
+          "description": "Rule effect (allow or deny access)"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["read", "write", "delete", "admin", "subscribe", "publish"]
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Specific permissions this rule applies to"
+        },
+        "subjects": {
+          "type": "object",
+          "properties": {
+            "users": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_@.-]+$"
+              },
+              "uniqueItems": true,
+              "description": "Specific users this rule applies to"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+              },
+              "uniqueItems": true,
+              "description": "Roles this rule applies to"
+            },
+            "units": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+              },
+              "uniqueItems": true,
+              "description": "SwarmUnits this rule applies to"
+            },
+            "ip_ranges": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(/\\d{1,2})?$"
+              },
+              "uniqueItems": true,
+              "description": "IP address ranges"
+            }
+          },
+          "description": "Subjects this rule applies to"
+        },
+        "conditions": {
+          "type": "object",
+          "properties": {
+            "time_range": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "string",
+                  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+                  "description": "Start time in HH:MM format"
+                },
+                "end": {
+                  "type": "string",
+                  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+                  "description": "End time in HH:MM format"
+                },
+                "timezone": {
+                  "type": "string",
+                  "default": "UTC",
+                  "description": "Timezone for time range"
+                }
+              },
+              "required": ["start", "end"],
+              "description": "Time-based access restrictions"
+            },
+            "rate_limit": {
+              "type": "object",
+              "properties": {
+                "requests_per_minute": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "burst_limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000
+                },
+                "window_size_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3600,
+                  "default": 60
+                }
+              },
+              "required": ["requests_per_minute"],
+              "description": "Rate limiting conditions"
+            },
+            "mesh_state": {
+              "type": "object",
+              "properties": {
+                "key_exists": {
+                  "type": "string",
+                  "description": "Rule applies only if this mesh key exists"
+                },
+                "key_value": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "type": "string",
+                      "enum": ["equals", "not_equals", "greater_than", "less_than", "contains"]
+                    },
+                    "value": {
+                      "description": "Value to compare against"
+                    }
+                  },
+                  "required": ["key", "operator", "value"],
+                  "description": "Rule applies based on mesh key value"
+                }
+              },
+              "description": "Mesh state-based conditions"
+            },
+            "custom_validator": {
+              "type": "string",
+              "pattern": "^[a-zA-Z][a-zA-Z0-9\\\\]*$",
+              "description": "Custom validator class for complex conditions"
+            }
+          },
+          "description": "Additional conditions for rule activation"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "default": 100,
+          "description": "Rule priority (higher numbers evaluated first)"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this rule is active"
+        },
+        "audit": {
+          "type": "object",
+          "properties": {
+            "log_access": {
+              "type": "boolean",
+              "default": false,
+              "description": "Log when this rule is matched"
+            },
+            "log_denials": {
+              "type": "boolean",
+              "default": true,
+              "description": "Log when this rule denies access"
+            },
+            "alert_on_violation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Send alert when rule is violated"
+            }
+          },
+          "description": "Audit settings for this rule"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "created_by": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "last_modified": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Rule metadata"
+        }
+      }
+    },
+    "role_definition": {
+      "type": "object",
+      "required": ["name", "permissions"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Human-readable role name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Role description"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["read", "write", "delete", "admin", "subscribe", "publish"]
+          },
+          "uniqueItems": true,
+          "description": "Base permissions for this role"
+        },
+        "inherits_from": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+          },
+          "uniqueItems": true,
+          "description": "Roles to inherit permissions from"
+        },
+        "mesh_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "description": "Default mesh patterns this role can access"
+        },
+        "max_concurrent_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum concurrent sessions for users with this role"
+        },
+        "session_timeout_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440,
+          "default": 60,
+          "description": "Session timeout in minutes"
+        }
+      }
+    },
+    "partition_config": {
+      "type": "object",
+      "required": ["pattern", "isolation_level"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Key pattern for this partition"
+        },
+        "isolation_level": {
+          "type": "string",
+          "enum": ["none", "read_committed", "serializable"],
+          "default": "read_committed",
+          "description": "Transaction isolation level"
+        },
+        "replication_factor": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 1,
+          "description": "Number of replicas for this partition"
+        },
+        "consistency_level": {
+          "type": "string",
+          "enum": ["eventual", "strong", "bounded_staleness"],
+          "default": "strong",
+          "description": "Consistency requirements"
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Default TTL for keys in this partition"
+        },
+        "compression": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["gzip", "lz4", "snappy"],
+              "default": "lz4"
+            },
+            "min_size_bytes": {
+              "type": "integer",
+              "minimum": 100,
+              "default": 1024
+            }
+          },
+          "description": "Compression settings for this partition"
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["AES-256-GCM", "ChaCha20-Poly1305"],
+              "default": "AES-256-GCM"
+            },
+            "key_rotation_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365,
+              "default": 90
+            }
+          },
+          "description": "Encryption settings for sensitive partitions"
+        }
+      }
+    }
+  }
+}

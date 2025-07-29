@@ -1,0 +1,767 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://infinri.com/schemas/unit-metadata.schema.json",
+  "title": "SwarmUnit Metadata Schema",
+  "description": "Schema for validating SwarmUnit annotation metadata",
+  "type": "object",
+  "required": ["identity", "tactics", "goals"],
+  "properties": {
+    "identity": {
+      "$ref": "#/definitions/unit_identity",
+      "description": "Unit identity information"
+    },
+    "tactics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/tactic_reference"
+      },
+      "minItems": 1,
+      "description": "Architectural tactics implemented by this unit"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/goal_definition"
+      },
+      "minItems": 1,
+      "description": "Goals and requirements addressed by this unit"
+    },
+    "performance_profile": {
+      "$ref": "#/definitions/performance_profile",
+      "description": "Performance characteristics and constraints"
+    },
+    "security_profile": {
+      "$ref": "#/definitions/security_profile",
+      "description": "Security requirements and constraints"
+    },
+    "mesh_interaction": {
+      "$ref": "#/definitions/mesh_interaction",
+      "description": "Mesh interaction patterns and requirements"
+    },
+    "ai_integration": {
+      "$ref": "#/definitions/ai_integration",
+      "description": "AI service integration configuration"
+    },
+    "observability": {
+      "$ref": "#/definitions/observability_config",
+      "description": "Monitoring and observability settings"
+    },
+    "validation_rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/validation_rule"
+      },
+      "description": "Custom validation rules for this unit"
+    }
+  },
+  "definitions": {
+    "unit_identity": {
+      "type": "object",
+      "required": ["id", "version", "hash"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "minLength": 3,
+          "maxLength": 50,
+          "description": "Unique unit identifier in kebab-case"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$",
+          "description": "Semantic version of the unit"
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 hash of unit implementation"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*[A-Z0-9]$"
+          },
+          "uniqueItems": true,
+          "description": "Capabilities provided by this unit"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*[A-Z0-9]$"
+          },
+          "uniqueItems": true,
+          "description": "Required capabilities from other units"
+        },
+        "mesh_keys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._]*[a-z0-9]$"
+          },
+          "uniqueItems": true,
+          "description": "Mesh keys this unit reads or writes"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Human-readable description of unit purpose"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "author": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "last_modified": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "stability": {
+              "type": "string",
+              "enum": ["experimental", "alpha", "beta", "stable", "deprecated"]
+            },
+            "category": {
+              "type": "string",
+              "enum": ["core", "business", "integration", "utility", "monitoring"]
+            }
+          },
+          "description": "Additional metadata"
+        }
+      }
+    },
+    "tactic_reference": {
+      "type": "object",
+      "required": ["id", "implementation_notes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^TAC-[A-Z]+-\\d{3}$",
+          "description": "Tactic identifier (e.g., TAC-PERF-001)"
+        },
+        "implementation_notes": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "How this tactic is implemented in the unit"
+        },
+        "compliance_level": {
+          "type": "string",
+          "enum": ["full", "partial", "planned"],
+          "default": "full",
+          "description": "Level of tactic compliance"
+        },
+        "verification_method": {
+          "type": "string",
+          "enum": ["unit_test", "integration_test", "performance_test", "manual", "automated"],
+          "description": "How compliance is verified"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target_value": {
+                "type": "string"
+              },
+              "measurement_method": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "target_value"]
+          },
+          "description": "Measurable metrics for this tactic"
+        }
+      }
+    },
+    "goal_definition": {
+      "type": "object",
+      "required": ["description", "requirements"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Human-readable goal description"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^FR-[A-Z]+-\\d{3}$"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Functional requirement IDs addressed"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5,
+          "description": "Goal priority (1-10, higher is more important)"
+        },
+        "success_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "criterion": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "measurement": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "target": {
+                "type": "string",
+                "maxLength": 100
+              }
+            },
+            "required": ["criterion", "measurement", "target"]
+          },
+          "description": "Measurable success criteria"
+        },
+        "acceptance_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Test cases that validate goal achievement"
+        }
+      }
+    },
+    "performance_profile": {
+      "type": "object",
+      "properties": {
+        "execution_constraints": {
+          "type": "object",
+          "properties": {
+            "max_execution_time_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000,
+              "description": "Maximum allowed execution time"
+            },
+            "max_memory_mb": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1024,
+              "description": "Maximum memory usage"
+            },
+            "max_cpu_percentage": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Maximum CPU usage percentage"
+            },
+            "timeout_ms": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 30000,
+              "default": 5000,
+              "description": "Execution timeout"
+            }
+          }
+        },
+        "throughput_targets": {
+          "type": "object",
+          "properties": {
+            "operations_per_second": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Target operations per second"
+            },
+            "concurrent_executions": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "Maximum concurrent executions"
+            },
+            "queue_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "description": "Maximum queue depth"
+            }
+          }
+        },
+        "resource_requirements": {
+          "type": "object",
+          "properties": {
+            "cpu_cores": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 16,
+              "description": "Required CPU cores"
+            },
+            "memory_mb": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8192,
+              "description": "Required memory in MB"
+            },
+            "disk_io_mb_per_sec": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Required disk I/O bandwidth"
+            },
+            "network_mb_per_sec": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Required network bandwidth"
+            }
+          }
+        },
+        "scaling_behavior": {
+          "type": "object",
+          "properties": {
+            "horizontal_scaling": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports horizontal scaling"
+            },
+            "stateless": {
+              "type": "boolean",
+              "default": true,
+              "description": "Unit is stateless"
+            },
+            "cache_friendly": {
+              "type": "boolean",
+              "default": true,
+              "description": "Benefits from caching"
+            }
+          }
+        }
+      }
+    },
+    "security_profile": {
+      "type": "object",
+      "properties": {
+        "required_permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["mesh.read", "mesh.write", "mesh.admin", "api.access", "admin.access", "ai.access"]
+          },
+          "uniqueItems": true,
+          "description": "Required system permissions"
+        },
+        "mesh_access_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Mesh key pattern"
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["read", "write", "delete", "subscribe", "publish"]
+                },
+                "uniqueItems": true
+              },
+              "justification": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "Why this access is needed"
+              }
+            },
+            "required": ["pattern", "operations", "justification"]
+          },
+          "description": "Mesh access requirements"
+        },
+        "data_classification": {
+          "type": "object",
+          "properties": {
+            "processes_pii": {
+              "type": "boolean",
+              "default": false,
+              "description": "Processes personally identifiable information"
+            },
+            "processes_sensitive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Processes sensitive business data"
+            },
+            "encryption_required": {
+              "type": "boolean",
+              "default": false,
+              "description": "Requires data encryption"
+            },
+            "audit_required": {
+              "type": "boolean",
+              "default": true,
+              "description": "Requires audit logging"
+            }
+          }
+        },
+        "threat_model": {
+          "type": "object",
+          "properties": {
+            "attack_vectors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Potential attack vectors"
+            },
+            "mitigations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "threat": {
+                    "type": "string"
+                  },
+                  "mitigation": {
+                    "type": "string"
+                  },
+                  "implemented": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["threat", "mitigation", "implemented"]
+              },
+              "description": "Threat mitigations"
+            }
+          }
+        }
+      }
+    },
+    "mesh_interaction": {
+      "type": "object",
+      "properties": {
+        "read_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Mesh key pattern for reads"
+              },
+              "frequency": {
+                "type": "string",
+                "enum": ["once", "periodic", "reactive", "continuous"],
+                "description": "Read frequency pattern"
+              },
+              "consistency_requirement": {
+                "type": "string",
+                "enum": ["eventual", "strong", "bounded_staleness"],
+                "default": "strong",
+                "description": "Consistency requirement for reads"
+              }
+            },
+            "required": ["pattern", "frequency"]
+          },
+          "description": "Mesh read patterns"
+        },
+        "write_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Mesh key pattern for writes"
+              },
+              "frequency": {
+                "type": "string",
+                "enum": ["once", "periodic", "reactive", "burst"],
+                "description": "Write frequency pattern"
+              },
+              "durability_requirement": {
+                "type": "string",
+                "enum": ["none", "memory", "disk", "replicated"],
+                "default": "disk",
+                "description": "Durability requirement for writes"
+              },
+              "conflict_resolution": {
+                "type": "string",
+                "enum": ["last_write_wins", "merge", "reject", "custom"],
+                "default": "last_write_wins",
+                "description": "Conflict resolution strategy"
+              }
+            },
+            "required": ["pattern", "frequency"]
+          },
+          "description": "Mesh write patterns"
+        },
+        "subscription_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Mesh key pattern for subscriptions"
+              },
+              "event_types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["create", "update", "delete", "all"]
+                },
+                "uniqueItems": true,
+                "description": "Event types to subscribe to"
+              },
+              "batch_size": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000,
+                "default": 1,
+                "description": "Event batch size"
+              }
+            },
+            "required": ["pattern", "event_types"]
+          },
+          "description": "Mesh subscription patterns"
+        },
+        "transaction_requirements": {
+          "type": "object",
+          "properties": {
+            "requires_transactions": {
+              "type": "boolean",
+              "default": false,
+              "description": "Requires transactional operations"
+            },
+            "isolation_level": {
+              "type": "string",
+              "enum": ["read_uncommitted", "read_committed", "repeatable_read", "serializable"],
+              "default": "read_committed",
+              "description": "Required isolation level"
+            },
+            "max_transaction_time_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000,
+              "default": 5000,
+              "description": "Maximum transaction duration"
+            }
+          }
+        }
+      }
+    },
+    "ai_integration": {
+      "type": "object",
+      "properties": {
+        "ai_enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Unit uses AI services"
+        },
+        "ai_providers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["openai", "deepseek", "anthropic", "local", "custom"]
+          },
+          "uniqueItems": true,
+          "description": "AI providers used"
+        },
+        "fallback_behavior": {
+          "type": "string",
+          "enum": ["disable", "degrade", "queue", "error"],
+          "default": "disable",
+          "description": "Behavior when AI is unavailable"
+        },
+        "ethical_constraints": {
+          "type": "object",
+          "properties": {
+            "content_filtering": {
+              "type": "boolean",
+              "default": true,
+              "description": "Apply content filtering"
+            },
+            "bias_detection": {
+              "type": "boolean",
+              "default": true,
+              "description": "Monitor for bias"
+            },
+            "privacy_protection": {
+              "type": "boolean",
+              "default": true,
+              "description": "Protect user privacy"
+            },
+            "rate_limiting": {
+              "type": "object",
+              "properties": {
+                "requests_per_minute": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000
+                },
+                "cost_limit_per_hour": {
+                  "type": "number",
+                  "minimum": 0.01,
+                  "maximum": 100
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "observability_config": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "custom_metrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["counter", "gauge", "histogram", "summary"]
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["name", "type", "description"]
+              }
+            }
+          }
+        },
+        "tracing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "sample_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 1.0
+            },
+            "trace_mesh_operations": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": ["debug", "info", "warning", "error"],
+              "default": "info"
+            },
+            "structured": {
+              "type": "boolean",
+              "default": true
+            },
+            "include_context": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "health_checks": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "interval_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300,
+              "default": 30
+            },
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60,
+              "default": 5
+            },
+            "custom_checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  },
+                  "critical": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": ["name", "method"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "validation_rule": {
+      "type": "object",
+      "required": ["name", "type", "configuration"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Validation rule name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["input", "output", "state", "performance", "security"],
+          "description": "Type of validation"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "Rule-specific configuration"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this rule is active"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"],
+          "default": "error",
+          "description": "Validation failure severity"
+        }
+      }
+    }
+  }
+}
