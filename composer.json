@@ -4,8 +4,9 @@
     "type": "project",
     "require": {
         "php": ">=8.4",
-        "psr/log": "^3.0",
-        "predis/predis": "^2.0"
+        "predis/predis": "^2.0",
+        "psr/container": "^2.0",
+        "psr/log": "^3.0"
     },
     "require-dev": {
         "jetbrains/phpstorm-stubs": "^2024.3",
@@ -14,6 +15,11 @@
     "autoload": {
         "psr-4": {
             "Infinri\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "config": {

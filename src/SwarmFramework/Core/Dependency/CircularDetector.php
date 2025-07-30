@@ -37,13 +37,12 @@ final class CircularDetector
 
         $cycles = [];
         $visited = [];
-        $recursionStack = [];
+        $inStack = [];
 
         try {
             foreach (array_keys($this->graph) as $moduleName) {
                 if (!isset($visited[$moduleName])) {
-                    $path = [];
-                    $cycle = $this->detectCycle($moduleName, $visited, $recursionStack, $path);
+                    $cycle = $this->dfsDetectCycle($moduleName, $visited, $inStack, []);
                     if ($cycle !== null) {
                         $cycles[] = $cycle;
                     }
@@ -71,36 +70,39 @@ final class CircularDetector
         return !empty($this->detectCircularDependencies());
     }
 
-    private function detectCycle(string $moduleName, array &$visited, array &$recursionStack, array $path): ?string
+    private function dfsDetectCycle(string $moduleName, array &$visited, array &$inStack, array $path): ?string
     {
-        if (isset($recursionStack[$moduleName])) {
-            // Found cycle - build cycle path
-            $cycleStart = array_search($moduleName, $path);
-            $cyclePath = array_slice($path, $cycleStart);
-            $cyclePath[] = $moduleName; // Complete the cycle
-            return "Circular dependency: " . implode(' -> ', $cyclePath);
-        }
-
-        if (isset($visited[$moduleName])) {
-            return null; // Already processed
-        }
-
+        // Mark current node as visited and add to recursion stack
         $visited[$moduleName] = true;
-        $recursionStack[$moduleName] = true;
+        $inStack[$moduleName] = true;
         $path[] = $moduleName;
 
-        // Check all dependencies
+        // Get dependencies for this module
         $dependencies = array_keys($this->graph[$moduleName]['dependencies'] ?? []);
+        
         foreach ($dependencies as $depName) {
-            if (isset($this->graph[$depName])) {
-                $cycle = $this->detectCycle($depName, $visited, $recursionStack, $path);
+            // If dependency is in current recursion stack, we found a cycle
+            if (isset($inStack[$depName])) {
+                $cycleStart = array_search($depName, $path);
+                if ($cycleStart !== false) {
+                    $cyclePath = array_slice($path, $cycleStart);
+                    $cyclePath[] = $depName; // Complete the cycle
+                    return "Circular dependency: " . implode(' -> ', $cyclePath);
+                }
+                return "Circular dependency detected: " . $moduleName . " -> " . $depName;
+            }
+            
+            // If dependency hasn't been visited, recursively check it
+            if (!isset($visited[$depName]) && isset($this->graph[$depName])) {
+                $cycle = $this->dfsDetectCycle($depName, $visited, $inStack, $path);
                 if ($cycle !== null) {
                     return $cycle;
                 }
             }
         }
 
-        unset($recursionStack[$moduleName]);
+        // Remove from recursion stack before returning
+        unset($inStack[$moduleName]);
         array_pop($path);
         
         return null;

@@ -30,6 +30,7 @@ final class DependencyResolver
     private TopologicalSorter $sorter;
     private VersionValidator $versionValidator;
     private array $config;
+    private array $graph = [];
 
     public function __construct(LoggerInterface $logger, array $config = [])
     {
@@ -44,22 +45,21 @@ final class DependencyResolver
      */
     public function addDependency(string $module, string $dependency, string $version): void
     {
-        $graph = $this->graphBuilder->getGraph();
-        
-        if (!isset($graph[$module])) {
-            $graph[$module] = ['dependencies' => [], 'dependents' => []];
+        // Initialize modules in graph if they don't exist
+        if (!isset($this->graph[$module])) {
+            $this->graph[$module] = ['dependencies' => [], 'dependents' => []];
         }
         
-        $graph[$module]['dependencies'][$dependency] = $version;
-        
-        if (!isset($graph[$dependency])) {
-            $graph[$dependency] = ['dependencies' => [], 'dependents' => []];
+        if (!isset($this->graph[$dependency])) {
+            $this->graph[$dependency] = ['dependencies' => [], 'dependents' => []];
         }
         
-        $graph[$dependency]['dependents'][] = $module;
+        // Add the dependency relationship
+        $this->graph[$module]['dependencies'][$dependency] = $version;
+        $this->graph[$dependency]['dependents'][] = $module;
         
         // Update all components with new graph
-        $this->updateComponents($graph);
+        $this->updateComponents($this->graph);
     }
 
     /**

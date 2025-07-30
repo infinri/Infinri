@@ -98,6 +98,15 @@ interface SemanticMeshInterface
     public function all(): array;
 
     /**
+     * Get keys matching a pattern
+     * 
+     * @param string $pattern Key pattern to match (supports wildcards)
+     * @param string|null $namespace Optional namespace
+     * @return array Array of matching keys
+     */
+    public function getKeysByPattern(string $pattern, ?string $namespace = null): array;
+
+    /**
      * Check if a key exists in the mesh
      * 
      * @param string $key The mesh key to check

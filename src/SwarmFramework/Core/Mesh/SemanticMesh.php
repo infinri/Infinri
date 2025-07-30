@@ -484,6 +484,40 @@ final class SemanticMesh implements SemanticMeshInterface
     }
 
     /**
+     * Get keys matching a pattern
+     */
+    public function getKeysByPattern(string $pattern, ?string $namespace = null): array
+    {
+        try {
+            $fullPattern = $this->buildKey($pattern, $namespace);
+            
+            $keys = $this->redisWrapper->executeWithRetry(
+                'keys',
+                fn() => $this->redis->keys($fullPattern),
+                3,
+                100,
+                false
+            );
+            
+            // Remove the mesh prefix from keys to return clean keys
+            $separator = $this->config['namespace_separator'];
+            $prefix = $namespace ? "mesh{$separator}{$namespace}{$separator}" : "mesh{$separator}";
+            
+            return array_map(function($key) use ($prefix) {
+                return str_starts_with($key, $prefix) ? substr($key, strlen($prefix)) : $key;
+            }, $keys ?: []);
+            
+        } catch (\Throwable $e) {
+            $this->logOperationFailure('getKeysByPattern', [
+                'pattern' => $pattern,
+                'namespace' => $namespace,
+                'error' => $e->getMessage()
+            ]);
+            return [];
+        }
+    }
+
+    /**
      * Get all mesh data using centralized snapshot
      */
     public function all(): array

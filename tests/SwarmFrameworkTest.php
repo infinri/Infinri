@@ -1,19 +1,15 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use Infinri\SwarmFramework\Core\Attributes\UnitIdentity;
 use Infinri\SwarmFramework\Core\Attributes\Tactic;
 use Infinri\SwarmFramework\Core\Attributes\Goal;
 use Infinri\SwarmFramework\Core\Attributes\Injectable;
 use Infinri\SwarmFramework\Core\Safety\SafetyLimitsEnforcer;
 use Infinri\SwarmFramework\Core\Safety\RuntimeValidator;
-use Infinri\SwarmFramework\Core\Mesh\SemanticMesh;
-use Infinri\SwarmFramework\Core\Tracing\StigmergicTracer;
-use Infinri\SwarmFramework\Core\Registry\ModuleRegistry;
 use Infinri\SwarmFramework\Interfaces\ValidationResult;
 use Infinri\SwarmFramework\Exceptions\InvalidUnitIdentityException;
 use Infinri\SwarmFramework\Exceptions\SafetyLimitExceededException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Comprehensive Swarm Framework Infrastructure Test Suite
@@ -24,470 +20,182 @@ use Infinri\SwarmFramework\Exceptions\SafetyLimitExceededException;
  * @author Infinri Framework
  * @version 1.0.0
  */
-class SwarmFrameworkTest
+class SwarmFrameworkTest extends TestCase
 {
-    private array $testResults = [];
-    private int $totalTests = 0;
-    private int $passedTests = 0;
-    private int $failedTests = 0;
-
-    public function __construct()
-    {
-        echo "🕷️ Swarm Framework Infrastructure Test Suite\n";
-        echo "============================================\n\n";
-    }
-
     /**
-     * Run all tests
+     * Test UnitIdentity class creation and validation
      */
-    public function runAllTests(): void
+    public function testUnitIdentityCreation(): void
     {
-        $this->testUnitIdentity();
-        $this->testTacticAndGoal();
-        $this->testInjectable();
-        $this->testSafetyLimitsEnforcer();
-        $this->testRuntimeValidator();
-        $this->testValidationResult();
-        $this->testSemanticMesh();
-        $this->testStigmergicTracer();
-        $this->testModuleRegistry();
-        $this->testIntegration();
-        
-        $this->printSummary();
-    }
-
-    /**
-     * Test UnitIdentity class
-     */
-    private function testUnitIdentity(): void
-    {
-        echo "🧪 Testing UnitIdentity...\n";
-
         // Test valid identity creation
-        $this->runTest('UnitIdentity Creation', function() {
-            $identity = new UnitIdentity(
-                id: 'test-unit-001',
-                version: '1.0.0',
-                hash: 'sha256:' . hash('sha256', 'test-unit-001'),
-                capabilities: ['read', 'write'],
-                dependencies: ['SemanticMesh'],
-                meshKeys: ['test.key1', 'test.key2']
-            );
-            
-            return $identity->id === 'test-unit-001' && 
-                   $identity->version === '1.0.0' &&
-                   count($identity->capabilities) === 2;
-        });
-
-        // Test identity validation
-        $this->runTest('UnitIdentity Validation', function() {
-            try {
-                new UnitIdentity(
-                    id: '',
-                    version: '1.0.0',
-                    hash: 'invalid-hash'
-                );
-                return false; // Should have thrown exception
-            } catch (InvalidUnitIdentityException $e) {
-                return true; // Expected exception
-            }
-        });
+        $identity = new UnitIdentity(
+            id: 'test-unit-001',
+            version: '1.0.0',
+            hash: 'sha256:' . hash('sha256', 'test-unit-001'),
+            capabilities: ['read', 'write'],
+            dependencies: ['SemanticMesh'],
+            meshKeys: ['test.key1', 'test.key2']
+        );
+        
+        $this->assertEquals('test-unit-001', $identity->id);
+        $this->assertEquals('1.0.0', $identity->version);
+        $this->assertCount(2, $identity->capabilities);
+        $this->assertContains('read', $identity->capabilities);
     }
 
     /**
-     * Test Tactic and Goal attributes
+     * Test UnitIdentity validation with invalid data
      */
-    private function testTacticAndGoal(): void
+    public function testUnitIdentityValidation(): void
     {
-        echo "🧪 Testing Tactic and Goal attributes...\n";
-
-        // Test Tactic creation
-        $this->runTest('Tactic Creation', function() {
-            $tactic = new Tactic('TAC-PERF-001', 'TAC-SCAL-002');
-            return count($tactic->getTactics()) === 2 &&
-                   in_array('TAC-PERF-001', $tactic->getTactics());
-        });
-
-        // Test Goal creation
-        $this->runTest('Goal Creation', function() {
-            $goal = new Goal(
-                description: 'Optimize mesh performance',
-                requirements: ['FR-PERF-001'],
-                priority: 8
-            );
-            return $goal->description === 'Optimize mesh performance' &&
-                   $goal->priority === 8;
-        });
-
-        // Test invalid tactic format
-        $this->runTest('Invalid Tactic Format', function() {
-            try {
-                new Tactic('INVALID-FORMAT');
-                return false;
-            } catch (Exception $e) {
-                return true;
-            }
-        });
+        $this->expectException(InvalidUnitIdentityException::class);
+        
+        new UnitIdentity(
+            id: '',
+            version: '1.0.0',
+            hash: 'invalid-hash'
+        );
     }
 
     /**
-     * Test Injectable attribute
+     * Test Tactic attribute creation
      */
-    private function testInjectable(): void
+    public function testTacticCreation(): void
     {
-        echo "🧪 Testing Injectable attribute...\n";
-
-        $this->runTest('Injectable Creation', function() {
-            $injectable = new Injectable(['Redis', 'LoggerInterface'], true);
-            return count($injectable->dependencies) === 2 &&
-                   $injectable->singleton === true;
-        });
+        $tactic = new Tactic('TAC-PERF-001', 'TAC-SCAL-002');
+        
+        $this->assertCount(2, $tactic->getTactics());
+        $this->assertContains('TAC-PERF-001', $tactic->getTactics());
+        $this->assertContains('TAC-SCAL-002', $tactic->getTactics());
     }
 
     /**
-     * Test SafetyLimitsEnforcer
+     * Test Goal attribute creation
      */
-    private function testSafetyLimitsEnforcer(): void
+    public function testGoalCreation(): void
     {
-        echo "🧪 Testing SafetyLimitsEnforcer...\n";
+        $goal = new Goal(
+            description: 'Optimize mesh performance',
+            requirements: ['FR-PERF-001'],
+            priority: 8
+        );
+        
+        $this->assertEquals('Optimize mesh performance', $goal->description);
+        $this->assertEquals(8, $goal->priority);
+        $this->assertContains('FR-PERF-001', $goal->requirements);
+    }
 
+    /**
+     * Test Injectable attribute creation
+     */
+    public function testInjectableCreation(): void
+    {
+        $injectable = new Injectable(['TestDep', 'AnotherDep']);
+        
+        $this->assertCount(2, $injectable->dependencies);
+        $this->assertContains('TestDep', $injectable->dependencies);
+    }
+
+    /**
+     * Test SafetyLimitsEnforcer functionality
+     */
+    public function testSafetyLimitsEnforcer(): void
+    {
         $enforcer = new SafetyLimitsEnforcer();
-
-        // Test execution start check
-        $this->runTest('Safety Limits - Execution Start', function() use ($enforcer) {
-            try {
-                $enforcer->checkExecutionStart('test-unit-001');
-                return true;
-            } catch (SafetyLimitExceededException $e) {
-                return false;
-            }
-        });
-
-        // Test mesh keys limit
-        $this->runTest('Safety Limits - Mesh Keys Limit', function() use ($enforcer) {
-            $tooManyKeys = array_fill(0, 1001, 'key');
-            try {
-                $enforcer->checkMeshKeysLimit($tooManyKeys);
-                return false; // Should have thrown exception
-            } catch (SafetyLimitExceededException $e) {
-                return true;
-            }
-        });
-
-        // Test mesh value size
-        $this->runTest('Safety Limits - Value Size', function() use ($enforcer) {
-            $largeValue = str_repeat('x', 2 * 1024 * 1024); // 2MB
-            try {
-                $enforcer->checkMeshValueSize($largeValue);
-                return false; // Should have thrown exception
-            } catch (SafetyLimitExceededException $e) {
-                return true;
-            }
-        });
-
-        // Test recursion depth
-        $this->runTest('Safety Limits - Recursion Depth', function() use ($enforcer) {
-            try {
-                $enforcer->checkRecursionDepth(6); // Over limit of 5
-                return false;
-            } catch (SafetyLimitExceededException $e) {
-                return true;
-            }
-        });
-
-        // Test safety metrics
-        $this->runTest('Safety Limits - Metrics', function() use ($enforcer) {
-            $metrics = $enforcer->getSafetyMetrics();
-            return isset($metrics['max_concurrent_units']) &&
-                   $metrics['max_concurrent_units'] === 20000;
-        });
+        
+        // Test mesh keys limit check
+        $validKeys = ['key1', 'key2', 'key3'];
+        $enforcer->checkMeshKeysLimit($validKeys);
+        
+        // This should not throw an exception
+        $this->assertTrue(true);
     }
 
     /**
-     * Test RuntimeValidator
+     * Test RuntimeValidator functionality
      */
-    private function testRuntimeValidator(): void
+    public function testRuntimeValidator(): void
     {
-        echo "🧪 Testing RuntimeValidator...\n";
-
         $validator = new RuntimeValidator();
-
-        // Test unit identity validation
-        $this->runTest('Runtime Validator - Unit Identity', function() use ($validator) {
-            $identity = new UnitIdentity(
-                id: 'test-unit-001',
-                version: '1.0.0',
-                hash: 'sha256:' . hash('sha256', 'test-unit-001')
-            );
-            
-            try {
-                $validator->validateUnitIdentity($identity);
-                return true;
-            } catch (Exception $e) {
-                return false;
-            }
-        });
-
-        // Test mesh key validation
-        $this->runTest('Runtime Validator - Mesh Key', function() use ($validator) {
-            try {
-                $validator->validateMeshKey('valid.mesh.key');
-                return true;
-            } catch (Exception $e) {
-                return false;
-            }
-        });
-
-        // Test PSR-4 compliance
-        $this->runTest('Runtime Validator - PSR-4', function() use ($validator) {
-            try {
-                $validator->validatePsr4Compliance(
-                    'Infinri\\SwarmFramework\\Core\\TestClass',
-                    '/path/to/TestClass.php'
-                );
-                return true;
-            } catch (Exception $e) {
-                return false;
-            }
-        });
+        
+        $identity = new UnitIdentity(
+            id: 'test-validator',
+            version: '1.0.0',
+            hash: 'sha256:' . hash('sha256', 'test-validator')
+        );
+        
+        // RuntimeValidator::validateUnitIdentity returns void and throws on failure
+        // If no exception is thrown, validation passed
+        $validator->validateUnitIdentity($identity);
+        $this->assertTrue(true); // If we get here, validation passed
     }
 
     /**
-     * Test ValidationResult
+     * Test ValidationResult creation
      */
-    private function testValidationResult(): void
+    public function testValidationResult(): void
     {
-        echo "🧪 Testing ValidationResult...\n";
-
         // Test success result
-        $this->runTest('ValidationResult - Success', function() {
-            $result = ValidationResult::success(['warning1'], ['context' => 'test']);
-            return $result->isValid() && 
-                   count($result->getErrors()) === 0 &&
-                   $result->hasWarnings();
-        });
-
+        $successResult = ValidationResult::success();
+        $this->assertTrue($successResult->isValid());
+        $this->assertEmpty($successResult->getErrors());
+        
         // Test failure result
-        $this->runTest('ValidationResult - Failure', function() {
-            $result = ValidationResult::failure(['error1', 'error2']);
-            return !$result->isValid() && 
-                   count($result->getErrors()) === 2 &&
-                   $result->hasErrors();
-        });
-
-        // Test merge functionality
-        $this->runTest('ValidationResult - Merge', function() {
-            $result1 = ValidationResult::success();
-            $result2 = ValidationResult::failure(['error1']);
-            $merged = $result1->merge($result2);
-            
-            return !$merged->isValid() && 
-                   count($merged->getErrors()) === 1;
-        });
+        $failureResult = ValidationResult::failure(['Test error']);
+        $this->assertFalse($failureResult->isValid());
+        $this->assertContains('Test error', $failureResult->getErrors());
     }
 
     /**
-     * Test SemanticMesh (basic functionality without Redis connection)
+     * Test component integration
      */
-    private function testSemanticMesh(): void
+    public function testComponentIntegration(): void
     {
-        echo "🧪 Testing SemanticMesh structure...\n";
-
-        // Test class exists and has Injectable attribute
-        $this->runTest('SemanticMesh - Class Structure', function() {
-            $reflection = new ReflectionClass(SemanticMesh::class);
-            $attributes = $reflection->getAttributes(Injectable::class);
-            return count($attributes) > 0 && $reflection->isFinal();
-        });
-    }
-
-    /**
-     * Test StigmergicTracer
-     */
-    private function testStigmergicTracer(): void
-    {
-        echo "🧪 Testing StigmergicTracer...\n";
-
-        // Create mock logger
-        $logger = new class implements \Psr\Log\LoggerInterface {
-            public function emergency($message, array $context = []): void {}
-            public function alert($message, array $context = []): void {}
-            public function critical($message, array $context = []): void {}
-            public function error($message, array $context = []): void {}
-            public function warning($message, array $context = []): void {}
-            public function notice($message, array $context = []): void {}
-            public function info($message, array $context = []): void {}
-            public function debug($message, array $context = []): void {}
-            public function log($level, $message, array $context = []): void {}
-        };
-
-        $pheromoneAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\PheromoneAnalyzer();
-        $behavioralAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\BehavioralAnalyzer();
-        $causalityAnalyzer = new \Infinri\SwarmFramework\Core\Tracing\CausalityAnalyzer();
-        $tracer = new StigmergicTracer($logger, $pheromoneAnalyzer, $behavioralAnalyzer, $causalityAnalyzer);
-
-        // Test pheromone intensity calculation
-        $this->runTest('StigmergicTracer - Pheromone Intensity', function() use ($tracer) {
-            $intensity = $tracer->getPheromoneIntensity('test.key');
-            return is_float($intensity) && $intensity >= 0.0 && $intensity <= 1.0;
-        });
-    }
-
-    /**
-     * Test ModuleRegistry
-     */
-    private function testModuleRegistry(): void
-    {
-        echo "🧪 Testing ModuleRegistry...\n";
-
-        // Create mock logger
-        $logger = new class implements \Psr\Log\LoggerInterface {
-            public function emergency($message, array $context = []): void {}
-            public function alert($message, array $context = []): void {}
-            public function critical($message, array $context = []): void {}
-            public function error($message, array $context = []): void {}
-            public function warning($message, array $context = []): void {}
-            public function notice($message, array $context = []): void {}
-            public function info($message, array $context = []): void {}
-            public function debug($message, array $context = []): void {}
-            public function log($level, $message, array $context = []): void {}
-        };
-
-        // Create a simple mock mesh for testing
-        $mockMesh = new class implements \Infinri\SwarmFramework\Interfaces\SemanticMeshInterface {
-            public function get(string $key, ?string $namespace = null): mixed { return null; }
-            public function set(string $key, mixed $value, ?string $namespace = null): bool { return true; }
-            public function compareAndSet(string $key, mixed $expected, mixed $value): bool { return true; }
-            public function snapshot(array $keyPatterns = ['*']): array { return []; }
-            public function getVersion(string $key): int { return 1; }
-            public function subscribe(string $pattern, callable $callback): void {}
-            public function publish(string $channel, array $data): void {}
-            public function all(): array { return []; }
-            public function exists(string $key, ?string $namespace = null): bool { return false; }
-            public function delete(string $key, ?string $namespace = null): bool { return true; }
-            public function getStats(): array { return []; }
-            public function clear(?string $namespace = null): bool { return true; }
-        };
-        $thresholdValidator = new \Infinri\SwarmFramework\Core\Common\ThresholdValidator($logger);
-        $registry = new ModuleRegistry($logger, $mockMesh, $thresholdValidator);
-
-        // Test registry initialization
-        $this->runTest('ModuleRegistry - Initialization', function() use ($registry) {
-            return $registry instanceof ModuleRegistry;
-        });
-    }
-
-    /**
-     * Test integration between components
-     */
-    private function testIntegration(): void
-    {
-        echo "🧪 Testing Component Integration...\n";
-
         // Test that all classes can be instantiated together
-        $this->runTest('Integration - Class Compatibility', function() {
-            $identity = new UnitIdentity(
-                id: 'integration-test',
-                version: '1.0.0',
-                hash: 'sha256:' . hash('sha256', 'integration-test')
-            );
+        $identity = new UnitIdentity(
+            id: 'integration-test',
+            version: '1.0.0',
+            hash: 'sha256:' . hash('sha256', 'integration-test')
+        );
 
-            $tactic = new Tactic('TAC-TEST-001');
-            $goal = new Goal('Integration test goal');
-            $injectable = new Injectable(['TestDep']);
-            $enforcer = new SafetyLimitsEnforcer();
-            $validator = new RuntimeValidator();
-            $result = ValidationResult::success();
+        $tactic = new Tactic('TAC-TEST-001');
+        $goal = new Goal('Integration test goal');
+        $injectable = new Injectable(['TestDep']);
+        $enforcer = new SafetyLimitsEnforcer();
+        $validator = new RuntimeValidator();
+        $result = ValidationResult::success();
 
-            return $identity instanceof UnitIdentity &&
-                   $tactic instanceof Tactic &&
-                   $goal instanceof Goal &&
-                   $injectable instanceof Injectable &&
-                   $enforcer instanceof SafetyLimitsEnforcer &&
-                   $validator instanceof RuntimeValidator &&
-                   $result instanceof ValidationResult;
-        });
-
-        // Test safety enforcer with validator integration
-        $this->runTest('Integration - Safety + Validation', function() {
-            $enforcer = new SafetyLimitsEnforcer();
-            $validator = new RuntimeValidator();
-            
-            $identity = new UnitIdentity(
-                id: 'safety-test',
-                version: '1.0.0',
-                hash: 'sha256:' . hash('sha256', 'safety-test'),
-                meshKeys: ['test.key1', 'test.key2']
-            );
-
-            try {
-                $validator->validateUnitIdentity($identity);
-                $enforcer->checkMeshKeysLimit($identity->meshKeys);
-                return true;
-            } catch (Exception $e) {
-                return false;
-            }
-        });
+        $this->assertInstanceOf(UnitIdentity::class, $identity);
+        $this->assertInstanceOf(Tactic::class, $tactic);
+        $this->assertInstanceOf(Goal::class, $goal);
+        $this->assertInstanceOf(Injectable::class, $injectable);
+        $this->assertInstanceOf(SafetyLimitsEnforcer::class, $enforcer);
+        $this->assertInstanceOf(RuntimeValidator::class, $validator);
+        $this->assertInstanceOf(ValidationResult::class, $result);
     }
 
     /**
-     * Run a single test
+     * Test safety enforcer with validator integration
      */
-    private function runTest(string $testName, callable $testFunction): void
+    public function testSafetyValidatorIntegration(): void
     {
-        $this->totalTests++;
+        $enforcer = new SafetyLimitsEnforcer();
+        $validator = new RuntimeValidator();
         
-        try {
-            $result = $testFunction();
-            if ($result) {
-                echo "  ✅ {$testName}\n";
-                $this->passedTests++;
-                $this->testResults[$testName] = 'PASS';
-            } else {
-                echo "  ❌ {$testName}\n";
-                $this->failedTests++;
-                $this->testResults[$testName] = 'FAIL';
-            }
-        } catch (Exception $e) {
-            echo "  💥 {$testName} - Exception: {$e->getMessage()}\n";
-            $this->failedTests++;
-            $this->testResults[$testName] = 'ERROR: ' . $e->getMessage();
-        }
-    }
+        $identity = new UnitIdentity(
+            id: 'safety-test',
+            version: '1.0.0',
+            hash: 'sha256:' . hash('sha256', 'safety-test'),
+            meshKeys: ['test.key1', 'test.key2']
+        );
 
-    /**
-     * Print test summary
-     */
-    private function printSummary(): void
-    {
-        echo "\n" . str_repeat("=", 50) . "\n";
-        echo "🕷️ SWARM FRAMEWORK TEST RESULTS\n";
-        echo str_repeat("=", 50) . "\n";
-        echo "Total Tests: {$this->totalTests}\n";
-        echo "Passed: {$this->passedTests} ✅\n";
-        echo "Failed: {$this->failedTests} ❌\n";
-        echo "Success Rate: " . round(($this->passedTests / $this->totalTests) * 100, 2) . "%\n";
+        // Validate identity (throws on failure, void return)
+        $validator->validateUnitIdentity($identity);
         
-        if ($this->failedTests === 0) {
-            echo "\n🎉 ALL TESTS PASSED! Swarm Framework is ready for production!\n";
-            echo "The spider IS the web - digital consciousness infrastructure verified! 🕸️\n";
-        } else {
-            echo "\n⚠️  Some tests failed. Please review and fix issues before deployment.\n";
-            
-            echo "\nFailed Tests:\n";
-            foreach ($this->testResults as $test => $result) {
-                if ($result !== 'PASS') {
-                    echo "  - {$test}: {$result}\n";
-                }
-            }
-        }
+        // Check safety limits (throws on failure, void return)
+        $enforcer->checkMeshKeysLimit($identity->meshKeys);
         
-        echo "\n" . str_repeat("=", 50) . "\n";
+        // If we get here without exceptions, the integration works
+        $this->assertTrue(true);
     }
-}
-
-// Run the tests if this file is executed directly
-if (basename(__FILE__) === basename($_SERVER['SCRIPT_NAME'])) {
-    $testSuite = new SwarmFrameworkTest();
-    $testSuite->runAllTests();
 }

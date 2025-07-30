@@ -239,6 +239,35 @@ final class MeshSnapshot implements \Infinri\SwarmFramework\Interfaces\SemanticM
         return isset($this->data[$fullKey]);
     }
 
+    public function getKeysByPattern(string $pattern, ?string $namespace = null): array
+    {
+        $keys = array_keys($this->data);
+        
+        // Filter by namespace if provided
+        if ($namespace !== null) {
+            $namespacePrefix = $namespace . ':';
+            $keys = array_filter($keys, fn($key) => str_starts_with($key, $namespacePrefix));
+            // Remove namespace prefix from keys for pattern matching
+            $keys = array_map(fn($key) => substr($key, strlen($namespacePrefix)), $keys);
+        }
+        
+        if ($pattern === '*') {
+            return $keys;
+        }
+        
+        // Convert glob pattern to regex
+        $regex = '/^' . str_replace(['*', '?'], ['.*', '.'], preg_quote($pattern, '/')) . '$/i';
+        $matchedKeys = array_filter($keys, fn($key) => preg_match($regex, $key));
+        
+        // Add namespace prefix back if it was provided
+        if ($namespace !== null) {
+            $namespacePrefix = $namespace . ':';
+            $matchedKeys = array_map(fn($key) => $namespacePrefix . $key, $matchedKeys);
+        }
+        
+        return array_values($matchedKeys);
+    }
+
     public function delete(string $key, ?string $namespace = null): bool
     {
         throw new \RuntimeException('Mesh snapshots are read-only');

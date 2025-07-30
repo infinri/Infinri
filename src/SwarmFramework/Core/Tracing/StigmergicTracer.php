@@ -192,6 +192,33 @@ final class StigmergicTracer
     }
 
     /**
+     * Record a trace entry for stigmergic analysis
+     * 
+     * @param array $traceData Trace data to record
+     * @return void
+     */
+    public function recordTrace(array $traceData): void
+    {
+        $traceId = $this->generateTraceId();
+        $timestamp = PerformanceTimer::now();
+        
+        $trace = array_merge($traceData, [
+            'trace_id' => $traceId,
+            'timestamp' => $timestamp,
+            'recorded_at' => $timestamp
+        ]);
+        
+        $this->traceHistory[$traceId] = $trace;
+        $this->maintainHistorySize();
+        $this->emitTraceEvent($trace);
+        
+        $this->logger->debug('Trace recorded', [
+            'trace_id' => $traceId,
+            'unit_id' => $traceData['unit_id'] ?? 'unknown'
+        ]);
+    }
+
+    /**
      * Clear old traces based on retention policy
      */
     public function clearOldTraces(): int
