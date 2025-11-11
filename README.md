@@ -17,7 +17,6 @@ A web application built with clean architecture and best practices. Features mod
 - Secure session management
 
 **Performance**
-- Optimized algorithms (O(1) and O(n) complexity)
 - Efficient asset loading with lazy loading
 - Browser caching headers configured
 - Minimal dependencies
