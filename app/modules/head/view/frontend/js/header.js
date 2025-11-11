@@ -7,6 +7,16 @@
 (function() {
     'use strict';
 
+    // Prevent multiple initializations
+    if (window.headerInitialized) {
+        return;
+    }
+    window.headerInitialized = true;
+
+    let isMenuOpen = false;
+    let isAnimating = false;
+
+
     /**
      * Initialize header features
      */
@@ -22,41 +32,92 @@
     function initMobileMenu() {
         const menuToggle = document.querySelector('.menu-toggle');
         const navList = document.querySelector('.nav-list');
+        const mainNav = document.querySelector('.main-nav');
+        const menuClose = document.querySelector('.menu-close');
 
-        if (!menuToggle || !navList) return;
+        if (!menuToggle || !navList || !mainNav) return;
+
+        function closeMenu() {
+            if (isAnimating || !isMenuOpen) return;
+            
+            isAnimating = true;
+            isMenuOpen = false;
+            navList.classList.remove('menu-open');
+            mainNav.classList.remove('menu-open');
+            document.body.classList.remove('menu-animating');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            
+            // Reset animation flag after transition
+            setTimeout(() => {
+                isAnimating = false;
+            }, 100);
+        }
+
+        function openMenu() {
+            if (isAnimating || isMenuOpen) return;
+            
+            isAnimating = true;
+            isMenuOpen = true;
+            document.body.classList.add('menu-animating');
+            navList.classList.add('menu-open');
+            mainNav.classList.add('menu-open');
+            menuToggle.setAttribute('aria-expanded', 'true');
+            
+            // Reset animation flag after transition
+            setTimeout(() => {
+                isAnimating = false;
+                document.body.classList.remove('menu-animating');
+            }, 100);
+        }
 
         // Toggle menu on button click
         menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
-            navList.classList.toggle('active');
-            const isExpanded = navList.classList.contains('active');
-            menuToggle.setAttribute('aria-expanded', isExpanded);
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.main-header')) {
-                navList.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
+            
+            if (isMenuOpen) {
+                closeMenu();
+            } else {
+                openMenu();
             }
         });
 
-        // Close menu on ESC key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && navList.classList.contains('active')) {
-                navList.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // Close menu when clicking a nav link (mobile)
-        navList.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    navList.classList.remove('active');
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                }
+        // Close menu on close button click
+        if (menuClose) {
+            menuClose.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeMenu();
             });
+        }
+
+        // Close menu when clicking outside (throttled)
+        const throttledOutsideClick = App.throttle(function(event) {
+            if (isMenuOpen && !event.target.closest('.nav-list') && !event.target.closest('.menu-toggle')) {
+                closeMenu();
+            }
+        }, 100);
+
+        document.addEventListener('click', throttledOutsideClick);
+
+        // Close menu on ESC key (throttled)
+        const throttledEscClose = App.throttle(function(event) {
+            if (event.key === 'Escape' && isMenuOpen) {
+                closeMenu();
+            }
+        }, 200);
+
+        document.addEventListener('keydown', throttledEscClose);
+
+        // Close menu when clicking a nav link (mobile) - throttled
+        navList.querySelectorAll('.nav-link').forEach(link => {
+            const throttledNavClick = App.throttle(function() {
+                if (window.innerWidth <= 768 && isMenuOpen) {
+                    closeMenu();
+                }
+            }, 200);
+
+            link.addEventListener('click', throttledNavClick);
         });
     }
 
@@ -72,7 +133,7 @@
             if (linkPath === currentPath || 
                 (currentPath === '/' && linkPath === '/') ||
                 (currentPath !== '/' && linkPath !== '/' && currentPath.startsWith(linkPath))) {
-                link.classList.add('active');
+                link.classList.add('current-page');
             }
         });
     }
@@ -85,27 +146,22 @@
         if (!header) return;
 
         let lastScrollTop = 0;
-        let ticking = false;
 
-        window.addEventListener('scroll', function() {
-            if (!ticking) {
-                window.requestAnimationFrame(function() {
-                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    
-                    // Add/remove shadow based on scroll position
-                    if (scrollTop > 10) {
-                        header.style.boxShadow = 'var(--shadow-xl), var(--glow-purple)';
-                    } else {
-                        header.style.boxShadow = 'var(--shadow-elevated)';
-                    }
-                    
-                    lastScrollTop = scrollTop;
-                    ticking = false;
-                });
-                
-                ticking = true;
+        // Throttled scroll handler for better performance
+        const throttledScroll = App.throttle(function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add/remove shadow based on scroll position
+            if (scrollTop > 10) {
+                header.style.boxShadow = 'var(--shadow-xl), var(--glow-purple)';
+            } else {
+                header.style.boxShadow = 'var(--shadow-elevated)';
             }
-        });
+            
+            lastScrollTop = scrollTop;
+        }, 16); // ~60fps
+
+        window.addEventListener('scroll', throttledScroll, { passive: true });
     }
 
     // Initialize when DOM is ready

@@ -109,10 +109,7 @@
     font-size: var(--font-size-5xl);
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-4);
-    background: linear-gradient(135deg, var(--color-text), var(--color-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-primary); /* Brand purple for hero titles */
     line-height: var(--line-height-tight);
 }
 
@@ -126,17 +123,269 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* Natural HTML Heading Hierarchy - Higher specificity without !important */
+.container h1,
+.hero-content h1,
+.about-intro h1,
+h1.hero-title,
+h1.page-title,
+h1.about-title {
+    font-size: var(--font-size-5xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary); /* Use brand purple for main titles */
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-4);
+}
+
+/* H2 - Section titles - Higher specificity for consistency */
+.container h2,
+.hero-content h2,
+.about-intro h2,
+h2.section-title,
+h2.service-title,
+h2.approach-title,
+h2.step-title,
+h2.info-title,
+h2.form-title {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text); /* Keep white for clear hierarchy */
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-4);
+    text-align: center; /* Section titles are typically centered */
+}
+
+/* H3 - Subsection titles - Higher specificity for consistency */
+.container h3,
+.service-card h3,
+.client-type h3,
+h3.service-title,
+h3.approach-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text); /* Keep white for consistency */
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-3);
+}
+
+/* Body text - Higher specificity for consistency */
+.container p,
+.hero-content p,
+.about-intro p,
+p.hero-subtitle,
+p.page-subtitle,
+p.section-subtitle,
+p.about-description,
+p.service-description,
+p.approach-text {
+    font-size: var(--font-size-base);
+    color: var(--color-text-light); /* Light gray for readability */
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-4);
+}
+
 @media (max-width: 768px) {
     .hero {
         padding: var(--spacing-12) 0;
     }
 
-    .hero-title {
-        font-size: var(--font-size-3xl);
+    /* Mobile heading hierarchy - Higher specificity without !important */
+    .container h1,
+    .hero-content h1,
+    .about-intro h1,
+    h1.hero-title,
+    h1.page-title,
+    h1.about-title {
+        font-size: var(--font-size-5xl); /* 48px - Main attraction - consistent across all pages */
     }
+    
+    /* H2 - Mobile scaling */
+    .container h2,
+    .hero-content h2,
+    .about-intro h2,
+    h2.section-title,
+    h2.service-title,
+    h2.approach-title,
+    h2.step-title,
+    h2.info-title,
+    h2.form-title {
+        font-size: var(--font-size-2xl); /* 24px - Secondary */
+    }
+    
+    /* H3 - Mobile scaling */
+    .container h3,
+    .service-card h3,
+    .client-type h3,
+    h3.service-title,
+    h3.approach-title {
+        font-size: var(--font-size-lg); /* 18px - Tertiary */
+    }
+
+    /* Body text - Mobile scaling */
+    .container p,
+    .hero-content p,
+    .about-intro p,
+    p.hero-subtitle,
+    p.page-subtitle,
+    p.section-subtitle,
+    p.about-description,
+    p.service-description,
+    p.approach-text {
+        font-size: var(--font-size-base); /* Keep same size on mobile */
+    }
+
+    /* Remove hero-title mobile override - let global h1 handle all main titles */
 
     .hero-subtitle {
         font-size: var(--font-size-lg);
+    }
+}
+
+/* ==================== Global CTA Sections ==================== */
+
+/* Global CTA styling - consistent across all pages */
+.cta-section,
+.about-cta,
+.services-cta {
+    padding: var(--spacing-20) 0;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    text-align: center;
+    position: relative;
+}
+
+/* CTA Content */
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* CTA Titles */
+.cta-section h2,
+.about-cta h2,
+.services-cta h2,
+.cta-title {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: white;
+    margin-bottom: var(--spacing-4);
+}
+
+/* CTA Text */
+.cta-section p,
+.about-cta p,
+.services-cta p,
+.cta-text {
+    font-size: var(--font-size-lg);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--spacing-8);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: var(--line-height-relaxed);
+}
+
+/* CTA Buttons */
+.cta-buttons {
+    display: flex;
+    gap: var(--spacing-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+    padding: var(--spacing-4) var(--spacing-8);
+    font-size: var(--font-size-lg);
+}
+
+.cta-buttons .btn-primary {
+    background: white;
+    color: var(--color-primary);
+    border: 2px solid white;
+}
+
+.cta-buttons .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.cta-buttons .btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.cta-buttons .btn-outline:hover {
+    background: white;
+    color: var(--color-primary);
+}
+
+/* Mobile CTA adjustments */
+@media (max-width: 768px) {
+    .cta-section h2,
+    .about-cta h2,
+    .services-cta h2,
+    .cta-title {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .cta-section p,
+    .about-cta p,
+    .services-cta p,
+    .cta-text {
+        font-size: var(--font-size-base);
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* ==================== Global Service Grids ==================== */
+
+/* Global service grid layout - center-aligned and responsive */
+.services-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-8);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-8);
+    text-align: center;
+    transition: all var(--transition-base), opacity 0.6s ease, transform 0.6s ease;
+    flex: 0 0 300px; /* Fixed width for consistent layout */
+    position: relative;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elevated);
+    border-color: rgba(157, 78, 221, 0.3);
+}
+
+/* Mobile service grid */
+@media (max-width: 768px) {
+    .services-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .service-card {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 400px;
     }
 }
 
@@ -237,10 +486,7 @@
     font-size: var(--font-size-5xl);
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-4);
-    background: linear-gradient(135deg, var(--color-text), var(--color-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-primary); /* Brand purple for page titles */
     line-height: var(--line-height-tight);
 }
 
@@ -272,10 +518,6 @@
 @media (max-width: 768px) {
     .page-hero {
         padding: var(--spacing-12) 0;
-    }
-
-    .page-title {
-        font-size: var(--font-size-3xl);
     }
 
     .page-subtitle {

@@ -11,27 +11,47 @@
      * Initialize error page features
      */
     function init() {
+        initNavigationButtons();
         initErrorCodeAnimation();
         initCardAnimations();
         initRedirectSuggestions();
     }
 
     /**
-     * Animate the 404 code on page load
+     * Handle navigation buttons (CSP compliant)
+     */
+    function initNavigationButtons() {
+        // Handle reload page button
+        const reloadButton = document.getElementById('reload-page');
+        if (reloadButton) {
+            reloadButton.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+
+        // Handle go back button
+        const goBackButton = document.getElementById('go-back');
+        if (goBackButton) {
+            goBackButton.addEventListener('click', function() {
+                window.history.back();
+            });
+        }
+    }
+
+    /**
+     * Animate the 404 code on page load (CSP compliant)
      */
     function initErrorCodeAnimation() {
         const errorCode = document.querySelector('.error-code');
         if (!errorCode) return;
 
-        // Start hidden
-        errorCode.style.opacity = '0';
-        errorCode.style.transform = 'scale(0.5)';
-        errorCode.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        // Start with hidden class
+        errorCode.classList.add('animate-hidden');
 
         // Animate in
         setTimeout(() => {
-            errorCode.style.opacity = '1';
-            errorCode.style.transform = 'scale(1)';
+            errorCode.classList.remove('animate-hidden');
+            errorCode.classList.add('animate-visible');
         }, 100);
     }
 
@@ -46,8 +66,8 @@
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
                     setTimeout(() => {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+                        entry.target.classList.remove('card-hidden');
+                        entry.target.classList.add('card-visible');
                     }, index * 100);
                     
                     observer.unobserve(entry.target);
@@ -56,9 +76,7 @@
         }, { threshold: 0.1 });
 
         cards.forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.classList.add('card-hidden');
             observer.observe(card);
         });
     }
@@ -87,7 +105,7 @@
     }
 
     /**
-     * Highlight suggested card
+     * Highlight suggested card (CSP compliant)
      */
     function highlightSuggestion(page) {
         const cards = document.querySelectorAll('.error-card');
@@ -95,23 +113,13 @@
         cards.forEach(card => {
             const link = card.querySelector('a[href*="/' + page + '"]');
             if (link) {
-                // Add visual emphasis
-                card.style.border = '2px solid var(--color-primary)';
-                card.style.background = 'var(--color-bg-tertiary)';
+                // Add visual emphasis with CSS class
+                card.classList.add('suggested-card');
                 
                 // Add "Suggested" badge
                 const badge = document.createElement('span');
                 badge.textContent = 'Suggested';
-                badge.style.cssText = `
-                    display: inline-block;
-                    background: var(--color-primary);
-                    color: white;
-                    padding: 4px 12px;
-                    border-radius: 12px;
-                    font-size: var(--font-size-sm);
-                    font-weight: var(--font-weight-bold);
-                    margin-bottom: var(--spacing-3);
-                `;
+                badge.className = 'suggested-badge';
                 card.insertBefore(badge, card.firstChild);
             }
         });

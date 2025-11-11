@@ -1,71 +1,212 @@
 /**
  * Home Page Styles
  * 
- * Page-specific styling for the Home module
- * Note: Hero section is in theme.css as it's shared across pages
+ * Business-focused design for web development studio
+ * Emphasizes services, pricing, and target clients
  */
 
-/* Home-specific hero adjustments */
+/* Compact Hero Section */
 .hero {
-    min-height: 60vh;
-    display: flex;
-    align-items: center;
-}
-
-/* Initial state for hero animation */
-.hero-title,
-.hero-subtitle,
-.hero-buttons {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-
-/* Loaded state - will be set by JS */
-.hero-title.loaded,
-.hero-subtitle.loaded,
-.hero-buttons.loaded {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-}
-
-/* Feature cards section */
-.features-section {
-    padding: var(--spacing-16) 0;
-    background-color: var(--color-bg-primary);
-}
-
-.features-title {
+    padding: var(--spacing-20) 0 var(--spacing-16);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
     text-align: center;
+}
+
+.hero-content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: var(--font-size-5xl); /* Bigger main title */
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary); /* Brand purple for hero title */
+    margin-bottom: var(--spacing-6);
+    line-height: var(--line-height-tight);
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-light);
     margin-bottom: var(--spacing-8);
-    font-size: var(--font-size-3xl);
-    color: var(--color-text);
+    line-height: var(--line-height-relaxed);
 }
 
-/* Animate feature cards on scroll - scope to home page only */
-.features-section .card {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.features-section .card.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* CTA buttons in hero */
 .hero-buttons {
-    margin-top: var(--spacing-8);
     display: flex;
     gap: var(--spacing-4);
     justify-content: center;
     flex-wrap: wrap;
 }
 
+/* Services Section */
+.services-section {
+    padding: var(--spacing-20) 0;
+    background: var(--color-bg-primary);
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-12);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.service-card.featured {
+    border: 2px solid var(--color-primary);
+    box-shadow: var(--shadow-lg), var(--glow-purple);
+}
+
+.service-card.featured:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl), var(--glow-purple-lg);
+}
+
+.service-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-primary);
+    color: white;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.service-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-4);
+}
+
+.service-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-3);
+}
+
+.service-price {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-4);
+}
+
+.service-description {
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-6);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-list {
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+    color: var(--color-text-light);
+}
+
+.service-list li {
+    padding: var(--spacing-1) 0;
+    position: relative;
+    padding-left: var(--spacing-6);
+}
+
+.service-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.service-cta {
+    display: inline-block;
+    padding: var(--spacing-3) var(--spacing-6);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--border-radius-md);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-base);
+}
+
+.service-cta:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.service-cta.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.service-cta.btn-primary:hover {
+    background: var(--color-primary-dark);
+}
+
+/* Clients Section */
+.clients-section {
+    padding: var(--spacing-16) 0;
+    background: var(--color-bg-secondary);
+}
+
+.client-types {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-8);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.client-type {
+    text-align: center;
+    padding: var(--spacing-6);
+    flex: 0 0 200px; /* Fixed width for consistent layout */
+}
+
+.client-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-4);
+}
+
+.client-type h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-2);
+}
+
+.client-type p {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
+.btn-large {
+    padding: var(--spacing-4) var(--spacing-8);
+    font-size: var(--font-size-lg);
+    background: white;
+    color: var(--color-primary);
+    border: none;
+}
+
+.btn-large:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .hero {
-        min-height: 50vh;
+    .hero-title {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .hero-subtitle {
+        font-size: var(--font-size-lg);
     }
 
     .hero-buttons {
@@ -74,6 +215,25 @@
     }
 
     .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .service-card.featured {
+        transform: none;
+    }
+
+    .service-card.featured:hover {
+        transform: translateY(-4px);
+    }
+
+    .client-types {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .client-type {
+        flex: 0 0 auto;
         width: 100%;
         max-width: 300px;
     }

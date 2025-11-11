@@ -14,7 +14,7 @@ declare(strict_types=1);
             <p class="hero-subtitle">We're currently performing scheduled maintenance. We'll be back soon!</p>
             
             <div class="error-actions">
-                <a href="javascript:location.reload()" class="btn btn-primary">Check Again</a>
+                <button type="button" class="btn btn-primary" id="reload-page">Check Again</button>
             </div>
             
             <p class="error-note">Estimated time: Less than 1 hour</p>

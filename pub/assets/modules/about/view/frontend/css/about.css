@@ -1,8 +1,8 @@
 /**
- * About Page Styles
+ * About Infinri Page Styles
  * 
- * Page-specific styling for the About module
- * Note: .about-hero uses shared .page-hero from theme.css
+ * Personal story and business-focused design
+ * Emphasizes trust, reliability, and client benefits
  */
 
 /* About Hero - specific adjustments */
@@ -63,16 +63,6 @@
     max-width: 700px;
 }
 
-.about-title {
-    font-size: var(--font-size-4xl);
-    font-weight: var(--font-weight-bold);
-    margin-bottom: var(--spacing-2);
-    background: linear-gradient(135deg, var(--color-text), var(--color-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
 .about-subtitle {
     font-size: var(--font-size-2xl);
     color: var(--color-primary);
@@ -87,79 +77,89 @@
     margin-bottom: var(--spacing-8);
 }
 
-/* Stats */
-.about-stats {
+/* Values */
+.about-values {
     display: flex;
-    gap: var(--spacing-8);
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-8);
+    align-items: center;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.stat-item {
-    text-align: center;
+.value-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: rgba(157, 78, 221, 0.1);
+    border-radius: var(--border-radius-md);
+    border-left: 3px solid var(--color-primary);
+    width: 100%;
+    max-width: 400px;
 }
 
-.stat-value {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-1);
+.value-icon {
+    font-size: var(--font-size-xl);
+    flex-shrink: 0;
 }
 
-.stat-label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-light);
+.value-text {
+    color: var(--color-text);
     font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-md);
 }
 
-/* Skills Section - uses shared .page-section from theme.css */
-
-.skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-8);
+/* Services Section */
+.about-services {
+    padding: var(--spacing-20) 0;
+    background: var(--color-bg-secondary);
 }
 
-.skill-card {
-    background: var(--color-bg-elevated);
-    border: 1px solid rgba(157, 78, 221, 0.2);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-8);
-    transition: all var(--transition-base);
+.section-intro {
+    text-align: center;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-light);
+    max-width: 600px;
+    margin: 0 auto var(--spacing-12);
+    line-height: var(--line-height-relaxed);
 }
 
-.skill-card:hover {
-    box-shadow: var(--shadow-xl), var(--glow-purple);
-    transform: translateY(-4px);
-    border-color: var(--color-primary);
-    background: var(--color-bg-tertiary);
-}
-
-.skill-icon {
-    font-size: var(--font-size-4xl);
+.service-icon {
+    font-size: 2.5rem;
     margin-bottom: var(--spacing-4);
 }
 
-.skill-title {
+.service-title {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-4);
     color: var(--color-text);
 }
 
-.skill-list {
+.service-description {
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-6);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-benefits {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.skill-list li {
+.service-benefits li {
     padding: var(--spacing-2) 0;
     color: var(--color-text-light);
     position: relative;
     padding-left: var(--spacing-6);
 }
 
-.skill-list li::before {
-    content: '✓';
+.service-benefits li::before {
+    content: '→';
     position: absolute;
     left: 0;
     color: var(--color-primary);
@@ -202,14 +202,10 @@
     background: var(--color-bg-tertiary);
 }
 
-.approach-number {
+.approach-icon {
     font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    text-align: center;
 }
 
 .approach-title {
@@ -222,6 +218,30 @@
 .approach-text {
     color: var(--color-text-light);
     line-height: var(--line-height-relaxed);
+}
+
+/* CSP Compliant Classes */
+.hidden {
+    display: none !important;
+}
+
+.profile-emoji {
+    font-size: 4rem;
+}
+
+/* Animation Classes for CSP Compliance */
+.skill-card {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.skill-card.animate-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.skill-card.animate-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Responsive About Page */
@@ -240,13 +260,11 @@
         margin: 0 auto;
     }
 
-    .about-stats {
-        justify-content: center;
+    .about-values {
+        align-items: center;
     }
 
-    .skills-grid {
-        grid-template-columns: 1fr;
-    }
+    /* Service grid mobile styling moved to theme.css */
 
     .approach-grid {
         grid-template-columns: 1fr;
@@ -257,10 +275,5 @@
     .profile-image-wrapper {
         width: 200px;
         height: 200px;
-    }
-
-    .about-stats {
-        flex-direction: column;
-        gap: var(--spacing-4);
     }
 }

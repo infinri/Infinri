@@ -7,6 +7,7 @@
 (function() {
     'use strict';
 
+
     /**
      * Initialize services page features
      */
@@ -29,8 +30,8 @@
                 if (entry.isIntersecting) {
                     // Stagger animation delay
                     setTimeout(() => {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+                        entry.target.classList.remove('animate-hidden');
+                        entry.target.classList.add('animate-visible');
                     }, index * 150);
                     
                     observer.unobserve(entry.target);
@@ -43,9 +44,7 @@
 
         // Set initial state and observe
         serviceCards.forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.classList.add('animate-hidden');
             observer.observe(card);
         });
     }
@@ -57,17 +56,22 @@
         const serviceIcons = document.querySelectorAll('.service-icon');
         
         serviceIcons.forEach((icon, index) => {
-            // Vary animation delay for each icon
-            icon.style.animationDelay = `${index * 0.2}s`;
+            // Vary animation delay for each icon (using CSS custom property)
+            icon.style.setProperty('--animation-delay', `${index * 0.2}s`);
             
-            // Add hover pause effect
-            icon.parentElement.addEventListener('mouseenter', function() {
-                icon.style.animationPlayState = 'paused';
-            });
+            // Add hover pause effect (throttled)
+            const throttledPause = App.throttle(function() {
+                icon.classList.add('paused');
+                icon.classList.remove('running');
+            }, 50);
             
-            icon.parentElement.addEventListener('mouseleave', function() {
-                icon.style.animationPlayState = 'running';
-            });
+            const throttledResume = App.throttle(function() {
+                icon.classList.remove('paused');
+                icon.classList.add('running');
+            }, 50);
+            
+            icon.parentElement.addEventListener('mouseenter', throttledPause);
+            icon.parentElement.addEventListener('mouseleave', throttledResume);
         });
     }
 
@@ -83,12 +87,11 @@
             if (!card) return;
             
             card.addEventListener('mouseenter', function() {
-                badge.style.transform = 'scale(1.1) rotate(5deg)';
-                badge.style.transition = 'transform 0.3s ease';
+                badge.classList.add('badge-hover');
             });
             
             card.addEventListener('mouseleave', function() {
-                badge.style.transform = 'scale(1) rotate(0deg)';
+                badge.classList.remove('badge-hover');
             });
         });
     }

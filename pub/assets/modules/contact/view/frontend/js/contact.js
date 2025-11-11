@@ -7,6 +7,7 @@
 (function() {
     'use strict';
 
+
     /**
      * Initialize contact page features
      */
@@ -26,15 +27,19 @@
         const inputs = form.querySelectorAll('.form-input, .form-textarea');
         
         inputs.forEach(input => {
-            // Validate on blur
-            input.addEventListener('blur', function() {
+            // Validate on blur (throttled)
+            const throttledValidate = App.throttle(function() {
                 validateField(this);
-            });
+            }, 300);
+            
+            input.addEventListener('blur', throttledValidate);
 
-            // Clear error on input
-            input.addEventListener('input', function() {
+            // Clear error on input (throttled)
+            const throttledClearError = App.throttle(function() {
                 clearFieldError(this);
-            });
+            }, 150);
+            
+            input.addEventListener('input', throttledClearError);
         });
     }
 
@@ -85,9 +90,6 @@
         // Add error message
         const errorDiv = document.createElement('div');
         errorDiv.className = 'field-error';
-        errorDiv.style.color = 'var(--color-danger)';
-        errorDiv.style.fontSize = 'var(--font-size-sm)';
-        errorDiv.style.marginTop = 'var(--spacing-2)';
         errorDiv.textContent = message;
         formGroup.appendChild(errorDiv);
     }
@@ -111,7 +113,8 @@
         const form = document.querySelector('.contact-form');
         if (!form) return;
 
-        form.addEventListener('submit', function(e) {
+        // Throttle form submission to prevent double-clicks
+        const throttledSubmit = App.throttle(function(e) {
             e.preventDefault();
 
             // Validate all fields
@@ -131,7 +134,9 @@
 
             // Submit form
             submitForm(form);
-        });
+        }, 1000);
+
+        form.addEventListener('submit', throttledSubmit);
     }
 
     /**
@@ -185,15 +190,13 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = `form-message alert alert-${type}`;
         messageDiv.textContent = message;
-        messageDiv.style.marginTop = 'var(--spacing-4)';
 
         const form = document.querySelector('.contact-form');
         form.parentNode.insertBefore(messageDiv, form.nextSibling);
 
         // Auto-remove after 5 seconds
         setTimeout(() => {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transition = 'opacity 0.5s';
+            messageDiv.classList.add('fade-out');
             setTimeout(() => messageDiv.remove(), 500);
         }, 5000);
     }

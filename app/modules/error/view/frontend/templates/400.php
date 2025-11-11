@@ -15,7 +15,7 @@ declare(strict_types=1);
             
             <div class="error-actions">
                 <a href="/" class="btn btn-primary">Go Home</a>
-                <a href="javascript:history.back()" class="btn btn-outline">Go Back</a>
+                <button type="button" class="btn btn-outline" id="go-back">Go Back</button>
             </div>
         </div>
     </div>

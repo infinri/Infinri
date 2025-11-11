@@ -20,6 +20,7 @@ declare(strict_types=1);
                 <span class="hamburger"></span>
             </button>
             <ul class="nav-list">
+                <button class="menu-close" aria-label="Close menu">✕</button>
                 <li><a href="/" class="nav-link">Home</a></li>
                 <li><a href="/about" class="nav-link">About</a></li>
                 <li><a href="/services" class="nav-link">Services</a></li>

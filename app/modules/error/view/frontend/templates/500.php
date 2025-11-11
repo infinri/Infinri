@@ -15,7 +15,7 @@ declare(strict_types=1);
             
             <div class="error-actions">
                 <a href="/" class="btn btn-primary">Go Home</a>
-                <a href="javascript:location.reload()" class="btn btn-outline">Reload Page</a>
+                <button type="button" class="btn btn-outline" id="reload-page">Reload Page</button>
             </div>
         </div>
     </div>
