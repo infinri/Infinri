@@ -1,0 +1,36 @@
+parameters:
+    # Analysis level (0-9, 9 being the strictest)
+    # Level 6 = Strong type checking without being overly pedantic
+    level: 6
+    
+    # Paths to analyze
+    paths:
+        - app/base
+        - app/modules
+        - pub/index.php
+    
+    # Paths to exclude from analysis
+    excludePaths:
+        - tests/*
+        - var/*
+        - vendor/*
+    
+    # Bootstrap file for autoloading
+    bootstrapFiles:
+        - app/autoload.php
+    
+    # Strict rules
+    reportUnmatchedIgnoredErrors: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    checkDynamicProperties: true
+    
+    # Ignore specific errors (pragmatic choices for vanilla PHP)
+    ignoreErrors:
+        # Allow unspecified array value types (would require PHPDoc everywhere)
+        - '#no value type specified in iterable type array#'
+        # Allow truthy checks (common in PHP)
+        - '#Only booleans are allowed#'
+    
+    # Cache directory
+    tmpDir: var/cache/phpstan

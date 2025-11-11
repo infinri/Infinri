@@ -1,0 +1,69 @@
+# Environment & Configuration
+.env
+.env.*
+!.env.example
+app/config.php.local
+
+# Logs
+*.log
+app/logs/
+var/logs/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary Files
+*.tmp
+*.temp
+*.cache
+
+# Uploads (if implemented)
+app/uploads/
+
+# Dependencies (if added later)
+/vendor/
+/node_modules/
+
+# Build artifacts (if added later)
+/dist/
+/build/
+
+# Testing
+.phpunit.cache/
+var/cache/phpcs/
+var/cache/phpstan/
+var/cache/.phpunit.cache/
+.phpunit.result.cache
+coverage/
+.pest/
+
+# Security & Sensitive Files
+*.key
+*.pem
+*.p12
+*.crt
+*.csr
+*.pfx
+secrets/
+credentials/
+.aws/
+.ssh/
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Documentation (Generated/Personal Notes)
+TODO.md
+NOTES.md
+PRIVATE*.md

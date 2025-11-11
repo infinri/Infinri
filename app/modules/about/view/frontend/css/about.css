@@ -1,0 +1,266 @@
+/**
+ * About Page Styles
+ * 
+ * Page-specific styling for the About module
+ * Note: .about-hero uses shared .page-hero from theme.css
+ */
+
+/* About Hero - specific adjustments */
+.about-hero {
+    padding: var(--spacing-20) 0; /* Slightly more padding than default */
+    text-align: left; /* Override center alignment */
+}
+
+.about-hero-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--spacing-16);
+    align-items: center;
+}
+
+/* Profile Image */
+.profile-image-wrapper {
+    width: 250px;
+    height: 250px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl), var(--glow-purple-lg);
+    border: 3px solid var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary-dark), var(--color-bg-tertiary));
+    position: relative;
+}
+
+.profile-image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: var(--radius-full);
+    padding: 3px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+}
+
+/* About Intro */
+.about-intro {
+    max-width: 700px;
+}
+
+.about-title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-2);
+    background: linear-gradient(135deg, var(--color-text), var(--color-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.about-subtitle {
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-6);
+}
+
+.about-description {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-light);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-8);
+}
+
+/* Stats */
+.about-stats {
+    display: flex;
+    gap: var(--spacing-8);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-1);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Skills Section - uses shared .page-section from theme.css */
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-8);
+}
+
+.skill-card {
+    background: var(--color-bg-elevated);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-8);
+    transition: all var(--transition-base);
+}
+
+.skill-card:hover {
+    box-shadow: var(--shadow-xl), var(--glow-purple);
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    background: var(--color-bg-tertiary);
+}
+
+.skill-icon {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-4);
+}
+
+.skill-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text);
+}
+
+.skill-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.skill-list li {
+    padding: var(--spacing-2) 0;
+    color: var(--color-text-light);
+    position: relative;
+    padding-left: var(--spacing-6);
+}
+
+.skill-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Approach Section - custom background gradient */
+.about-approach {
+    padding: var(--spacing-20) 0;
+    background: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+}
+
+.approach-intro {
+    text-align: center;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-light);
+    max-width: 700px;
+    margin: 0 auto var(--spacing-12);
+    line-height: var(--line-height-relaxed);
+}
+
+.approach-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-8);
+}
+
+.approach-item {
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-8);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    transition: all var(--transition-base);
+}
+
+.approach-item:hover {
+    box-shadow: var(--shadow-xl), var(--glow-purple);
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    background: var(--color-bg-tertiary);
+}
+
+.approach-number {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--spacing-3);
+}
+
+.approach-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-3);
+    color: var(--color-text);
+}
+
+.approach-text {
+    color: var(--color-text-light);
+    line-height: var(--line-height-relaxed);
+}
+
+/* Responsive About Page */
+@media (max-width: 968px) {
+    .about-hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--spacing-8);
+    }
+
+    .profile-image-wrapper {
+        margin: 0 auto;
+    }
+
+    .about-intro {
+        margin: 0 auto;
+    }
+
+    .about-stats {
+        justify-content: center;
+    }
+
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .approach-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-image-wrapper {
+        width: 200px;
+        height: 200px;
+    }
+
+    .about-stats {
+        flex-direction: column;
+        gap: var(--spacing-4);
+    }
+}

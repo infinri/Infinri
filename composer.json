@@ -1,0 +1,63 @@
+{
+  "name": "infinri/portfolio",
+  "description": "Modular portfolio built with vanilla PHP",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.0",
+    "pestphp/pest": "^3.0",
+    "mockery/mockery": "^1.6",
+    "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "squizlabs/php_codesniffer": "^3.10",
+    "friendsofphp/php-cs-fixer": "^3.89"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "App\\Base\\Components\\": "app/base/components/",
+      "App\\Base\\Helpers\\": "app/base/helpers/",
+      "App\\Core\\": "app/base/core/",
+      "App\\Helpers\\": "app/base/helpers/",
+      "App\\Modules\\": "app/modules/"
+    },
+    "files": [
+      "app/bootstrap.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "phpstan/extension-installer": true,
+      "pestphp/pest-plugin": true
+    },
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "scripts": {
+    "lint": "vendor/bin/phpcs",
+    "lint:fix": "vendor/bin/phpcbf",
+    "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G",
+    "test": "vendor/bin/pest",
+    "test:unit": "vendor/bin/pest tests/Unit",
+    "test:integration": "vendor/bin/pest tests/Integration",
+    "test:coverage": "XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=97",
+    "test:parallel": "vendor/bin/pest --parallel",
+    "quality": [
+      "@lint",
+      "@phpstan",
+      "@test",
+      "@test:coverage"
+    ]
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
