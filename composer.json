@@ -23,7 +23,9 @@
       "App\\Base\\Helpers\\": "app/base/helpers/",
       "App\\Core\\": "app/base/core/",
       "App\\Helpers\\": "app/base/helpers/",
-      "App\\Modules\\": "app/modules/"
+      "App\\Modules\\": "app/modules/",
+      "App\\Console\\": "app/base/console/",
+      "App\\Console\\Commands\\": "app/base/console/commands/"
     },
     "files": [
       "app/bootstrap.php"
@@ -51,11 +53,20 @@
     "test:integration": "vendor/bin/pest tests/Integration",
     "test:coverage": "XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=97",
     "test:parallel": "vendor/bin/pest --parallel",
+    "assets:publish": "php bin/console assets:publish",
+    "assets:clear": "php bin/console assets:clear",
+    "setup:update": "php bin/console setup:update",
     "quality": [
       "@lint",
       "@phpstan",
       "@test",
       "@test:coverage"
+    ],
+    "post-install-cmd": [
+      "@setup:update"
+    ],
+    "post-update-cmd": [
+      "@setup:update"
     ]
   },
   "minimum-stability": "stable",

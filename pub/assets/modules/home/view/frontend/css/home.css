@@ -1,0 +1,80 @@
+/**
+ * Home Page Styles
+ * 
+ * Page-specific styling for the Home module
+ * Note: Hero section is in theme.css as it's shared across pages
+ */
+
+/* Home-specific hero adjustments */
+.hero {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+/* Initial state for hero animation */
+.hero-title,
+.hero-subtitle,
+.hero-buttons {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* Loaded state - will be set by JS */
+.hero-title.loaded,
+.hero-subtitle.loaded,
+.hero-buttons.loaded {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Feature cards section */
+.features-section {
+    padding: var(--spacing-16) 0;
+    background-color: var(--color-bg-primary);
+}
+
+.features-title {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+    font-size: var(--font-size-3xl);
+    color: var(--color-text);
+}
+
+/* Animate feature cards on scroll - scope to home page only */
+.features-section .card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.features-section .card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* CTA buttons in hero */
+.hero-buttons {
+    margin-top: var(--spacing-8);
+    display: flex;
+    gap: var(--spacing-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .hero {
+        min-height: 50vh;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}

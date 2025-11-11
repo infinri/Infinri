@@ -1,0 +1,181 @@
+/**
+ * Services Page Styles
+ * 
+ * Page-specific styling for the Services module
+ * Note: .services-hero, .services-title, .services-subtitle use shared .page-hero, .page-title, .page-subtitle from theme.css
+ * Note: .services-section uses shared .page-section from theme.css
+ */
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-8);
+}
+
+.service-card {
+    background: var(--color-bg-elevated);
+    border: 2px solid rgba(157, 78, 221, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-10);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+    box-shadow: var(--glow-purple);
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+}
+
+.service-card:hover {
+    box-shadow: var(--shadow-xl), var(--glow-purple-lg);
+    transform: translateY(-8px);
+    border-color: var(--color-primary);
+    background: var(--color-bg-tertiary);
+}
+
+.service-card:hover::before {
+    transform: scaleX(1);
+}
+
+.service-icon {
+    font-size: var(--font-size-5xl);
+    margin-bottom: var(--spacing-6);
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.service-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text);
+}
+
+.service-description {
+    font-size: var(--font-size-base);
+    color: var(--color-text-light);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-6);
+}
+
+.service-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.service-features li {
+    padding: var(--spacing-3) 0;
+    color: var(--color-text-light);
+    position: relative;
+    padding-left: var(--spacing-8);
+    font-size: var(--font-size-base);
+}
+
+.service-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+}
+
+.service-badge {
+    position: absolute;
+    top: var(--spacing-6);
+    right: var(--spacing-6);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    color: white;
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+}
+
+/* CTA Section */
+.services-cta {
+    padding: var(--spacing-20) 0;
+    background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
+    border-top: 1px solid rgba(157, 78, 221, 0.3);
+    text-align: center;
+    position: relative;
+}
+
+.services-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    box-shadow: var(--glow-purple);
+}
+
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-4);
+    background: linear-gradient(135deg, var(--color-text), var(--color-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.cta-text {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-8);
+    opacity: 0.95;
+    line-height: var(--line-height-relaxed);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--spacing-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive Services */
+@media (max-width: 768px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-card {
+        padding: var(--spacing-6);
+    }
+
+    .cta-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .cta-text {
+        font-size: var(--font-size-base);
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+    }
+}

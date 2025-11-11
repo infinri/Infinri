@@ -9,6 +9,7 @@
  * - App\Core\*       → /app/base/core/*
  * - App\Modules\*    → /app/modules/*
  * - App\Helpers\*    → /app/base/helpers/* (Env, Path, Validate, Module, Str, Cache, Esc, Session, View, Logger)
+ * - App\Console\*    → /app/base/console/* (Application, Commands)
  * 
  * @package App
  */
@@ -42,6 +43,7 @@ spl_autoload_register(function (string $class): void {
         'Core' => __DIR__ . '/base/core/',
         'Modules' => __DIR__ . '/modules/',
         'Helpers' => __DIR__ . '/base/helpers/',
+        'Console' => __DIR__ . '/base/console/',
         default => __DIR__ . '/' . strtolower($segment) . '/'
     };
     

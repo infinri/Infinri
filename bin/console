@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+/**
+ * Console Application Entry Point
+ *
+ * Provides command-line interface for asset management and maintenance tasks
+ *
+ * @package App\Console
+ */
+
+// Load application bootstrap
+require __DIR__ . '/../app/autoload.php';
+
+use App\Console\Application;
+
+try {
+    $app = new Application();
+    $app->run($argv);
+} catch (Throwable $e) {
+    echo "Error: " . $e->getMessage() . PHP_EOL;
+    exit(1);
+}

@@ -61,6 +61,9 @@ composer install
 # Configure environment
 cp .env.example .env
 
+# Setup project (publishes assets, clears caches)
+composer setup:update
+
 # Run quality checks
 composer quality
 
@@ -70,9 +73,37 @@ php -S localhost:8080 -t pub
 
 Visit `http://localhost:8080` to view the application.
 
+## Asset Management
+
+The project uses a **copy-based asset management system** instead of symbolic links for better cross-platform compatibility:
+
+```bash
+# Publish all assets to pub/assets/
+composer assets:publish
+# OR
+php bin/console assets:publish
+
+# Clear published assets
+composer assets:clear
+# OR  
+php bin/console assets:clear
+
+# Complete project setup (recommended after git clone)
+composer setup:update
+# OR
+php bin/console setup:update
+```
+
+**Asset Structure:**
+- **Source**: Assets stored in `app/base/view/` and `app/modules/*/view/`
+- **Published**: Copied to `pub/assets/` for web access
+- **Layers**: base → frontend → module (proper cascade loading)
+
 ## Project Structure
 
 - **`app/base/`** - Core framework and shared components
+  - `console/` - Command-line interface
+  - `view/` - Base assets (CSS, JS)
 - **`app/modules/`** - Feature modules
   - `head/` - Navigation and header
   - `footer/` - Site footer
@@ -81,7 +112,8 @@ Visit `http://localhost:8080` to view the application.
   - `services/` - Services showcase
   - `contact/` - Contact form with validation
   - `error/` - Error pages (400, 404, 500, maintenance)
-- **`pub/`** - Public entry point
+- **`bin/`** - Console commands
+- **`pub/`** - Public entry point and published assets
 - **`tests/`** - Test suite (168 tests)
 
 ## Testing & Quality
