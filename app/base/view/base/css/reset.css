@@ -1,109 +1,81 @@
 /**
- * CSS Reset
- *
- * Normalize browser inconsistencies and establish baseline styles
- * Based on modern CSS reset best practices
+ * Modern CSS Reset
+ * Clean foundation for our theme
  */
 
-/* Box sizing border-box for all elements */
+/* Box sizing reset */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
+}
+
+/* Remove default margins and padding */
+* {
     margin: 0;
     padding: 0;
 }
 
-/* Root element */
+/* HTML and body setup */
 html {
-    font-size: 16px;
+    font-size: 16px; /* Base font size */
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-base);
+    color: var(--color-text);
+    background-color: var(--color-bg-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-size-adjust: 100%;
 }
 
-/* Body defaults */
-body {
-    min-height: 100vh;
-    line-height: 1.6;
-    text-rendering: optimizeLegibility;
+/* Remove list styles */
+ul,
+ol {
+    list-style: none;
 }
 
-/* Media elements */
-img,
-picture,
-video,
-canvas,
-svg {
-    display: block;
-    max-width: 100%;
-    height: auto;
+/* Remove default link styles */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Remove default button styles */
+button {
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
 }
 
 /* Form elements */
 input,
-button,
 textarea,
 select {
     font: inherit;
     color: inherit;
 }
 
-/* Remove button styles */
-button {
-    background: none;
-    border: none;
-    cursor: pointer;
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-/* Links */
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Lists */
-ul,
-ol {
-    list-style: none;
-}
-
-/* Tables */
+/* Remove default table spacing */
 table {
     border-collapse: collapse;
     border-spacing: 0;
 }
 
-/* Prevent text overflow */
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    overflow-wrap: break-word;
-}
-
-/* Remove default fieldset/legend styles */
-fieldset {
-    border: 0;
-    padding: 0;
-    margin: 0;
-}
-
-legend {
-    padding: 0;
-}
-
-/* Accessibility: Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
+/* Focus styles */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }

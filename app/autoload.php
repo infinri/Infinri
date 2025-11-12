@@ -17,6 +17,12 @@
 // Load environment variables first
 require_once __DIR__ . '/bootstrap.php';
 
+// Load Composer autoloader for vendor packages
+$composerAutoloader = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($composerAutoloader)) {
+    require_once $composerAutoloader;
+}
+
 // Register PSR-4 autoloader
 spl_autoload_register(function (string $class): void {
     // Security: Whitelist App namespace only
@@ -44,6 +50,7 @@ spl_autoload_register(function (string $class): void {
         'Modules' => __DIR__ . '/modules/',
         'Helpers' => __DIR__ . '/base/helpers/',
         'Console' => __DIR__ . '/base/console/',
+        'Base' => __DIR__ . '/base/',
         default => __DIR__ . '/' . strtolower($segment) . '/'
     };
     

@@ -143,6 +143,10 @@
      * Submit form via AJAX
      */
     function submitForm(form) {
+        console.log('=== CONTACT FORM SUBMISSION START ===');
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        
         const submitButton = form.querySelector('.form-submit');
         const originalText = submitButton.innerHTML;
         
@@ -151,7 +155,14 @@
         submitButton.innerHTML = '<span>Sending...</span>';
 
         const formData = new FormData(form);
+        
+        // Log form data
+        console.log('Form data being sent:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: ${value}`);
+        }
 
+        console.log('Making fetch request...');
         fetch(form.action, {
             method: 'POST',
             body: formData,
@@ -159,23 +170,61 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Fetch response received:');
+            console.log('  Status:', response.status);
+            console.log('  Status Text:', response.statusText);
+            console.log('  Headers:', Object.fromEntries(response.headers.entries()));
+            console.log('  OK:', response.ok);
+            
+            if (!response.ok) {
+                console.error('HTTP Error:', response.status, response.statusText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return response.text().then(text => {
+                console.log('Raw response text:', text);
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON Parse Error:', e);
+                    console.error('Response was not valid JSON:', text);
+                    throw new Error('Invalid JSON response from server');
+                }
+            });
+        })
         .then(data => {
+            console.log('Parsed JSON response:', data);
+            console.log('Response success property:', data.success);
+            console.log('Response message property:', data.message);
+            
             if (data.success) {
+                console.log('SUCCESS: Form submitted successfully');
                 showMessage('Message sent successfully! We\'ll get back to you soon.', 'success');
                 form.reset();
             } else {
+                console.log('FAILURE: Server returned success=false');
+                console.log('Error message:', data.message);
+                if (data.errors) {
+                    console.log('Validation errors:', data.errors);
+                }
                 showMessage(data.message || 'An error occurred. Please try again.', 'error');
             }
         })
         .catch(error => {
-            console.error('Form submission error:', error);
+            console.error('=== FORM SUBMISSION ERROR ===');
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('=== END ERROR ===');
             showMessage('An error occurred. Please try again.', 'error');
         })
         .finally(() => {
+            console.log('Form submission complete, re-enabling button');
             // Re-enable button
             submitButton.disabled = false;
             submitButton.innerHTML = originalText;
+            console.log('=== CONTACT FORM SUBMISSION END ===');
         });
     }
 

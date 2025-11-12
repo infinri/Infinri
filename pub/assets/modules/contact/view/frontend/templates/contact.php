@@ -29,7 +29,7 @@ use App\Helpers\{Session, Esc};
                 <div class="info-card">
                     <div class="info-icon">📧</div>
                     <h3 class="info-title">Email</h3>
-                    <p class="info-text">hello@portfolio.com</p>
+                    <p class="info-text">infinri@gmail.com</p>
                     <p class="info-subtitle">Preferred method</p>
                 </div>
                 
@@ -62,7 +62,7 @@ use App\Helpers\{Session, Esc};
                     Fill out the form below and I'll get back to you as soon as possible.
                 </p>
                 
-                <form method="POST" action="/contact" data-ajax class="contact-form">
+                <form method="POST" action="/contact" class="contact-form">
                     <input type="hidden" name="csrf_token" value="<?php echo Esc::html(Session::csrf()); ?>">
                     
                     <div class="form-group">
@@ -86,6 +86,18 @@ use App\Helpers\{Session, Esc};
                             class="form-input"
                             required
                             placeholder="your.email@example.com"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone *</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            class="form-input"
+                            required
+                            placeholder="(555) 123-4567"
                         >
                     </div>
                     

@@ -30,7 +30,7 @@ declare(strict_types=1);
                 <div class="contact-info">
                     <div class="contact-item">
                         <span class="contact-icon icon-email"></span>
-                        <a href="mailto:contact@portfolio.dev">contact@portfolio.dev</a>
+                        <a href="mailto:infinri@gmail.com">infinri@gmail.com</a>
                     </div>
                     <div class="contact-item">
                         <span class="contact-icon icon-briefcase"></span>
@@ -50,13 +50,9 @@ declare(strict_types=1);
                         <span class="social-icon icon-github"></span>
                         <span>GitHub</span>
                     </a>
-                    <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener" class="social-link">
+                    <a href="https://www.linkedin.com/in/lucio-saldivar/" target="_blank" rel="noopener" class="social-link">
                         <span class="social-icon icon-linkedin"></span>
                         <span>LinkedIn</span>
-                    </a>
-                    <a href="https://twitter.com/your-handle" target="_blank" rel="noopener" class="social-link">
-                        <span class="social-icon icon-twitter"></span>
-                        <span>Twitter</span>
                     </a>
                 </div>
             </div>

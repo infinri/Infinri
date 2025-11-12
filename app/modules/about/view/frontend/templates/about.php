@@ -114,6 +114,20 @@ declare(strict_types=1);
                     <li>Someone who knows your site inside and out</li>
                 </ul>
             </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🔍</div>
+                <h3 class="service-title">SEO That Actually Works</h3>
+                <p class="service-description">
+                    Skip expensive SEO consultants. Good SEO is just good development
+                    fast loading, mobile-friendly sites with clean code that Google loves.
+                </p>
+                <ul class="service-benefits">
+                    <li>Better Google rankings through speed</li>
+                    <li>Mobile-first responsive design</li>
+                    <li>Technical SEO built into every project</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
@@ -160,6 +174,15 @@ declare(strict_types=1);
                 <p class="approach-text">
                     When you email me, you get a real response from a real person who 
                     remembers your project.
+                </p>
+            </div>
+            
+            <div class="approach-item">
+                <div class="approach-icon">🛠️</div>
+                <h3 class="approach-title">Real Solutions, Not Buzzwords</h3>
+                <p class="approach-text">
+                    No "synergy" or "digital transformation" nonsense. Just practical fixes 
+                    that solve your actual problems and help your business grow.
                 </p>
             </div>
         </div>

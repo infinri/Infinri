@@ -57,7 +57,7 @@ declare(strict_types=1);
                 <div class="service-icon">⚡</div>
                 <h3 class="service-title">"Be My Developer" Monthly Plan</h3>
                 <p class="service-description">
-                    Your own developer on call — no timers, no hourly billing, no surprises. 
+                    Your own developer on call no timers, no hourly billing, no surprises. 
                     Just flat-rate peace of mind for all your ongoing website needs.
                 </p>
                 <div class="service-pricing">
@@ -81,7 +81,7 @@ declare(strict_types=1);
                 <div class="service-bonus">
                     <h4>Bonus Benefits:</h4>
                     <ul>
-                        <li>Extra requests stay discounted — just $15 each after your monthly 3</li>
+                        <li>Extra requests stay discounted just $15 each after your monthly 3</li>
                         <li>Bigger projects get 25% off regular rates</li>
                         <li>No rush fees or emergency charges</li>
                     </ul>
@@ -98,7 +98,7 @@ declare(strict_types=1);
                 <h3 class="service-title">Website Consultation</h3>
                 <p class="service-description">
                     Not sure what's wrong or where to start? I'll personally review your website, 
-                    identify issues, and give you a clear, prioritized action plan — no jargon, no guesswork.
+                    identify issues, and give you a clear, prioritized action plan no jargon, no guesswork.
                 </p>
                 <div class="service-pricing">
                     <div class="price-range">$75</div>

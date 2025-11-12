@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package App\Helpers
  */
 
-namespace App\Helpers;
+namespace App\Base\Helpers;
 
 final class Logger
 {

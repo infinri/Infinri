@@ -59,7 +59,10 @@ $router = new Router();
 $router->get('/', 'home')
        ->get('/about', 'about')
        ->get('/services', 'services')
-       ->get('/contact', 'contact');
+       ->get('/contact', 'contact')
+       ->post('/contact', function() {
+           require __DIR__ . '/../app/modules/contact/api.php';
+       });
 
 // Dispatch
 $router->dispatch('error');

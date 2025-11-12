@@ -3,14 +3,13 @@ declare(strict_types=1);
 /**
  * Contact Module Controller
  *
- * Loads contact page template and assets
+ * Handles contact form display and submission
  */
 
 use App\Base\Helpers\{Meta, Assets};
-
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'Contact - Portfolio',
+    'title' => 'Contact - Infinri',
     'description' => 'Get in touch for project inquiries, consulting, or collaboration opportunities',
     'keywords' => 'contact, hire, consulting, collaboration',
     'og:title' => 'Contact Me - Professional PHP Developer',
