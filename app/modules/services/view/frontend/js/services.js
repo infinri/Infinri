@@ -13,26 +13,25 @@
      */
     function init() {
         initServiceCardAnimations();
-        initIconFloatEffect();
-        initBadgeAnimation();
+        initProcessStepAnimations();
+        initFAQAnimations();
     }
 
     /**
      * Animate service cards on scroll into view
      */
     function initServiceCardAnimations() {
-        const serviceCards = document.querySelectorAll('.service-card');
+        const serviceCards = document.querySelectorAll('.services-section .service-card');
         
         if (serviceCards.length === 0) return;
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
-                    // Stagger animation delay
                     setTimeout(() => {
-                        entry.target.classList.remove('animate-hidden');
-                        entry.target.classList.add('animate-visible');
-                    }, index * 150);
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
                     
                     observer.unobserve(entry.target);
                 }
@@ -42,57 +41,78 @@
             rootMargin: '0px 0px -50px 0px'
         });
 
-        // Set initial state and observe
+        // Set initial state
         serviceCards.forEach(card => {
-            card.classList.add('animate-hidden');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(card);
         });
     }
 
     /**
-     * Enhanced float effect for service icons
+     * Animate process steps on scroll into view
      */
-    function initIconFloatEffect() {
-        const serviceIcons = document.querySelectorAll('.service-icon');
+    function initProcessStepAnimations() {
+        const steps = document.querySelectorAll('.step');
         
-        serviceIcons.forEach((icon, index) => {
-            // Vary animation delay for each icon (using CSS custom property)
-            icon.style.setProperty('--animation-delay', `${index * 0.2}s`);
-            
-            // Add hover pause effect (throttled)
-            const throttledPause = App.throttle(function() {
-                icon.classList.add('paused');
-                icon.classList.remove('running');
-            }, 50);
-            
-            const throttledResume = App.throttle(function() {
-                icon.classList.remove('paused');
-                icon.classList.add('running');
-            }, 50);
-            
-            icon.parentElement.addEventListener('mouseenter', throttledPause);
-            icon.parentElement.addEventListener('mouseleave', throttledResume);
+        if (steps.length === 0) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        // Set initial state
+        steps.forEach(step => {
+            step.style.opacity = '0';
+            step.style.transform = 'translateY(20px)';
+            step.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(step);
         });
     }
 
     /**
-     * Animate badge on card hover
+     * Animate FAQ items on scroll into view
      */
-    function initBadgeAnimation() {
-        const cardsWithBadge = document.querySelectorAll('.service-card .service-badge');
+    function initFAQAnimations() {
+        const faqItems = document.querySelectorAll('.faq-item');
         
-        cardsWithBadge.forEach(badge => {
-            const card = badge.closest('.service-card');
-            
-            if (!card) return;
-            
-            card.addEventListener('mouseenter', function() {
-                badge.classList.add('badge-hover');
+        if (faqItems.length === 0) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 80);
+                    
+                    observer.unobserve(entry.target);
+                }
             });
-            
-            card.addEventListener('mouseleave', function() {
-                badge.classList.remove('badge-hover');
-            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        // Set initial state
+        faqItems.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(item);
         });
     }
 

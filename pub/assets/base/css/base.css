@@ -5,16 +5,21 @@
 
 /* ==================== Main Layout ==================== */
 
-/* Main content - ONLY element that controls width/padding */
-#main-content {
+/* Container - reusable centered container with max-width */
+.container {
     width: 100%;
-    max-width: var(--container-max);
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem; /* Mobile: 16px horizontal */
+    padding: 0 1rem;
 }
 
 @media (min-width: 1024px) {
-    #main-content {
-        padding: 0 2rem; /* Desktop: 32px horizontal */
+    .container {
+        padding: 0 2rem;
     }
+}
+
+/* Main content - full width wrapper, sections use .container for width constraints */
+#main-content {
+    width: 100%;
 }

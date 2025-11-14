@@ -1,0 +1,22 @@
+{
+  "name": "infinri-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio website build tools",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "build:css": "node build.js --css-only",
+    "build:js": "node build.js --js-only",
+    "watch": "node build.js --watch",
+    "clean": "rm -rf pub/assets/dist",
+    "setup:upgrade": "npm install && npm run build"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "terser": "^5.31.0",
+    "chokidar": "^3.6.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

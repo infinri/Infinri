@@ -31,26 +31,23 @@
      */
     function initMobileMenu() {
         const menuToggle = document.querySelector('.menu-toggle');
-        const navList = document.querySelector('.nav-list');
-        const mainNav = document.querySelector('.main-nav');
+        const navMenu = document.querySelector('.nav-menu');
         const menuClose = document.querySelector('.menu-close');
 
-        if (!menuToggle || !navList || !mainNav) return;
+        if (!menuToggle || !navMenu) return;
 
         function closeMenu() {
             if (isAnimating || !isMenuOpen) return;
             
             isAnimating = true;
             isMenuOpen = false;
-            navList.classList.remove('menu-open');
-            mainNav.classList.remove('menu-open');
-            document.body.classList.remove('menu-animating');
+            navMenu.classList.remove('open');
             menuToggle.setAttribute('aria-expanded', 'false');
             
             // Reset animation flag after transition
             setTimeout(() => {
                 isAnimating = false;
-            }, 100);
+            }, 300);
         }
 
         function openMenu() {
@@ -58,16 +55,13 @@
             
             isAnimating = true;
             isMenuOpen = true;
-            document.body.classList.add('menu-animating');
-            navList.classList.add('menu-open');
-            mainNav.classList.add('menu-open');
+            navMenu.classList.add('open');
             menuToggle.setAttribute('aria-expanded', 'true');
             
             // Reset animation flag after transition
             setTimeout(() => {
                 isAnimating = false;
-                document.body.classList.remove('menu-animating');
-            }, 100);
+            }, 300);
         }
 
         // Toggle menu on button click
@@ -91,33 +85,27 @@
             });
         }
 
-        // Close menu when clicking outside (throttled)
-        const throttledOutsideClick = App.throttle(function(event) {
-            if (isMenuOpen && !event.target.closest('.nav-list') && !event.target.closest('.menu-toggle')) {
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (isMenuOpen && !event.target.closest('.nav-menu') && !event.target.closest('.menu-toggle')) {
                 closeMenu();
             }
-        }, 100);
+        });
 
-        document.addEventListener('click', throttledOutsideClick);
-
-        // Close menu on ESC key (throttled)
-        const throttledEscClose = App.throttle(function(event) {
+        // Close menu on ESC key
+        document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape' && isMenuOpen) {
                 closeMenu();
             }
-        }, 200);
+        });
 
-        document.addEventListener('keydown', throttledEscClose);
-
-        // Close menu when clicking a nav link (mobile) - throttled
-        navList.querySelectorAll('.nav-link').forEach(link => {
-            const throttledNavClick = App.throttle(function() {
+        // Close menu when clicking a nav link (mobile)
+        navMenu.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
                 if (window.innerWidth <= 768 && isMenuOpen) {
                     closeMenu();
                 }
-            }, 200);
-
-            link.addEventListener('click', throttledNavClick);
+            });
         });
     }
 
@@ -139,29 +127,29 @@
     }
 
     /**
-     * Header scroll behavior - hide/show on scroll
+     * Header scroll behavior - enhance shadow on scroll
      */
     function initScrollBehavior() {
-        const header = document.querySelector('.main-header');
+        const header = document.querySelector('.header');
         if (!header) return;
 
         let lastScrollTop = 0;
 
-        // Throttled scroll handler for better performance
-        const throttledScroll = App.throttle(function() {
+        // Scroll handler for shadow enhancement
+        function handleScroll() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
-            // Add/remove shadow based on scroll position
+            // Add/remove enhanced shadow based on scroll position
             if (scrollTop > 10) {
-                header.style.boxShadow = 'var(--shadow-xl), var(--glow-purple)';
+                header.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 2px rgba(157, 78, 221, 0.3)';
             } else {
-                header.style.boxShadow = 'var(--shadow-elevated)';
+                header.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 1px rgba(157, 78, 221, 0.15)';
             }
             
             lastScrollTop = scrollTop;
-        }, 16); // ~60fps
+        }
 
-        window.addEventListener('scroll', throttledScroll, { passive: true });
+        window.addEventListener('scroll', handleScroll, { passive: true });
     }
 
     // Initialize when DOM is ready

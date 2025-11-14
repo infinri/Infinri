@@ -12,54 +12,42 @@
      */
     function init() {
         initSmoothScroll();
-        initLinkHoverEffects();
     }
 
     /**
-     * Smooth scroll for footer links
+     * Smooth scroll for anchor links in footer
      */
     function initSmoothScroll() {
-        const footerLinks = document.querySelectorAll('.footer-section a[href^="/"]');
+        const footerLinks = document.querySelectorAll('.main-footer a[href*="#"]');
         
         footerLinks.forEach(link => {
             link.addEventListener('click', function(e) {
-                // Only for internal links that match current domain
                 const href = this.getAttribute('href');
-                if (href && href.startsWith('/') && !href.includes('#')) {
-                    // Let browser handle normal navigation
+                
+                // Skip if no href, just "#", or external link
+                if (!href || href === '#' || href.startsWith('http')) {
                     return;
                 }
                 
-                // Handle anchor links
-                if (href && href.includes('#')) {
-                    const targetId = href.split('#')[1];
-                    const targetElement = document.getElementById(targetId);
+                // Extract target ID from href (handles both /page#section and #section)
+                const hashIndex = href.indexOf('#');
+                if (hashIndex === -1) return;
+                
+                const targetId = href.substring(hashIndex + 1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                     
-                    if (targetElement) {
-                        e.preventDefault();
-                        targetElement.scrollIntoView({ 
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
+                    // Update URL without jumping
+                    if (history.pushState) {
+                        history.pushState(null, null, '#' + targetId);
                     }
                 }
-            });
-        });
-    }
-
-    /**
-     * Enhanced hover effects for footer links
-     */
-    function initLinkHoverEffects() {
-        const footerLinks = document.querySelectorAll('.footer-section a');
-        
-        footerLinks.forEach(link => {
-            link.addEventListener('mouseenter', function() {
-                this.style.textShadow = '0 0 8px rgba(157, 78, 221, 0.4)';
-            });
-            
-            link.addEventListener('mouseleave', function() {
-                this.style.textShadow = 'none';
             });
         });
     }

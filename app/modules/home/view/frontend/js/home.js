@@ -11,46 +11,15 @@
      * Initialize home page features
      */
     function init() {
-        initHeroAnimation();
-        initFeatureCards();
-        initTypingEffect();
+        initServiceCards();
+        initSmoothScroll();
     }
 
     /**
-     * Animate hero section on page load
+     * Animate service cards on scroll into view
      */
-    function initHeroAnimation() {
-        const heroTitle = document.querySelector('.hero-title');
-        const heroSubtitle = document.querySelector('.hero-subtitle');
-        const heroButtons = document.querySelector('.hero-buttons');
-
-        if (!heroTitle) return;
-
-        // Stagger fade-in animation by adding 'loaded' class
-        setTimeout(() => {
-            if (heroTitle) {
-                heroTitle.classList.add('loaded');
-            }
-        }, 100);
-
-        setTimeout(() => {
-            if (heroSubtitle) {
-                heroSubtitle.classList.add('loaded');
-            }
-        }, 300);
-
-        setTimeout(() => {
-            if (heroButtons) {
-                heroButtons.classList.add('loaded');
-            }
-        }, 500);
-    }
-
-    /**
-     * Animate feature cards on scroll into view
-     */
-    function initFeatureCards() {
-        const cards = document.querySelectorAll('.features-section .card');
+    function initServiceCards() {
+        const cards = document.querySelectorAll('.service-card');
         
         if (cards.length === 0) return;
 
@@ -58,8 +27,9 @@
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
                     setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, index * 150); // Stagger animation
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100); // Stagger animation
                     
                     observer.unobserve(entry.target);
                 }
@@ -69,50 +39,40 @@
             rootMargin: '0px 0px -50px 0px'
         });
 
+        // Set initial state
         cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(card);
         });
     }
 
     /**
-     * Simple typing effect for hero title (optional enhancement)
+     * Smooth scroll for anchor links
      */
-    function initTypingEffect() {
-        const heroTitle = document.querySelector('.hero-title');
-        if (!heroTitle) return;
-
-        // Store original text
-        const originalText = heroTitle.textContent;
+    function initSmoothScroll() {
+        const smoothLinks = document.querySelectorAll('a[href^="#"]');
         
-        // Optional: Add a cursor blink effect
-        const addCursorBlink = false; // Set to true to enable
-        
-        if (addCursorBlink) {
-            // Create cursor element
-            const cursor = document.createElement('span');
-            cursor.className = 'typing-cursor';
-            cursor.textContent = '|';
-            cursor.style.animation = 'blink 1s infinite';
-            cursor.style.marginLeft = '2px';
-            
-            // Add cursor after title loads
-            setTimeout(() => {
-                heroTitle.appendChild(cursor);
-            }, 1000);
-            
-            // Add blink animation to page
-            if (!document.querySelector('#typing-cursor-animation')) {
-                const style = document.createElement('style');
-                style.id = 'typing-cursor-animation';
-                style.textContent = `
-                    @keyframes blink {
-                        0%, 50% { opacity: 1; }
-                        51%, 100% { opacity: 0; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        }
+        smoothLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                
+                // Skip if it's just "#"
+                if (href === '#') return;
+                
+                const targetId = href.substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
     }
 
     // Initialize when DOM is ready

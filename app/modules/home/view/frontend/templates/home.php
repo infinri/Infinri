@@ -14,8 +14,8 @@ declare(strict_types=1);
             <h1 class="hero-title">Your Website Shouldn't Be a Headache</h1>
             <p class="hero-subtitle">I'm a web developer who fixes what's broken, builds what you need, and keeps things simple for small businesses like yours.</p>
             <div class="hero-buttons">
-                <a href="/contact" class="btn btn-primary">Get Your Site Fixed</a>
-                <a href="#services" class="btn btn-outline">See How I Help</a>
+                <a href="/contact" class="btn btn-white">Get Your Site Fixed</a>
+                <a href="#services" class="btn btn-outline-white">See How I Help</a>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@ declare(strict_types=1);
         <div class="cta-content">
             <h2>Ready to Fix Your Website?</h2>
             <p>Let's talk about what's not working and how I can help. No sales pitch, just honest advice.</p>
-            <a href="/contact" class="btn btn-primary btn-large">Get in Touch</a>
+            <a href="/contact" class="btn btn-white btn-large">Get in Touch</a>
         </div>
     </div>
 </section>

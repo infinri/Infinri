@@ -14,8 +14,7 @@ declare(strict_types=1);
         <div class="about-hero-content">
             <div class="about-profile">
                 <div class="profile-image-wrapper">
-                    <img src="/assets/profile.jpg" alt="Developer behind Infinri" class="profile-image" id="profile-image">
-                    <div class="profile-placeholder hidden" id="profile-placeholder">
+                    <div class="profile-placeholder">
                         <span class="profile-emoji">👨‍💻</span>
                     </div>
                 </div>

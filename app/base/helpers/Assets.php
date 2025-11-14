@@ -27,7 +27,19 @@ final class Assets
         'module' => []
     ];
 
+    private static array $inlineCss = [];
+    
     private static ?string $version = null;
+    
+    /**
+     * Check if running in production mode
+     *
+     * @return bool
+     */
+    private static function isProduction(): bool
+    {
+        return Env::get('APP_ENV', 'development') === 'production';
+    }
 
     /**
      * Set asset version for cache busting
@@ -115,7 +127,50 @@ final class Assets
     }
 
     /**
+     * Mark CSS file to be inlined (for critical CSS)
+     *
+     * @param string $file File path (absolute from pub root)
+     * @return void
+     */
+    public static function inlineCss(string $file): void
+    {
+        self::$inlineCss[] = $file;
+    }
+
+    /**
+     * Render inlined critical CSS
+     *
+     * @return string
+     */
+    public static function renderInlineCss(): string
+    {
+        // Don't render empty style tag (CSP violation)
+        if (empty(self::$inlineCss)) {
+            return '';
+        }
+        
+        $output = '<style>' . PHP_EOL;
+        $pubPath = dirname(__DIR__, 3) . '/pub';
+        
+        foreach (self::$inlineCss as $file) {
+            $filePath = $pubPath . $file;
+            if (file_exists($filePath)) {
+                $css = file_get_contents($filePath);
+                // Remove comments and minify
+                $css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css);
+                $css = str_replace(["\r\n", "\r", "\n", "\t"], '', $css);
+                $css = preg_replace('/\s+/', ' ', $css);
+                $output .= $css . PHP_EOL;
+            }
+        }
+        
+        $output .= '</style>' . PHP_EOL;
+        return $output;
+    }
+
+    /**
      * Render CSS tags in correct order (base → frontend → module)
+     * In production, uses minified bundles. In development, loads individual files.
      *
      * @return string
      */
@@ -123,11 +178,44 @@ final class Assets
     {
         $version = self::getVersion();
         $output = '';
-
+        
+        // Production: Inline critical CSS + preload full CSS for zero render blocking
+        if (self::isProduction()) {
+            $allBundle = '/assets/dist/all.min.css?v=' . Esc::html($version);
+            
+            // Preload logo for instant LCP (highest priority)
+            $output .= '<link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">' . PHP_EOL;
+            
+            // Load full CSS in head - simple and effective
+            // This WILL block rendering BUT prevents all FOUC/shifts
+            // Trade-off: Small render delay for perfect visual consistency
+            $output .= '<link rel="stylesheet" href="' . $allBundle . '">' . PHP_EOL;
+            
+            return $output;
+        }
+        
+        // Development: Load individual files for easier debugging
+        $criticalFiles = [
+            '/assets/base/css/critical-hero.css',
+            '/assets/base/css/variables.css',
+            '/assets/base/css/reset.css', 
+            '/assets/base/css/base.css'
+        ];
+        
+        // Load stylesheets directly (no preload hints to reduce overhead)
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$css[$layer] as $file) {
+                if (in_array($file, self::$inlineCss, true)) {
+                    continue;
+                }
+                
                 $url = Esc::html($file) . '?v=' . Esc::html($version);
-                $output .= '<link rel="stylesheet" href="' . $url . '">' . PHP_EOL;
+                
+                if (in_array($file, $criticalFiles, true)) {
+                    $output .= '<link rel="stylesheet" href="' . $url . '" fetchpriority="high">' . PHP_EOL;
+                } else {
+                    $output .= '<link rel="stylesheet" href="' . $url . '">' . PHP_EOL;
+                }
             }
         }
 
@@ -136,6 +224,7 @@ final class Assets
 
     /**
      * Render JS tags in correct order (base → frontend → module)
+     * In production, uses minified bundles. In development, loads individual files.
      *
      * @return string
      */
@@ -143,15 +232,37 @@ final class Assets
     {
         $version = self::getVersion();
         $output = '';
+        
+        // Production: Use single all-in-one bundle
+        if (self::isProduction()) {
+            // All-in-one bundle (base + frontend + all modules) - single request
+            $allBundle = '/assets/dist/all.min.js?v=' . Esc::html($version);
+            $output .= '<script src="' . $allBundle . '" defer></script>' . PHP_EOL;
+            
+            return $output;
+        }
 
+        // Development: Load individual files for easier debugging
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$js[$layer] as $file) {
                 $url = Esc::html($file) . '?v=' . Esc::html($version);
-                $output .= '<script src="' . $url . '"></script>' . PHP_EOL;
+                $output .= '<script src="' . $url . '" defer></script>' . PHP_EOL;
             }
         }
 
         return $output;
+    }
+
+    /**
+     * Render full CSS at end of body (production only, non-blocking)
+     * NOTE: No longer used - CSS loaded in head with async technique
+     *
+     * @return string
+     */
+    public static function renderFullCss(): string
+    {
+        // CSS now loaded in head - this method kept for compatibility
+        return '';
     }
 
     /**

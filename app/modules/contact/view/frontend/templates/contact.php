@@ -24,35 +24,47 @@ use App\Helpers\{Session, Esc};
 <section class="page-section contact-section">
     <div class="container">
         <div class="contact-wrapper">
-            <!-- Contact Info Cards -->
+            <!-- Contact Info -->
             <div class="contact-info">
+                <h2 class="info-section-title">Contact Information</h2>
+                <div class="info-card-container">
+                    
                 <div class="info-card">
                     <div class="info-icon">📧</div>
-                    <h3 class="info-title">Email</h3>
-                    <p class="info-text">infinri@gmail.com</p>
-                    <p class="info-subtitle">Preferred method</p>
+                    <div class="info-content">
+                        <h3 class="info-title">Email</h3>
+                        <p class="info-text">infinri@gmail.com</p>
+                        <p class="info-subtitle">Preferred method</p>
+                    </div>
                 </div>
                 
                 <div class="info-card">
                     <div class="info-icon">⚡</div>
-                    <h3 class="info-title">Response Time</h3>
-                    <p class="info-text">Within 24 hours</p>
-                    <p class="info-subtitle">Usually faster</p>
+                    <div class="info-content">
+                        <h3 class="info-title">Response Time</h3>
+                        <p class="info-text">Within 24 hours</p>
+                        <p class="info-subtitle">Usually faster</p>
+                    </div>
                 </div>
                 
                 <div class="info-card">
                     <div class="info-icon">🌍</div>
-                    <h3 class="info-title">Location</h3>
-                    <p class="info-text">Remote Worldwide</p>
-                    <p class="info-subtitle">Open to collaboration</p>
+                    <div class="info-content">
+                        <h3 class="info-title">Location</h3>
+                        <p class="info-text">Remote Worldwide</p>
+                        <p class="info-subtitle">Open to collaboration</p>
+                    </div>
                 </div>
                 
                 <div class="info-card">
                     <div class="info-icon">💼</div>
-                    <h3 class="info-title">Availability</h3>
-                    <p class="info-text">Open to projects</p>
-                    <p class="info-subtitle">Let's discuss</p>
+                    <div class="info-content">
+                        <h3 class="info-title">Availability</h3>
+                        <p class="info-text">Open to projects</p>
+                        <p class="info-subtitle">Let's discuss</p>
+                    </div>
                 </div>
+                </div> 
             </div>
             
             <!-- Contact Form -->

@@ -12,8 +12,8 @@
      */
     function init() {
         initProfileImageFallback();
-        initStatsAnimation();
-        initSkillCardAnimations();
+        initServiceCardAnimations();
+        initApproachItemAnimations();
     }
 
     /**
@@ -32,84 +32,68 @@
     }
 
     /**
-     * Animate stats on scroll into view
+     * Animate service cards on scroll into view
      */
-    function initStatsAnimation() {
-        const stats = document.querySelectorAll('.stat-value');
+    function initServiceCardAnimations() {
+        const cards = document.querySelectorAll('.about-services .service-card');
         
-        if (stats.length === 0) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const stat = entry.target;
-                    const finalValue = stat.textContent.trim();
-                    
-                    // Only animate numbers
-                    if (/^\d+/.test(finalValue)) {
-                        animateValue(stat, finalValue);
-                    }
-                    
-                    observer.unobserve(stat);
-                }
-            });
-        }, { threshold: 0.5 });
-
-        stats.forEach(stat => observer.observe(stat));
-    }
-
-    /**
-     * Animate a stat value counting up (optimized with requestAnimationFrame)
-     */
-    function animateValue(element, finalValue) {
-        const numericPart = finalValue.match(/\d+\.?\d*/)[0];
-        const suffix = finalValue.replace(numericPart, '');
-        const target = parseFloat(numericPart);
-        const duration = 1500;
-        const startTime = performance.now();
-        let current = 0;
-
-        function updateValue(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            current = target * progress;
-            
-            if (progress < 1) {
-                element.textContent = Math.floor(current) + suffix;
-                requestAnimationFrame(updateValue);
-            } else {
-                element.textContent = finalValue;
-            }
-        }
-
-        requestAnimationFrame(updateValue);
-    }
-
-    /**
-     * Add stagger animation to skill cards (CSP compliant)
-     */
-    function initSkillCardAnimations() {
-        const skillCards = document.querySelectorAll('.skill-card');
-        
-        if (skillCards.length === 0) return;
+        if (cards.length === 0) return;
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
                     setTimeout(() => {
-                        entry.target.classList.remove('animate-hidden');
-                        entry.target.classList.add('animate-visible');
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
                     }, index * 100);
                     
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
 
-        skillCards.forEach((card) => {
-            card.classList.add('animate-hidden');
+        // Set initial state
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(card);
+        });
+    }
+
+    /**
+     * Animate approach items on scroll into view
+     */
+    function initApproachItemAnimations() {
+        const items = document.querySelectorAll('.approach-item');
+        
+        if (items.length === 0) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        // Set initial state
+        items.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(item);
         });
     }
 

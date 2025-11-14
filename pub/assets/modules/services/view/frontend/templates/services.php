@@ -21,6 +21,7 @@ declare(strict_types=1);
 <!-- Main Services -->
 <section class="page-section services-section">
     <div class="container">
+        <h2 class="section-title">Choose Your Service</h2>
         <div class="services-grid">
             <!-- Service 1: Fixes & Features -->
             <div class="service-card">

@@ -35,10 +35,13 @@ use App\Helpers\View;
         require $footerPath;
         $footerContent = ob_get_clean();
     }
-
-    // Now render CSS in cascade order: base → frontend → head → footer → page module
-    echo Assets::renderCss();
     ?>
+    
+    <!-- Preload LCP image (logo) for faster mobile LCP -->
+    <link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">
+    
+    <?= Assets::renderInlineCss() ?>
+    <?= Assets::renderCss() ?>
 </head>
 <body>
     <?php
@@ -59,6 +62,9 @@ use App\Helpers\View;
 
     // Render JS in cascade order: base → frontend → head → footer → page module
     echo Assets::renderJs();
+    
+    // Render full CSS at end (production only, non-blocking)
+    echo Assets::renderFullCss();
     ?>
 </body>
 </html>

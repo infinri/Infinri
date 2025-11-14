@@ -14,7 +14,6 @@
     function init() {
         initFormValidation();
         initFormSubmission();
-        initInfoCardAnimations();
     }
 
     /**
@@ -27,19 +26,15 @@
         const inputs = form.querySelectorAll('.form-input, .form-textarea');
         
         inputs.forEach(input => {
-            // Validate on blur (throttled)
-            const throttledValidate = App.throttle(function() {
+            // Validate on blur
+            input.addEventListener('blur', function() {
                 validateField(this);
-            }, 300);
-            
-            input.addEventListener('blur', throttledValidate);
+            });
 
-            // Clear error on input (throttled)
-            const throttledClearError = App.throttle(function() {
+            // Clear error on input
+            input.addEventListener('input', function() {
                 clearFieldError(this);
-            }, 150);
-            
-            input.addEventListener('input', throttledClearError);
+            });
         });
     }
 
@@ -85,7 +80,7 @@
         if (existingError) existingError.remove();
 
         // Add error class
-        field.classList.add('field-invalid');
+        field.classList.add('invalid');
 
         // Add error message
         const errorDiv = document.createElement('div');
@@ -101,7 +96,7 @@
         const formGroup = field.closest('.form-group');
         if (!formGroup) return;
 
-        field.classList.remove('field-invalid');
+        field.classList.remove('invalid');
         const error = formGroup.querySelector('.field-error');
         if (error) error.remove();
     }
@@ -113,9 +108,13 @@
         const form = document.querySelector('.contact-form');
         if (!form) return;
 
-        // Throttle form submission to prevent double-clicks
-        const throttledSubmit = App.throttle(function(e) {
+        let isSubmitting = false;
+        
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Prevent double submissions
+            if (isSubmitting) return;
 
             // Validate all fields
             const inputs = form.querySelectorAll('.form-input, .form-textarea');
@@ -133,14 +132,16 @@
             }
 
             // Submit form
-            submitForm(form);
-        }, 1000);
-
-        form.addEventListener('submit', throttledSubmit);
+            isSubmitting = true;
+            submitForm(form).finally(() => {
+                isSubmitting = false;
+            });
+        });
     }
 
     /**
      * Submit form via AJAX
+     * @returns {Promise}
      */
     function submitForm(form) {
         console.log('=== CONTACT FORM SUBMISSION START ===');
@@ -163,7 +164,7 @@
         }
 
         console.log('Making fetch request...');
-        fetch(form.action, {
+        return fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: {
@@ -237,11 +238,21 @@
         if (existing) existing.remove();
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = `form-message alert alert-${type}`;
-        messageDiv.textContent = message;
+        messageDiv.className = `form-message ${type}`;
+        
+        // Add icon
+        const icon = document.createElement('span');
+        icon.className = 'form-message-icon';
+        icon.textContent = type === 'success' ? '✓' : '⚠';
+        messageDiv.appendChild(icon);
+        
+        // Add message text
+        const text = document.createElement('span');
+        text.textContent = message;
+        messageDiv.appendChild(text);
 
         const form = document.querySelector('.contact-form');
-        form.parentNode.insertBefore(messageDiv, form.nextSibling);
+        form.parentNode.insertBefore(messageDiv, form);
 
         // Auto-remove after 5 seconds
         setTimeout(() => {
@@ -250,33 +261,6 @@
         }, 5000);
     }
 
-    /**
-     * Animate info cards on scroll
-     */
-    function initInfoCardAnimations() {
-        const infoCards = document.querySelectorAll('.info-card');
-        if (infoCards.length === 0) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }, index * 100);
-                    
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        infoCards.forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(card);
-        });
-    }
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
