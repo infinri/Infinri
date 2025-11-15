@@ -40,6 +40,16 @@ use App\Helpers\View;
     <!-- Preload LCP image (logo) for faster mobile LCP -->
     <link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">
     
+    <?php
+    // Preload critical assets in production for faster rendering
+    use App\Helpers\Env;
+    if (Env::get('APP_ENV') === 'production') {
+        $version = Env::get('APP_VERSION');
+        echo "<link rel=\"preload\" href=\"/assets/dist/all.min.css?v={$version}\" as=\"style\">\n    ";
+        echo "<link rel=\"preload\" href=\"/assets/dist/all.min.js?v={$version}\" as=\"script\">\n    ";
+    }
+    ?>
+    
     <?= Assets::renderInlineCss() ?>
     <?= Assets::renderCss() ?>
 </head>

@@ -3,7 +3,10 @@
 # Local development
 :8080 {
 	root * /home/infinri/Initrix/Projects/Portfolio/pub
-	encode gzip zstd
+	
+	# Best available compression: zstd > gzip
+	encode zstd gzip
+	
 	php_fastcgi unix//run/php/php8.4-fpm.sock {
 		resolve_root_symlink
 	}
@@ -46,8 +49,9 @@
 #     # Caddy will automatically get SSL certificate!
 #     root * /var/www/portfolio/pub
 #     
-#     # Same config as above
-#     encode gzip zstd
+#     # Best available compression: zstd > gzip
+#     encode zstd gzip
+#     
 #     php_fastcgi unix//run/php/php8.4-fpm.sock
 #     
 #     @static {
