@@ -296,7 +296,7 @@ declare(strict_types=1);
                 <span class="addon-name">Domain/DNS Setup</span>
                 <span class="addon-price">$10 + cost</span>
             </div>
-            <div class="addon-item (vs $10)">
+            <div class="addon-item">
                 <span class="addon-name">Contact Form Setup</span>
                 <span class="addon-price">$10</span>
             </div>
