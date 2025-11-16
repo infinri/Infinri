@@ -40,20 +40,22 @@ if (!ob_start('ob_gzhandler')) {
     ob_start();
 }
 
-// Initialize session with security settings
+// Configure session settings (deferred initialization for performance)
 $sessionPath = dirname(__DIR__) . '/var/sessions';
-if (!is_dir($sessionPath)) {
-    mkdir($sessionPath, 0770, true);
-    // Try to set www-data group ownership (may fail without sudo)
-    @chgrp($sessionPath, 'www-data');
-}
-session_save_path($sessionPath);
-
-// Configure session from .env
 $sessionLifetime = (int)Env::get('SESSION_LIFETIME', '7200');
 $sessionDomain = Env::get('SESSION_DOMAIN', '');
 
+// Only create session directory if it doesn't exist (avoid unnecessary filesystem check)
+if (!@is_dir($sessionPath)) {
+    @mkdir($sessionPath, 0770, true);
+    @chgrp($sessionPath, 'www-data');
+}
+
+session_save_path($sessionPath);
 ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
+ini_set('session.gc_probability', '1');
+ini_set('session.gc_divisor', '100'); // 1% chance of GC
+
 session_set_cookie_params([
     'lifetime' => $sessionLifetime,
     'path' => '/',
@@ -63,8 +65,7 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 
-// Note: session_start() will be called by Session::csrf() below
-// We configure the params first, then let Session helper start it
+// Note: session_start() deferred - called by Session::csrf() only when needed
 
 // Store nonce and config as globals for template access
 $GLOBALS['cspNonce'] = $cspNonce;

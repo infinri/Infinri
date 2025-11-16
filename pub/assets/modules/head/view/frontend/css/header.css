@@ -3,8 +3,7 @@
  */
 
 .header {
-    background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(10px);
+    background: #0a0a0a;
     box-shadow: var(--shadow-elevated);
     position: sticky;
     top: 0;
@@ -32,6 +31,7 @@
 .logo-image {
     height: 150px;
     width: auto;
+    display: block;
     filter: drop-shadow(var(--glow-purple));
     transition: filter var(--transition-base);
 }

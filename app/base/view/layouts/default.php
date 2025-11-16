@@ -51,10 +51,10 @@ use App\Helpers\Env;
     
     <!-- Inline critical CSS for instant logo render -->
     <style nonce="<?= $GLOBALS['cspNonce'] ?? '' ?>">
-        .header{background:rgba(10,10,10,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:1020;height:125px}
+        .header{background:#0a0a0a;position:sticky;top:0;z-index:1020;height:125px}
         .nav{display:flex;align-items:center;max-width:1200px;margin:0 auto;position:relative}
         .logo{display:block;position:absolute;top:0}
-        .logo-image{height:150px;width:auto;filter:drop-shadow(0 0 20px rgba(157,78,221,0.4))}
+        .logo-image{height:150px;width:auto;display:block;filter:drop-shadow(0 0 20px rgba(157,78,221,0.4))}
     </style>
     
     <?= Assets::renderInlineCss() ?>
