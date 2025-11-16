@@ -138,7 +138,7 @@ final class Assets
     }
 
     /**
-     * Render inlined critical CSS
+     * Render inlined critical CSS with CSP nonce
      *
      * @return string
      */
@@ -149,7 +149,11 @@ final class Assets
             return '';
         }
         
-        $output = '<style>' . PHP_EOL;
+        // Get CSP nonce from globals (set in pub/index.php)
+        $nonce = $GLOBALS['cspNonce'] ?? '';
+        $nonceAttr = $nonce ? ' nonce="' . Esc::html($nonce) . '"' : '';
+        
+        $output = '<style' . $nonceAttr . '>' . PHP_EOL;
         $pubPath = dirname(__DIR__, 3) . '/pub';
         
         foreach (self::$inlineCss as $file) {
