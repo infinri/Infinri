@@ -113,7 +113,6 @@ final class Meta
 
         // Favicon
         $output .= '<link rel="icon" type="image/png" href="/assets/base/images/favicon.png">' . PHP_EOL;
-        $output .= '<link rel="shortcut icon" href="/assets/base/images/favicon.png">' . PHP_EOL;
         $output .= '<link rel="apple-touch-icon" href="/assets/base/images/favicon.png">' . PHP_EOL;
 
         return $output;
