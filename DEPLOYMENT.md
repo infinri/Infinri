@@ -1,4 +1,21 @@
-# Deployment Guide - Infinri Portfolio
+# Deployment Guide
+
+Complete deployment and configuration guide for production and local development environments.
+
+## Prerequisites
+
+**Required Software**
+- PHP 8.4 with extensions: fpm, cli, mbstring, xml, curl, zip, opcache
+- Caddy 2.x web server
+- Composer for PHP dependencies
+- Node.js and npm for asset building
+
+**Required Accounts**
+- SMTP email service (Gmail, Google Workspace, or similar)
+- Domain name (for production)
+- Server or VPS (Digital Ocean, Linode, etc.)
+
+---
 
 ## Local Development with Caddy
 
@@ -39,7 +56,82 @@ caddy start
 
 Visit: http://localhost:8080
 
-### 4. Stop Caddy
+### 4. Initial Project Setup
+```bash
+# Clone repository
+git clone https://github.com/infinri/Portfolio.git
+cd Portfolio
+
+# Install dependencies
+composer install
+npm install
+
+# Configure environment
+cp .env.example .env
+nano .env  # Edit with your settings
+```
+
+### 5. Configure Environment Variables
+
+Edit `.env` with your settings:
+
+**Required SMTP Settings**
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_ENCRYPTION=tls
+SMTP_FROM_EMAIL=your-email@gmail.com
+SMTP_FROM_NAME=Portfolio Contact Form
+SMTP_RECIPIENT_EMAIL=your-email@gmail.com
+SMTP_RECIPIENT_NAME=Your Name
+```
+
+For Gmail, generate an app password at: https://myaccount.google.com/apppasswords
+Spaces in passwords are automatically removed by the application.
+
+**Optional Settings**
+```env
+APP_ENV=development
+APP_DEBUG=true
+CSRF_ENABLED=true
+HTTPS_ONLY=false  # Set true in production
+SITE_URL=http://localhost:8080
+```
+
+### 6. Build Assets and Setup
+```bash
+# Build and minify assets, set permissions, clear cache
+composer setup:upgrade
+
+# Or run steps individually:
+npm run build              # Build assets
+composer assets:publish    # Copy to public directory
+```
+
+### 7. Customize Services (Optional)
+
+Edit `config/services.php` to customize the contact form dropdown:
+
+```php
+return [
+    'general' => 'General Inquiry',
+    'your-service' => 'Your Service Name ($price)',
+    'other' => 'Other / Not Sure Yet',
+];
+```
+
+Changes take effect immediately. See `config/README.md` for examples.
+
+### 8. Start Development Server
+```bash
+caddy run
+```
+
+Visit: http://localhost:8080
+
+### 9. Stop Caddy
 ```bash
 caddy stop
 ```
@@ -103,13 +195,37 @@ sudo mkdir -p /var/www/portfolio
 sudo chown -R caddy:caddy /var/www/portfolio
 
 # Upload your files (from local machine)
-rsync -avz --exclude 'var/' --exclude '.git/' \
+rsync -avz --exclude 'var/' --exclude '.git/' --exclude 'node_modules/' \
     /path/to/Portfolio/ root@your-droplet-ip:/var/www/portfolio/
+
+# SSH into server and install dependencies
+ssh root@your-droplet-ip
+cd /var/www/portfolio
+
+# Install Composer if not already installed
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install application dependencies
+composer install --no-dev --optimize-autoloader
+npm install --production
+
+# Configure environment
+cp .env.example .env
+nano .env  # Set production values (HTTPS_ONLY=true, APP_ENV=production)
+
+# Build assets and setup
+composer setup:upgrade
 
 # Set permissions
 sudo chown -R caddy:caddy /var/www/portfolio
 sudo chmod -R 755 /var/www/portfolio
 sudo chmod -R 775 /var/www/portfolio/var
+sudo chmod 600 /var/www/portfolio/.env
 ```
 
 ### Step 4: Configure Caddy for Production
@@ -150,12 +266,49 @@ A Record:  www → your-droplet-ip
 
 Wait 5-10 minutes for DNS propagation.
 
-### Step 7: Verify
+### Step 7: Configure Security
+
+**Set Production Environment Variables**
+```bash
+nano /var/www/portfolio/.env
+```
+
+Set these for production:
+```env
+APP_ENV=production
+APP_DEBUG=false
+HTTPS_ONLY=true
+CSRF_ENABLED=true
+SITE_URL=https://yourdomain.com
+```
+
+**Verify Rate Limiting**
+Rate limiting cache directory should be writable:
+```bash
+sudo chmod 775 /var/www/portfolio/var/cache
+```
+
+Contact form is protected by:
+- CSRF token verification
+- Rate limiting (5 attempts per 5 minutes per IP)
+- Honeypot anti-spam field
+- Input validation and sanitization
+
+**Configure Session Security**
+```bash
+sudo chmod 770 /var/www/portfolio/var/sessions
+sudo chown caddy:www-data /var/www/portfolio/var/sessions
+```
+
+### Step 8: Verify Deployment
+
 Visit your domain - Caddy will automatically:
 - Get SSL certificate from Let's Encrypt
 - Enable HTTP/2 and HTTP/3
 - Enable compression
 - Set security headers
+
+Test the contact form to ensure emails are delivered via SMTP.
 
 ---
 
@@ -190,38 +343,61 @@ curl -I https://yourdomain.com
 
 ### View Logs
 ```bash
+# Caddy logs
 sudo journalctl -u caddy -f
 # or
 sudo tail -f /var/log/caddy/portfolio.log
+
+# Application logs
+tail -f /var/www/portfolio/var/log/application.log
+
+# PHP-FPM logs
+sudo tail -f /var/log/php8.4-fpm.log
 ```
 
-### Reload Config
+### Update Application Code
 ```bash
-sudo systemctl reload caddy
-```
+# From local machine - sync files
+rsync -avz --exclude 'var/' --exclude 'node_modules/' \
+    /path/to/Portfolio/ root@your-droplet-ip:/var/www/portfolio/
 
-### Update Application
-```bash
-# From local machine
-rsync -avz --exclude 'var/' /path/to/Portfolio/ root@your-droplet-ip:/var/www/portfolio/
-```
-
-### Update PHP OPcache
-```bash
-# After code changes
+# On server - rebuild assets and clear cache
+ssh root@your-droplet-ip
+cd /var/www/portfolio
+composer install --no-dev --optimize-autoloader
+npm run build
+composer setup:upgrade
 sudo systemctl reload php8.4-fpm
 ```
 
+### Clear Rate Limit Cache
+```bash
+# If needed to reset rate limits
+rm /var/www/portfolio/var/cache/rate_limits.json
+```
+
+### Reload Services
+```bash
+# Reload Caddy configuration
+sudo systemctl reload caddy
+
+# Restart PHP-FPM (after code changes)
+sudo systemctl restart php8.4-fpm
+```
+
+### Monitor Performance
+```bash
+# Check Caddy status
+sudo systemctl status caddy
+
+# Check PHP-FPM status
+sudo systemctl status php8.4-fpm
+
+# Check memory usage
+free -h
+
+# Check disk usage
+df -h
+```
+
 ---
-
-## Performance Benchmarks (Expected)
-
-With this setup, you should achieve:
-- **Lighthouse Performance**: 95-100
-- **LCP**: < 500ms
-- **FID**: < 10ms
-- **CLS**: < 0.1
-- **Time to First Byte**: < 200ms
-- **Page Load**: < 1 second
-
-Caddy + PHP-FPM + OPcache = Blazing Fast! 🚀

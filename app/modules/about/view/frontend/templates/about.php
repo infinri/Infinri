@@ -21,167 +21,128 @@ declare(strict_types=1);
             </div>
             
             <div class="about-intro">
-                <h1 class="about-title">Hi, I'm the Developer Behind Infinri</h1>
-                <h2 class="about-subtitle">I Fix Websites So You Don't Have To</h2>
+                <h1 class="about-title">Hi, I'm Lucio Saldivar</h1>
+                <h2 class="about-subtitle">Your On-Demand Web Developer</h2>
                 <p class="about-description">
-                    I started Infinri because I got tired of seeing small business owners struggle with 
-                    websites that don't work right. You shouldn't need a computer science degree to 
-                    get your site fixed, and you definitely shouldn't have to pay agency prices for 
-                    simple problems.
+                    I started Infinri after watching too many small business owners get stuck between 
+                    expensive agencies and unreliable freelancers. You need someone who answers the phone, 
+                    delivers on time, and charges fair prices without the runaround.
                 </p>
-                
-                <div class="about-values">
-                    <div class="value-item">
-                        <div class="value-icon">🤝</div>
-                        <div class="value-text">Honest pricing, no surprises</div>
-                    </div>
-                    <div class="value-item">
-                        <div class="value-icon">⚡</div>
-                        <div class="value-text">Fast fixes, reliable results</div>
-                    </div>
-                    <div class="value-item">
-                        <div class="value-icon">💬</div>
-                        <div class="value-text">Plain English, no tech jargon</div>
-                    </div>
-                </div>
+                <p class="about-description">
+                    So I built a web development studio that works the way you do: transparent pricing, 
+                    fast turnarounds, and real communication. No corporate speak, no bait-and-switch, 
+                    just honest work from someone who's been building websites for years.
+                </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- What I Do Section -->
-<section class="page-section about-services">
+<!-- Why Work With Me -->
+<section class="page-section why-infinri">
     <div class="container">
-        <h2 class="section-title">What I Actually Do for Your Business</h2>
-        <p class="section-intro">
-            Forget the technical buzzwords. Here's what Infinri means for your day-to-day business:
-        </p>
+        <h2 class="section-title">Why Work With Infinri?</h2>
+        <p class="section-subtitle">Three things that make working with me different</p>
         
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="service-icon">🔧</div>
-                <h3 class="service-title">Fix What's Broken</h3>
-                <p class="service-description">
-                    Your website looks weird on phones? Contact form stopped working? 
-                    I'll track down the problem and fix it properly.
+        <div class="differentiators-grid">
+            <div class="differentiator-card">
+                <div class="differentiator-number">01</div>
+                <svg class="differentiator-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                <h3 class="differentiator-title">Transparent, Predictable Pricing</h3>
+                <p class="differentiator-text">
+                    Every service has a clear price before we start. No hourly rates that spiral out of control, 
+                    no "it depends" estimates, no surprise bills. You see the menu, you pick what you need, 
+                    and that's what you pay. Monthly plans start at $10. Website packages from $10-$50. 
+                    One-time fixes from $20. All posted publicly.
                 </p>
-                <ul class="service-benefits">
-                    <li>No more lost customers due to broken features</li>
-                    <li>Professional appearance on all devices</li>
-                    <li>Forms and buttons that actually work</li>
-                </ul>
             </div>
             
-            <div class="service-card">
-                <div class="service-icon">⚡</div>
-                <h3 class="service-title">Make It Faster</h3>
-                <p class="service-description">
-                    Slow websites lose customers. I'll speed yours up so people 
-                    don't click away before they even see what you offer.
+            <div class="differentiator-card">
+                <div class="differentiator-number">02</div>
+                <svg class="differentiator-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                <h3 class="differentiator-title">Fast Turnarounds, Real Deadlines</h3>
+                <p class="differentiator-text">
+                    I don't take on more work than I can deliver. Template websites in 24-48 hours. 
+                    Quick fixes in 1-2 days. Monthly plan requests within 24 hours. If I say it'll be done Tuesday, 
+                    it's done Tuesday not "Tuesday-ish" or "we'll circle back." Your time matters, and I respect that.
                 </p>
-                <ul class="service-benefits">
-                    <li>Customers stay on your site longer</li>
-                    <li>Better Google search rankings</li>
-                    <li>More sales from impatient visitors</li>
-                </ul>
             </div>
             
-            <div class="service-card">
-                <div class="service-icon">🛡️</div>
-                <h3 class="service-title">Keep It Secure</h3>
-                <p class="service-description">
-                    I follow security best practices like rate limiting and XSS protection 
-                    to keep your site and customer data safe.
+            <div class="differentiator-card">
+                <div class="differentiator-number">03</div>
+                <svg class="differentiator-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <h3 class="differentiator-title">You Work Directly With Me</h3>
+                <p class="differentiator-text">
+                    No account managers, no junior devs, no offshore teams. When you email, I respond. 
+                    When we have a call, it's me. When I build your site, I'm the one writing the code. 
+                    One person, fully accountable, who knows your project inside and out. That's it.
                 </p>
-                <ul class="service-benefits">
-                    <li>Input validation and sanitization</li>
-                    <li>Secure user authentication</li>
-                    <li>Regular security updates</li>
-                </ul>
-            </div>
-            
-            <div class="service-card">
-                <div class="service-icon">📞</div>
-                <h3 class="service-title">Be Available When You Need Me</h3>
-                <p class="service-description">
-                    With the "Be My Developer" plan, you get ongoing support 
-                    without the stress of finding help every time something breaks.
-                </p>
-                <ul class="service-benefits">
-                    <li>Quick fixes when problems arise</li>
-                    <li>Predictable monthly cost</li>
-                    <li>Someone who knows your site inside and out</li>
-                </ul>
-            </div>
-            
-            <div class="service-card">
-                <div class="service-icon">🔍</div>
-                <h3 class="service-title">SEO That Actually Works</h3>
-                <p class="service-description">
-                    Skip expensive SEO consultants. Good SEO is just good development
-                    fast loading, mobile-friendly sites with clean code that Google loves.
-                </p>
-                <ul class="service-benefits">
-                    <li>Better Google rankings through speed</li>
-                    <li>Mobile-first responsive design</li>
-                    <li>Technical SEO built into every project</li>
-                </ul>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Why Choose Infinri Section -->
-<section class="about-approach">
+<!-- What I've Built -->
+<section class="page-section credentials-section">
     <div class="container">
-        <h2 class="section-title">Why Small Businesses Choose Infinri</h2>
-        <p class="approach-intro">
-            You have enough to worry about running your business. Your website shouldn't be one of them.
-        </p>
+        <h2 class="section-title">What I Bring to Your Project</h2>
         
-        <div class="approach-grid">
-            <div class="approach-item">
-                <div class="approach-icon">💰</div>
-                <h3 class="approach-title">No Agency Overhead</h3>
-                <p class="approach-text">
-                    You work directly with me, not a sales team. That means better prices 
-                    and faster communication.
+        <div class="credentials-grid">
+            <div class="credential-item">
+                <svg class="credential-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                </svg>
+                <h3 class="credential-title">Full-Stack Development</h3>
+                <p class="credential-text">
+                    PHP, JavaScript, MySQL, responsive CSS I build complete websites from scratch,
+                    not just templates I bought online.
                 </p>
             </div>
             
-            <div class="approach-item">
-                <div class="approach-icon">🎯</div>
-                <h3 class="approach-title">Small Business Focus</h3>
-                <p class="approach-text">
-                    I understand your budget constraints and timeline pressures. 
-                    Solutions are practical, not over-engineered.
+            <div class="credential-item">
+                <svg class="credential-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <h3 class="credential-title">Security-First Approach</h3>
+                <p class="credential-text">
+                    Input validation, XSS protection, rate limiting, secure authentication security
+                    isn't an add-on, it's built into everything.
                 </p>
             </div>
             
-            <div class="approach-item">
-                <div class="approach-icon">🔄</div>
-                <h3 class="approach-title">Long-term Partnership</h3>
-                <p class="approach-text">
-                    I'm not looking for one-off projects. I want to be your go-to developer 
-                    as your business grows.
+            <div class="credential-item">
+                <svg class="credential-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                </svg>
+                <h3 class="credential-title">Mobile-First Design</h3>
+                <p class="credential-text">
+                    Over 60% of web traffic is mobile. Every site I build works perfectly on phones, 
+                    tablets, and desktops tested, not assumed.
                 </p>
             </div>
             
-            <div class="approach-item">
-                <div class="approach-icon">📞</div>
-                <h3 class="approach-title">Actually Available</h3>
-                <p class="approach-text">
-                    When you email me, you get a real response from a real person who 
-                    remembers your project.
-                </p>
-            </div>
-            
-            <div class="approach-item">
-                <div class="approach-icon">🛠️</div>
-                <h3 class="approach-title">Real Solutions, Not Buzzwords</h3>
-                <p class="approach-text">
-                    No "synergy" or "digital transformation" nonsense. Just practical fixes 
-                    that solve your actual problems and help your business grow.
+            <div class="credential-item">
+                <svg class="credential-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                </svg>
+                <h3 class="credential-title">Performance Optimization</h3>
+                <p class="credential-text">
+                    Minified assets, lazy loading, efficient queries I build sites that load fast
+                    and rank well, because speed matters.
                 </p>
             </div>
         </div>
@@ -192,14 +153,14 @@ declare(strict_types=1);
 <section class="about-cta">
     <div class="container">
         <div class="cta-content">
-            <h2>Ready to Stop Worrying About Your Website?</h2>
+            <h2>Let's Build Something Together</h2>
             <p>
-                Let's have a quick conversation about what's not working and how I can help. 
-                No commitment, no sales pitch just honest advice from someone who gets it.
+                Ready to work with a developer who actually answers emails and delivers on time? 
+                Check out the services menu or reach out directly I'll respond within 24 hours.
             </p>
             <div class="cta-buttons">
-                <a href="/contact" class="btn btn-primary">Get in Touch</a>
-                <a href="/#services" class="btn btn-outline">See My Services</a>
+                <a href="/services" class="btn btn-primary">View Services & Pricing</a>
+                <a href="/contact" class="btn btn-outline">Contact Me</a>
             </div>
         </div>
     </div>

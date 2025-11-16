@@ -420,3 +420,13 @@
     transform: translateY(-10px);
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
+/* Additional company info field (actually honeypot - don't rename) */
+.company-info {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

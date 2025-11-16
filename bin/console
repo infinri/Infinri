@@ -402,6 +402,7 @@ ENV;
             '.phpunit.result.cache',
             'phpstan.neon',
             'phpstan.neon.dist',
+            'app/base/helpers/Validate.php',  // Test-only helper
         ];
         
         $removedCount = 0;
@@ -466,7 +467,7 @@ ENV;
         $permissions = [
             'var/log' => 0755,
             'var/cache' => 0755,
-            'var/sessions' => 0700,
+            'var/sessions' => 0770,  // 770 so PHP-FPM (www-data group) can write sessions
             'pub/assets/dist' => 0755,
             '.env' => 0644,  // PHP-FPM needs read access
         ];
@@ -481,6 +482,14 @@ ENV;
                 chmod($fullPath, $mode);
                 $this->success("✓ Set $path to " . decoct($mode));
             }
+        }
+        
+        // Set var/sessions group to www-data for PHP-FPM access
+        $sessionsPath = $this->rootDir . '/var/sessions';
+        if (file_exists($sessionsPath)) {
+            // Try to set group ownership (may need sudo)
+            @chgrp($sessionsPath, 'www-data');
+            $this->success("✓ Set var/sessions group to www-data");
         }
         
         // Make bin scripts executable

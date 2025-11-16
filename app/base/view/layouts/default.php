@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
-use App\Helpers\View;
+use App\Helpers\Env;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,7 +42,6 @@ use App\Helpers\View;
     
     <?php
     // Preload critical assets in production for faster rendering
-    use App\Helpers\Env;
     if (Env::get('APP_ENV') === 'production') {
         $version = Env::get('APP_VERSION');
         echo "<link rel=\"preload\" href=\"/assets/dist/all.min.css?v={$version}\" as=\"style\">\n    ";

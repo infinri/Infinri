@@ -382,3 +382,124 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
+
+/* ==================== Differentiators Section ==================== */
+
+.why-infinri {
+    background: var(--color-bg-primary);
+    padding: 4rem 0;
+}
+
+.differentiators-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-top: 3rem;
+}
+
+@media (min-width: 1024px) {
+    .differentiators-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.differentiator-card {
+    position: relative;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem 2rem 2rem;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.differentiator-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(157, 78, 221, 0.3);
+}
+
+.differentiator-number {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    opacity: 0.15;
+}
+
+.differentiator-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.differentiator-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    line-height: var(--line-height-tight);
+}
+
+.differentiator-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ==================== Credentials Section ==================== */
+
+.credentials-section {
+    background: var(--color-bg-secondary);
+    padding: 4rem 0;
+}
+
+.credentials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+@media (min-width: 640px) {
+    .credentials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .credentials-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.credential-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all 250ms ease;
+}
+
+.credential-item:hover {
+    border-color: rgba(157, 78, 221, 0.2);
+}
+
+.credential-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.credential-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+}
+
+.credential-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}

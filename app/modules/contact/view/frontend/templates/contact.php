@@ -30,7 +30,10 @@ use App\Helpers\{Session, Esc};
                 <div class="info-card-container">
                     
                 <div class="info-card">
-                    <div class="info-icon">📧</div>
+                    <svg class="info-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <path d="m2 7 10 6 10-6"/>
+                    </svg>
                     <div class="info-content">
                         <h3 class="info-title">Email</h3>
                         <p class="info-text">infinri@gmail.com</p>
@@ -39,7 +42,10 @@ use App\Helpers\{Session, Esc};
                 </div>
                 
                 <div class="info-card">
-                    <div class="info-icon">⚡</div>
+                    <svg class="info-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
                     <div class="info-content">
                         <h3 class="info-title">Response Time</h3>
                         <p class="info-text">Within 24 hours</p>
@@ -48,7 +54,11 @@ use App\Helpers\{Session, Esc};
                 </div>
                 
                 <div class="info-card">
-                    <div class="info-icon">🌍</div>
+                    <svg class="info-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
                     <div class="info-content">
                         <h3 class="info-title">Location</h3>
                         <p class="info-text">Remote Worldwide</p>
@@ -57,7 +67,10 @@ use App\Helpers\{Session, Esc};
                 </div>
                 
                 <div class="info-card">
-                    <div class="info-icon">💼</div>
+                    <svg class="info-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
                     <div class="info-content">
                         <h3 class="info-title">Availability</h3>
                         <p class="info-text">Open to projects</p>
@@ -75,7 +88,7 @@ use App\Helpers\{Session, Esc};
                 </p>
                 
                 <form method="POST" action="/contact" class="contact-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo Esc::html(Session::csrf()); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo Esc::html($csrf ?? Session::csrf()); ?>">
                     
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
@@ -99,6 +112,25 @@ use App\Helpers\{Session, Esc};
                             required
                             placeholder="your.email@example.com"
                         >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service_interest" class="form-label">I'm Interested In *</label>
+                        <select 
+                            id="service_interest" 
+                            name="service_interest" 
+                            class="form-input"
+                            required
+                        >
+                            <option value="">-- Select a Service --</option>
+                            <?php
+                            $services = require __DIR__ . '/../../../../../../config/services.php';
+                            foreach ($services as $value => $label): ?>
+                                <option value="<?php echo Esc::html($value); ?>">
+                                    <?php echo Esc::html($label); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -135,6 +167,11 @@ use App\Helpers\{Session, Esc};
                             placeholder="Tell me about your project..."
                             rows="6"
                         ></textarea>
+                    </div>
+                    
+                    <!-- Company verification field -->
+                    <div class="company-info" aria-hidden="true">
+                        <input type="text" name="company_url" value="" tabindex="-1" autocomplete="off">
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg form-submit">

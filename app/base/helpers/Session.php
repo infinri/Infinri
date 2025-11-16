@@ -32,16 +32,9 @@ final class Session
             return;
         }
 
-        // Security: Strict session cookie parameters
-        session_set_cookie_params([
-            'lifetime' => 0,
-            'path' => '/',
-            'domain' => '',
-            'secure' => true,
-            'httponly' => true,
-            'samesite' => 'Strict'
-        ]);
-
+        // Session params already set by index.php
+        // Don't override them here to avoid conflicts
+        
         // Start session (suppressing warnings in CLI/test environments)
         @session_start();
         self::$started = true;

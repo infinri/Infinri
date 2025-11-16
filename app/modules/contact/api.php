@@ -6,33 +6,64 @@ declare(strict_types=1);
  * Handles contact form POST requests
  */
 
-use App\Base\Helpers\{Validator, Mail, Logger};
+use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter};
 use App\Helpers\Session;
 
 // Set JSON response header
 header('Content-Type: application/json');
 
 try {
-    // Verify CSRF token
-    if (!Session::verifyCsrf($_POST['csrf_token'] ?? '')) {
+    // Get client IP
+    $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    
+    // 1. Rate Limiting Check (5 attempts per 5 minutes)
+    if (!RateLimiter::check($clientIp, 5, 300)) {
+        $resetTime = RateLimiter::getResetTime($clientIp, 300);
+        $minutes = ceil($resetTime / 60);
+        
+        Logger::warning('Rate limit exceeded', ['ip' => $clientIp]);
+        http_response_code(429);
+        echo json_encode([
+            'success' => false, 
+            'message' => "Too many attempts. Please try again in {$minutes} minute(s)."
+        ]);
+        exit;
+    }
+    
+    // 2. Honeypot Check (anti-bot)
+    $honeypot = $_POST['company_url'] ?? '';
+    if (!empty($honeypot)) {
+        Logger::warning('Bot detected via spam trap', [
+            'ip' => $clientIp,
+            'field_value' => substr($honeypot, 0, 50)
+        ]);
+        // Pretend success to confuse bots
+        echo json_encode(['success' => true, 'message' => 'Message sent successfully!']);
+        exit;
+    }
+    
+    // 3. CSRF Token Verification
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    
+    if (!Session::verifyCsrf($submittedToken)) {
+        Logger::warning('CSRF token verification failed', ['ip' => $clientIp]);
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Invalid security token']);
+        echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh the page and try again.']);
         exit;
     }
 
     // Log form submission attempt
-    Logger::info('Contact form submission started', [
-        'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-    ]);
+    Logger::info('Contact form submission started', ['ip' => $clientIp]);
     
-    // Validate form data
+    // 4. Input Validation
     $validator = new Validator($_POST);
-    $validator->required(['name', 'email', 'subject', 'message'])
+    $validator->required(['name', 'email', 'service_interest', 'phone', 'subject', 'message'])
               ->email('email')
               ->maxLength('name', 100)
+              ->maxLength('service_interest', 100)
+              ->maxLength('phone', 20)
               ->maxLength('subject', 200)
-              ->maxLength('message', 2000)
-              ->maxLength('phone', 20);
+              ->maxLength('message', 2000);
     
     if ($validator->fails()) {
         Logger::warning('Contact form validation failed', [
@@ -44,10 +75,11 @@ try {
     
     Logger::info('Contact form validation passed');
     
-    // Get validated data
+    // 5. Get Validated & Sanitized Data
+    // Note: Sanitization (htmlspecialchars) happens in Mail::sendContactForm()
     $data = $validator->validated();
     
-    // Send email
+    // 6. Send Email
     try {
         Logger::info('Attempting to send contact form email', [
             'customer_name' => $data['name'],
@@ -56,6 +88,9 @@ try {
         ]);
         
         Mail::sendContactForm($data);
+        
+        // Record this attempt for rate limiting (only after successful send)
+        RateLimiter::record($clientIp);
         
         Logger::info('Contact form email sent successfully');
         

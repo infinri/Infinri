@@ -11,8 +11,9 @@ const { minify: minifyJS } = require('terser');
 
 // Configuration
 const config = {
-    sourceDir: path.join(__dirname, 'pub/assets'),
+    sourceDir: path.join(__dirname, 'app'),
     distDir: path.join(__dirname, 'pub/assets/dist'),
+    publicAssetsDir: path.join(__dirname, 'pub/assets'),
     cssFiles: [
         // Base CSS (critical path - loaded first)
         'base/css/critical-hero.css',
@@ -35,7 +36,8 @@ const config = {
         'contact',
         'error',
         'head',
-        'footer'
+        'footer',
+        'legal'
     ]
 };
 
@@ -58,16 +60,19 @@ function readFile(filePath) {
 
 // Minify CSS
 async function minifyCSS(files, outputName) {
-    console.log(`\n🎨 Minifying CSS: ${outputName}`);
+    console.log(`🎨 Minifying CSS: ${outputName}`);
     
     let combinedCSS = '';
-    const cleanCSS = new CleanCSS({
-        level: 2,
-        compatibility: 'ie11'
-    });
     
     for (const file of files) {
-        const filePath = path.join(config.sourceDir, file);
+        // Base/frontend assets are in pub/assets, module assets are in app/modules
+        let filePath;
+        if (file.startsWith('base/') || file.startsWith('frontend/')) {
+            filePath = path.join(config.publicAssetsDir, file);
+        } else {
+            filePath = path.join(config.sourceDir, file);
+        }
+        
         const content = readFile(filePath);
         if (content) {
             combinedCSS += `\n/* ${file} */\n${content}\n`;
@@ -75,33 +80,44 @@ async function minifyCSS(files, outputName) {
         }
     }
     
-    const result = cleanCSS.minify(combinedCSS);
+    const originalSize = Buffer.byteLength(combinedCSS, 'utf8');
     
-    if (result.errors.length > 0) {
-        console.error('❌ CSS Errors:', result.errors);
+    const output = new CleanCSS({
+        level: 2,
+        compatibility: 'ie11'
+    }).minify(combinedCSS);
+    
+    if (output.errors.length > 0) {
+        console.error('❌ CSS Errors:', output.errors);
         return false;
     }
     
     const outputPath = path.join(config.distDir, outputName);
     ensureDir(path.dirname(outputPath));
-    fs.writeFileSync(outputPath, result.styles);
+    fs.writeFileSync(outputPath, output.styles);
     
-    const originalSize = Buffer.byteLength(combinedCSS, 'utf8');
-    const minifiedSize = Buffer.byteLength(result.styles, 'utf8');
+    const minifiedSize = Buffer.byteLength(output.styles, 'utf8');
     const savings = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
     
     console.log(`  📦 ${(originalSize / 1024).toFixed(1)}KB → ${(minifiedSize / 1024).toFixed(1)}KB (${savings}% smaller)`);
     return true;
 }
 
-// Minify JS
+// Minify JavaScript
 async function minifyJavaScript(files, outputName) {
-    console.log(`\n⚡ Minifying JS: ${outputName}`);
+    console.log(`⚡ Minifying JS: ${outputName}`);
     
     let combinedJS = '';
     
     for (const file of files) {
-        const filePath = path.join(config.sourceDir, file);
+        // Base/frontend assets are in pub/assets, module assets are in app/modules
+        let filePath;
+        if (file.startsWith('base/') || file.startsWith('frontend/')) {
+            filePath = path.join(config.publicAssetsDir, file);
+        } else {
+            filePath = path.join(config.sourceDir, file);
+        }
+        
         const content = readFile(filePath);
         if (content) {
             combinedJS += `\n/* ${file} */\n${content}\n`;
@@ -151,6 +167,40 @@ async function minifyJavaScript(files, outputName) {
     }
 }
 
+// Copy module assets from app/ to pub/assets/ for development mode
+function copyModuleAssets() {
+    console.log('\n📋 Copying Module Assets to Public Directory');
+    
+    for (const module of config.modules) {
+        const sourcePath = path.join(config.sourceDir, `modules/${module}/view/frontend`);
+        const destPath = path.join(config.publicAssetsDir, `modules/${module}/view/frontend`);
+        
+        if (!fs.existsSync(sourcePath)) continue;
+        
+        // Copy CSS
+        const cssFilename = module === 'head' ? 'header.css' : `${module}.css`;
+        const cssSource = path.join(sourcePath, 'css', cssFilename);
+        const cssDest = path.join(destPath, 'css', cssFilename);
+        
+        if (fs.existsSync(cssSource)) {
+            ensureDir(path.dirname(cssDest));
+            fs.copyFileSync(cssSource, cssDest);
+            console.log(`  ✓ ${module}/css/${cssFilename}`);
+        }
+        
+        // Copy JS
+        const jsFilename = module === 'head' ? 'header.js' : `${module}.js`;
+        const jsSource = path.join(sourcePath, 'js', jsFilename);
+        const jsDest = path.join(destPath, 'js', jsFilename);
+        
+        if (fs.existsSync(jsSource)) {
+            ensureDir(path.dirname(jsDest));
+            fs.copyFileSync(jsSource, jsDest);
+            console.log(`  ✓ ${module}/js/${jsFilename}`);
+        }
+    }
+}
+
 // Process module assets
 async function processModules() {
     console.log('\n📦 Processing Module Assets');
@@ -183,6 +233,9 @@ async function build() {
     
     // Create dist directory
     ensureDir(config.distDir);
+    
+    // Copy module assets to public directory (for development mode)
+    copyModuleAssets();
     
     // Build base CSS bundle
     await minifyCSS(config.cssFiles, 'base.min.css');

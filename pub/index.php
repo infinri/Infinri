@@ -12,7 +12,7 @@ declare(strict_types=1);
 require __DIR__ . '/../app/autoload.php';
 
 use App\Core\Router;
-use App\Helpers\{Session, View, Env};
+use App\Helpers\{Session, Env};
 use App\Base\Helpers\Assets;
 
 // Generate CSP nonce for inline styles (before any output)
@@ -43,7 +43,9 @@ if (!ob_start('ob_gzhandler')) {
 // Initialize session with security settings
 $sessionPath = dirname(__DIR__) . '/var/sessions';
 if (!is_dir($sessionPath)) {
-    mkdir($sessionPath, 0700, true);
+    mkdir($sessionPath, 0770, true);
+    // Try to set www-data group ownership (may fail without sudo)
+    @chgrp($sessionPath, 'www-data');
 }
 session_save_path($sessionPath);
 
@@ -64,16 +66,18 @@ session_set_cookie_params([
 // Note: session_start() will be called by Session::csrf() below
 // We configure the params first, then let Session helper start it
 
-// Store nonce for use in templates
-View::set('cspNonce', $cspNonce);
+// Store nonce and config as globals for template access
+$GLOBALS['cspNonce'] = $cspNonce;
 
 // Load configuration
 $config = require __DIR__ . '/../app/config.php';
+$GLOBALS['config'] = $config;
 
-// Pass config and CSRF token to views
-// Session::csrf() will call Session::start() which calls session_start()
-View::set('config', $config);
-View::set('csrf', Session::csrf());
+// Generate CSRF token (will call session_start())
+$csrfToken = Session::csrf();
+$GLOBALS['csrf'] = $csrfToken;
+
+// Debug logging removed - CSRF working correctly
 
 // Register base and frontend assets (always loaded)
 // Critical hero CSS must be first for instant LCP
@@ -95,7 +99,12 @@ $router->get('/', 'home')
        ->get('/contact', 'contact')
        ->post('/contact', function() {
            require __DIR__ . '/../app/modules/contact/api.php';
-       });
+       })
+       ->get('/terms', 'legal')
+       ->get('/privacy', 'legal')
+       ->get('/cookies', 'legal')
+       ->get('/disclaimer', 'legal')
+       ->get('/refund', 'legal');
 
 // Dispatch
 $router->dispatch('error');

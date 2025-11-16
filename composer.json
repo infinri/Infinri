@@ -5,7 +5,7 @@
   "license": "MIT",
   "require": {
     "php": ">=8.1",
-    "getbrevo/brevo-php": "^2.0"
+    "phpmailer/phpmailer": "*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
@@ -56,7 +56,7 @@
     "test:parallel": "vendor/bin/pest --parallel",
     "assets:publish": "php bin/console assets:publish",
     "assets:clear": "php bin/console assets:clear",
-    "setup:update": "php bin/console setup:update",
+    "setup:update": "php bin/console setup:upgrade",
     "quality": [
       "@lint",
       "@phpstan",

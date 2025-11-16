@@ -11,24 +11,8 @@
      * Initialize about page features
      */
     function init() {
-        initProfileImageFallback();
         initServiceCardAnimations();
         initApproachItemAnimations();
-    }
-
-    /**
-     * Handle profile image error fallback (CSP compliant)
-     */
-    function initProfileImageFallback() {
-        const profileImage = document.getElementById('profile-image');
-        const profilePlaceholder = document.getElementById('profile-placeholder');
-        
-        if (!profileImage || !profilePlaceholder) return;
-        
-        profileImage.addEventListener('error', function() {
-            this.classList.add('hidden');
-            profilePlaceholder.classList.remove('hidden');
-        });
     }
 
     /**

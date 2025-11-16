@@ -50,6 +50,11 @@ if (file_exists($envFile)) {
             $value = $matches[2];
             // Unescape quotes
             $value = str_replace(['\"', "\'"], ['"', "'"], $value);
+        } else {
+            // Remove inline comments (not in quotes)
+            if (($hashPos = strpos($value, '#')) !== false) {
+                $value = trim(substr($value, 0, $hashPos));
+            }
         }
         
         // Only set if not already defined (CLI args take precedence)
