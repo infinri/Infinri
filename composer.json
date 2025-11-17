@@ -5,7 +5,7 @@
   "license": "MIT",
   "require": {
     "php": ">=8.1",
-    "phpmailer/phpmailer": "*"
+    "getbrevo/brevo-php": "^2.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
@@ -46,23 +46,9 @@
     "sort-packages": true
   },
   "scripts": {
-    "lint": "vendor/bin/phpcs",
-    "lint:fix": "vendor/bin/phpcbf",
-    "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G",
-    "test": "vendor/bin/pest",
-    "test:unit": "vendor/bin/pest tests/Unit",
-    "test:integration": "vendor/bin/pest tests/Integration",
-    "test:coverage": "XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=97",
-    "test:parallel": "vendor/bin/pest --parallel",
     "assets:publish": "php bin/console assets:publish",
     "assets:clear": "php bin/console assets:clear",
-    "setup:update": "php bin/console setup:upgrade",
-    "quality": [
-      "@lint",
-      "@phpstan",
-      "@test",
-      "@test:coverage"
-    ],
+    "setup:update": "php bin/console setup:update",
     "post-install-cmd": [
       "@setup:update"
     ],

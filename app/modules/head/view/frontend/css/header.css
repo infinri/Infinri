@@ -43,7 +43,6 @@
 /* Navigation Menu Wrapper - Mobile First */
 .nav-menu {
     /* Desktop: in normal flow */
-    display: none;
     margin-left: auto;
     margin-top: 1%;
     margin-right: 1%;
@@ -52,6 +51,7 @@
 /* Mobile: hide completely */
 @media (max-width: 768px) {
     .nav-menu {
+        display: none;
         position: absolute;
         top: 0;
         right: -100%;

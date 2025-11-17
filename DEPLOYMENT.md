@@ -11,7 +11,7 @@ Complete deployment and configuration guide for production and local development
 - Node.js and npm for asset building
 
 **Required Accounts**
-- SMTP email service (Gmail, Google Workspace, or similar)
+- Brevo account for email API (free tier: 300 emails/day)
 - Domain name (for production)
 - Server or VPS (Digital Ocean, Linode, etc.)
 
@@ -75,21 +75,22 @@ nano .env  # Edit with your settings
 
 Edit `.env` with your settings:
 
-**Required SMTP Settings**
+**Required Brevo Email Settings**
 ```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_ENCRYPTION=tls
-SMTP_FROM_EMAIL=your-email@gmail.com
-SMTP_FROM_NAME=Portfolio Contact Form
-SMTP_RECIPIENT_EMAIL=your-email@gmail.com
-SMTP_RECIPIENT_NAME=Your Name
+BREVO_API_KEY=your-brevo-api-key-here
+BREVO_SENDER_EMAIL=noreply@yourdomain.com
+BREVO_SENDER_NAME=Infinri Portfolio
+BREVO_RECIPIENT_EMAIL=your-email@example.com
+BREVO_RECIPIENT_NAME=Your Name
 ```
 
-For Gmail, generate an app password at: https://myaccount.google.com/apppasswords
-Spaces in passwords are automatically removed by the application.
+**Why Brevo?** Digital Ocean blocks SMTP port 587, so we use Brevo's API (HTTPS port 443) instead.
+
+To get your Brevo API key:
+1. Sign up at https://www.brevo.com (free tier: 300 emails/day)
+2. Go to Settings → SMTP & API → API Keys
+3. Create a new API key
+4. Verify your sender domain at Settings → Senders & IP
 
 **Optional Settings**
 ```env
@@ -308,7 +309,10 @@ Visit your domain - Caddy will automatically:
 - Enable compression
 - Set security headers
 
-Test the contact form to ensure emails are delivered via SMTP.
+Test the contact form to ensure emails are delivered via Brevo API:
+```bash
+php tests/manual-email-test.php
+```
 
 ---
 

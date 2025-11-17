@@ -85,13 +85,11 @@ npm run build           # Build and minify CSS/JS
 composer setup:upgrade  # Full setup (build + permissions + cache)
 ```
 
-**Quality Checks**
+**Test Email Integration**
 ```bash
-composer test       # Run test suite
-composer quality    # Run all checks (tests + style + analysis)
-composer cs:check   # Check code style (PSR-12)
-composer analyze    # Run static analysis (PHPStan Level 6)
+php tests/manual-email-test.php  # Test Brevo API integration with real email
 ```
+This will verify your email configuration and send a test email via Brevo API. See `tests/README.md` for details.
 
 ## Project Structure
 
@@ -123,7 +121,7 @@ var/                Runtime data (logs, cache, sessions)
 
 **Backend**
 - PHP 8.4 with strict types
-- PHPMailer 7.0.0 for SMTP email delivery
+- Brevo API for email delivery (HTTPS, no SMTP port 587)
 - Composer for dependency management
 
 **Frontend**
@@ -138,10 +136,8 @@ var/                Runtime data (logs, cache, sessions)
 - Automatic HTTPS in production
 
 **Development Tools**
-- Pest PHP testing framework
-- PHPStan (Level 6) for static analysis
-- PHP_CodeSniffer (PSR-12) for code style
 - npm for asset bundling and minification
+- Console commands for asset management
 
 **Infrastructure**
 - File-based caching for rate limiting
@@ -153,7 +149,7 @@ var/                Runtime data (logs, cache, sessions)
 **Environment Setup**
 
 Copy `.env.example` to `.env` and configure:
-- SMTP settings for email delivery
+- Brevo API credentials for email delivery
 - Application environment (development/production)
 - Security settings (CSRF, HTTPS)
 
