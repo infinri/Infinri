@@ -325,7 +325,7 @@ ENV;
         // Replace placeholders
         $content = str_replace('{DATE}', date('Y-m-d H:i:s'), $content);
         foreach ($config as $key => $value) {
-            $content = str_replace('{' . $key . '}', $value, $content);
+            $content = str_replace('{' . $key . '}', (string)$value, $content);
         }
         
         file_put_contents($this->envFile, $content);
