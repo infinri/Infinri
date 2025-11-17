@@ -20,9 +20,9 @@ $cspNonce = base64_encode(random_bytes(16));
 
 // Build CSP header with nonce
 $cspHeader = "Content-Security-Policy: default-src 'self'; img-src 'self' data:; " .
-    "style-src 'self' 'nonce-" . $cspNonce . "'; " .
-    "script-src 'self' 'nonce-" . $cspNonce . "' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; " .
-    "frame-src https://www.google.com/recaptcha/; " .
+    "style-src 'self' 'nonce-" . $cspNonce . "' 'unsafe-inline'; " .
+    "script-src 'self' 'nonce-" . $cspNonce . "' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; " .
+    "frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/; " .
     "connect-src 'self' https://www.google.com/recaptcha/; " .
     "base-uri 'self'; frame-ancestors 'none'; form-action 'self'";
 
