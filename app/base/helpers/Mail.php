@@ -13,6 +13,8 @@ use App\Helpers\Env;
 use Brevo\Client\Configuration;
 use Brevo\Client\Api\TransactionalEmailsApi;
 use Brevo\Client\Model\SendSmtpEmail;
+use Brevo\Client\Model\SendSmtpEmailSender;
+use Brevo\Client\Model\SendSmtpEmailTo;
 use GuzzleHttp\Client;
 
 class Mail
@@ -225,30 +227,58 @@ class Mail
             . "Subject: {$customerSubject}\n\n"
             . "Message:\n" . strip_tags($customerMessage);
 
-        try {
-            // Configure Brevo API client
-            $config = Configuration::getDefaultConfiguration()->setApiKey('api-key', $apiKey);
-            $apiInstance = new TransactionalEmailsApi(new Client(), $config);
-            
-            // Create email object
-            $sendSmtpEmail = new SendSmtpEmail([
-                'sender' => ['name' => "{$customerName} (via {$fromName})", 'email' => $fromEmail],
-                'to' => [['email' => $recipientEmail, 'name' => $recipientName]],
-                'replyTo' => ['email' => $customerEmail, 'name' => $customerName],
-                'subject' => "New Contact Form: {$customerSubject}",
-                'htmlContent' => $htmlContent,
-                'textContent' => $textContent
-            ]);
-            
-            // Send email via Brevo API
-            $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
-            
-            error_log('Contact email sent successfully via Brevo API. Message ID: ' . $result->getMessageId());
-            return true;
-            
-        } catch (\Exception $e) {
-            error_log('Brevo API error: ' . $e->getMessage());
-            throw new \Exception('Failed to send email via Brevo: ' . $e->getMessage());
-        }
+        // Build email payload for async sending
+        $emailPayload = [
+            'apiKey' => $apiKey,
+            'subject' => "New Contact Form: {$customerSubject}",
+            'sender' => [
+                'email' => $fromEmail,
+                'name' => "{$customerName} (via {$fromName})"
+            ],
+            'to' => [
+                [
+                    'email' => $recipientEmail,
+                    'name' => $recipientName ?: 'Admin'
+                ]
+            ],
+            'replyTo' => [
+                'email' => $customerEmail,
+                'name' => $customerName
+            ],
+            'htmlContent' => $htmlContent,
+            'textContent' => $textContent
+        ];
+
+        // Closure that actually sends the email
+        $send = function () use ($emailPayload): void {
+            try {
+                // Configure Brevo API client
+                $config = Configuration::getDefaultConfiguration()->setApiKey('api-key', $emailPayload['apiKey']);
+                $apiInstance = new TransactionalEmailsApi(new Client(), $config);
+                
+                // Create email object with proper model classes
+                $email = new SendSmtpEmail([
+                    'subject' => $emailPayload['subject'],
+                    'sender' => new SendSmtpEmailSender($emailPayload['sender']),
+                    'to' => array_map(fn($t) => new SendSmtpEmailTo($t), $emailPayload['to']),
+                    'replyTo' => $emailPayload['replyTo'],
+                    'htmlContent' => $emailPayload['htmlContent'],
+                    'textContent' => $emailPayload['textContent']
+                ]);
+                
+                // Send email via Brevo API
+                $result = $apiInstance->sendTransacEmail($email);
+                
+                error_log('Contact email sent successfully via Brevo API. Message ID: ' . $result->getMessageId());
+            } catch (\Exception $e) {
+                error_log('Brevo API error: ' . $e->getMessage());
+            }
+        };
+
+        // Execute email sending after response is sent to user
+        // Use register_shutdown_function so the user doesn't wait for the email API call
+        register_shutdown_function($send);
+        
+        return true;
     }
 }
