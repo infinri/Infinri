@@ -47,14 +47,7 @@
   },
   "scripts": {
     "assets:publish": "php bin/console assets:publish",
-    "assets:clear": "php bin/console assets:clear",
-    "setup:update": "php bin/console setup:update",
-    "post-install-cmd": [
-      "@setup:update"
-    ],
-    "post-update-cmd": [
-      "@setup:update"
-    ]
+    "assets:clear": "php bin/console assets:clear"
   },
   "minimum-stability": "stable",
   "prefer-stable": true
