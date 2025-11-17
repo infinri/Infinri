@@ -240,8 +240,9 @@ final class Assets
         // Production: Use single all-in-one bundle
         if (self::isProduction()) {
             // All-in-one bundle (base + frontend + all modules) - single request
+            // Using async instead of defer for non-blocking execution
             $allBundle = '/assets/dist/all.min.js?v=' . Esc::html($version);
-            $output .= '<script src="' . $allBundle . '" defer></script>' . PHP_EOL;
+            $output .= '<script src="' . $allBundle . '" async></script>' . PHP_EOL;
             
             return $output;
         }
@@ -250,7 +251,7 @@ final class Assets
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$js[$layer] as $file) {
                 $url = Esc::html($file) . '?v=' . Esc::html($version);
-                $output .= '<script src="' . $url . '" defer></script>' . PHP_EOL;
+                $output .= '<script src="' . $url . '" async></script>' . PHP_EOL;
             }
         }
 
