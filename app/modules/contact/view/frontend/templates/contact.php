@@ -171,7 +171,7 @@ use App\Helpers\{Session, Esc};
                     
                     <!-- Company verification field -->
                     <div class="company-info" aria-hidden="true">
-                        <input type="text" name="company_url" value="" tabindex="-1" autocomplete="off">
+                        <input type="text" name="company_url" id="comp_url_verify" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg form-submit">
