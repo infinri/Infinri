@@ -14,9 +14,12 @@ declare(strict_types=1);
         <div class="about-hero-content">
             <div class="about-profile">
                 <div class="profile-image-wrapper">
-                    <div class="profile-placeholder">
-                        <span class="profile-emoji">👨‍💻</span>
-                    </div>
+                    <img src="/assets/base/images/avatar.webp" 
+                         alt="Lucio Saldivar - Infinri Web Developer" 
+                         class="profile-image"
+                         width="200" 
+                         height="200"
+                         loading="eager">
                 </div>
             </div>
             
