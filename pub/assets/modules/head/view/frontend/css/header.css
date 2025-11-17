@@ -40,17 +40,18 @@
     filter: drop-shadow(var(--glow-purple)) brightness(1.1);
 }
 
-/* Navigation Menu Wrapper */
+/* Navigation Menu Wrapper - Mobile First */
 .nav-menu {
-    margin-left: auto;
-    margin-top: 1%;
-    margin-right: 1%;
+    display: none; /* Hidden by default on mobile */
 }
 
-/* Hide mobile menu by default to prevent layout shift */
-@media (max-width: 768px) {
+/* Desktop: show in normal flow */
+@media (min-width: 769px) {
     .nav-menu {
-        display: none;
+        display: block;
+        margin-left: auto;
+        margin-top: 1%;
+        margin-right: 1%;
     }
 }
 
