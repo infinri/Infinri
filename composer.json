@@ -8,14 +8,14 @@
     "getbrevo/brevo-php": "^2.0"
   },
   "require-dev": {
-    "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.0",
-    "pestphp/pest": "^3.0",
+    "friendsofphp/php-cs-fixer": "^3.89",
     "mockery/mockery": "^1.6",
+    "pestphp/pest": "^3.0",
     "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-strict-rules": "^2.0",
-    "squizlabs/php_codesniffer": "^3.10",
-    "friendsofphp/php-cs-fixer": "^3.89"
+    "phpunit/phpunit": "^11.0",
+    "squizlabs/php_codesniffer": "^3.10"
   },
   "autoload": {
     "psr-4": {
@@ -39,13 +39,20 @@
   },
   "config": {
     "allow-plugins": {
-      "phpstan/extension-installer": true,
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "phpstan/extension-installer": true
     },
     "optimize-autoloader": true,
     "sort-packages": true
   },
   "scripts": {
+    "post-install-cmd": [
+      "@fix-brevo"
+    ],
+    "post-update-cmd": [
+      "@fix-brevo"
+    ],
+    "fix-brevo": "php fix-brevo-php84.php",
     "assets:publish": "php bin/console assets:publish",
     "assets:clear": "php bin/console assets:clear"
   },

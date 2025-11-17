@@ -51,6 +51,9 @@ package-lock.json
 /phpstan.neon.dist
 .phpunit.cache/
 .pest/
+test-*.php
+check-*.php
+patches.lock.json
 
 # Backup & Temporary Files
 *.backup

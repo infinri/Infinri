@@ -87,8 +87,9 @@ use App\Helpers\{Session, Esc};
                     Fill out the form below and I'll get back to you as soon as possible.
                 </p>
                 
-                <form method="POST" action="/contact" class="contact-form">
+                <form method="POST" action="/contact" class="contact-form" id="contactForm">
                     <input type="hidden" name="csrf_token" value="<?php echo Esc::html($csrf ?? Session::csrf()); ?>">
+                    <input type="hidden" name="recaptcha_token" id="recaptchaToken">
                     
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
@@ -187,3 +188,49 @@ use App\Helpers\{Session, Esc};
         </div>
     </div>
 </section>
+
+<?php
+use App\Base\Helpers\ReCaptcha;
+if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
+?>
+<!-- Google reCAPTCHA v3 -->
+<script src="https://www.google.com/recaptcha/api.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
+<script>
+(function() {
+    'use strict';
+    
+    const form = document.getElementById('contactForm');
+    const recaptchaSiteKey = '<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>';
+    
+    if (!form || !recaptchaSiteKey) return;
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get reCAPTCHA token
+        grecaptcha.ready(function() {
+            grecaptcha.execute(recaptchaSiteKey, { action: 'contact_form' })
+                .then(function(token) {
+                    // Set token in hidden field
+                    document.getElementById('recaptchaToken').value = token;
+                    
+                    // Submit form via AJAX (assuming you have existing form handling)
+                    // Or submit normally if no AJAX: form.submit();
+                    submitForm(form);
+                })
+                .catch(function(err) {
+                    console.error('reCAPTCHA error:', err);
+                    alert('Security verification failed. Please try again.');
+                });
+        });
+    });
+    
+    // Your existing form submission function
+    function submitForm(form) {
+        // This should integrate with your existing AJAX form submission
+        // For now, just do a regular submit
+        HTMLFormElement.prototype.submit.call(form);
+    }
+})();
+</script>
+<?php endif; ?>

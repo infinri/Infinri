@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Handles contact form POST requests
  */
 
-use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter};
+use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter, ReCaptcha};
 use App\Helpers\Session;
 
 // Set JSON response header
@@ -51,11 +51,23 @@ try {
         echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh the page and try again.']);
         exit;
     }
+    
+    // 4. reCAPTCHA Verification (if enabled)
+    if (ReCaptcha::isEnabled()) {
+        $recaptchaToken = $_POST['recaptcha_token'] ?? '';
+        
+        if (!ReCaptcha::verify($recaptchaToken, 'contact_form')) {
+            Logger::warning('reCAPTCHA verification failed', ['ip' => $clientIp]);
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Security verification failed. Please try again.']);
+            exit;
+        }
+    }
 
     // Log form submission attempt
     Logger::info('Contact form submission started', ['ip' => $clientIp]);
     
-    // 4. Input Validation
+    // 5. Input Validation
     $validator = new Validator($_POST);
     $validator->required(['name', 'email', 'service_interest', 'phone', 'subject', 'message'])
               ->email('email')
