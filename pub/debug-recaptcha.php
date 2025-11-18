@@ -18,8 +18,8 @@
 <h1>🔧 reCAPTCHA Debug Test</h1>
 
 <?php
-require __DIR__ . '/app/bootstrap.php';
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../app/bootstrap.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use App\Base\Helpers\ReCaptcha;
 
