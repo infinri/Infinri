@@ -195,7 +195,7 @@ if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 ?>
 <!-- Google reCAPTCHA v3 -->
 <script src="https://www.google.com/recaptcha/api.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
-<script nonce="<?php echo $cspNonce ?? ''; ?>">
+<script>
 (function() {
     'use strict';
     
