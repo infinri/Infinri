@@ -193,21 +193,13 @@ use App\Helpers\{Session, Esc};
 use App\Base\Helpers\ReCaptcha;
 if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 ?>
-<!-- Google reCAPTCHA Enterprise -->
-<script src="https://www.google.com/recaptcha/enterprise.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
+<!-- Google reCAPTCHA v3 -->
+<script src="https://www.google.com/recaptcha/api.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
 <script>
-function onClick(e) {
-    e.preventDefault();
-    grecaptcha.enterprise.ready(async () => {
-        const token = await grecaptcha.enterprise.execute('<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>', {action: 'LOGIN'});
-        // Set token in hidden field
-        document.getElementById('recaptchaToken').value = token;
-        // Submit the form
-        document.getElementById('contactForm').submit();
+    grecaptcha.ready(function() {
+        grecaptcha.execute('<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>', {action: 'submit'}).then(function(token) {
+            document.getElementById('recaptchaToken').value = token;
+        });
     });
-}
-
-// Attach to form submission
-document.getElementById('contactForm').addEventListener('submit', onClick);
 </script>
 <?php endif; ?>
