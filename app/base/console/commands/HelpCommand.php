@@ -32,23 +32,23 @@ final class HelpCommand
         echo PHP_EOL;
         
         echo "Setup & Maintenance:" . PHP_EOL;
-        echo "  setup:update      Complete project setup (deploy assets)" . PHP_EOL;
-        echo "  setup:minify      Build minified production assets (local only)" . PHP_EOL;
+        echo "  setup:update (s:up)   Deploy assets and setup project" . PHP_EOL;
+        echo "  setup:minify (s:min)  Build production assets (local only)" . PHP_EOL;
         echo PHP_EOL;
         
         echo "General:" . PHP_EOL;
-        echo "  help              Show this help message" . PHP_EOL;
+        echo "  help                  Show this help message" . PHP_EOL;
         echo PHP_EOL;
         
         echo "WORKFLOW:" . PHP_EOL;
         echo "  Local Development:" . PHP_EOL;
-        echo "    1. php bin/console setup:minify    # Build production assets" . PHP_EOL;
-        echo "    2. git commit & push                 # Commit built assets" . PHP_EOL;
-        echo "    3. Deploy to production              # Git pull on server" . PHP_EOL;
+        echo "    1. php bin/console s:min         # Build production assets" . PHP_EOL;
+        echo "    2. git commit & push             # Commit built assets" . PHP_EOL;
+        echo "    3. Deploy to production          # Git pull on server" . PHP_EOL;
         echo "" . PHP_EOL;
         echo "  On Production:" . PHP_EOL;
-        echo "    1. git pull                          # Get latest code + assets" . PHP_EOL;
-        echo "    2. php bin/console setup:update      # Deploy assets" . PHP_EOL;
+        echo "    1. git pull                      # Get latest code + assets" . PHP_EOL;
+        echo "    2. php bin/console s:up          # Deploy assets" . PHP_EOL;
         echo PHP_EOL;
         
         echo "For more information, visit: https://github.com/infinri/Portfolio" . PHP_EOL;

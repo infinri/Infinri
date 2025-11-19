@@ -28,7 +28,9 @@ final class Application
             'assets:clear' => AssetsCommand::class,
             'assets:force-clear' => AssetsCommand::class,
             'setup:update' => SetupCommand::class,
+            's:up' => SetupCommand::class,
             'setup:minify' => MinifyCommand::class,
+            's:min' => MinifyCommand::class,
             'help' => HelpCommand::class,
         ];
     }
