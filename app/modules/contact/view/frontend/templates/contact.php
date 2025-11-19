@@ -197,7 +197,7 @@ if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 <script src="https://www.google.com/recaptcha/api.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
 <script>
     grecaptcha.ready(function() {
-        grecaptcha.execute('<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>', {action: 'submit'}).then(function(token) {
+        grecaptcha.execute(<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>, {action: 'submit'}).then(function(token) {
             document.getElementById('recaptchaToken').value = token;
         });
     });
