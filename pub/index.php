@@ -54,13 +54,22 @@ ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
 ini_set('session.gc_probability', '1');
 ini_set('session.gc_divisor', '100'); // 1% chance of GC
 
+// In production, default to true. In development, check HTTPS_ONLY setting.
+$isProduction = Env::get('APP_ENV', 'production') === 'production';
+$secureCookie = $isProduction ? true : Env::get('HTTPS_ONLY', false, 'bool');
+
+// Set PHP ini directives for session security (ensures proper cookie flags)
+ini_set('session.cookie_secure', $secureCookie ? '1' : '0');
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Strict');
+
 session_set_cookie_params([
     'lifetime' => $sessionLifetime,
     'path' => '/',
     'domain' => $sessionDomain,
-    'secure' => Env::get('HTTPS_ONLY', 'false') === 'true',
-    'httponly' => true,
-    'samesite' => 'Strict' // Maximum CSRF protection
+    'secure' => $secureCookie,     // Secure flag (HTTPS only)
+    'httponly' => true,             // Prevent JavaScript access (XSS protection)
+    'samesite' => 'Strict'          // Maximum CSRF protection
 ]);
 
 // Store nonce and config as globals for template access
