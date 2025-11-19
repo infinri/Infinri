@@ -193,44 +193,21 @@ use App\Helpers\{Session, Esc};
 use App\Base\Helpers\ReCaptcha;
 if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 ?>
-<!-- Google reCAPTCHA v3 -->
-<script src="https://www.google.com/recaptcha/api.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
+<!-- Google reCAPTCHA Enterprise -->
+<script src="https://www.google.com/recaptcha/enterprise.js?render=<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>"></script>
 <script>
-(function() {
-    'use strict';
-    
-    const form = document.getElementById('contactForm');
-    const recaptchaSiteKey = '<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>';
-    
-    if (!form || !recaptchaSiteKey) return;
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get reCAPTCHA token
-        grecaptcha.ready(function() {
-            grecaptcha.execute(recaptchaSiteKey, { action: 'contact_form' })
-                .then(function(token) {
-                    // Set token in hidden field
-                    document.getElementById('recaptchaToken').value = token;
-                    
-                    // Submit form via AJAX (assuming you have existing form handling)
-                    // Or submit normally if no AJAX: form.submit();
-                    submitForm(form);
-                })
-                .catch(function(err) {
-                    console.error('reCAPTCHA error:', err);
-                    alert('Security verification failed. Please try again.');
-                });
-        });
+function onClick(e) {
+    e.preventDefault();
+    grecaptcha.enterprise.ready(async () => {
+        const token = await grecaptcha.enterprise.execute('<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>', {action: 'LOGIN'});
+        // Set token in hidden field
+        document.getElementById('recaptchaToken').value = token;
+        // Submit the form
+        document.getElementById('contactForm').submit();
     });
-    
-    // Your existing form submission function
-    function submitForm(form) {
-        // This should integrate with your existing AJAX form submission
-        // For now, just do a regular submit
-        HTMLFormElement.prototype.submit.call(form);
-    }
-})();
+}
+
+// Attach to form submission
+document.getElementById('contactForm').addEventListener('submit', onClick);
 </script>
 <?php endif; ?>

@@ -56,7 +56,7 @@ try {
     if (ReCaptcha::isEnabled()) {
         $recaptchaToken = $_POST['recaptcha_token'] ?? '';
         
-        if (!ReCaptcha::verify($recaptchaToken, 'contact_form')) {
+        if (!ReCaptcha::verify($recaptchaToken, 'LOGIN')) {
             Logger::warning('reCAPTCHA verification failed', ['ip' => $clientIp]);
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Security verification failed. Please try again.']);

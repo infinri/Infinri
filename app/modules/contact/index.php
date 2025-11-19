@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
+use App\Helpers\Session;
 // Set page-specific meta tags
 Meta::setMultiple([
     'title' => 'Contact - Infinri',
@@ -29,6 +30,9 @@ if (file_exists("{$modulePath}/view/frontend/css/contact.css")) {
 if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
     Assets::addJs("{$assetBase}/js/contact.js");
 }
+
+// Generate CSRF token for the form
+$csrf = Session::csrf();
 
 // Load template
 require __DIR__ . '/view/frontend/templates/contact.php';
