@@ -117,6 +117,7 @@ try {
         Logger::info('Contact form email sent successfully');
         
         echo json_encode(['success' => true, 'message' => 'Message sent successfully!']);
+        exit;
         
     } catch (Exception $e) {
         Logger::error('Contact form email failed', [
@@ -125,6 +126,7 @@ try {
             'line' => $e->getLine()
         ]);
         echo json_encode(['success' => false, 'message' => 'Failed to send message. Please try again.']);
+        exit;
     }
     
 } catch (Throwable $e) {
@@ -135,5 +137,6 @@ try {
         'line' => $e->getLine()
     ]);
     echo json_encode(['success' => false, 'message' => 'System error occurred. Please try again later.']);
+    exit;
 }
 ?>

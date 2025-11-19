@@ -12,7 +12,7 @@ use App\Helpers\Session;
 // Handle POST requests (form submission)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require __DIR__ . '/api.php';
-    return;
+    exit; // Must exit to prevent Router from wrapping JSON in HTML layout
 }
 
 // Set page-specific meta tags
