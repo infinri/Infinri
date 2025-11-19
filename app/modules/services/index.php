@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
+use App\Helpers\Env;
 
 // Set page-specific meta tags
 Meta::setMultiple([
@@ -17,18 +18,18 @@ Meta::setMultiple([
     'twitter:title' => 'Development Services'
 ]);
 
-// Load services-specific assets
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/services/view/frontend';
+// Load services-specific assets (development only - production uses bundles)
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/services/view/frontend';
 
-// Load CSS if exists
-if (file_exists("{$modulePath}/view/frontend/css/services.css")) {
-    Assets::addCss("{$assetBase}/css/services.css");
-}
+    if (file_exists("{$modulePath}/view/frontend/css/services.css")) {
+        Assets::addCss("{$assetBase}/css/services.css");
+    }
 
-// Load JS if exists
-if (file_exists("{$modulePath}/view/frontend/js/services.js")) {
-    Assets::addJs("{$assetBase}/js/services.js");
+    if (file_exists("{$modulePath}/view/frontend/js/services.js")) {
+        Assets::addJs("{$assetBase}/js/services.js");
+    }
 }
 
 // Load template

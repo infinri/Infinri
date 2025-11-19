@@ -11,6 +11,7 @@ namespace App\Base\Helpers;
 class RateLimiter
 {
     private const RATE_LIMIT_FILE = __DIR__ . '/../../../var/cache/rate_limits.json';
+    private static bool $dirChecked = false;
     
     /**
      * Check if an IP has exceeded rate limit
@@ -22,10 +23,13 @@ class RateLimiter
      */
     public static function check(string $ip, int $maxAttempts = 5, int $windowSeconds = 300): bool
     {
-        // Ensure cache directory exists
-        $cacheDir = dirname(self::RATE_LIMIT_FILE);
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0755, true);
+        // Ensure cache directory exists (only check once per request)
+        if (!self::$dirChecked) {
+            $cacheDir = dirname(self::RATE_LIMIT_FILE);
+            if (!is_dir($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
+            self::$dirChecked = true;
         }
         
         // Load existing rate limit data
@@ -119,7 +123,7 @@ class RateLimiter
     {
         file_put_contents(
             self::RATE_LIMIT_FILE,
-            json_encode($data, JSON_PRETTY_PRINT),
+            json_encode($data),  // Compact format saves 30-50% space
             LOCK_EX
         );
     }

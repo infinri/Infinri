@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\Assets;
+use App\Helpers\Env;
 
 // Determine which legal document to show from URL
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/terms';
@@ -32,16 +33,18 @@ if (!array_key_exists($page, $legalPages)) {
 $pageTitle = $legalPages[$page];
 $lastUpdated = date('F j, Y'); // Can be customized per document
 
-// Load legal-specific assets
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/legal/view/frontend';
+// Load legal-specific assets (development only - production uses bundles)
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/legal/view/frontend';
 
-if (file_exists("{$modulePath}/view/frontend/css/legal.css")) {
-    Assets::addCss("{$assetBase}/css/legal.css");
-}
+    if (file_exists("{$modulePath}/view/frontend/css/legal.css")) {
+        Assets::addCss("{$assetBase}/css/legal.css");
+    }
 
-if (file_exists("{$modulePath}/view/frontend/js/legal.js")) {
-    Assets::addJs("{$assetBase}/js/legal.js");
+    if (file_exists("{$modulePath}/view/frontend/js/legal.js")) {
+        Assets::addJs("{$assetBase}/js/legal.js");
+    }
 }
 
 // Load template

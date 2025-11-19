@@ -7,19 +7,20 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\Assets;
+use App\Helpers\Env;
 
-// Load header-specific assets
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/head/view/frontend';
+// Load header-specific assets (development only - production uses bundles)
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/head/view/frontend';
 
-// Load CSS if exists
-if (file_exists("{$modulePath}/view/frontend/css/header.css")) {
-    Assets::addCss("{$assetBase}/css/header.css");
-}
+    if (file_exists("{$modulePath}/view/frontend/css/header.css")) {
+        Assets::addCss("{$assetBase}/css/header.css");
+    }
 
-// Load JS if exists
-if (file_exists("{$modulePath}/view/frontend/js/header.js")) {
-    Assets::addJs("{$assetBase}/js/header.js");
+    if (file_exists("{$modulePath}/view/frontend/js/header.js")) {
+        Assets::addJs("{$assetBase}/js/header.js");
+    }
 }
 
 // Load template

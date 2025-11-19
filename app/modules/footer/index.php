@@ -7,19 +7,20 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\Assets;
+use App\Helpers\Env;
 
-// Load footer-specific assets
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/footer/view/frontend';
+// Load footer-specific assets (development only - production uses bundles)
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/footer/view/frontend';
 
-// Load CSS if exists
-if (file_exists("{$modulePath}/view/frontend/css/footer.css")) {
-    Assets::addCss("{$assetBase}/css/footer.css");
-}
+    if (file_exists("{$modulePath}/view/frontend/css/footer.css")) {
+        Assets::addCss("{$assetBase}/css/footer.css");
+    }
 
-// Load JS if exists
-if (file_exists("{$modulePath}/view/frontend/js/footer.js")) {
-    Assets::addJs("{$assetBase}/js/footer.js");
+    if (file_exists("{$modulePath}/view/frontend/js/footer.js")) {
+        Assets::addJs("{$assetBase}/js/footer.js");
+    }
 }
 
 // Load template

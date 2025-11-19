@@ -13,6 +13,7 @@ namespace App\Base\Helpers;
 final class Logger
 {
     private static string $logDir = '';
+    private static bool $initialized = false;
 
     /**
      * Initialize logger
@@ -21,15 +22,18 @@ final class Logger
      */
     private static function init(): void
     {
-        if (self::$logDir) {
+        if (self::$initialized) {
             return;
         }
 
         self::$logDir = dirname(__DIR__, 3) . '/var/logs';
 
+        // Only check directory once per request (created during setup)
         if (! is_dir(self::$logDir)) {
             mkdir(self::$logDir, 0755, true);
         }
+
+        self::$initialized = true;
     }
 
     /**

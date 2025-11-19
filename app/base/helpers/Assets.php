@@ -104,6 +104,11 @@ final class Assets
      */
     public static function addCss(string $file, string $layer = 'module'): void
     {
+        // Skip registration in production (bundles are used, saves memory)
+        if (self::isProduction()) {
+            return;
+        }
+
         self::validatePath($file);
 
         if (! in_array($file, self::$css[$layer], true)) {
@@ -121,6 +126,11 @@ final class Assets
      */
     public static function addJs(string $file, string $layer = 'module'): void
     {
+        // Skip registration in production (bundles are used, saves memory)
+        if (self::isProduction()) {
+            return;
+        }
+
         self::validatePath($file);
 
         if (! in_array($file, self::$js[$layer], true)) {

@@ -366,19 +366,20 @@
 
 .consent-text {
     font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
+    color: var(--color-text);
     line-height: var(--line-height-relaxed);
     flex: 1;
 }
 
 .consent-text a {
-    color: var(--color-primary);
+    color: #b794f4;
     text-decoration: underline;
     transition: color var(--transition-base);
+    font-weight: var(--font-weight-medium);
 }
 
 .consent-text a:hover {
-    color: var(--color-primary-dark);
+    color: #d8b4fe;
 }
 
 /* Invalid checkbox state */

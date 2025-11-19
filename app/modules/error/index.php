@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
+use App\Helpers\Env;
 
 // Determine error type (can be set by Router or default to 404)
 $errorType = $errorType ?? $_GET['type'] ?? '404';
@@ -40,18 +41,18 @@ $metaConfig = [
 
 Meta::setMultiple($metaConfig[$errorType]);
 
-// Load error-specific assets (shared across all error types)
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/error/view/frontend';
+// Load error-specific assets (development only - production uses bundles)
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/error/view/frontend';
 
-// Load CSS if exists
-if (file_exists("{$modulePath}/view/frontend/css/error.css")) {
-    Assets::addCss("{$assetBase}/css/error.css");
-}
+    if (file_exists("{$modulePath}/view/frontend/css/error.css")) {
+        Assets::addCss("{$assetBase}/css/error.css");
+    }
 
-// Load JS if exists
-if (file_exists("{$modulePath}/view/frontend/js/error.js")) {
-    Assets::addJs("{$assetBase}/js/error.js");
+    if (file_exists("{$modulePath}/view/frontend/js/error.js")) {
+        Assets::addJs("{$assetBase}/js/error.js");
+    }
 }
 
 // Load appropriate template

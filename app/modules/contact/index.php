@@ -9,6 +9,12 @@ declare(strict_types=1);
 use App\Base\Helpers\{Meta, Assets, ReCaptcha};
 use App\Helpers\Session;
 
+// Handle POST requests (form submission)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require __DIR__ . '/api.php';
+    return;
+}
+
 // Set page-specific meta tags
 Meta::setMultiple([
     'title' => 'Contact - Infinri',
@@ -18,18 +24,20 @@ Meta::setMultiple([
     'twitter:title' => 'Contact Me'
 ]);
 
-// Load contact-specific assets
-$modulePath = __DIR__;
-$assetBase = '/assets/modules/contact/view/frontend';
+// Load contact-specific assets (development only - production uses bundles)
+use App\Helpers\Env;
 
-// Load CSS if exists
-if (file_exists("{$modulePath}/view/frontend/css/contact.css")) {
-    Assets::addCss("{$assetBase}/css/contact.css");
-}
+if (Env::get('APP_ENV', 'development') !== 'production') {
+    $modulePath = __DIR__;
+    $assetBase = '/assets/modules/contact/view/frontend';
 
-// Load JS if exists
-if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
-    Assets::addJs("{$assetBase}/js/contact.js");
+    if (file_exists("{$modulePath}/view/frontend/css/contact.css")) {
+        Assets::addCss("{$assetBase}/css/contact.css");
+    }
+
+    if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
+        Assets::addJs("{$assetBase}/js/contact.js");
+    }
 }
 
 // Load reCAPTCHA v3 script in head (only on contact page for performance)

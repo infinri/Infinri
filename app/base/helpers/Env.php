@@ -12,6 +12,9 @@ namespace App\Helpers;
 
 class Env
 {
+    /** @var array<string, mixed> Static cache for parsed values */
+    private static array $cache = [];
+
     /**
      * Get environment variable with type casting
      *
@@ -22,6 +25,12 @@ class Env
      */
     public static function get(string $key, $default = null, string $type = 'string')
     {
+        // Check cache first (eliminates repeated $_ENV access and type casting)
+        $cacheKey = $key . ':' . $type;
+        if (array_key_exists($cacheKey, self::$cache)) {
+            return self::$cache[$cacheKey];
+        }
+
         // Security: Validate type parameter
         $allowedTypes = ['string', 'bool', 'int', 'float', 'array'];
         if (! in_array($type, $allowedTypes, true)) {
@@ -30,13 +39,18 @@ class Env
 
         $value = $_ENV[$key] ?? $default;
 
-        return match ($type) {
+        $result = match ($type) {
             'bool' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
             'int' => (int)$value,
             'float' => (float)$value,
             'array' => is_string($value) ? explode(',', $value) : (array)$value,
             default => (string)$value
         };
+
+        // Cache the result
+        self::$cache[$cacheKey] = $result;
+
+        return $result;
     }
 
     /**

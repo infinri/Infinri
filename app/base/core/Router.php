@@ -15,6 +15,8 @@ final class Router
     private array $routes = [];
     private string $method;
     private string $path;
+    private static ?string $modulesDir = null;
+    private static ?string $layoutPath = null;
 
     public function __construct()
     {
@@ -110,8 +112,11 @@ final class Router
             return;
         }
 
-        $modulesDir = dirname(__DIR__, 2) . '/modules';
-        $modulePath = "{$modulesDir}/{$module}/index.php";
+        // Cache modules directory path (computed once per request)
+        if (self::$modulesDir === null) {
+            self::$modulesDir = dirname(__DIR__, 2) . '/modules';
+        }
+        $modulePath = self::$modulesDir . "/{$module}/index.php";
 
         if (! file_exists($modulePath)) {
             $this->renderError(500);
@@ -123,10 +128,12 @@ final class Router
         require $modulePath;
         $content = ob_get_clean();
 
-        // Render with new layout system
-        $layoutPath = dirname(__DIR__) . '/view/layouts/default.php';
-        if (file_exists($layoutPath)) {
-            require $layoutPath;
+        // Cache layout path (computed once per request)
+        if (self::$layoutPath === null) {
+            self::$layoutPath = dirname(__DIR__) . '/view/layouts/default.php';
+        }
+        if (file_exists(self::$layoutPath)) {
+            require self::$layoutPath;
         } else {
             // Fallback if layout doesn't exist
             echo $content;
@@ -137,7 +144,7 @@ final class Router
      * Render error page using error module
      *
      * @param int $code HTTP status code (400, 404, 500)
-     * @param string $type Error type ('400', '404', '500', 'maintenance')
+     * @param string|null $type Error type ('400', '404', '500', 'maintenance')
      * @return void
      */
     public function renderError(int $code, string $type = null): void
@@ -158,9 +165,11 @@ final class Router
         // Set error type for error module
         $errorType = $type;
 
-        // Render error module
-        $modulesDir = dirname(__DIR__, 2) . '/modules';
-        $errorModulePath = "{$modulesDir}/error/index.php";
+        // Use cached modules directory path
+        if (self::$modulesDir === null) {
+            self::$modulesDir = dirname(__DIR__, 2) . '/modules';
+        }
+        $errorModulePath = self::$modulesDir . "/error/index.php";
 
         if (! file_exists($errorModulePath)) {
             // Fallback if error module doesn't exist
@@ -172,10 +181,12 @@ final class Router
         require $errorModulePath;
         $content = ob_get_clean();
 
-        // Render with layout
-        $layoutPath = dirname(__DIR__) . '/view/layouts/default.php';
-        if (file_exists($layoutPath)) {
-            require $layoutPath;
+        // Use cached layout path
+        if (self::$layoutPath === null) {
+            self::$layoutPath = dirname(__DIR__) . '/view/layouts/default.php';
+        }
+        if (file_exists(self::$layoutPath)) {
+            require self::$layoutPath;
         } else {
             echo $content;
         }

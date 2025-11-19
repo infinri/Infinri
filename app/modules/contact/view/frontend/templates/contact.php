@@ -210,7 +210,7 @@ use App\Base\Helpers\ReCaptcha;
 if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 ?>
 <!-- Google reCAPTCHA v3 -->
-<script>
+<script nonce="<?= $GLOBALS['cspNonce'] ?? '' ?>">
     grecaptcha.ready(function() {
         grecaptcha.execute(<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>, {action: 'contact_form'}).then(function(token) {
             document.getElementById('recaptchaToken').value = token;
