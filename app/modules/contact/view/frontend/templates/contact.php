@@ -175,6 +175,22 @@ use App\Helpers\{Session, Esc};
                         <input type="text" name="company_url" id="comp_url_verify" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                     </div>
                     
+                    <!-- Privacy & Consent -->
+                    <div class="form-group form-consent">
+                        <label class="consent-wrapper">
+                            <input 
+                                type="checkbox" 
+                                id="privacy_consent" 
+                                name="privacy_consent" 
+                                class="consent-checkbox"
+                                required
+                            >
+                            <span class="consent-text">
+                                * I agree to the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and consent to Infinri collecting and storing my information for the purpose of responding to this inquiry.
+                            </span>
+                        </label>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary btn-lg form-submit">
                         <span>Send Message</span>
                         <span class="btn-icon">→</span>

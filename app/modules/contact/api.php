@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Handles contact form POST requests
  */
 
-use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter, ReCaptcha};
+use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter, ReCaptcha, BrevoContacts};
 use App\Helpers\Session;
 
 // Set JSON response header
@@ -69,13 +69,20 @@ try {
     
     // 5. Input Validation
     $validator = new Validator($_POST);
-    $validator->required(['name', 'email', 'service_interest', 'phone', 'subject', 'message'])
+    $validator->required(['name', 'email', 'service_interest', 'phone', 'subject', 'message', 'privacy_consent'])
               ->email('email')
               ->maxLength('name', 100)
               ->maxLength('service_interest', 100)
               ->maxLength('phone', 20)
               ->maxLength('subject', 200)
               ->maxLength('message', 2000);
+    
+    // Verify privacy consent is checked (value should be 'on' or '1')
+    if (empty($_POST['privacy_consent']) || ($_POST['privacy_consent'] !== 'on' && $_POST['privacy_consent'] !== '1')) {
+        Logger::warning('Privacy consent not accepted');
+        echo json_encode(['success' => false, 'message' => 'You must agree to the Privacy Policy to submit this form.']);
+        exit;
+    }
     
     if ($validator->fails()) {
         Logger::warning('Contact form validation failed', [
@@ -100,6 +107,9 @@ try {
         ]);
         
         Mail::sendContactForm($data);
+        
+        // Add contact to Brevo database
+        BrevoContacts::addContact($data);
         
         // Record this attempt for rate limiting (only after successful send)
         RateLimiter::record($clientIp);
