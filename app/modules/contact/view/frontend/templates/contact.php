@@ -196,7 +196,7 @@ if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 <!-- Google reCAPTCHA v3 -->
 <script>
     grecaptcha.ready(function() {
-        grecaptcha.execute(<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>, {action: 'submit'}).then(function(token) {
+        grecaptcha.execute(<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>, {action: 'contact_form'}).then(function(token) {
             document.getElementById('recaptchaToken').value = token;
         });
     });
