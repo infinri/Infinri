@@ -59,13 +59,7 @@ use App\Helpers\Env;
     
     <?= Assets::renderInlineCss() ?>
     <?= Assets::renderCss() ?>
-    
-    <?php
-    // Load reCAPTCHA v3 script if enabled
-    if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
-    ?>
-    <script src="https://www.google.com/recaptcha/api.js?render=<?php echo htmlspecialchars(ReCaptcha::getSiteKey()); ?>"></script>
-    <?php endif; ?>
+    <?= Assets::renderHeadScripts() ?>
 </head>
 <body>
     <?php

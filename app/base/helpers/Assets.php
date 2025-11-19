@@ -29,6 +29,8 @@ final class Assets
 
     private static array $inlineCss = [];
     
+    private static array $headScripts = [];
+    
     private static ?string $version = null;
     
     /**
@@ -135,6 +137,50 @@ final class Assets
     public static function inlineCss(string $file): void
     {
         self::$inlineCss[] = $file;
+    }
+
+    /**
+     * Add external script to head section (e.g., for Google reCAPTCHA)
+     *
+     * @param string $url External script URL
+     * @param array $attributes Additional attributes (async, defer, etc.)
+     * @return void
+     */
+    public static function addHeadScript(string $url, array $attributes = []): void
+    {
+        self::$headScripts[] = [
+            'url' => $url,
+            'attributes' => $attributes
+        ];
+    }
+
+    /**
+     * Render head scripts
+     *
+     * @return string
+     */
+    public static function renderHeadScripts(): string
+    {
+        if (empty(self::$headScripts)) {
+            return '';
+        }
+
+        $output = '';
+        foreach (self::$headScripts as $script) {
+            $output .= '<script src="' . Esc::html($script['url']) . '"';
+            
+            foreach ($script['attributes'] as $attr => $value) {
+                if ($value === true) {
+                    $output .= ' ' . $attr;
+                } else {
+                    $output .= ' ' . $attr . '="' . Esc::html($value) . '"';
+                }
+            }
+            
+            $output .= '></script>' . PHP_EOL;
+        }
+
+        return $output;
     }
 
     /**
@@ -278,6 +324,8 @@ final class Assets
     {
         self::$css = ['base' => [], 'frontend' => [], 'module' => []];
         self::$js = ['base' => [], 'frontend' => [], 'module' => []];
+        self::$inlineCss = [];
+        self::$headScripts = [];
         self::$version = null;
     }
 }

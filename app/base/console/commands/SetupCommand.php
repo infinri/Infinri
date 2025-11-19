@@ -32,7 +32,7 @@ final class SetupCommand
         // Step 1: Check environment
         $this->checkEnvironment();
 
-        // Step 2: Publish assets
+        // Step 2: Publish assets (development + production if built)
         $this->publishAssets();
 
         // Step 3: Clear caches (if any)
@@ -43,6 +43,19 @@ final class SetupCommand
 
         echo str_repeat('=', 50) . PHP_EOL;
         echo "✅ Project setup completed successfully!" . PHP_EOL;
+        echo "" . PHP_EOL;
+        
+        // Check if production assets exist
+        $distDir = __DIR__ . '/../../../../pub/assets/dist';
+        if (is_dir($distDir) && file_exists($distDir . '/all.min.css')) {
+            echo "🎯 Production assets detected and ready" . PHP_EOL;
+        } else {
+            echo "ℹ️  Using development assets (unminified)" . PHP_EOL;
+            echo "   To build production assets locally:" . PHP_EOL;
+            echo "   → php bin/console setup:minify" . PHP_EOL;
+        }
+        
+        echo "" . PHP_EOL;
         echo "🌐 Visit http://localhost:8080 to view your portfolio" . PHP_EOL;
     }
 

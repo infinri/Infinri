@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Helpers\{Session, Esc};
+use App\Base\Helpers\ReCaptcha;
 ?>
 
 <!-- Contact Hero -->
@@ -206,7 +207,6 @@ use App\Helpers\{Session, Esc};
 </section>
 
 <?php
-use App\Base\Helpers\ReCaptcha;
 if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
 ?>
 <!-- Google reCAPTCHA v3 -->

@@ -53,8 +53,8 @@
       "@fix-brevo"
     ],
     "fix-brevo": "php fix-brevo-php84.php",
-    "assets:publish": "php bin/console assets:publish",
-    "assets:clear": "php bin/console assets:clear"
+    "s:up": "php bin/console setup:update",
+    "minify": "php bin/console setup:minify"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

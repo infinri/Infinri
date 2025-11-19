@@ -4,11 +4,16 @@ Complete deployment and configuration guide for production and local development
 
 ## Prerequisites
 
-**Required Software**
+**Required on Production Server**
 - PHP 8.4 with extensions: fpm, cli, mbstring, xml, curl, zip, opcache
 - Caddy 2.x web server
 - Composer for PHP dependencies
-- Node.js and npm for asset building
+- ⚠️ **Node.js NOT required on server** (we pre-build assets locally!)
+
+**Required Locally (Development Machine)**
+- PHP 8.4+ for local testing
+- Node.js 16+ for building production assets
+- Git for version control
 
 **Required Accounts**
 - Brevo account for email API (free tier: 300 emails/day)
@@ -101,15 +106,26 @@ HTTPS_ONLY=false  # Set true in production
 SITE_URL=http://localhost:8080
 ```
 
-### 6. Build Assets and Setup
+### 6. Run Setup (Manual)
 ```bash
-# Build and minify assets, set permissions, clear cache
-composer setup:upgrade
+# Run this MANUALLY after composer install
+php bin/console s:up
 
-# Or run steps individually:
-npm run build              # Build assets
-composer assets:publish    # Copy to public directory
+# Or via composer:
+composer s:up
 ```
+
+**What `s:up` does:**
+- Checks PHP version and environment
+- Publishes all assets to pub/assets/ (dev + prod if built)
+- Clears caches
+- Verifies everything works
+
+**What it does NOT do:**
+- Does NOT build/minify assets (use `setup:minify` for that)
+- Does NOT require Node.js
+
+**Important:** This command only runs when YOU call it manually.
 
 ### 7. Customize Services (Optional)
 
@@ -136,6 +152,29 @@ Visit: http://localhost:8080
 ```bash
 caddy stop
 ```
+
+---
+
+## Pre-Deployment: Build Production Assets (Local Only)
+
+Before deploying to production, build minified assets on your local machine:
+
+```bash
+# Build production assets (requires Node.js)
+php bin/console setup:minify
+
+# Commit the built assets
+git add pub/assets/dist/
+git commit -m "build: Update production assets"
+git push origin main
+```
+
+**What gets built:**
+- `pub/assets/dist/all.min.css` - All CSS minified (70% smaller)
+- `pub/assets/dist/all.min.js` - All JS minified (65% smaller)
+- Individual module bundles
+
+These files are **committed to git** and deployed to production without rebuilding.
 
 ---
 
@@ -207,20 +246,15 @@ cd /var/www/portfolio
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
-# Install Node.js and npm
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Install application dependencies
+# Install PHP dependencies
 composer install --no-dev --optimize-autoloader
-npm install --production
 
 # Configure environment
 cp .env.example .env
 nano .env  # Set production values (HTTPS_ONLY=true, APP_ENV=production)
 
-# Build assets and setup
-composer setup:upgrade
+# Run setup (publishes pre-built assets, verifies)
+php bin/console s:up
 
 # Set permissions
 sudo chown -R caddy:caddy /var/www/portfolio

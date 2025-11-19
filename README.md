@@ -66,23 +66,28 @@ A modular PHP web application built with clean architecture principles. Designed
 ```bash
 git clone https://github.com/infinri/Portfolio.git
 cd Portfolio
-composer install && npm install
+composer install
 cp .env.example .env
-# Edit .env with your SMTP credentials
-composer setup:upgrade
+# Edit .env with your Brevo credentials
+php bin/console s:up  # Setup and deploy assets
 caddy run
 ```
 
 Visit `http://localhost:8080`
 
+**Commands:**
+- `setup:minify` - Build production assets (local only, needs Node.js)
+- `setup:update` (s:up) - Publish assets and setup project
+
 For detailed setup instructions, environment configuration, and production deployment, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Development
 
-**Build Assets**
+**After Changing CSS/JS**
 ```bash
-npm run build           # Build and minify CSS/JS
-composer setup:upgrade  # Full setup (build + permissions + cache)
+php bin/console setup:minify  # Build production bundles
+git add pub/assets/dist/
+git commit -m "Update assets"
 ```
 
 **Test Email Integration**

@@ -6,8 +6,9 @@ declare(strict_types=1);
  * Handles contact form display and submission
  */
 
-use App\Base\Helpers\{Meta, Assets};
+use App\Base\Helpers\{Meta, Assets, ReCaptcha};
 use App\Helpers\Session;
+
 // Set page-specific meta tags
 Meta::setMultiple([
     'title' => 'Contact - Infinri',
@@ -29,6 +30,13 @@ if (file_exists("{$modulePath}/view/frontend/css/contact.css")) {
 // Load JS if exists
 if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
     Assets::addJs("{$assetBase}/js/contact.js");
+}
+
+// Load reCAPTCHA v3 script in head (only on contact page for performance)
+if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())) {
+    Assets::addHeadScript(
+        'https://www.google.com/recaptcha/api.js?render=' . ReCaptcha::getSiteKey()
+    );
 }
 
 // Generate CSRF token for the form
