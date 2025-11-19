@@ -32,8 +32,10 @@ final class HelpCommand
         echo PHP_EOL;
         
         echo "Setup & Maintenance:" . PHP_EOL;
+        echo "  setup:install (s:i)   Interactive project setup" . PHP_EOL;
         echo "  setup:update (s:up)   Deploy assets and setup project" . PHP_EOL;
         echo "  setup:minify (s:min)  Build production assets (local only)" . PHP_EOL;
+        echo "  setup:permissions (s:p)  Fix file permissions" . PHP_EOL;
         echo PHP_EOL;
         
         echo "General:" . PHP_EOL;

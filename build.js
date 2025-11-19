@@ -226,7 +226,7 @@ async function processModules() {
 
 // Main build process
 async function build() {
-    console.log('🚀 Starting Build Process\n');
+    console.log('🚀 Starting Production Bundle Build\n');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     const startTime = Date.now();
@@ -237,16 +237,10 @@ async function build() {
     // Copy module assets to public directory (for development mode)
     copyModuleAssets();
     
-    // Build base CSS bundle
-    await minifyCSS(config.cssFiles, 'base.min.css');
+    console.log('\n📦 Building Complete Production Bundles');
+    console.log('  (base + frontend + all modules in 2 files only)\n');
     
-    // Build base JS bundle
-    await minifyJavaScript(config.jsFiles, 'base.min.js');
-    
-    // Process modules
-    await processModules();
-    
-    // Build all-in-one CSS bundle (base + all modules for zero render blocking)
+    // Build all-in-one CSS bundle (base + all modules)
     const allCssFiles = [...config.cssFiles];
     for (const module of config.modules) {
         const cssFilename = module === 'head' ? 'header' : module;
@@ -270,11 +264,10 @@ async function build() {
     
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Build Complete in ${duration}s\n`);
-    console.log('📁 Output: pub/assets/dist/');
-    console.log('\nNext steps:');
-    console.log('  1. Update Assets.php to use minified files in production');
-    console.log('  2. Test with: NODE_ENV=production php -S localhost:8000 -t pub');
-    console.log('  3. Deploy to production\n');
+    console.log('📁 Production Bundles (2 files only):');
+    console.log('  • pub/assets/dist/all.min.css');
+    console.log('  • pub/assets/dist/all.min.js');
+    console.log('\n🎯 Ready for deployment - no Node.js needed on server!\n');
 }
 
 // Run build

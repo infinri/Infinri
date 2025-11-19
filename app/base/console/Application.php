@@ -10,7 +10,14 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Console\Commands\{AssetsCommand, SetupCommand, MinifyCommand, HelpCommand};
+use App\Console\Commands\{
+    AssetsCommand,
+    SetupCommand,
+    MinifyCommand,
+    InstallCommand,
+    PermissionsCommand,
+    HelpCommand
+};
 
 final class Application
 {
@@ -27,10 +34,14 @@ final class Application
             'assets:publish' => AssetsCommand::class,
             'assets:clear' => AssetsCommand::class,
             'assets:force-clear' => AssetsCommand::class,
+            'setup:install' => InstallCommand::class,
+            's:i' => InstallCommand::class,
             'setup:update' => SetupCommand::class,
             's:up' => SetupCommand::class,
             'setup:minify' => MinifyCommand::class,
             's:min' => MinifyCommand::class,
+            'setup:permissions' => PermissionsCommand::class,
+            's:p' => PermissionsCommand::class,
             'help' => HelpCommand::class,
         ];
     }

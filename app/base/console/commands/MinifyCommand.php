@@ -17,6 +17,7 @@ final class MinifyCommand
     {
         switch ($command) {
             case 'setup:minify':
+            case 's:min':
                 $this->minifyAssets();
                 break;
             default:
@@ -111,16 +112,17 @@ final class MinifyCommand
         $distDir = __DIR__ . '/../../../../pub/assets/dist';
         $requiredFiles = [
             'all.min.css',
-            'all.min.js',
-            'base.min.css',
-            'base.min.js'
+            'all.min.js'
         ];
 
+        $totalSize = 0;
         $allExists = true;
+        
         foreach ($requiredFiles as $file) {
             $filePath = $distDir . '/' . $file;
             if (file_exists($filePath)) {
                 $size = filesize($filePath);
+                $totalSize += $size;
                 $sizeKb = number_format($size / 1024, 1);
                 echo "  ✓ {$file} ({$sizeKb} KB)" . PHP_EOL;
             } else {
@@ -134,6 +136,10 @@ final class MinifyCommand
             echo "❌ Build verification failed - some files are missing" . PHP_EOL;
             exit(1);
         }
+        
+        echo "" . PHP_EOL;
+        $totalKb = number_format($totalSize / 1024, 1);
+        echo "  📊 Total bundle size: {$totalKb} KB (2 files)" . PHP_EOL;
     }
 
     private function runCommand(string $command): array
