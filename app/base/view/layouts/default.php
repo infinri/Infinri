@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Head module injects header/hero, content injects into main, footer module injects at bottom
  */
 
-use App\Base\Helpers\{Meta, Assets};
+use App\Base\Helpers\{Meta, Assets, ReCaptcha};
 use App\Helpers\Env;
 ?>
 <!DOCTYPE html>
@@ -59,6 +59,13 @@ use App\Helpers\Env;
     
     <?= Assets::renderInlineCss() ?>
     <?= Assets::renderCss() ?>
+    
+    <?php
+    // Load reCAPTCHA v3 script if enabled
+    if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
+    ?>
+    <script src="https://www.google.com/recaptcha/api.js?render=<?php echo htmlspecialchars(ReCaptcha::getSiteKey()); ?>"></script>
+    <?php endif; ?>
 </head>
 <body>
     <?php
