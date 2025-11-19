@@ -22,6 +22,10 @@ require __DIR__ . '/../app/bootstrap.php';
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Base\Helpers\ReCaptcha;
+use App\Helpers\Session;
+
+// Initialize session and generate CSRF token
+$csrfToken = Session::csrf();
 
 $siteKey = ReCaptcha::getSiteKey();
 $enabled = ReCaptcha::isEnabled();
@@ -29,6 +33,7 @@ $enabled = ReCaptcha::isEnabled();
 echo "<div class='info'>";
 echo "reCAPTCHA Enabled: " . ($enabled ? '✅ YES' : '❌ NO') . "<br>";
 echo "Site Key: " . ($siteKey ? substr($siteKey, 0, 20) . '...' : '❌ EMPTY') . "<br>";
+echo "CSRF Token: " . ($csrfToken ? substr($csrfToken, 0, 20) . '...' : '❌ EMPTY') . "<br>";
 echo "</div>";
 
 if (!$enabled || !$siteKey) {
@@ -125,7 +130,7 @@ function testApiSubmission(token) {
             'message': 'This is a test message',
             'service_interest': 'web_development',
             'recaptcha_token': token,
-            'csrf_token': '<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>'
+            'csrf_token': '<?php echo htmlspecialchars($csrfToken); ?>'
         })
     })
     .then(response => response.json())
