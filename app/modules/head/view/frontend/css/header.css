@@ -30,7 +30,7 @@
 
 .logo-image {
     height: 150px;
-    width: auto;
+    width: 267px;
     display: block;
     filter: drop-shadow(var(--glow-purple));
     transition: filter var(--transition-base);
@@ -44,8 +44,6 @@
 .nav-menu {
     /* Desktop: in normal flow */
     margin-left: auto;
-    margin-top: 1%;
-    margin-right: 1%;
 }
 
 /* Mobile: hide completely */
@@ -58,8 +56,6 @@
         opacity: 0;
         pointer-events: none;
         visibility: hidden;
-        margin-top: unset;
-        margin-right: unset;
         content-visibility: hidden; /* Modern browsers: complete isolation */
     }
     
@@ -125,8 +121,7 @@
 .menu-toggle {
     display: none;
     margin-left: auto;
-    margin-top: 3%;
-    margin-right: 1%;
+    margin-right: 1rem;
     padding: 1rem;
     min-width: 56px;
     min-height: 56px;

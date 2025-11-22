@@ -243,11 +243,23 @@ final class Assets
         if (self::isProduction()) {
             $allBundle = '/assets/dist/all.min.css?v=' . Esc::html($version);
             
-            // Preload logo for instant LCP (highest priority)
+            // Preconnect to own domain for faster resource loading (reduces DNS/TCP/TLS latency)
+            $siteUrl = Env::get('SITE_URL', '');
+            if ($siteUrl) {
+                $parsedUrl = parse_url($siteUrl);
+                $origin = ($parsedUrl['scheme'] ?? 'https') . '://' . ($parsedUrl['host'] ?? 'infinri.com');
+                $output .= '<link rel="preconnect" href="' . Esc::html($origin) . '" crossorigin>' . PHP_EOL;
+            }
+            
+            // Preload CSS for high-priority loading (tells browser to fetch immediately)
+            $output .= '<link rel="preload" href="' . $allBundle . '" as="style">' . PHP_EOL;
+            
+            // Preload logo for instant LCP
             $output .= '<link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">' . PHP_EOL;
             
-            // Load full CSS bundle - blocking but fast (47.9 KB minified + gzipped ~10-12 KB)
-            // Trade-off: Some unused CSS per page, but simple architecture and fast caching
+            // Load CSS normally but with preload hint above for optimization
+            // This is render-blocking but fast due to preload + preconnect (~10-12 KB gzipped)
+            // Trade-off: Slight render blocking vs FOUC (Flash of Unstyled Content)
             $output .= '<link rel="stylesheet" href="' . $allBundle . '">' . PHP_EOL;
             
             return $output;

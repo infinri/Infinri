@@ -81,7 +81,6 @@ use App\Base\Helpers\ReCaptcha;
                         <p class="info-subtitle">This month</p>
                     </div>
                 </div>
-                </div> 
             </div>
             
             <!-- Contact Form -->
@@ -106,7 +105,7 @@ use App\Base\Helpers\ReCaptcha;
                 
                 <form method="POST" action="/contact" class="contact-form" id="contactForm">
                     <input type="hidden" name="csrf_token" value="<?php echo Esc::html($csrf ?? Session::csrf()); ?>">
-                    <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+                    <input type="hidden" name="recaptcha_token" id="recaptchaToken" data-sitekey="<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>">
                     
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
@@ -222,15 +221,4 @@ use App\Base\Helpers\ReCaptcha;
     </div>
 </section>
 
-<?php
-if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())):
-?>
-<!-- Google reCAPTCHA v3 -->
-<script nonce="<?= $GLOBALS['cspNonce'] ?? '' ?>">
-    grecaptcha.ready(function() {
-        grecaptcha.execute(<?php echo Esc::js(ReCaptcha::getSiteKey()); ?>, {action: 'contact_form'}).then(function(token) {
-            document.getElementById('recaptchaToken').value = token;
-        });
-    });
-</script>
-<?php endif; ?>
+<!-- reCAPTCHA is lazy-loaded by contact-lazy.js on user interaction -->

@@ -39,8 +39,59 @@
      */
     function loadFullValidation() {
         console.log('🚀 Loading form validation (lazy)');
+        loadReCaptcha();
         initFormValidation();
         initFormSubmission();
+    }
+
+    /**
+     * Lazy load reCAPTCHA only when user interacts with form
+     */
+    function loadReCaptcha() {
+        // Check if reCAPTCHA is needed
+        const recaptchaToken = document.getElementById('recaptchaToken');
+        if (!recaptchaToken) return; // reCAPTCHA not enabled
+        
+        // Check if already loaded
+        if (window.grecaptcha) {
+            executeReCaptcha();
+            return;
+        }
+
+        // Get site key from data attribute
+        const form = document.querySelector('.contact-form');
+        const siteKey = recaptchaToken.dataset.sitekey;
+        if (!siteKey) {
+            console.warn('reCAPTCHA site key not found');
+            return;
+        }
+
+        console.log('🔐 Loading reCAPTCHA lazily...');
+
+        // Load reCAPTCHA script
+        const script = document.createElement('script');
+        script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+        script.async = true;
+        script.defer = true;
+        script.onload = executeReCaptcha;
+        document.head.appendChild(script);
+    }
+
+    /**
+     * Execute reCAPTCHA token generation
+     */
+    function executeReCaptcha() {
+        const recaptchaToken = document.getElementById('recaptchaToken');
+        const siteKey = recaptchaToken.dataset.sitekey;
+        
+        if (window.grecaptcha && window.grecaptcha.ready) {
+            grecaptcha.ready(function() {
+                grecaptcha.execute(siteKey, {action: 'contact_form'}).then(function(token) {
+                    recaptchaToken.value = token;
+                    console.log('✓ reCAPTCHA token generated');
+                });
+            });
+        }
     }
 
     /**

@@ -36,16 +36,9 @@ if (Env::get('APP_ENV', 'development') !== 'production') {
         Assets::addCss("{$assetBase}/css/contact.css");
     }
 
-    if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
-        Assets::addJs("{$assetBase}/js/contact.js");
+    if (file_exists("{$modulePath}/view/frontend/js/contact-lazy.js")) {
+        Assets::addJs("{$assetBase}/js/contact-lazy.js");
     }
-}
-
-// Load reCAPTCHA v3 script in head (only on contact page for performance)
-if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())) {
-    Assets::addHeadScript(
-        'https://www.google.com/recaptcha/api.js?render=' . ReCaptcha::getSiteKey()
-    );
 }
 
 // Generate CSRF token for the form
