@@ -290,9 +290,6 @@
         // Append to body (position:fixed, so location doesn't matter)
         document.body.appendChild(messageDiv);
 
-        // Scroll to top smoothly so user sees the notification
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
         // Auto-remove after duration (longer for success messages)
         const duration = type === 'success' ? 8000 : 6000;
         setTimeout(() => {
