@@ -10,10 +10,7 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Body enhancements (min-height for full viewport) */
-body {
-    min-height: 100vh;
-}
+/* Note: body styles are in critical.css (inlined) */
 
 /* Remove list styles */
 ul,
