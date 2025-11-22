@@ -13,26 +13,26 @@ declare(strict_types=1);
     <div class="container">
         <div class="footer-content">
             <div class="footer-section footer-brand">
-                <h2>Professional Developer</h2>
-                <p>Specializing in modern PHP development with clean architecture, secure coding practices, and scalable solutions.</p>
+                <h2>Affordable Web Development for Real Businesses</h2>
+                <p>Helping small businesses, freelancers, and local shops get fast, clean, reliable websites at prices anyone can afford. No contracts, no hidden fees, no tech jargon just honest work and clear results.</p>
                 <div class="footer-skills">
-                    <span class="skill-tag">PHP 8.4+</span>
-                    <span class="skill-tag">Modern Architecture</span>
-                    <span class="skill-tag">Security First</span>
+                    <span class="skill-tag">Small Business Websites</span>
+                    <span class="skill-tag">Affordable Development</span>
+                    <span class="skill-tag">Fast Turnaround</span>
                 </div>
                 <div class="footer-tech">
-                    <small>Built with Vanilla PHP • Modern CSS • Zero Dependencies</small>
+                    <small>Websites from $10 • Monthly Support from $10/mo • Fast Delivery</small>
                 </div>
             </div>
             
             <div class="footer-section footer-contact">
-                <h2>Get In Touch</h2>
-                <p>Have a project in mind? Let's talk about how we can work together.</p>
-                <a href="/contact" class="footer-cta">Contact Me</a>
+                <h2>Need Website Help?</h2>
+                <p>Fixes, updates, redesigns, and new websites all delivered fast. Template sites in 24-48 hours, monthly support requests within 24 hours. Whatever you need, I've got you covered.</p>
+                <a href="/contact" class="footer-cta">Get Help Now</a>
             </div>
             
             <div class="footer-section footer-social">
-                <h2>Connect & Code</h2>
+                <h2>Stay Connected</h2>
                 <div class="social-links">
                     <a href="https://github.com/infinri" target="_blank" rel="noopener" class="social-link">
                         <svg class="social-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

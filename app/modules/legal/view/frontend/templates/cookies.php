@@ -45,7 +45,7 @@ declare(strict_types=1);
             <p>Google's use of cookies is subject to their own privacy policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></p>
             
             <h3>Email Services</h3>
-            <p>We use Brevo for email delivery. Brevo does not set cookies on your device — all processing happens server-side via API.</p>
+            <p>We use Brevo for email delivery. Brevo does not set cookies on your device all processing happens server-side via API.</p>
         </section>
 
         <section>

@@ -11,9 +11,9 @@ declare(strict_types=1);
 <!-- Services Hero -->
 <section class="page-hero services-hero">
     <div class="container">
-        <h1 class="page-title services-title">Your Website, Your Way</h1>
+        <h1 class="page-title services-title">Affordable Web Development for Small Businesses</h1>
         <p class="page-subtitle services-subtitle">
-            From quick templates to ongoing support—transparent pricing, fast delivery, no surprises.
+            From quick templates to ongoing support 100% transparent pricing, fast delivery, no contracts, no surprise bills. Trusted by small businesses and solo entrepreneurs.
         </p>
     </div>
 </section>
@@ -22,7 +22,7 @@ declare(strict_types=1);
 <section class="page-section services-section">
     <div class="container">
         <h2 class="section-title">Monthly Plans</h2>
-        <p class="section-subtitle">Ongoing support with predictable pricing</p>
+        <p class="section-subtitle">Ongoing support with predictable pricing no contracts, cancel anytime</p>
         <div class="services-grid monthly-plans">
             <!-- Be My Developer -->
             <div class="service-card featured">
@@ -32,7 +32,7 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Be My Developer</h3>
                 <p class="service-description">
-                    Your on-call developer for tweaks, fixes & updates—flat-rate, no hourly tracking.
+                    Your on-call developer for tweaks, fixes & updates flat-rate, no hourly tracking. Perfect for small businesses that need regular website help without agency prices.
                 </p>
                 <div class="service-pricing">
                     <div class="price-main">$10/month</div>
@@ -58,6 +58,7 @@ declare(strict_types=1);
                     </ul>
                 </div>
                 <div class="service-perfect-for">
+                    <strong>Perfect for:</strong> Salon owners updating galleries, cafés changing menus, freelancers needing small monthly tweaks, photographers updating portfolios<br>
                     <strong>Limits:</strong> No redesigns, layouts, or mid-project changes
                 </div>
                 <a href="/contact" class="service-cta btn-primary">Subscribe Now</a>
@@ -72,7 +73,7 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Be My IT Guy</h3>
                 <p class="service-description">
-                    Full-service: development + hosting + setup—everything you need in one plan.
+                    Full-service: development + hosting + setup everything you need in one plan. For small businesses that want someone to handle everything.
                 </p>
                 <div class="service-pricing">
                     <div class="price-range">$15–$20/month</div>
@@ -100,7 +101,7 @@ declare(strict_types=1);
 <section class="page-section services-section">
     <div class="container">
         <h2 class="section-title">Website Packages</h2>
-        <p class="section-subtitle">Fast, affordable websites using proven templates</p>
+        <p class="section-subtitle">Fast, affordable websites using proven templates without paying agency prices</p>
         <div class="services-grid">
             <!-- Basic Template -->
             <div class="service-card">
@@ -110,7 +111,7 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Basic Template</h3>
                 <p class="service-description">
-                    Perfect for landing pages & simple sites
+                    Perfect for landing pages & simple sites. Best for new businesses, side-hustles, or anyone starting with a tight budget.
                 </p>
                 <div class="service-pricing">
                     <div class="price-range">$10</div>
@@ -141,7 +142,7 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Standard Website</h3>
                 <p class="service-description">
-                    Most businesses start here
+                    Most businesses start here. Best for shops, freelancers, or local businesses that want a complete, ready-to-launch site.
                 </p>
                 <div class="service-pricing">
                     <div class="price-main">$25</div>
@@ -170,7 +171,7 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Premium Website</h3>
                 <p class="service-description">
-                    Enhanced design & features
+                    Enhanced design & features. Best for established businesses that want extra polish and custom functionality.
                 </p>
                 <div class="service-pricing">
                     <div class="price-range">$50</div>
@@ -349,7 +350,7 @@ declare(strict_types=1);
                 <div class="step-number">3</div>
                 <h3 class="step-title">Launch & Enjoy</h3>
                 <p class="step-description">
-                    I'll build, fix, or improve your site—then hand it over working perfectly. 
+                    I'll build, fix, or improve your site then hand it over working perfectly.
                     You get updates throughout, in plain English.
                 </p>
             </div>
@@ -392,7 +393,7 @@ declare(strict_types=1);
                     • All final decisions
                 </p>
                 <p class="rules-notice">
-                    ⚠️ Work begins only when everything is ready—this prevents project delays.
+                    ⚠️ Work begins only when everything is ready this prevents project delays.
                 </p>
             </div>
             
@@ -420,7 +421,7 @@ declare(strict_types=1);
         <div class="cta-content">
             <h2 class="cta-title">Ready to Get Started?</h2>
             <p class="cta-text">
-                Whether you need a full website, monthly support, or a quick fix—<br>
+                Whether you need a full website, monthly support, or a quick fix<br>
                 let's talk about what you need and find the perfect solution.
             </p>
             <div class="cta-buttons">

@@ -168,61 +168,12 @@ async function minifyJavaScript(files, outputName) {
     }
 }
 
-// Copy module assets from app/ to pub/assets/ for development mode
-function copyModuleAssets() {
-    console.log('\n📋 Copying Module Assets to Public Directory');
-    
-    for (const module of config.modules) {
-        const sourcePath = path.join(config.sourceDir, `modules/${module}/view/frontend`);
-        const destPath = path.join(config.publicAssetsDir, `modules/${module}/view/frontend`);
-        
-        if (!fs.existsSync(sourcePath)) continue;
-        
-        // Copy CSS
-        const cssFilename = module === 'head' ? 'header.css' : `${module}.css`;
-        const cssSource = path.join(sourcePath, 'css', cssFilename);
-        const cssDest = path.join(destPath, 'css', cssFilename);
-        
-        if (fs.existsSync(cssSource)) {
-            ensureDir(path.dirname(cssDest));
-            fs.copyFileSync(cssSource, cssDest);
-            console.log(`  ✓ ${module}/css/${cssFilename}`);
-        }
-        
-        // Copy JS
-        const jsFilename = module === 'head' ? 'header.js' : `${module}.js`;
-        const jsSource = path.join(sourcePath, 'js', jsFilename);
-        const jsDest = path.join(destPath, 'js', jsFilename);
-        
-        if (fs.existsSync(jsSource)) {
-            ensureDir(path.dirname(jsDest));
-            fs.copyFileSync(jsSource, jsDest);
-            console.log(`  ✓ ${module}/js/${jsFilename}`);
-        }
+// Clean dist directory
+function cleanDist() {
+    if (fs.existsSync(config.distDir)) {
+        fs.rmSync(config.distDir, { recursive: true, force: true });
     }
-}
-
-// Process module assets
-async function processModules() {
-    console.log('\n📦 Processing Module Assets');
-    
-    for (const module of config.modules) {
-        // Module CSS - handle special case for head module (uses header.css)
-        const cssFilename = module === 'head' ? 'header' : module;
-        const cssPath = `modules/${module}/view/frontend/css/${cssFilename}.css`;
-        const cssFiles = [cssPath];
-        await minifyCSS(cssFiles, `modules/${module}.min.css`);
-        
-        // Module JS - handle special case for head module (uses header.js)
-        const jsFilename = module === 'head' ? 'header' : module;
-        const jsPath = `modules/${module}/view/frontend/js/${jsFilename}.js`;
-        const jsFilePath = path.join(config.sourceDir, jsPath);
-        
-        if (fs.existsSync(jsFilePath)) {
-            const jsFiles = [jsPath];
-            await minifyJavaScript(jsFiles, `modules/${module}.min.js`);
-        }
-    }
+    ensureDir(config.distDir);
 }
 
 // Main build process
@@ -232,8 +183,8 @@ async function build() {
     
     const startTime = Date.now();
     
-    // Create dist directory
-    ensureDir(config.distDir);
+    // Clean and create dist directory
+    cleanDist();
     
     console.log('\n📦 Building Complete Production Bundles');
     console.log('  (base + frontend + all modules in 2 files only)\n');

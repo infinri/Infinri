@@ -164,8 +164,64 @@
             try {
                 localStorage.removeItem(key);
                 return true;
-            } catch (e) {
+                } catch (e) {
                 return false;
+            }
+        }
+    };
+
+    /**
+     * Task Scheduler - Break up long initialization tasks
+     * Prevents main thread blocking by spreading work across idle periods
+     */
+    const TaskScheduler = {
+        queue: [],
+        isProcessing: false,
+
+        /**
+         * Schedule a task to run during idle time
+         * @param {Function} task - Task to execute
+         * @param {string} priority - 'critical' or 'normal'
+         */
+        schedule(task, priority = 'normal') {
+            this.queue.push({ task, priority });
+            
+            if (!this.isProcessing) {
+                this.process();
+            }
+        },
+
+        /**
+         * Process queued tasks
+         */
+        process() {
+            if (this.queue.length === 0) {
+                this.isProcessing = false;
+                return;
+            }
+
+            this.isProcessing = true;
+
+            // Sort by priority (critical first)
+            this.queue.sort((a, b) => {
+                if (a.priority === 'critical' && b.priority !== 'critical') return -1;
+                if (a.priority !== 'critical' && b.priority === 'critical') return 1;
+                return 0;
+            });
+
+            const { task } = this.queue.shift();
+
+            // Use requestIdleCallback if available, otherwise setTimeout
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    task();
+                    this.process();
+                }, { timeout: 2000 });
+            } else {
+                setTimeout(() => {
+                    task();
+                    this.process();
+                }, 0);
             }
         }
     };
@@ -186,7 +242,10 @@
 
         // Storage
         Cookie,
-        Storage
+        Storage,
+
+        // Task Scheduler
+        TaskScheduler
     });
 
 })();

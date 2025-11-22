@@ -132,13 +132,12 @@
     function initScrollBehavior() {
         const header = document.querySelector('.header');
         if (!header) return;
-
         let lastScrollTop = 0;
 
         // Scroll handler for shadow enhancement
         function handleScroll() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             // Add/remove enhanced shadow based on scroll position
             if (scrollTop > 10) {
                 header.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 2px rgba(157, 78, 221, 0.3)';

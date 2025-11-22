@@ -11,8 +11,8 @@ declare(strict_types=1);
 <section class="hero">
     <div class="container">
         <div class="hero-content">
-            <h1 class="hero-title">Your Website, Your Way</h1>
-            <p class="hero-subtitle">From quick templates to ongoing support transparent pricing, fast delivery, no surprises. Built for small businesses that need results, not complexity.</p>
+            <h1 class="hero-title">Affordable Websites for Real Businesses Starting at $10</h1>
+            <p class="hero-subtitle">Fast delivery, transparent pricing, no contracts, no tech jargon. Built for small businesses that need results without spending hundreds.</p>
             <div class="hero-buttons">
                 <a href="/services" class="btn btn-white">View All Services</a>
                 <a href="/contact" class="btn btn-outline-white">Get Started</a>
@@ -52,9 +52,9 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="service-title">Website Packages</h3>
                 <p class="service-price">$10 - $50</p>
-                <p class="service-description">Fast, affordable websites using proven templates. Perfect for getting online quickly.</p>
+                <p class="service-description">Fast, affordable websites using proven templates. Perfect for new businesses, side-hustles, or anyone who wants to get online fast without spending hundreds.</p>
                 <div class="service-highlights">
-                    <span class="highlight">Starting at $10</span>
+                    <span class="highlight">24-48hr delivery</span>
                     <span class="highlight">Mobile-ready</span>
                     <span class="highlight">SEO optimized</span>
                 </div>
@@ -129,17 +129,72 @@ declare(strict_types=1);
                     <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
                     <line x1="12" y1="19" x2="12" y2="22"/>
                 </svg>
-                <h3>Creative Services</h3>
-                <p>Photographers, designers, consultants</p>
+                <h3>Service Providers</h3>
+                <p>Photographers, coaches, consultants, freelancers</p>
             </div>
             <div class="client-type">
                 <svg class="client-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                 </svg>
-                <h3>Small E-commerce</h3>
-                <p>Online stores that need to work reliably</p>
+                <h3>Local Contractors</h3>
+                <p>Plumbers, electricians, landscapers, cleaners</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="why-choose-section">
+    <div class="container">
+        <h2 class="section-title">Why Small Businesses Choose Infinri</h2>
+        <div class="why-choose-grid">
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                <h3>Websites from $10</h3>
+                <p>Affordable pricing that actually makes sense for small budgets</p>
+            </div>
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                <h3>Delivered in 24–48 Hours</h3>
+                <p>Template sites ready fast so you can start getting customers</p>
+            </div>
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <h3>No Contracts</h3>
+                <p>Pay for what you need, cancel anytime, no strings attached</p>
+            </div>
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <h3>No Surprises</h3>
+                <p>Clear pricing upfront, no hidden fees or unexpected charges</p>
+            </div>
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <h3>You Work Directly With Me</h3>
+                <p>No account managers, no runaround just direct communication</p>
+            </div>
+            <div class="why-choose-item">
+                <svg class="why-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <h3>Real Communication</h3>
+                <p>I actually answer emails and respond to your questions</p>
             </div>
         </div>
     </div>
@@ -149,7 +204,7 @@ declare(strict_types=1);
     <div class="container">
         <div class="cta-content">
             <h2>Ready to Get Started?</h2>
-            <p>Whether you need a full website, monthly support, or a quick fix let's find the perfect solution for your business.</p>
+            <p>Template websites ready in 24–48 hours. Fixes delivered within 24 hours. Monthly support starting at $10. Let's build something that actually works for your business.</p>
             <a href="/contact" class="btn btn-white btn-large">Start Your Project</a>
         </div>
     </div>

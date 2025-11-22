@@ -25,16 +25,16 @@ declare(strict_types=1);
             
             <div class="about-intro">
                 <h1 class="about-title">Hi, I'm Lucio Saldivar</h1>
-                <h2 class="about-subtitle">Your On-Demand Web Developer</h2>
+                <h2 class="about-subtitle">Your Affordable Web Developer for Small Businesses</h2>
                 <p class="about-description">
                     I started Infinri after watching too many small business owners get stuck between 
-                    expensive agencies and unreliable freelancers. You need someone who answers the phone, 
+                    expensive agencies and unreliable freelancers. You need an affordable website developer who answers the phone, 
                     delivers on time, and charges fair prices without the runaround.
                 </p>
                 <p class="about-description">
                     So I built a web development studio that works the way you do: transparent pricing, 
                     fast turnarounds, and real communication. No corporate speak, no bait-and-switch, 
-                    just honest work from someone who's been building websites for years.
+                    just honest work from an experienced web developer who specializes in budget-friendly website solutions for small businesses.
                 </p>
             </div>
         </div>
@@ -58,8 +58,8 @@ declare(strict_types=1);
                 <p class="differentiator-text">
                     Every service has a clear price before we start. No hourly rates that spiral out of control, 
                     no "it depends" estimates, no surprise bills. You see the menu, you pick what you need, 
-                    and that's what you pay. Monthly plans start at $10. Website packages from $10-$50. 
-                    One-time fixes from $20. All posted publicly.
+                    and that's what you pay. Low-cost website packages from $10-$50. Affordable monthly support plans start at $10. 
+                    One-time fixes from $20. All posted publicly no hidden fees.
                 </p>
             </div>
             
@@ -70,9 +70,10 @@ declare(strict_types=1);
                 </svg>
                 <h3 class="differentiator-title">Fast Turnarounds, Real Deadlines</h3>
                 <p class="differentiator-text">
-                    I don't take on more work than I can deliver. Template websites in 24-48 hours. 
+                    I don't take on more work than I can deliver. Simple websites in 24-48 hours. 
                     Quick fixes in 1-2 days. Monthly plan requests within 24 hours. If I say it'll be done Tuesday, 
                     it's done Tuesday not "Tuesday-ish" or "we'll circle back." Your time matters, and I respect that.
+                    Fast website development without compromising quality.
                 </p>
             </div>
             
@@ -98,7 +99,8 @@ declare(strict_types=1);
 <!-- What I've Built -->
 <section class="page-section credentials-section">
     <div class="container">
-        <h2 class="section-title">What I Bring to Your Project</h2>
+        <h2 class="section-title">What I Bring to Your Small Business Website</h2>
+        <p class="section-subtitle">You don't need to know anything about websites I walk you through everything</p>
         
         <div class="credentials-grid">
             <div class="credential-item">
@@ -106,10 +108,10 @@ declare(strict_types=1);
                     <polyline points="16 18 22 12 16 6"/>
                     <polyline points="8 6 2 12 8 18"/>
                 </svg>
-                <h3 class="credential-title">Full-Stack Development</h3>
+                <h3 class="credential-title">Complete Website Solutions</h3>
                 <p class="credential-text">
-                    PHP, JavaScript, MySQL, responsive CSS I build complete websites from scratch,
-                    not just templates I bought online.
+                    I build clean, professional websites for small businesses from scratch using PHP, JavaScript, and modern web technologies. 
+                    No tech jargon required I specialize in making the process simple for beginners.
                 </p>
             </div>
             
@@ -130,10 +132,10 @@ declare(strict_types=1);
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <line x1="12" y1="18" x2="12.01" y2="18"/>
                 </svg>
-                <h3 class="credential-title">Mobile-First Design</h3>
+                <h3 class="credential-title">Mobile-Friendly Websites</h3>
                 <p class="credential-text">
-                    Over 60% of web traffic is mobile. Every site I build works perfectly on phones, 
-                    tablets, and desktops tested, not assumed.
+                    Over 60% of web traffic is mobile. Every small business website I build works perfectly on phones, 
+                    tablets, and desktops tested, not assumed. Your customers will have a great experience on any device.
                 </p>
             </div>
             
@@ -142,10 +144,10 @@ declare(strict_types=1);
                     <circle cx="12" cy="12" r="3"/>
                     <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
                 </svg>
-                <h3 class="credential-title">Performance Optimization</h3>
+                <h3 class="credential-title">Fast-Loading Websites</h3>
                 <p class="credential-text">
-                    Minified assets, lazy loading, efficient queries I build sites that load fast
-                    and rank well, because speed matters.
+                    I build websites that load quickly and rank well in search engines. Fast website performance 
+                    means better customer experience and higher Google rankings essential for small business success.
                 </p>
             </div>
         </div>

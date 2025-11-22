@@ -69,7 +69,7 @@ declare(strict_types=1);
 
             <h3>4.2 Monthly Plans</h3>
             
-            <h4>Be My Developer — $10/month</h4>
+            <h4>Be My Developer - $10/month</h4>
             <p><strong>Includes:</strong></p>
             <ul>
                 <li>Up to 5 small requests per month</li>
@@ -95,7 +95,7 @@ declare(strict_types=1);
                 <li>More than 5 requests or major revisions (quoted separately)</li>
             </ul>
 
-            <h4>Be My IT Guy — $15–$20/month</h4>
+            <h4>Be My IT Guy - $15–$20/month</h4>
             <p><strong>Includes everything in Be My Developer plus:</strong></p>
             <ul>
                 <li>Managed hosting (cloud-based Caddy + PHP-FPM environment)</li>

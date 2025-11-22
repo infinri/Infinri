@@ -239,16 +239,15 @@ final class Assets
         $version = self::getVersion();
         $output = '';
         
-        // Production: Inline critical CSS + preload full CSS for zero render blocking
+        // Production: Load bundled CSS with inline critical CSS
         if (self::isProduction()) {
             $allBundle = '/assets/dist/all.min.css?v=' . Esc::html($version);
             
             // Preload logo for instant LCP (highest priority)
             $output .= '<link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">' . PHP_EOL;
             
-            // Load full CSS in head - simple and effective
-            // This WILL block rendering BUT prevents all FOUC/shifts
-            // Trade-off: Small render delay for perfect visual consistency
+            // Load full CSS bundle - blocking but fast (47.9 KB minified + gzipped ~10-12 KB)
+            // Trade-off: Some unused CSS per page, but simple architecture and fast caching
             $output .= '<link rel="stylesheet" href="' . $allBundle . '">' . PHP_EOL;
             
             return $output;

@@ -16,22 +16,22 @@ final class Meta
 {
     private static array $tags = [
         // Defaults (DRY - set once, use everywhere)
-        'title' => 'Infinri — Affordable Web Development for Small Businesses',
-        'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans — transparent pricing, fast delivery, no surprises.',
+        'title' => 'Infinri | Affordable Web Development for Small Businesses',
+        'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans, transparent pricing, fast delivery, no surprises.',
         'keywords' => 'web development, website design, small business websites, affordable hosting, monthly support, PHP development, custom websites, Minneapolis developer',
         'author' => 'Lucio Saldivar',
         'viewport' => 'width=device-width, initial-scale=1.0',
         'charset' => 'UTF-8',
 
         // Open Graph
-        'og:title' => 'Infinri — Affordable Web Development for Small Businesses',
+        'og:title' => 'Infinri | Affordable Web Development for Small Businesses',
         'og:description' => 'Website development, hosting, and maintenance starting at $10. Transparent pricing, fast delivery.',
         'og:image' => '/assets/base/images/og-image.jpg',
         'og:type' => 'website',
 
         // Twitter
         'twitter:card' => 'summary_large_image',
-        'twitter:title' => 'Infinri — Affordable Web Development',
+        'twitter:title' => 'Infinri | Affordable Web Development',
         'twitter:description' => 'Websites starting at $10. Monthly support plans from $10/mo. Transparent pricing, no surprises.',
         'twitter:image' => '/assets/base/images/og-image.jpg',
     ];
@@ -126,8 +126,8 @@ final class Meta
     public static function clear(): void
     {
         self::$tags = [
-            'title' => 'Infinri — Affordable Web Development for Small Businesses',
-            'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans — transparent pricing, fast delivery, no surprises.',
+            'title' => 'Infinri | Affordable Web Development for Small Businesses',
+            'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans transparent pricing, fast delivery, no surprises.',
             'keywords' => 'web development, website design, small business websites, affordable hosting, monthly support, PHP development, custom websites, Minneapolis developer',
             'author' => 'Lucio Saldivar',
             'viewport' => 'width=device-width, initial-scale=1.0',

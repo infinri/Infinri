@@ -11,12 +11,12 @@ use App\Helpers\Env;
 
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'Infinri — Affordable Web Development for Small Businesses',
-    'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans — transparent pricing, fast delivery.',
-    'keywords' => 'web development, small business websites, affordable hosting, monthly support, PHP development, custom websites',
-    'og:title' => 'Infinri — Affordable Web Development for Small Businesses',
-    'og:description' => 'Websites starting at $10. Monthly support from $10/mo. Transparent pricing, fast delivery.',
-    'twitter:title' => 'Infinri — Affordable Web Development'
+    'title' => 'Infinri | Affordable Websites for Small Businesses Starting at $10',
+    'description' => 'Affordable website development starting at $10. Template sites in 24-48 hours, monthly support from $10/mo. No contracts, no tech jargon, transparent pricing.',
+    'keywords' => 'affordable web developer, cheap website design, $10 website, small business web design, low cost websites, website help, quick website, fast website setup, website maintenance for small business',
+    'og:title' => 'Infinri | Affordable Websites for Small Businesses Starting at $10',
+    'og:description' => 'Websites starting at $10. Template sites in 24-48 hours. Monthly support from $10/mo. No contracts, transparent pricing.',
+    'twitter:title' => 'Infinri | Affordable Websites for Small Businesses Starting at $10'
 ]);
 
 // Load home-specific assets (development only - production uses bundles)

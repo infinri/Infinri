@@ -16,7 +16,10 @@ use App\Base\Helpers\ReCaptcha;
     <div class="container">
         <h1 class="page-title contact-title">Get In Touch</h1>
         <p class="page-subtitle contact-subtitle">
-            Have a project in mind? Let's discuss how we can work together.
+            Fast, friendly website help for real small businesses. Whether you need a new site, a quick fix, or monthly support I'm here to help.
+        </p>
+        <p class="page-subtitle contact-subtitle">
+            <strong>Not sure what you need?</strong> No problem. Just describe your situation in simple words and I'll guide you.
         </p>
     </div>
 </section>
@@ -38,7 +41,7 @@ use App\Base\Helpers\ReCaptcha;
                     <div class="info-content">
                         <h3 class="info-title">Email</h3>
                         <p class="info-text">lucio.saldivar@infinri.com</p>
-                        <p class="info-subtitle">Preferred method</p>
+                        <p class="info-subtitle">Best for detailed questions</p>
                     </div>
                 </div>
                 
@@ -50,7 +53,7 @@ use App\Base\Helpers\ReCaptcha;
                     <div class="info-content">
                         <h3 class="info-title">Response Time</h3>
                         <p class="info-text">Within 24 hours</p>
-                        <p class="info-subtitle">Usually faster</p>
+                        <p class="info-subtitle">Guaranteed reply</p>
                     </div>
                 </div>
                 
@@ -63,7 +66,7 @@ use App\Base\Helpers\ReCaptcha;
                     <div class="info-content">
                         <h3 class="info-title">Location</h3>
                         <p class="info-text">Remote Worldwide</p>
-                        <p class="info-subtitle">Open to collaboration</p>
+                        <p class="info-subtitle">Serving small businesses everywhere</p>
                     </div>
                 </div>
                 
@@ -74,8 +77,8 @@ use App\Base\Helpers\ReCaptcha;
                     </svg>
                     <div class="info-content">
                         <h3 class="info-title">Availability</h3>
-                        <p class="info-text">Open to projects</p>
-                        <p class="info-subtitle">Let's discuss</p>
+                        <p class="info-text">Taking new clients</p>
+                        <p class="info-subtitle">This month</p>
                     </div>
                 </div>
                 </div> 
@@ -85,8 +88,21 @@ use App\Base\Helpers\ReCaptcha;
             <div class="contact-form-wrapper">
                 <h2 class="form-title">Send a Message</h2>
                 <p class="form-description">
-                    Fill out the form below and I'll get back to you as soon as possible.
+                    Tell me what you need even if you're not sure how to describe it. I'll ask clear follow-up questions and guide you through everything step-by-step.
                 </p>
+                <div class="common-requests">
+                    <p><strong>Common things people contact me for:</strong></p>
+                    <ul>
+                        <li>"My site is broken"</li>
+                        <li>"I need a quick update"</li>
+                        <li>"I need a simple website"</li>
+                        <li>"I want monthly help"</li>
+                        <li>"My forms aren't working"</li>
+                        <li>"I need hosting or setup"</li>
+                        <li>"My last developer disappeared"</li>
+                    </ul>
+                    <p class="trust-line"><strong>I reply to every message personally no bots, no outsourcing.</strong></p>
+                </div>
                 
                 <form method="POST" action="/contact" class="contact-form" id="contactForm">
                     <input type="hidden" name="csrf_token" value="<?php echo Esc::html($csrf ?? Session::csrf()); ?>">

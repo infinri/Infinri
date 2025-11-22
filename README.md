@@ -2,7 +2,7 @@
 
 **Website development, hosting, and maintenance platform for small businesses.**
 
-A modular PHP web application built with clean architecture principles. Designed for maintainability, security, and performance. Transparent pricing starting at $10 — from quick templates to monthly support plans.
+A modular PHP web application built with clean architecture principles. Designed for maintainability, security, and performance. Transparent pricing starting at $10 - from quick templates to monthly support plans.
 
 ## Architecture
 

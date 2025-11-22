@@ -17,11 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'Contact - Infinri',
-    'description' => 'Get in touch for project inquiries, consulting, or collaboration opportunities',
-    'keywords' => 'contact, hire, consulting, collaboration',
-    'og:title' => 'Contact Me - Professional PHP Developer',
-    'twitter:title' => 'Contact Me'
+    'title' => 'Contact | Affordable Website Help & Support | Infinri',
+    'description' => 'Get affordable website design, fixes, and monthly support. Websites from $10. Hosting from $15/mo. Contact Infinri for fast, friendly help with your small business website.',
+    'keywords' => 'contact web developer, small business website help, affordable web developer, $10 website, website fixes, website support, cheap web design help',
+    'og:title' => 'Contact | Affordable Website Help for Small Businesses | Infinri',
+    'og:description' => 'Get fast, friendly help with your small business website. Websites from $10, monthly support from $10/mo. I reply to every message personally.',
+    'twitter:title' => 'Contact | Affordable Website Help for Small Businesses | Infinri'
 ]);
 
 // Load contact-specific assets (development only - production uses bundles)

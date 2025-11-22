@@ -77,8 +77,8 @@ declare(strict_types=1);
             <h2>5. Monthly Subscription Services</h2>
             <p>This applies to:</p>
             <ul>
-                <li>Be My Developer — $10/month</li>
-                <li>Be My IT Guy — $15–$20/month</li>
+                <li>Be My Developer - $10/month</li>
+                <li>Be My IT Guy - $15–$20/month</li>
             </ul>
             
             <h3>5.1 Billing & Cancellation</h3>
@@ -191,7 +191,7 @@ declare(strict_types=1);
                 <li>User engagement</li>
                 <li>Personal preference after delivery</li>
             </ul>
-            <p><strong>We guarantee the labor and service promised — not business results.</strong></p>
+            <p><strong>We guarantee the labor and service promised not business results.</strong></p>
         </section>
 
         <section>

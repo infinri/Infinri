@@ -29,7 +29,7 @@
                     navList.classList.remove('active');
                     menuToggle.setAttribute('aria-expanded', 'false');
                 }
-            });
+            }, { passive: true });
 
             // Close menu on ESC key
             document.addEventListener('keydown', function (event) {
@@ -37,17 +37,16 @@
                     navList.classList.remove('active');
                     menuToggle.setAttribute('aria-expanded', 'false');
                 }
-            });
+            }, { passive: true });
 
-            // Close menu when clicking a nav link (mobile)
-            navList.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function () {
-                    if (window.innerWidth <= 768) {
-                        navList.classList.remove('active');
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            });
+            // Close menu when clicking a nav link (mobile) - use delegation
+            navList.addEventListener('click', function (e) {
+                const link = e.target.closest('.nav-link');
+                if (link && window.innerWidth <= 768) {
+                    navList.classList.remove('active');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            }, { passive: true });
         }
     }
 
@@ -56,23 +55,23 @@
      */
     function initSmoothScroll()
     {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                if (href === '#') {
-                    return;
-                }
+        // Use event delegation to avoid multiple listeners
+        document.addEventListener('click', function (e) {
+            const anchor = e.target.closest('a[href^="#"]');
+            if (!anchor) return;
+            
+            const href = anchor.getAttribute('href');
+            if (href === '#') return;
 
-                const target = document.querySelector(href);
-                if (target) {
-                    e.preventDefault();
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, { passive: false }); // Can't be passive due to preventDefault
     }
 
     /**
@@ -151,16 +150,21 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                        }
                         observer.unobserve(img);
                     }
                 });
+            }, {
+                // Load images slightly before they enter viewport
+                rootMargin: '50px'
             });
 
-            document.querySelectorAll('img.lazy').forEach(img => {
-                imageObserver.observe(img);
-            });
+            // Batch DOM query
+            const lazyImages = document.querySelectorAll('img.lazy');
+            lazyImages.forEach(img => imageObserver.observe(img));
         }
     }
 
@@ -180,7 +184,7 @@
             } else {
                 scrollBtn.style.display = 'none';
             }
-        }, 200));
+        }, 200), { passive: true });
 
         scrollBtn.addEventListener('click', () => {
             window.scrollTo({
@@ -196,11 +200,48 @@
     function initActiveNav()
     {
         const currentPath = window.location.pathname;
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
+        // Use CSS selector to find exact match, reducing loop iterations
+        const activeLink = document.querySelector(`.nav-link[href="${currentPath}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+
+    /**
+     * Schedule non-critical tasks using requestIdleCallback
+     * @param {Function} task - Task to schedule
+     */
+    function scheduleIdleTask(task)
+    {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(task, { timeout: 2000 });
+        } else {
+            // Fallback for browsers without requestIdleCallback
+            setTimeout(task, 1);
+        }
+    }
+
+    /**
+     * Initialize critical features immediately
+     */
+    function initCritical()
+    {
+        // Critical: Mobile menu must work immediately
+        initMobileMenu();
+        // Critical: Active nav for visual feedback
+        initActiveNav();
+    }
+
+    /**
+     * Initialize non-critical features during idle time
+     */
+    function initNonCritical()
+    {
+        // Schedule each initialization separately to break up long tasks
+        scheduleIdleTask(initSmoothScroll);
+        scheduleIdleTask(initForms);
+        scheduleIdleTask(initLazyLoading);
+        scheduleIdleTask(initScrollToTop);
     }
 
     /**
@@ -208,12 +249,11 @@
      */
     function init()
     {
-        initMobileMenu();
-        initSmoothScroll();
-        initForms();
-        initLazyLoading();
-        initScrollToTop();
-        initActiveNav();
+        // Run critical features immediately
+        initCritical();
+        
+        // Defer non-critical features to idle time
+        initNonCritical();
     }
 
     // Initialize when DOM is ready
