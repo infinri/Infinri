@@ -16,14 +16,14 @@ const config = {
     distDir: path.join(__dirname, 'pub/assets/dist'),
     publicAssetsDir: path.join(__dirname, 'pub/assets'),
     cssFiles: [
-        // Base CSS (critical path - loaded first)
-        'base/css/critical-hero.css',
+        // Base CSS (non-critical - critical.css is inlined separately)
         'base/css/reset.css',
         'base/css/variables.css',
         'base/css/base.css',
         // Frontend CSS
         'frontend/css/theme.css'
     ],
+    criticalCss: 'base/css/critical.css', // Inlined separately
     jsFiles: [
         // Base JS
         'base/js/base.js',
@@ -176,6 +176,41 @@ function cleanDist() {
     ensureDir(config.distDir);
 }
 
+// Minify critical CSS separately
+async function minifyCriticalCSS() {
+    console.log('🎨 Minifying Critical CSS (inlined separately)');
+    
+    const criticalPath = path.join(config.baseViewDir, config.criticalCss);
+    const content = readFile(criticalPath);
+    
+    if (!content) {
+        console.warn('⚠️  Warning: Critical CSS not found');
+        return false;
+    }
+    
+    const originalSize = Buffer.byteLength(content, 'utf8');
+    
+    const output = new CleanCSS({
+        level: 2,
+        compatibility: 'ie11'
+    }).minify(content);
+    
+    if (output.errors.length > 0) {
+        console.error('❌ Critical CSS Errors:', output.errors);
+        return false;
+    }
+    
+    const outputPath = path.join(config.distDir, 'critical.min.css');
+    fs.writeFileSync(outputPath, output.styles);
+    
+    const minifiedSize = Buffer.byteLength(output.styles, 'utf8');
+    const savings = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
+    
+    console.log(`  ✓ ${config.criticalCss}`);
+    console.log(`  📦 ${(originalSize / 1024).toFixed(1)}KB → ${(minifiedSize / 1024).toFixed(1)}KB (${savings}% smaller)\n`);
+    return true;
+}
+
 // Main build process
 async function build() {
     console.log('🚀 Starting Production Bundle Build\n');
@@ -186,10 +221,12 @@ async function build() {
     // Clean and create dist directory
     cleanDist();
     
-    console.log('\n📦 Building Complete Production Bundles');
-    console.log('  (base + frontend + all modules in 2 files only)\n');
+    console.log('\n📦 Building Production Bundles\n');
     
-    // Build all-in-one CSS bundle (base + all modules)
+    // Build critical CSS separately (this gets inlined)
+    await minifyCriticalCSS();
+    
+    // Build all-in-one CSS bundle (base + all modules, NO critical.css)
     const allCssFiles = [...config.cssFiles];
     for (const module of config.modules) {
         const cssFilename = module === 'head' ? 'header' : module;
@@ -213,9 +250,10 @@ async function build() {
     
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Build Complete in ${duration}s\n`);
-    console.log('📁 Production Bundles (2 files only):');
-    console.log('  • pub/assets/dist/all.min.css');
-    console.log('  • pub/assets/dist/all.min.js');
+    console.log('📁 Production Bundles:');
+    console.log('  • pub/assets/dist/critical.min.css (inlined for instant LCP)');
+    console.log('  • pub/assets/dist/all.min.css (loaded async)');
+    console.log('  • pub/assets/dist/all.min.js (deferred)');
     console.log('\n🎯 Ready for deployment - no Node.js needed on server!\n');
 }
 

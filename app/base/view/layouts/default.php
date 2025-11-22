@@ -38,20 +38,19 @@ use App\Helpers\Env;
     ?>
     
     <?php
-    // Preload critical assets handled by Assets::renderCss() and Assets::renderJs()
+    // Preconnect to external origins (improves performance for 3rd party resources)
+    echo Assets::renderPreconnects();
+    
+    // Inline critical CSS for instant above-the-fold rendering (best LCP)
+    // Critical CSS includes: variables, header, hero sections
+    echo Assets::renderInlineCss();
+    
+    // Load non-critical CSS (after critical content renders)
+    echo Assets::renderCss();
+    
+    // External scripts (e.g., reCAPTCHA when needed)
+    echo Assets::renderHeadScripts();
     ?>
-    
-    <!-- Inline critical CSS for instant logo render -->
-    <style nonce="<?= $GLOBALS['cspNonce'] ?? '' ?>">
-        .header{background:#0a0a0a;position:sticky;top:0;z-index:1020;height:125px}
-        .nav{display:flex;align-items:center;max-width:1200px;margin:0 auto;position:relative}
-        .logo{display:block;position:absolute;top:0}
-        .logo-image{height:150px;width:auto;display:block;filter:drop-shadow(0 0 20px rgba(157,78,221,0.4))}
-    </style>
-    
-    <?= Assets::renderInlineCss() ?>
-    <?= Assets::renderCss() ?>
-    <?= Assets::renderHeadScripts() ?>
 </head>
 <body>
     <?php

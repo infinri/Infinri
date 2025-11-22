@@ -36,9 +36,15 @@ if (Env::get('APP_ENV', 'development') !== 'production') {
         Assets::addCss("{$assetBase}/css/contact.css");
     }
 
-    if (file_exists("{$modulePath}/view/frontend/js/contact-lazy.js")) {
-        Assets::addJs("{$assetBase}/js/contact-lazy.js");
+    if (file_exists("{$modulePath}/view/frontend/js/contact.js")) {
+        Assets::addJs("{$assetBase}/js/contact.js");
     }
+}
+
+// Add preconnect hints for reCAPTCHA (lazy-loaded on form interaction)
+if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())) {
+    Assets::addPreconnect('https://www.google.com');
+    Assets::addPreconnect('https://www.gstatic.com');
 }
 
 // Generate CSRF token for the form

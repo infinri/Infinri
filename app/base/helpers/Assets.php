@@ -31,6 +31,8 @@ final class Assets
     
     private static array $headScripts = [];
     
+    private static array $preconnectUrls = [];
+    
     private static ?string $version = null;
     
     /**
@@ -165,6 +167,38 @@ final class Assets
     }
 
     /**
+     * Add preconnect hint for external origin (improves performance)
+     *
+     * @param string $url Origin URL (e.g., https://www.google.com)
+     * @return void
+     */
+    public static function addPreconnect(string $url): void
+    {
+        if (!in_array($url, self::$preconnectUrls, true)) {
+            self::$preconnectUrls[] = $url;
+        }
+    }
+
+    /**
+     * Render preconnect hints
+     *
+     * @return string
+     */
+    public static function renderPreconnects(): string
+    {
+        if (empty(self::$preconnectUrls)) {
+            return '';
+        }
+
+        $output = '';
+        foreach (self::$preconnectUrls as $url) {
+            $output .= '<link rel="preconnect" href="' . Esc::html($url) . '" crossorigin>' . PHP_EOL;
+        }
+
+        return $output;
+    }
+
+    /**
      * Render head scripts
      *
      * @return string
@@ -195,41 +229,48 @@ final class Assets
 
     /**
      * Render inlined critical CSS with CSP nonce
+     * Critical CSS is inlined for instant above-the-fold rendering (best LCP)
      *
      * @return string
      */
     public static function renderInlineCss(): string
     {
-        // Don't render empty style tag (CSP violation)
-        if (empty(self::$inlineCss)) {
-            return '';
-        }
-        
         // Get CSP nonce from globals (set in pub/index.php)
         $nonce = $GLOBALS['cspNonce'] ?? '';
         $nonceAttr = $nonce ? ' nonce="' . Esc::html($nonce) . '"' : '';
         
-        $output = '<style' . $nonceAttr . '>' . PHP_EOL;
-        $pubPath = dirname(__DIR__, 3) . '/pub';
+        $css = '';
         
-        foreach (self::$inlineCss as $file) {
-            $filePath = $pubPath . $file;
-            if (file_exists($filePath)) {
-                $css = file_get_contents($filePath);
-                // Remove comments and minify
+        // Production: Use pre-minified critical.min.css
+        if (self::isProduction()) {
+            $criticalMinPath = dirname(__DIR__, 3) . '/pub/assets/dist/critical.min.css';
+            if (file_exists($criticalMinPath)) {
+                $css = file_get_contents($criticalMinPath);
+            }
+        } else {
+            // Development: Minify critical.css on the fly
+            $criticalPath = dirname(__DIR__) . '/view/base/css/critical.css';
+            if (file_exists($criticalPath)) {
+                $css = file_get_contents($criticalPath);
+                // Minify: remove comments, whitespace, linebreaks
                 $css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css);
                 $css = str_replace(["\r\n", "\r", "\n", "\t"], '', $css);
-                $css = preg_replace('/\s+/', ' ', $css);
-                $output .= $css . PHP_EOL;
+                $css = preg_replace('/\s{2,}/', ' ', $css);
+                $css = preg_replace('/\s*([{}:;,])\s*/', '$1', $css);
+                $css = trim($css);
             }
         }
         
-        $output .= '</style>' . PHP_EOL;
+        if (empty($css)) {
+            return '';
+        }
+        
+        $output = '<style' . $nonceAttr . '>' . $css . '</style>' . PHP_EOL;
         return $output;
     }
 
     /**
-     * Render CSS tags in correct order (base → frontend → module)
+     * Render CSS tags - Critical CSS is inlined, non-critical loaded async
      * In production, uses minified bundles. In development, loads individual files.
      *
      * @return string
@@ -239,17 +280,9 @@ final class Assets
         $version = self::getVersion();
         $output = '';
         
-        // Production: Load bundled CSS with inline critical CSS
+        // Production: Load non-critical CSS (critical CSS is already inlined)
         if (self::isProduction()) {
             $allBundle = '/assets/dist/all.min.css?v=' . Esc::html($version);
-            
-            // Preconnect to own domain for faster resource loading (reduces DNS/TCP/TLS latency)
-            $siteUrl = Env::get('SITE_URL', '');
-            if ($siteUrl) {
-                $parsedUrl = parse_url($siteUrl);
-                $origin = ($parsedUrl['scheme'] ?? 'https') . '://' . ($parsedUrl['host'] ?? 'infinri.com');
-                $output .= '<link rel="preconnect" href="' . Esc::html($origin) . '" crossorigin>' . PHP_EOL;
-            }
             
             // Preload CSS for high-priority loading (tells browser to fetch immediately)
             $output .= '<link rel="preload" href="' . $allBundle . '" as="style">' . PHP_EOL;
@@ -257,36 +290,17 @@ final class Assets
             // Preload logo for instant LCP
             $output .= '<link rel="preload" href="/assets/base/images/logo.svg" as="image" fetchpriority="high">' . PHP_EOL;
             
-            // Load CSS normally but with preload hint above for optimization
-            // This is render-blocking but fast due to preload + preconnect (~10-12 KB gzipped)
-            // Trade-off: Slight render blocking vs FOUC (Flash of Unstyled Content)
+            // Load full stylesheet - critical CSS renders instantly, this completes the styling
             $output .= '<link rel="stylesheet" href="' . $allBundle . '">' . PHP_EOL;
             
             return $output;
         }
         
-        // Development: Load individual files for easier debugging
-        $criticalFiles = [
-            '/assets/base/css/critical-hero.css',
-            '/assets/base/css/variables.css',
-            '/assets/base/css/reset.css', 
-            '/assets/base/css/base.css'
-        ];
-        
-        // Load stylesheets directly (no preload hints to reduce overhead)
+        // Development: Load CSS normally for easier debugging
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$css[$layer] as $file) {
-                if (in_array($file, self::$inlineCss, true)) {
-                    continue;
-                }
-                
                 $url = Esc::html($file) . '?v=' . Esc::html($version);
-                
-                if (in_array($file, $criticalFiles, true)) {
-                    $output .= '<link rel="stylesheet" href="' . $url . '" fetchpriority="high">' . PHP_EOL;
-                } else {
-                    $output .= '<link rel="stylesheet" href="' . $url . '">' . PHP_EOL;
-                }
+                $output .= '<link rel="stylesheet" href="' . $url . '">' . PHP_EOL;
             }
         }
 
