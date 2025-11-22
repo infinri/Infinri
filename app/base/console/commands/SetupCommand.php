@@ -165,6 +165,24 @@ final class SetupCommand
     {
         echo "🧹 Clearing caches..." . PHP_EOL;
         
+        // Clear OPcache (PHP bytecode cache)
+        if (function_exists('opcache_reset')) {
+            if (opcache_reset()) {
+                echo "  ✓ OPcache cleared (PHP bytecode cache)" . PHP_EOL;
+            } else {
+                echo "  ⚠️  OPcache clear failed (may need sudo/restart)" . PHP_EOL;
+            }
+        } else {
+            echo "  ℹ️  OPcache not enabled" . PHP_EOL;
+        }
+        
+        // Clear APCu cache (if installed)
+        if (function_exists('apcu_clear_cache')) {
+            if (apcu_clear_cache()) {
+                echo "  ✓ APCu cache cleared" . PHP_EOL;
+            }
+        }
+        
         // Clear any cache directories if they exist
         $cacheDirectories = [
             __DIR__ . '/../../../../cache',

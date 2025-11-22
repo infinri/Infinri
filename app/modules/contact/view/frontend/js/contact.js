@@ -264,7 +264,7 @@
     }
 
     /**
-     * Show message to user
+     * Show message to user at top of page
      */
     function showMessage(message, type) {
         // Remove existing message
@@ -273,6 +273,8 @@
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `form-message ${type}`;
+        messageDiv.setAttribute('role', 'alert');
+        messageDiv.setAttribute('aria-live', 'polite');
         
         // Add icon
         const icon = document.createElement('span');
@@ -285,14 +287,25 @@
         text.textContent = message;
         messageDiv.appendChild(text);
 
-        const form = document.querySelector('.contact-form');
-        form.parentNode.insertBefore(messageDiv, form);
+        // Insert at the top of the page (after header)
+        const header = document.querySelector('.header');
+        if (header && header.nextSibling) {
+            header.parentNode.insertBefore(messageDiv, header.nextSibling);
+        } else {
+            // Fallback: insert at start of main content
+            const main = document.getElementById('main-content');
+            main.insertBefore(messageDiv, main.firstChild);
+        }
 
-        // Auto-remove after 5 seconds
+        // Scroll to message smoothly
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Auto-remove after 8 seconds (longer for success messages)
+        const duration = type === 'success' ? 8000 : 6000;
         setTimeout(() => {
             messageDiv.classList.add('fade-out');
             setTimeout(() => messageDiv.remove(), 500);
-        }, 5000);
+        }, duration);
     }
 
     // Initialize lazy loading when DOM is ready
