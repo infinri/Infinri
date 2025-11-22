@@ -10,8 +10,6 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Note: body styles are in critical.css (inlined) */
-
 /* Remove list styles */
 ul,
 ol {
