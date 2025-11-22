@@ -264,7 +264,7 @@
     }
 
     /**
-     * Show message to user at top of page
+     * Show modern notification message
      */
     function showMessage(message, type) {
         // Remove existing message
@@ -276,10 +276,10 @@
         messageDiv.setAttribute('role', 'alert');
         messageDiv.setAttribute('aria-live', 'polite');
         
-        // Add icon
+        // Add icon in circular badge
         const icon = document.createElement('span');
         icon.className = 'form-message-icon';
-        icon.textContent = type === 'success' ? '✓' : '⚠';
+        icon.textContent = type === 'success' ? '✓' : '✕';
         messageDiv.appendChild(icon);
         
         // Add message text
@@ -287,20 +287,13 @@
         text.textContent = message;
         messageDiv.appendChild(text);
 
-        // Insert at the top of the page (after header)
-        const header = document.querySelector('.header');
-        if (header && header.nextSibling) {
-            header.parentNode.insertBefore(messageDiv, header.nextSibling);
-        } else {
-            // Fallback: insert at start of main content
-            const main = document.getElementById('main-content');
-            main.insertBefore(messageDiv, main.firstChild);
-        }
+        // Append to body (position:fixed, so location doesn't matter)
+        document.body.appendChild(messageDiv);
 
-        // Scroll to message smoothly
-        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll to top smoothly so user sees the notification
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Auto-remove after 8 seconds (longer for success messages)
+        // Auto-remove after duration (longer for success messages)
         const duration = type === 'success' ? 8000 : 6000;
         setTimeout(() => {
             messageDiv.classList.add('fade-out');
