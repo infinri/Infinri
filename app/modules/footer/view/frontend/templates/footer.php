@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * Footer Template
  *
- * Modern footer with professional information, contact details,
- * and technical stack showcase. No redundant navigation links.
+ * Professional footer with brand, contact CTA, and social links.
+ * Copyright and legal links centered at bottom.
  * 
  * Assets loaded in index.php
  */
@@ -25,48 +25,10 @@ declare(strict_types=1);
                 </div>
             </div>
             
-            <div class="footer-section footer-legal">
-                <h2>Legal & Policies</h2>
-                <div class="legal-links">
-                    <a href="/terms" class="legal-link">
-                        <svg class="legal-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                        </svg>
-                        <span>Terms & Conditions</span>
-                    </a>
-                    <a href="/privacy" class="legal-link">
-                        <svg class="legal-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                        <span>Privacy Policy</span>
-                    </a>
-                    <a href="/cookies" class="legal-link">
-                        <svg class="legal-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <circle cx="12" cy="8" r="1"/>
-                            <circle cx="8" cy="14" r="1"/>
-                            <circle cx="16" cy="14" r="1"/>
-                            <circle cx="12" cy="17" r="1"/>
-                        </svg>
-                        <span>Cookie Policy</span>
-                    </a>
-                    <a href="/disclaimer" class="legal-link">
-                        <svg class="legal-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
-                        <span>Portfolio Disclaimer</span>
-                    </a>
-                    <a href="/refund" class="legal-link">
-                        <svg class="legal-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9 22 9 12 15 12 15 22"/>
-                        </svg>
-                        <span>Refund & Cancellation</span>
-                    </a>
-                </div>
+            <div class="footer-section footer-contact">
+                <h2>Get In Touch</h2>
+                <p>Have a project in mind? Let's talk about how we can work together.</p>
+                <a href="/contact" class="footer-cta">Contact Me</a>
             </div>
             
             <div class="footer-section footer-social">
@@ -93,7 +55,18 @@ declare(strict_types=1);
         
         <div class="footer-bottom">
             <div class="footer-bottom-content">
-                <p>&copy; <?php echo date('Y'); ?> Infinri. Crafted with precision and modern PHP.</p>
+                <p class="footer-copyright">&copy; <?php echo date('Y'); ?> Infinri. All Rights Reserved.</p>
+                <nav class="footer-legal-links">
+                    <a href="/terms">Terms & Conditions</a>
+                    <span class="separator">·</span>
+                    <a href="/privacy">Privacy Policy</a>
+                    <span class="separator">·</span>
+                    <a href="/cookies">Cookie Policy</a>
+                    <span class="separator">·</span>
+                    <a href="/refund">Refund & Cancellation</a>
+                    <span class="separator">·</span>
+                    <a href="/disclaimer">Disclaimer</a>
+                </nav>
             </div>
         </div>
     </div>

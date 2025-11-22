@@ -11,7 +11,7 @@ use App\Helpers\Env;
 
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'About - Portfolio',
+    'title' => 'About — Infinri',
     'description' => 'Learn about my experience in modern PHP development, testing, and software architecture',
     'keywords' => 'about, PHP developer, experience, skills, software architecture',
     'og:title' => 'About - Professional PHP Developer with 98% Test Coverage',

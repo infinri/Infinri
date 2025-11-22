@@ -39,7 +39,7 @@ class Mail
         // Get Brevo configuration from environment
         $apiKey = Env::get('BREVO_API_KEY');
         $fromEmail = Env::get('BREVO_SENDER_EMAIL');
-        $fromName = Env::get('BREVO_SENDER_NAME', 'Infinri Portfolio');
+        $fromName = Env::get('BREVO_SENDER_NAME', 'Infinri');
         $recipientEmail = Env::get('BREVO_RECIPIENT_EMAIL');
         $recipientName = Env::get('BREVO_RECIPIENT_NAME', '');
         
@@ -192,7 +192,7 @@ class Mail
             <div class='email-wrapper'>
                 <div class='header'>
                     <h1>New Contact Request</h1>
-                    <p>Someone has reached out via your portfolio</p>
+                    <p>Someone has reached out via your website</p>
                 </div>
                 <div class='content'>
                     <div class='info-grid'>
@@ -226,7 +226,7 @@ class Mail
                     </div>
                 </div>
                 <div class='footer'>
-                    <p>This message was sent via your portfolio contact form</p>
+                    <p>This message was sent via your website contact form</p>
                 </div>
             </div>
         </body>

@@ -54,7 +54,7 @@ declare(strict_types=1);
                 <p class="service-price">$10 - $50</p>
                 <p class="service-description">Fast, affordable websites using proven templates. Perfect for getting online quickly.</p>
                 <div class="service-highlights">
-                    <span class="highlight">24-48hr delivery</span>
+                    <span class="highlight">Starting at $10</span>
                     <span class="highlight">Mobile-ready</span>
                     <span class="highlight">SEO optimized</span>
                 </div>

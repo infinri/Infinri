@@ -12,6 +12,7 @@ const { minify: minifyJS } = require('terser');
 // Configuration
 const config = {
     sourceDir: path.join(__dirname, 'app'),
+    baseViewDir: path.join(__dirname, 'app/base/view'),
     distDir: path.join(__dirname, 'pub/assets/dist'),
     publicAssetsDir: path.join(__dirname, 'pub/assets'),
     cssFiles: [
@@ -65,10 +66,10 @@ async function minifyCSS(files, outputName) {
     let combinedCSS = '';
     
     for (const file of files) {
-        // Base/frontend assets are in pub/assets, module assets are in app/modules
+        // Base/frontend assets are in app/base/view/, module assets are in app/modules/
         let filePath;
         if (file.startsWith('base/') || file.startsWith('frontend/')) {
-            filePath = path.join(config.publicAssetsDir, file);
+            filePath = path.join(config.baseViewDir, file);
         } else {
             filePath = path.join(config.sourceDir, file);
         }
@@ -110,10 +111,10 @@ async function minifyJavaScript(files, outputName) {
     let combinedJS = '';
     
     for (const file of files) {
-        // Base/frontend assets are in pub/assets, module assets are in app/modules
+        // Base/frontend assets are in app/base/view/, module assets are in app/modules/
         let filePath;
         if (file.startsWith('base/') || file.startsWith('frontend/')) {
-            filePath = path.join(config.publicAssetsDir, file);
+            filePath = path.join(config.baseViewDir, file);
         } else {
             filePath = path.join(config.sourceDir, file);
         }
@@ -233,9 +234,6 @@ async function build() {
     
     // Create dist directory
     ensureDir(config.distDir);
-    
-    // Copy module assets to public directory (for development mode)
-    copyModuleAssets();
     
     console.log('\n📦 Building Complete Production Bundles');
     console.log('  (base + frontend + all modules in 2 files only)\n');

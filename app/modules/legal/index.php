@@ -20,7 +20,7 @@ $legalPages = [
     'terms' => 'Terms & Conditions',
     'privacy' => 'Privacy Policy',
     'cookies' => 'Cookie Policy',
-    'disclaimer' => 'Portfolio Disclaimer',
+    'disclaimer' => 'Disclaimer',
     'refund' => 'Refund & Cancellation Policy'
 ];
 
@@ -31,7 +31,16 @@ if (!array_key_exists($page, $legalPages)) {
 }
 
 $pageTitle = $legalPages[$page];
-$lastUpdated = date('F j, Y'); // Can be customized per document
+
+// Set last updated dates per document
+$lastUpdatedDates = [
+    'terms' => 'November 21, 2025',
+    'privacy' => 'November 21, 2025',
+    'cookies' => 'November 21, 2025',
+    'disclaimer' => 'November 21, 2025',
+    'refund' => 'November 21, 2025'
+];
+$lastUpdated = $lastUpdatedDates[$page] ?? date('F j, Y');
 
 // Load legal-specific assets (development only - production uses bundles)
 if (Env::get('APP_ENV', 'development') !== 'production') {

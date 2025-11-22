@@ -1,7 +1,7 @@
 {
   "name": "infinri-portfolio",
   "version": "1.0.0",
-  "description": "Portfolio website build tools",
+  "description": "Infinri asset build tools - CSS/JS minification and bundling for production deployment",
   "private": true,
   "scripts": {
     "build": "node build.js",

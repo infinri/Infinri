@@ -29,13 +29,14 @@
 .footer-content {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 3rem;
     margin-bottom: 2rem;
 }
 
 @media (min-width: 640px) {
     .footer-content {
         grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
     }
     
     .footer-brand {
@@ -45,7 +46,8 @@
 
 @media (min-width: 1024px) {
     .footer-content {
-        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-columns: 1.5fr 1.25fr 1fr;
+        gap: 4rem;
     }
     
     .footer-brand {
@@ -55,11 +57,27 @@
 
 /* ==================== Footer Sections ==================== */
 
+.footer-section {
+    /* Center-align on mobile for consistency */
+    text-align: center;
+}
+
+@media (min-width: 1024px) {
+    .footer-section {
+        text-align: left;
+    }
+    
+    .footer-contact {
+        text-align: center;
+    }
+}
+
 .footer-section h2 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
+    font-size: 1.125rem;
+    font-weight: 600;
     color: var(--color-text);
-    margin-bottom: 1rem;
+    letter-spacing: 0.025em;
+    margin-bottom: 1.25rem;
 }
 
 .footer-section p {
@@ -76,6 +94,13 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    justify-content: center;
+}
+
+@media (min-width: 1024px) {
+    .footer-skills {
+        justify-content: flex-start;
+    }
 }
 
 .skill-tag {
@@ -158,22 +183,30 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    align-items: center;
+}
+
+@media (min-width: 1024px) {
+    .social-links {
+        align-items: flex-start;
+    }
 }
 
 .social-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
     width: fit-content;
 }
 
 .social-link:hover {
-    color: var(--color-primary-light);  /* Lighter purple for better contrast */
+    color: var(--color-primary-light);
+    transform: translateX(4px);
 }
 
 .social-icon {
@@ -195,19 +228,80 @@
     font-size: var(--font-size-lg);
 }
 
+/* ==================== Contact Section ==================== */
+
+.footer-cta {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--color-primary-light);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    border: 2px solid rgba(157, 78, 221, 0.5);
+    border-radius: var(--radius-md);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+}
+
+.footer-cta:hover {
+    background: rgba(157, 78, 221, 0.1);
+    border-color: var(--color-primary-light);
+    transform: translateY(-2px);
+}
+
 /* ==================== Footer Bottom ==================== */
 
 .footer-bottom {
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border);
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid rgba(157, 78, 221, 0.15);
 }
 
 .footer-bottom-content {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-.footer-bottom-content p {
+.footer-copyright {
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
     margin: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+.footer-legal-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: var(--font-size-xs);
+}
+
+.footer-legal-links a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-legal-links a:hover {
+    color: var(--color-primary-light);
+}
+
+.footer-legal-links .separator {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+    margin: 0 0.25rem;
+    user-select: none;
+}
+
+@media (max-width: 640px) {
+    .footer-legal-links {
+        font-size: 0.7rem;
+        gap: 0.35rem;
+    }
 }

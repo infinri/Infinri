@@ -13,7 +13,7 @@ use App\Helpers\Module;
 return [
     'environment' => Env::get('APP_ENV', 'production'),
     'site' => [
-        'name' => Env::get('SITE_NAME', 'Portfolio'),
+        'name' => Env::get('SITE_NAME', 'Infinri'),
         'url' => filter_var(Env::get('SITE_URL', 'http://localhost'), FILTER_VALIDATE_URL) ?: 'http://localhost',
     ],
     'allowed_modules' => Module::discover(),

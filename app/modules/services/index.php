@@ -11,7 +11,7 @@ use App\Helpers\Env;
 
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'Services - Portfolio',
+    'title' => 'Services — Infinri',
     'description' => 'Professional PHP development services: web applications, API development, consulting',
     'keywords' => 'services, PHP development, web applications, API, consulting',
     'og:title' => 'Development Services - Professional PHP Developer',

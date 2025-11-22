@@ -43,10 +43,16 @@ final class HelpCommand
         echo PHP_EOL;
         
         echo "WORKFLOW:" . PHP_EOL;
-        echo "  Local Development:" . PHP_EOL;
-        echo "    1. php bin/console s:min         # Build production assets" . PHP_EOL;
-        echo "    2. git commit & push             # Commit built assets" . PHP_EOL;
-        echo "    3. Deploy to production          # Git pull on server" . PHP_EOL;
+        echo "  Production Deploy:" . PHP_EOL;
+        echo "    1. Set APP_ENV=production in .env" . PHP_EOL;
+        echo "    2. php bin/console s:min         # Build minified bundles (2 files only)" . PHP_EOL;
+        echo "    3. php bin/console s:up          # Verify production setup" . PHP_EOL;
+        echo "    4. Site uses ONLY all.min.css & all.min.js (no individual files)" . PHP_EOL;
+        echo "" . PHP_EOL;
+        echo "  Development Mode:" . PHP_EOL;
+        echo "    1. Set APP_ENV=development in .env" . PHP_EOL;
+        echo "    2. php bin/console assets:publish   # Publish individual files" . PHP_EOL;
+        echo "    3. Edit source files, refresh browser (instant changes)" . PHP_EOL;
         echo "" . PHP_EOL;
         echo "  On Production:" . PHP_EOL;
         echo "    1. git pull                      # Get latest code + assets" . PHP_EOL;

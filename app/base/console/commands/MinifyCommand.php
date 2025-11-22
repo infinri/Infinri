@@ -46,12 +46,15 @@ final class MinifyCommand
         echo str_repeat('=', 50) . PHP_EOL;
         echo "✅ Production assets built successfully!" . PHP_EOL;
         echo "" . PHP_EOL;
+        echo "🎯 Production Mode:" . PHP_EOL;
+        echo "  • Uses ONLY 2 minified bundles (all.min.css & all.min.js)" . PHP_EOL;
+        echo "  • Individual module files are NOT loaded" . PHP_EOL;
+        echo "  • Zero Node.js dependencies on production server" . PHP_EOL;
+        echo "" . PHP_EOL;
         echo "📋 Next Steps:" . PHP_EOL;
-        echo "  1. Test locally with: APP_ENV=production" . PHP_EOL;
-        echo "  2. Commit: git add pub/assets/dist/" . PHP_EOL;
-        echo "  3. Commit: git commit -m 'build: Update production assets'" . PHP_EOL;
-        echo "  4. Push: git push origin main" . PHP_EOL;
-        echo "  5. Deploy: git pull && php bin/console s:up" . PHP_EOL;
+        echo "  1. Test: Set APP_ENV=production in .env" . PHP_EOL;
+        echo "  2. Verify: php bin/console s:up (should use bundles only)" . PHP_EOL;
+        echo "  3. Commit & deploy production assets" . PHP_EOL;
         echo "" . PHP_EOL;
     }
 

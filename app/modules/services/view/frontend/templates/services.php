@@ -118,15 +118,15 @@ declare(strict_types=1);
                 </div>
                 <ul class="service-features">
                     <li>1–3 pages</li>
-                    <li>My portfolio template</li>
+                    <li>Starter template</li>
                     <li>Custom colors & fonts</li>
                     <li>Mobile-responsive</li>
                     <li>SEO-ready</li>
                     <li>1 revision</li>
-                    <li>24–48 hour delivery</li>
+                    <li>24–48 hour delivery*</li>
                 </ul>
                 <div class="service-perfect-for">
-                    <strong>Note:</strong> Provide all text/images upfront
+                    <strong>*Delivery:</strong> 24-48 hours after receiving all content (text, images, final decisions)
                 </div>
                 <a href="/contact" class="service-cta">Start Project</a>
             </div>

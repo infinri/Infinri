@@ -11,12 +11,12 @@ use App\Helpers\Env;
 
 // Set page-specific meta tags
 Meta::setMultiple([
-    'title' => 'Home - Portfolio',
-    'description' => 'Professional portfolio showcasing modern PHP development with clean architecture',
-    'keywords' => 'portfolio, PHP, web development, modern architecture',
-    'og:title' => 'Professional PHP Developer Portfolio',
-    'og:description' => 'Showcasing modern PHP development with 98% test coverage',
-    'twitter:title' => 'Professional PHP Developer Portfolio'
+    'title' => 'Infinri — Affordable Web Development for Small Businesses',
+    'description' => 'Website development, hosting, and maintenance starting at $10. From quick templates to monthly support plans — transparent pricing, fast delivery.',
+    'keywords' => 'web development, small business websites, affordable hosting, monthly support, PHP development, custom websites',
+    'og:title' => 'Infinri — Affordable Web Development for Small Businesses',
+    'og:description' => 'Websites starting at $10. Monthly support from $10/mo. Transparent pricing, fast delivery.',
+    'twitter:title' => 'Infinri — Affordable Web Development'
 ]);
 
 // Load home-specific assets (development only - production uses bundles)

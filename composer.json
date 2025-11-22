@@ -1,6 +1,6 @@
 {
   "name": "infinri/portfolio",
-  "description": "Modular portfolio built with vanilla PHP",
+  "description": "Infinri: Website development, hosting, and maintenance platform. Modular PHP application for small business websites with transparent pricing and fast delivery.",
   "type": "project",
   "license": "MIT",
   "require": {

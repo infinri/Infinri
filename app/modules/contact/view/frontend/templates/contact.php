@@ -37,7 +37,7 @@ use App\Base\Helpers\ReCaptcha;
                     </svg>
                     <div class="info-content">
                         <h3 class="info-title">Email</h3>
-                        <p class="info-text">infinri@gmail.com</p>
+                        <p class="info-text">lucio.saldivar@infinri.com</p>
                         <p class="info-subtitle">Preferred method</p>
                     </div>
                 </div>
