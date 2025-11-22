@@ -243,9 +243,32 @@ final class Assets
         
         // Production: Use pre-minified critical.min.css
         if (self::isProduction()) {
-            $criticalMinPath = dirname(__DIR__, 3) . '/pub/assets/dist/critical.min.css';
-            if (file_exists($criticalMinPath)) {
-                $css = file_get_contents($criticalMinPath);
+            // Try multiple possible paths
+            $possiblePaths = [
+                dirname(__DIR__, 3) . '/pub/assets/dist/critical.min.css',
+                __DIR__ . '/../../../pub/assets/dist/critical.min.css',
+                $_SERVER['DOCUMENT_ROOT'] . '/assets/dist/critical.min.css',
+            ];
+            
+            foreach ($possiblePaths as $criticalMinPath) {
+                if (file_exists($criticalMinPath)) {
+                    $css = file_get_contents($criticalMinPath);
+                    break;
+                }
+            }
+            
+            // Fallback: if critical.min.css not found, use source and minify
+            if (empty($css)) {
+                $criticalPath = dirname(__DIR__) . '/view/base/css/critical.css';
+                if (file_exists($criticalPath)) {
+                    $css = file_get_contents($criticalPath);
+                    // Minify inline
+                    $css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css);
+                    $css = str_replace(["\r\n", "\r", "\n", "\t"], '', $css);
+                    $css = preg_replace('/\s{2,}/', ' ', $css);
+                    $css = preg_replace('/\s*([{}:;,])\s*/', '$1', $css);
+                    $css = trim($css);
+                }
             }
         } else {
             // Development: Minify critical.css on the fly
