@@ -456,7 +456,7 @@ Measure: 100% tests run, <10 seconds total
 **Current Status:** ⚠️ **PLANNED** (Phase 7)
 - Test infrastructure ready
 - Mocking not yet implemented
-- Target: 85% coverage
+- Target: 95% coverage
 
 **Architecture Support:**
 - Interface-based design (mockable)
@@ -560,7 +560,7 @@ Measure: 100% tests run, <30 seconds total
 **Decision:** Prioritize testability
 - More files (interfaces)
 - More abstraction
-- But: 100% mockable, 85% coverage
+- But: 100% mockable, 95% coverage
 
 **Rationale:** Quality > developer convenience
 
@@ -574,7 +574,7 @@ Measure: 100% tests run, <30 seconds total
 | **Performance** | ★★★ | ✅ | <300ms P95 | ~200ms | Low |
 | **Security** | ★★★ | ✅ | <1ms auth check | ~0.5ms | Low |
 | **Deployability** | ★★★ | ✅ | <30s deploy | ~14s | Low |
-| **Testability** | ★★ | ⚠️ | 85% coverage | 0% (TBD) | Medium |
+| **Testability** | ★★ | ⚠️ | 95% coverage | 0% (TBD) | Medium |
 | **Availability** | ★★ | ✅ | 99.9% uptime | 99.95% | Low |
 | **Scalability** | ★ | ✅ | 50k req/day | 5k/day | Low |
 

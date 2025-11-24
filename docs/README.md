@@ -168,7 +168,7 @@ Layer 0: Foundation (PHP, RoadRunner)
 2. **Performance** - 50k requests/day per client
 3. **Security** - Block unauthorized in <1ms
 4. **Deployability** - Deploy client in <30s
-5. **Testability** - 85%+ coverage
+5. **Testability** - 95%+ coverage
 
 ---
 

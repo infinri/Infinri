@@ -326,9 +326,9 @@ app/modules/contact/
   - **Memory limit:** <10MB
 
 **Coverage Target:**
-- Minimum: 85% code coverage
-- Container: 95% coverage
-- Config: 90% coverage
+- Minimum: 95% code coverage
+- Container: 98% coverage
+- Config: 97% coverage
 
 **Test Command:**
 ```bash
@@ -847,9 +847,9 @@ function tap($value, callable $callback);
   - **Memory limit:** <15MB
 
 **Coverage Target:**
-- Minimum: 85% code coverage
-- Router: 95% coverage
-- Request/Response: 90% coverage
+- Minimum: 95% code coverage
+- Router: 98% coverage
+- Request/Response: 97% coverage
 
 **Test Command:**
 ```bash
@@ -1548,10 +1548,10 @@ class UserController extends Controller {
 - Use transactions where possible
 
 **Coverage Target:**
-- Minimum: 85% code coverage
-- Query Builder: 95% coverage
-- Schema System: 90% coverage
-- Models: 85% coverage
+- Minimum: 95% code coverage
+- Query Builder: 98% coverage
+- Schema System: 97% coverage
+- Models: 95% coverage
 
 **Test Command:**
 ```bash
