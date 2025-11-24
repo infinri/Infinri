@@ -103,7 +103,7 @@ bin/console                        # CLI entry point
 **Optional Extensions**
 - PSR-3 Logger (Monolog optional)
 - PSR-7 HTTP (if needed for external packages)
-- Database: MySQL 8.0+ or PostgreSQL 14+
+- Database: PostgreSQL 16+
 
 ---
 
@@ -272,6 +272,74 @@ app/modules/contact/
 
 **Duration:** 2-3 weeks  
 **Goal:** Build the foundational IoC container and core contracts
+
+---
+
+### ⚠️ STRICT SCOPE RULES
+
+**ALLOWED in Phase 1:**
+- ✅ Container + dependency injection
+- ✅ Core contracts (interfaces only)
+- ✅ Config system
+- ✅ Application class
+- ✅ Helper facades (wrap existing helpers)
+- ✅ Observability: Logger, correlation ID, `/health` endpoint
+
+**FORBIDDEN in Phase 1:**
+- ❌ **NO Database** - Use existing file-based systems
+- ❌ **NO Router changes** - Keep existing router working
+- ❌ **NO View engine changes** - Keep plain PHP templates
+- ❌ **NO New modules** - Only refactor existing
+- ❌ **NO HTTP layer changes** - Keep `pub/index.php` working
+
+**If you're tempted:**
+- "I'll just add a quick database query" → NO, Phase 3
+- "Let me improve the router while I'm here" → NO, Phase 2
+- "This validation logic should be centralized" → NO, Phase 4+
+- "I need to refactor the SEO module" → NO, Phase 5+
+
+---
+
+### 🧪 MANDATORY TESTING REQUIREMENTS
+
+**Phase 1 CANNOT MERGE without:**
+
+**Unit Tests (Minimum):**
+- [ ] `ContainerTest` - Binding & resolution (10+ assertions)
+- [ ] `ContainerTest` - Singleton behavior (5+ assertions)
+- [ ] `ContainerTest` - Constructor injection (8+ assertions)
+- [ ] `ContainerTest` - Circular dependency detection (3+ assertions)
+- [ ] `ContainerTest` - Interface binding (5+ assertions)
+- [ ] `ConfigTest` - Config loading and access (8+ assertions)
+- [ ] `ApplicationTest` - Bootstrap process (5+ assertions)
+- [ ] `LoggerTest` - JSON logging with correlation ID (6+ assertions)
+
+**Integration Tests (Minimum):**
+- [ ] **Phase 1 Integration Test:**
+  - Bootstrap application with container
+  - Load config from `.env`
+  - Resolve service with dependencies
+  - Access config through injected service
+  - Log entry with correlation ID
+  - Health check returns valid JSON
+  - **Time limit:** <50ms
+  - **Memory limit:** <10MB
+
+**Coverage Target:**
+- Minimum: 85% code coverage
+- Container: 95% coverage
+- Config: 90% coverage
+
+**Test Command:**
+```bash
+# Run Phase 1 tests
+vendor/bin/phpunit --testsuite=Phase1
+
+# Coverage report
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+---
 
 ### 1.1 Service Container Implementation
 
@@ -720,6 +788,79 @@ function tap($value, callable $callback);
 
 **Duration:** 2-3 weeks  
 **Goal:** Build Request/Response abstractions, enhanced router with middleware, and HTTP kernel
+
+---
+
+### ⚠️ STRICT SCOPE RULES
+
+**ALLOWED in Phase 2:**
+- ✅ Request/Response abstractions
+- ✅ Router with param matching
+- ✅ Middleware pipeline
+- ✅ HTTP Kernel
+- ✅ ONE test route `/healthz` through new system
+- ✅ Observability: Request timing, HTTP metrics
+
+**FORBIDDEN in Phase 2:**
+- ❌ **NO Database** - Still Phase 3
+- ❌ **NO Controllers** - Keep existing module `index.php` files
+- ❌ **NO Auth middleware** - Phase 4+ feature
+- ❌ **NO CORS middleware** - Phase 4+ feature
+- ❌ **NO Rate limiting** - Phase 4+ feature
+- ❌ **NO Validation** - Phase 4+ feature
+
+**Start small:**
+- Wire `/healthz` route ONLY through new system
+- Keep existing routes on old router temporarily
+- Don't migrate modules yet
+
+**If you're tempted:**
+- "Let me add authentication while I'm here" → NO, Phase 4
+- "I should migrate all routes now" → NO, do `/healthz` first
+- "This needs database for session storage" → NO, Phase 3
+- "Let me add CORS support" → NO, Phase 4+
+
+---
+
+### 🧪 MANDATORY TESTING REQUIREMENTS
+
+**Phase 2 CANNOT MERGE without:**
+
+**Unit Tests (Minimum):**
+- [ ] `RequestTest` - Input, query, headers (12+ assertions)
+- [ ] `ResponseTest` - Status codes, headers, body (10+ assertions)
+- [ ] `RouterTest` - Route registration & matching (15+ assertions)
+- [ ] `RouterTest` - Parameter extraction (8+ assertions)
+- [ ] `MiddlewareTest` - Pipeline execution order (6+ assertions)
+- [ ] `KernelTest` - Request lifecycle (8+ assertions)
+
+**Integration Tests (Minimum):**
+- [ ] **Phase 2 Integration Test:**
+  - Bootstrap app + HTTP kernel
+  - Register `/healthz` route
+  - Send GET request
+  - Middleware executes in order
+  - Response returns JSON
+  - Timing metrics recorded
+  - Correlation ID present
+  - **Time limit:** <100ms
+  - **Memory limit:** <15MB
+
+**Coverage Target:**
+- Minimum: 85% code coverage
+- Router: 95% coverage
+- Request/Response: 90% coverage
+
+**Test Command:**
+```bash
+# Run Phase 2 tests
+vendor/bin/phpunit --testsuite=Phase2
+
+# Test new route
+curl http://localhost:8080/healthz
+```
+
+---
 
 ### 2.1 Request & Response Abstractions
 
@@ -1339,6 +1480,96 @@ class UserController extends Controller {
 **Duration:** 2-3 weeks  
 **Goal:** Build database abstraction layer, query builder, migrations, and Active Record ORM
 
+---
+
+### ⚠️ STRICT SCOPE RULES
+
+**ALLOWED in Phase 3:**
+- ✅ Database connection (PostgreSQL only)
+- ✅ Query builder
+- ✅ Schema system (PHP array schema + patches)
+- ✅ ONE test model: `Page` (or `User`)
+- ✅ Database migrations
+- ✅ Seeders (test data only)
+- ✅ Observability: Query logging, connection pool monitoring
+
+**FORBIDDEN in Phase 3:**
+- ❌ **NO Admin panel** - Phase 5
+- ❌ **NO Authentication system** - Phase 4
+- ❌ **NO Complex validation** - Phase 4
+- ❌ **NO Multiple models** - Start with ONE model only
+- ❌ **NO SEO module** - Phase 4+
+- ❌ **NO Blog/CMS features** - Phase 5+
+
+**Start with ONE model:**
+- Create `Page` model for static content
+- OR create `User` model if you need auth prep
+- Don't create: Post, Category, Tag, Comment, Product, etc.
+- Don't create: BlogPost, ContactSubmission, etc.
+
+**If you're tempted:**
+- "Let me add the full blog schema while I'm here" → NO, one model
+- "I need auth tables for login" → NO, Phase 4
+- "This needs a CMS backend" → NO, Phase 5
+- "Let me optimize all queries" → NO, get it working first
+
+---
+
+### 🧪 MANDATORY TESTING REQUIREMENTS
+
+**Phase 3 CANNOT MERGE without:**
+
+**Unit Tests (Minimum):**
+- [ ] `ConnectionTest` - Connect, disconnect, errors (8+ assertions)
+- [ ] `QueryBuilderTest` - SELECT, WHERE, JOIN (20+ assertions)
+- [ ] `QueryBuilderTest` - INSERT, UPDATE, DELETE (12+ assertions)
+- [ ] `SchemaBuilderTest` - Create, alter, drop table (15+ assertions)
+- [ ] `ModelTest` - Find, save, delete (10+ assertions)
+- [ ] `PatchExecutorTest` - Apply patches, dependencies (8+ assertions)
+
+**Integration Tests (Minimum):**
+- [ ] **Phase 3 Integration Test:**
+  - Bootstrap app + database
+  - Run schema:install
+  - Create `Page` model instance
+  - Save to database
+  - Query with builder
+  - Update and delete
+  - Verify data persists
+  - Rollback changes
+  - **Time limit:** <200ms
+  - **Memory limit:** <20MB
+
+**Database Tests:**
+- Use PostgreSQL test database (not production!)
+- Create test DB: `infinri_test`
+- Run migrations before tests
+- Clean DB after tests
+- Use transactions where possible
+
+**Coverage Target:**
+- Minimum: 85% code coverage
+- Query Builder: 95% coverage
+- Schema System: 90% coverage
+- Models: 85% coverage
+
+**Test Command:**
+```bash
+# Run Phase 3 tests
+vendor/bin/phpunit --testsuite=Phase3
+
+# Test database connection
+php bin/console db:test
+
+# Run migrations
+php bin/console schema:install
+
+# Verify
+psql -U postgres -d infinri_test -c "SELECT * FROM pages;"
+```
+
+---
+
 ### 3.1 Database Connection & Configuration
 
 **Files to Create:**
@@ -1350,7 +1581,6 @@ app/Core/Database/
 ├── DatabaseManager.php            # Multi-connection manager
 └── Connectors/
     ├── Connector.php              # Base connector
-    ├── MySqlConnector.php         # MySQL connector
     └── PostgresConnector.php      # PostgreSQL connector
 
 app/config/
@@ -1363,23 +1593,9 @@ app/Providers/
 **database.php** - Database configuration
 ```php
 return [
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
     
     'connections' => [
-        'mysql' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'infinri'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
-        ],
-        
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -1390,6 +1606,7 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'schema' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
     ],
 ];
@@ -1442,7 +1659,7 @@ class DatabaseManager {
 - Connection pooling
 - Transaction support
 - Prepared statements
-- MySQL and PostgreSQL support
+- PostgreSQL support
 - Table prefix support
 - Connection configuration per environment
 
@@ -1464,7 +1681,6 @@ app/Core/Database/Query/
 ├── Builder.php                    # Query builder
 ├── Grammar.php                    # Base grammar
 ├── Grammars/
-│   ├── MySqlGrammar.php          # MySQL grammar
 │   └── PostgresGrammar.php       # PostgreSQL grammar
 ├── Expression.php                 # Raw expression
 └── JoinClause.php                # JOIN clause builder
@@ -1615,7 +1831,6 @@ app/Core/Database/Schema/
 ├── SchemaBuilder.php              # Build SQL from schema
 ├── SchemaDumper.php               # Dump current DB schema
 ├── Grammars/
-│   ├── MySqlSchemaGrammar.php    # MySQL DDL generator
 │   └── PostgresSchemaGrammar.php  # PostgreSQL DDL generator
 └── ColumnDefinition.php           # Column helper
 
@@ -1857,13 +2072,15 @@ class AddFullTextIndex implements SchemaPatchInterface
     
     public function apply(): void
     {
-        // MySQL-specific full-text index
-        if ($this->connection->getDriverName() === 'mysql') {
+        // PostgreSQL full-text index
+        if ($this->connection->getDriverName() === 'pgsql') {
             $this->connection->statement('
-                ALTER TABLE blog_posts 
-                ADD FULLTEXT INDEX idx_fulltext_search (title, content)
+                CREATE INDEX blog_posts_fulltext_idx 
+                ON blog_posts USING GIN(to_tsvector(''english'', title || '' '' || content));
             ');
         }
+        
+        /*
         
         // PostgreSQL uses different approach
         if ($this->connection->getDriverName() === 'pgsql') {
@@ -1957,7 +2174,7 @@ php bin/console patch:apply App\\Modules\\Blog\\Setup\\Patch\\Data\\SeedCategori
 **Key Features:**
 - **Declarative:** Define what you want, not how to get there
 - **Idempotent:** Safe to run multiple times
-- **Cross-database:** Works with MySQL and PostgreSQL
+- **PostgreSQL native:** Optimized for PostgreSQL 16+
 - **Module-friendly:** Each module includes its schema
 - **Data separation:** Schema (structure) vs Patches (data)
 - **Dependency management:** Patches can depend on other patches
@@ -2963,11 +3180,15 @@ class MigrateContentCommand extends Command {
 
 ### Database
 
-**Supported:**
-- MySQL 8.0+
-- PostgreSQL 14+
+**Required:**
+- PostgreSQL 16+
 
-**Recommended:** MySQL 8.0 (most common in shared hosting)
+**Why PostgreSQL:**
+- Superior JSON support
+- Better full-text search
+- More advanced features
+- Excellent performance
+- Open source
 
 ### Web Server
 
@@ -2984,7 +3205,7 @@ class MigrateContentCommand extends Command {
 **Minimum:** PHP 8.4
 
 **Extensions Required:**
-- PDO (pdo_mysql or pdo_pgsql)
+- PDO (pdo_pgsql)
 - mbstring
 - openssl
 - json
@@ -3258,7 +3479,7 @@ Closes #123
 - [ ] Set up development environment
 - [ ] Install PHP 8.4+
 - [ ] Install Composer
-- [ ] Install database (MySQL/PostgreSQL)
+- [ ] Install PostgreSQL 16+
 - [ ] Install Node.js (for asset building)
 
 ### During Development
