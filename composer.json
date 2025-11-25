@@ -26,14 +26,16 @@
       "App\\": "app/",
       "App\\Base\\Components\\": "app/base/components/",
       "App\\Base\\Helpers\\": "app/base/helpers/",
-      "App\\Core\\": "app/base/core/",
+      "App\\Base\\Core\\": "app/base/core/",
+      "App\\Core\\": "app/Core/",
       "App\\Helpers\\": "app/base/helpers/",
       "App\\Modules\\": "app/modules/",
       "App\\Console\\": "app/base/console/",
       "App\\Console\\Commands\\": "app/base/console/commands/"
     },
     "files": [
-      "app/bootstrap.php"
+      "app/bootstrap.php",
+      "app/Core/Support/helpers.php"
     ]
   },
   "autoload-dev": {
