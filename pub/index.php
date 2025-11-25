@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 // Load application bootstrap
 require __DIR__ . '/../app/autoload.php';
+$app = require_once __DIR__ . '/../app/Core/bootstrap.php';
 
 use App\Core\Router;
 use App\Helpers\{Session, Env};
