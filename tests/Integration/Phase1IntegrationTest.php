@@ -32,6 +32,9 @@ class Phase1IntegrationTest extends TestCase
 
     protected function setUp(): void
     {
+        // Reset Application singleton
+        Application::resetInstance();
+        
         $this->startTime = microtime(true);
         $this->startMemory = memory_get_usage(true);
         
@@ -46,6 +49,11 @@ class Phase1IntegrationTest extends TestCase
                 'APP_TIMEZONE=UTC',
             ]));
         }
+    }
+
+    protected function tearDown(): void
+    {
+        Application::resetInstance();
     }
 
     /** @test */
@@ -161,7 +169,10 @@ class Phase1IntegrationTest extends TestCase
         // Test env() helper
         $this->assertEquals('Infinri', env('APP_NAME'));
         $this->assertEquals('testing', env('APP_ENV'));
+        
+        // Test boolean conversion (handles 'true', '1', 'yes', 'on' as true)
         $this->assertTrue(env('APP_DEBUG'));
+        
         $this->assertNull(env('NONEXISTENT_VAR'));
         $this->assertEquals('default', env('NONEXISTENT_VAR', 'default'));
         

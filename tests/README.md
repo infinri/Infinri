@@ -68,13 +68,13 @@ tests/
 
 ## Test Counts
 
-**Total Tests:** 108 tests
+**Total Tests:** 111 tests
 
 **By Category:**
 - Container: 25 tests
 - Config: 18 tests
 - Logger: 18 tests
-- Environment: 9 tests
+- Environment: 12 tests (includes boolean conversion)
 - HealthCheck: 10 tests
 - Application: 19 tests
 - Integration: 9 tests

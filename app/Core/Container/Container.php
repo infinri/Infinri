@@ -315,6 +315,12 @@ class Container implements ContainerInterface
             );
         }
 
+        // If parameter is optional with a default value, use the default
+        // This handles cases like: ?ConcreteClass $dependency = null
+        if ($parameter->isOptional() && $parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        }
+
         // Try to resolve the class dependency
         try {
             return $this->make($type->getName());

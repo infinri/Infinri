@@ -31,7 +31,15 @@ class EnvironmentTest extends TestCase
         
         // Clean up environment variables
         putenv('TEST_VAR');
-        unset($_ENV['TEST_VAR'], $_SERVER['TEST_VAR']);
+        putenv('BOOL_VAR');
+        putenv('YES_VAR');
+        putenv('NO_VAR');
+        unset(
+            $_ENV['TEST_VAR'], $_SERVER['TEST_VAR'],
+            $_ENV['BOOL_VAR'], $_SERVER['BOOL_VAR'],
+            $_ENV['YES_VAR'], $_SERVER['YES_VAR'],
+            $_ENV['NO_VAR'], $_SERVER['NO_VAR']
+        );
     }
 
     /** @test */
@@ -120,5 +128,39 @@ class EnvironmentTest extends TestCase
         
         $expectedPath = $this->testEnvPath . DIRECTORY_SEPARATOR . '.env.test';
         $this->assertEquals($expectedPath, $env->getFilePath());
+    }
+
+    /** @test */
+    public function env_helper_converts_numeric_true(): void
+    {
+        file_put_contents($this->testEnvFile, 'BOOL_VAR=1');
+        
+        $env = new Environment($this->testEnvPath, '.env.test');
+        $env->load();
+        
+        $this->assertTrue(env('BOOL_VAR'));
+    }
+
+    /** @test */
+    public function env_helper_converts_numeric_false(): void
+    {
+        file_put_contents($this->testEnvFile, 'BOOL_VAR=0');
+        
+        $env = new Environment($this->testEnvPath, '.env.test');
+        $env->load();
+        
+        $this->assertFalse(env('BOOL_VAR'));
+    }
+
+    /** @test */
+    public function env_helper_converts_yes_and_no(): void
+    {
+        file_put_contents($this->testEnvFile, "YES_VAR=yes\nNO_VAR=no");
+        
+        $env = new Environment($this->testEnvPath, '.env.test');
+        $env->load();
+        
+        $this->assertTrue(env('YES_VAR'));
+        $this->assertFalse(env('NO_VAR'));
     }
 }

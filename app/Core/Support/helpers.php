@@ -20,8 +20,8 @@ if (!function_exists('env')) {
 
         // Convert string boolean values
         return match (strtolower($value)) {
-            'true', '(true)' => true,
-            'false', '(false)' => false,
+            'true', '(true)', '1', 'yes', 'on' => true,
+            'false', '(false)', '0', 'no', 'off' => false,
             'empty', '(empty)' => '',
             'null', '(null)' => null,
             default => $value,

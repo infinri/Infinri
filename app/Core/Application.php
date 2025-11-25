@@ -96,6 +96,16 @@ class Application extends Container
     }
 
     /**
+     * Reset the application instance (for testing)
+     *
+     * @return void
+     */
+    public static function resetInstance(): void
+    {
+        static::$instance = null;
+    }
+
+    /**
      * Get the version number of the application
      *
      * @return string

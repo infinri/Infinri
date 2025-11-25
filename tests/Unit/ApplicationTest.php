@@ -17,6 +17,9 @@ class ApplicationTest extends TestCase
 
     protected function setUp(): void
     {
+        // Reset Application singleton
+        Application::resetInstance();
+        
         // Create test .env file if it doesn't exist
         $envPath = BASE_PATH . '/.env';
         if (!file_exists($envPath)) {
@@ -24,6 +27,11 @@ class ApplicationTest extends TestCase
         }
         
         $this->app = new Application(BASE_PATH);
+    }
+
+    protected function tearDown(): void
+    {
+        Application::resetInstance();
     }
 
     /** @test */

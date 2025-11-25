@@ -15,6 +15,9 @@ class HealthCheckTest extends TestCase
 
     protected function setUp(): void
     {
+        // Reset Application singleton
+        Application::resetInstance();
+        
         // Create test .env file
         $envPath = BASE_PATH . '/.env';
         if (!file_exists($envPath)) {
@@ -24,6 +27,11 @@ class HealthCheckTest extends TestCase
         $this->app = new Application(BASE_PATH);
         $this->app->bootstrap();
         $this->healthCheck = new HealthCheck($this->app);
+    }
+
+    protected function tearDown(): void
+    {
+        Application::resetInstance();
     }
 
     /** @test */
