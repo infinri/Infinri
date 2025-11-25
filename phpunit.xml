@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         failOnWarning="true"
+         failOnRisky="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true">
+    <testsuites>
+        <testsuite name="Phase1">
+            <directory>tests/Unit/Container</directory>
+            <directory>tests/Unit/Config</directory>
+            <directory>tests/Unit/Log</directory>
+            <directory>tests/Unit/Support</directory>
+            <file>tests/Unit/ApplicationTest.php</file>
+            <file>tests/Integration/Phase1IntegrationTest.php</file>
+        </testsuite>
+        
+        <testsuite name="Phase2">
+            <directory>tests/Unit/Http</directory>
+            <file>tests/Integration/Phase2IntegrationTest.php</file>
+        </testsuite>
+        
+        <testsuite name="Phase3">
+            <directory>tests/Unit/Database</directory>
+            <file>tests/Integration/Phase3IntegrationTest.php</file>
+        </testsuite>
+        
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    
+    <source>
+        <include>
+            <directory suffix=".php">app/Core</directory>
+        </include>
+    </source>
+    
+    <coverage includeUncoveredFiles="true"
+              pathCoverage="false"
+              ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="true">
+        <report>
+            <html outputDirectory="coverage/html"/>
+            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
+    
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_DEBUG" value="true"/>
+    </php>
+</phpunit>
