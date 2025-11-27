@@ -206,6 +206,68 @@ class ModuleRegistry
     }
 
     /**
+     * Enable a module
+     */
+    public function enable(string $name): bool
+    {
+        $this->load();
+        
+        if (!isset($this->modules[$name])) {
+            return false;
+        }
+
+        // Update enabled state in module.php
+        $modulePath = $this->modules[$name]->path . '/module.php';
+        if (file_exists($modulePath)) {
+            $this->updateModuleEnabled($modulePath, true);
+        }
+
+        // Rebuild registry
+        $this->rebuild();
+        return true;
+    }
+
+    /**
+     * Disable a module
+     */
+    public function disable(string $name): bool
+    {
+        $this->load();
+        
+        if (!isset($this->modules[$name])) {
+            return false;
+        }
+
+        // Update enabled state in module.php
+        $modulePath = $this->modules[$name]->path . '/module.php';
+        if (file_exists($modulePath)) {
+            $this->updateModuleEnabled($modulePath, false);
+        }
+
+        // Rebuild registry
+        $this->rebuild();
+        return true;
+    }
+
+    /**
+     * Update enabled state in module.php
+     */
+    protected function updateModuleEnabled(string $path, bool $enabled): void
+    {
+        $content = file_get_contents($path);
+        $replacement = "'enabled' => " . ($enabled ? 'true' : 'false');
+        
+        // Replace existing enabled line
+        $content = preg_replace(
+            "/'enabled'\s*=>\s*(true|false)/",
+            $replacement,
+            $content
+        );
+
+        file_put_contents($path, $content);
+    }
+
+    /**
      * Rebuild the registry (force re-scan)
      */
     public function rebuild(): void

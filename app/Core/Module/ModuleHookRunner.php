@@ -122,6 +122,32 @@ class ModuleHookRunner
     }
 
     /**
+     * Run onEnable hook for a module
+     */
+    public function runEnableHook(string $name): bool
+    {
+        $module = $this->registry->get($name);
+        if ($module === null) {
+            return false;
+        }
+
+        return $this->runHook($module, 'onEnable');
+    }
+
+    /**
+     * Run onDisable hook for a module
+     */
+    public function runDisableHook(string $name): bool
+    {
+        $module = $this->registry->get($name);
+        if ($module === null) {
+            return false;
+        }
+
+        return $this->runHook($module, 'onDisable');
+    }
+
+    /**
      * Mark a module as installed
      */
     public function markInstalled(string $name, string $version): void

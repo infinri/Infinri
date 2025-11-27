@@ -29,6 +29,22 @@ return [
     },
 
     /**
+     * Called when module is enabled
+     */
+    'onEnable' => function () {
+        // Example: Restore module state
+        // Example: Re-register routes
+    },
+
+    /**
+     * Called when module is disabled
+     */
+    'onDisable' => function () {
+        // Example: Clean up module state
+        // Example: Unregister routes
+    },
+
+    /**
      * Called before setup runs
      */
     'beforeSetup' => function () {

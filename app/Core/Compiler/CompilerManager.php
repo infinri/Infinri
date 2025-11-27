@@ -19,6 +19,8 @@ class CompilerManager
     protected ?ConfigCompiler $configCompiler = null;
     protected ?EventCompiler $eventCompiler = null;
     protected ?ContainerCompiler $containerCompiler = null;
+    protected ?RouteCompiler $routeCompiler = null;
+    protected ?MiddlewareCompiler $middlewareCompiler = null;
 
     public function __construct(?string $basePath = null, ?ModuleRegistry $registry = null)
     {
@@ -35,6 +37,8 @@ class CompilerManager
             'config' => $this->compileConfig(),
             'events' => $this->compileEvents(),
             'container' => $this->compileContainer(),
+            'routes' => $this->compileRoutes(),
+            'middleware' => $this->compileMiddleware(),
         ];
     }
 
@@ -46,6 +50,8 @@ class CompilerManager
         $this->getConfigCompiler()->clear();
         $this->getEventCompiler()->clear();
         $this->getContainerCompiler()->clear();
+        $this->getRouteCompiler()->clear();
+        $this->getMiddlewareCompiler()->clear();
     }
 
     /**
@@ -73,6 +79,22 @@ class CompilerManager
     }
 
     /**
+     * Compile routes
+     */
+    public function compileRoutes(): array
+    {
+        return $this->getRouteCompiler()->compile();
+    }
+
+    /**
+     * Compile middleware
+     */
+    public function compileMiddleware(): array
+    {
+        return $this->getMiddlewareCompiler()->compile();
+    }
+
+    /**
      * Get compilation stats
      */
     public function getStats(): array
@@ -81,8 +103,12 @@ class CompilerManager
             'config_cached' => $this->getConfigCompiler()->isCached(),
             'events_cached' => $this->getEventCompiler()->isCached(),
             'container_cached' => $this->getContainerCompiler()->isCached(),
+            'routes_cached' => $this->getRouteCompiler()->isCached(),
+            'middleware_cached' => $this->getMiddlewareCompiler()->isCached(),
             'container' => $this->getContainerCompiler()->getStats(),
             'events' => $this->getEventCompiler()->getStats(),
+            'routes' => $this->getRouteCompiler()->getStats(),
+            'middleware' => $this->getMiddlewareCompiler()->getStats(),
         ];
     }
 
@@ -129,6 +155,36 @@ class CompilerManager
             );
         }
         return $this->containerCompiler;
+    }
+
+    /**
+     * Get route compiler
+     */
+    public function getRouteCompiler(): RouteCompiler
+    {
+        if ($this->routeCompiler === null) {
+            $this->routeCompiler = new RouteCompiler(
+                $this->basePath,
+                $this->basePath . '/var/cache/routes.php',
+                $this->registry
+            );
+        }
+        return $this->routeCompiler;
+    }
+
+    /**
+     * Get middleware compiler
+     */
+    public function getMiddlewareCompiler(): MiddlewareCompiler
+    {
+        if ($this->middlewareCompiler === null) {
+            $this->middlewareCompiler = new MiddlewareCompiler(
+                $this->basePath,
+                $this->basePath . '/var/cache/middleware.php',
+                $this->registry
+            );
+        }
+        return $this->middlewareCompiler;
     }
 
     protected function getDefaultBasePath(): string

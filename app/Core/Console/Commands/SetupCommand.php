@@ -186,6 +186,8 @@ class SetupCommand extends Command
             echo "  ✓ Config compiled\n";
             echo "  ✓ Events compiled\n";
             echo "  ✓ Container compiled\n";
+            echo "  ✓ Routes compiled\n";
+            echo "  ✓ Middleware compiled\n";
             
             if ($stats['container']['total_providers'] > 0) {
                 echo "  • Providers: " . $stats['container']['total_providers'] . "\n";

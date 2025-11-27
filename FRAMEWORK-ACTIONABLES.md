@@ -147,7 +147,8 @@ var/cache/
 - [x] `onUpgrade($fromVersion)` - Version upgrades
 - [x] `beforeSetup()` / `afterSetup()` - Setup hooks
 - [x] Module state tracked in `var/state/modules.php`
-- [ ] `onEnable()` / `onDisable()` - Future enhancement
+- [x] `onEnable()` / `onDisable()` - State change hooks
+- [x] `module:enable` / `module:disable` commands
 
 ### 4.3 Console Command Discovery
 - [x] Core commands auto-discovered
@@ -161,31 +162,62 @@ var/cache/
 
 ## Phase 5: Advanced Features ⚙️
 
-**Status: ⏸️ Pending**
+**Status: ✅ Complete**
 
-### 5.1 Class Discovery
-- [ ] Attribute scanning for auto-registration
-- [ ] Reflection-based discovery
-- [ ] Discovery result caching
+### 5.1 Reindexer Framework (Module-Extensible)
+- [x] `IndexerInterface` contract
+- [x] `AbstractIndexer` base class
+- [x] `IndexerRegistry` for module indexers
+- [x] No built-in indexers (all module-specific)
+- [x] Incremental reindexing support
+- [x] `index:reindex [name]` command
+- [x] `index:reindex --list` to see registered indexers
 
-### 5.2 Reindexer Framework
-- [ ] Indexer interface
-- [ ] Built-in indexers: search, menu, sitemap
-- [ ] Incremental reindexing
-- [ ] CLI: `index:reindex [indexer]`
+### 5.2 Preload Builder
+- [x] `PreloadCompiler` generates preload.php
+- [x] Includes core files and compiled cache
+- [x] `preload:generate` command
+- [x] OPcache configuration instructions
 
-### 5.3 Preload Builder
-- [ ] Generate `preload.php` for OPcache
-- [ ] Include hot paths and compiled files
+### 5.3 Route Caching
+- [x] `RouteCompiler` compiles module routes
+- [x] Caches to `var/cache/routes.php`
+- [x] Integrated into `CompilerManager`
+
+### 5.4 HTTP Pipeline Compilation
+- [x] `MiddlewareCompiler` with priority ordering
+- [x] Global, web, api middleware groups
+- [x] Middleware aliases support
+- [x] Caches to `var/cache/middleware.php`
+
+### 5.5 Config Validation
+- [x] `ConfigValidator` with schema support
+- [x] Type, min/max, pattern, enum validation
+- [x] Custom validator callbacks
+
+### 5.6 Files Created
+- `Core/Contracts/Indexer/IndexerInterface.php`
+- `Core/Indexer/IndexerRegistry.php`
+- `Core/Indexer/AbstractIndexer.php`
+- `Core/Compiler/PreloadCompiler.php`
+- `Core/Compiler/RouteCompiler.php`
+- `Core/Compiler/MiddlewareCompiler.php`
+- `Core/Config/ConfigValidator.php`
+- `Core/Console/Commands/IndexReindexCommand.php`
+- `Core/Console/Commands/PreloadGenerateCommand.php`
+- `Core/Console/Commands/ModuleEnableCommand.php`
+- `Core/Console/Commands/ModuleDisableCommand.php`
+- `app/Http/middleware.php`
 
 ---
 
-## Commands After Implementation
+## Commands Available
 
 ```bash
 # Setup
 php bin/console s:i          # Install (create .env)
 php bin/console s:up         # Update (migrate, compile, cache)
+php bin/console s:p          # Fix permissions
 
 # Cache
 php bin/console cache:clear              # Clear all
@@ -196,9 +228,13 @@ php bin/console module:list              # List modules
 php bin/console module:enable blog       # Enable module
 php bin/console module:disable blog      # Disable module
 
-# Indexing
+# Indexing (module-registered indexers)
 php bin/console index:reindex            # Reindex all
 php bin/console index:reindex search     # Reindex specific
+php bin/console index:reindex --list     # List available indexers
+
+# Preload
+php bin/console preload:generate         # Generate OPcache preload file
 ```
 
 ---
@@ -266,7 +302,14 @@ app/
 | 2024-11-27 | Phase 4.2 | beforeSetup/afterSetup hooks | ✅ Done |
 | 2024-11-27 | Phase 4.2 | Module state tracking | ✅ Done |
 | 2024-11-27 | Cleanup | ModuleManager deprecated | ✅ Done |
-| 2024-11-27 | Phase 5 | Advanced Features | ⏸️ Optional |
+| 2024-11-27 | Phase 5 | IndexerRegistry + AbstractIndexer | ✅ Done |
+| 2024-11-27 | Phase 5 | index:reindex command | ✅ Done |
+| 2024-11-27 | Phase 5 | PreloadCompiler + command | ✅ Done |
+| 2024-11-27 | Phase 5 | RouteCompiler | ✅ Done |
+| 2024-11-27 | Phase 5 | ConfigValidator | ✅ Done |
+| 2024-11-27 | Phase 5 | module:enable/disable commands | ✅ Done |
+| 2024-11-27 | Phase 5 | onEnable/onDisable hooks | ✅ Done |
+| 2024-11-27 | Phase 5 | MiddlewareCompiler (HTTP pipeline) | ✅ Done |
 
 ---
 

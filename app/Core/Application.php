@@ -15,6 +15,7 @@ use App\Core\Config\Config;
 use App\Core\Log\LogManager;
 use App\Core\Module\ModuleLoader;
 use App\Core\Module\ModuleRegistry;
+use App\Core\Indexer\IndexerRegistry;
 use App\Core\Support\Environment;
 
 /**
@@ -190,6 +191,11 @@ class Application extends Container
         // Bind to container
         $this->instance(ModuleLoader::class, $this->moduleLoader);
         $this->instance(ModuleRegistry::class, $this->moduleLoader->getRegistry());
+        
+        // Register indexer registry (modules can add their indexers)
+        $this->singleton(IndexerRegistry::class, function () {
+            return new IndexerRegistry();
+        });
         
         // Load all modules
         $this->moduleLoader->load();
