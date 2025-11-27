@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\Assets;
-use App\Helpers\Env;
+
 
 // Determine which legal document to show from URL
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/terms';
@@ -43,7 +43,7 @@ $lastUpdatedDates = [
 $lastUpdated = $lastUpdatedDates[$page] ?? date('F j, Y');
 
 // Load legal-specific assets (development only - production uses bundles)
-if (Env::get('APP_ENV', 'development') !== 'production') {
+if (env('APP_ENV', 'development') !== 'production') {
     $modulePath = __DIR__;
     $assetBase = '/assets/modules/legal/view/frontend';
 

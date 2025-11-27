@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Config;
 
 use App\Core\Config\Config;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
@@ -32,13 +33,13 @@ class ConfigTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_simple_value(): void
     {
         $this->assertEquals('value', $this->config->get('simple'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_nested_array(): void
     {
         $app = $this->config->get('app');
@@ -47,35 +48,35 @@ class ConfigTest extends TestCase
         $this->assertEquals('Infinri', $app['name']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_value_using_dot_notation(): void
     {
         $this->assertEquals('Infinri', $this->config->get('app.name'));
         $this->assertEquals('testing', $this->config->get('app.env'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_deeply_nested_value(): void
     {
         $this->assertEquals('localhost', $this->config->get('database.connections.pgsql.host'));
         $this->assertEquals(5432, $this->config->get('database.connections.pgsql.port'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_default_for_missing_key(): void
     {
         $this->assertNull($this->config->get('nonexistent'));
         $this->assertEquals('default', $this->config->get('nonexistent', 'default'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_default_for_missing_nested_key(): void
     {
         $this->assertNull($this->config->get('app.nonexistent'));
         $this->assertEquals('default', $this->config->get('app.nonexistent', 'default'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_check_if_key_exists(): void
     {
         $this->assertTrue($this->config->has('app'));
@@ -83,7 +84,7 @@ class ConfigTest extends TestCase
         $this->assertFalse($this->config->has('nonexistent'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_set_simple_value(): void
     {
         $this->config->set('new', 'value');
@@ -91,7 +92,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('value', $this->config->get('new'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_set_nested_value_using_dot_notation(): void
     {
         $this->config->set('app.timezone', 'UTC');
@@ -99,7 +100,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('UTC', $this->config->get('app.timezone'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_set_deeply_nested_value(): void
     {
         $this->config->set('database.connections.pgsql.database', 'infinri');
@@ -107,7 +108,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('infinri', $this->config->get('database.connections.pgsql.database'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_set_multiple_values_at_once(): void
     {
         $this->config->set([
@@ -119,7 +120,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('value2', $this->config->get('key2'));
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_nested_arrays_when_setting_dot_notation(): void
     {
         $this->config->set('new.nested.key', 'value');
@@ -129,7 +130,7 @@ class ConfigTest extends TestCase
         $this->assertIsArray($this->config->get('new.nested'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_all_configuration(): void
     {
         $all = $this->config->all();
@@ -140,7 +141,7 @@ class ConfigTest extends TestCase
         $this->assertArrayHasKey('simple', $all);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_prepend_value_to_array(): void
     {
         $this->config->set('list', ['b', 'c']);
@@ -150,7 +151,7 @@ class ConfigTest extends TestCase
         $this->assertEquals(['a', 'b', 'c'], $this->config->get('list'));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_push_value_to_array(): void
     {
         $this->config->set('list', ['a', 'b']);
@@ -160,7 +161,7 @@ class ConfigTest extends TestCase
         $this->assertEquals(['a', 'b', 'c'], $this->config->get('list'));
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_array_when_prepending_to_nonexistent_key(): void
     {
         $this->config->prepend('newlist', 'first');
@@ -168,7 +169,7 @@ class ConfigTest extends TestCase
         $this->assertEquals(['first'], $this->config->get('newlist'));
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_array_when_pushing_to_nonexistent_key(): void
     {
         $this->config->push('newlist', 'first');

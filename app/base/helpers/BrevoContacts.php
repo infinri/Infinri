@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace App\Base\Helpers;
 
-use App\Helpers\Env;
 use Brevo\Client\Configuration;
 use Brevo\Client\Api\ContactsApi;
 use Brevo\Client\ApiException;
@@ -31,25 +30,25 @@ class BrevoContacts
     {
         // Check if Brevo contacts integration is enabled
         if (!self::isEnabled()) {
-            Logger::info('Brevo contacts integration is disabled, skipping contact creation');
+            logger()->info('Brevo contacts integration is disabled, skipping contact creation');
             return true; // Not an error, just disabled
         }
 
-        $apiKey = Env::get('BREVO_API_KEY');
+        $apiKey = env('BREVO_API_KEY');
         $listId = self::getListId();
 
         if (!$apiKey) {
-            Logger::error('Brevo API key not configured');
+            logger()->error('Brevo API key not configured');
             return false;
         }
 
         if (!$listId) {
-            Logger::error('Brevo list ID not configured');
+            logger()->error('Brevo list ID not configured');
             return false;
         }
 
         try {
-            Logger::info('Creating/updating Brevo contact', [
+            logger()->info('Creating/updating Brevo contact', [
                 'email' => $contactData['email'] ?? 'N/A',
                 'list_id' => $listId
             ]);
@@ -72,7 +71,7 @@ class BrevoContacts
             // Create or update contact
             $result = $apiInstance->createContact($contact);
 
-            Logger::info('Brevo contact created/updated successfully', [
+            logger()->info('Brevo contact created/updated successfully', [
                 'email' => $contactData['email'],
                 'contact_id' => $result->getId() ?? 'updated'
             ]);
@@ -86,14 +85,14 @@ class BrevoContacts
 
             if ($e->getCode() === 400 && isset($errorData['code']) && $errorData['code'] === 'duplicate_parameter') {
                 // Contact exists, try to update instead
-                Logger::info('Contact already exists, updating instead', [
+                logger()->info('Contact already exists, updating instead', [
                     'email' => $contactData['email']
                 ]);
 
                 return self::updateContact($contactData);
             }
 
-            Logger::error('Brevo Contacts API Exception', [
+            logger()->error('Brevo Contacts API Exception', [
                 'code' => $e->getCode(),
                 'message' => $e->getMessage(),
                 'response' => $responseBody
@@ -102,7 +101,7 @@ class BrevoContacts
             return false;
 
         } catch (\Exception $e) {
-            Logger::error('Brevo contact creation failed', [
+            logger()->error('Brevo contact creation failed', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
@@ -120,7 +119,7 @@ class BrevoContacts
      */
     private static function updateContact(array $contactData): bool
     {
-        $apiKey = Env::get('BREVO_API_KEY');
+        $apiKey = env('BREVO_API_KEY');
         $listId = self::getListId();
 
         try {
@@ -140,14 +139,14 @@ class BrevoContacts
             // Update contact
             $apiInstance->updateContact($contactData['email'], $contact);
 
-            Logger::info('Brevo contact updated successfully', [
+            logger()->info('Brevo contact updated successfully', [
                 'email' => $contactData['email']
             ]);
 
             return true;
 
         } catch (\Exception $e) {
-            Logger::error('Brevo contact update failed', [
+            logger()->error('Brevo contact update failed', [
                 'error' => $e->getMessage()
             ]);
 
@@ -206,7 +205,7 @@ class BrevoContacts
      */
     public static function isEnabled(): bool
     {
-        return Env::get('BREVO_CONTACTS_ENABLED', 'true') === 'true';
+        return env('BREVO_CONTACTS_ENABLED', 'true') === 'true';
     }
 
     /**
@@ -216,7 +215,7 @@ class BrevoContacts
      */
     public static function getListId(): ?int
     {
-        $listId = Env::get('BREVO_LIST_ID', '');
+        $listId = env('BREVO_LIST_ID', '');
         return $listId !== '' ? (int)$listId : null;
     }
 }

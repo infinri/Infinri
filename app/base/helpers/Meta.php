@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace App\Base\Helpers;
 
-use App\Helpers\Esc;
+
 
 final class Meta
 {
@@ -82,32 +82,32 @@ final class Meta
         $output = '';
 
         // Charset
-        $output .= '<meta charset="' . Esc::html(self::$tags['charset']) . '">' . PHP_EOL;
+        $output .= '<meta charset="' . e(self::$tags['charset']) . '">' . PHP_EOL;
 
         // Viewport
-        $output .= '<meta name="viewport" content="' . Esc::html(self::$tags['viewport']) . '">' . PHP_EOL;
+        $output .= '<meta name="viewport" content="' . e(self::$tags['viewport']) . '">' . PHP_EOL;
 
         // Title
-        $output .= '<title>' . Esc::html(self::$tags['title']) . '</title>' . PHP_EOL;
+        $output .= '<title>' . e(self::$tags['title']) . '</title>' . PHP_EOL;
 
         // Standard meta tags
         foreach (['description', 'keywords', 'author'] as $name) {
             if (self::$tags[$name] !== '' && self::$tags[$name] !== null) {
-                $output .= '<meta name="' . $name . '" content="' . Esc::html(self::$tags[$name]) . '">' . PHP_EOL;
+                $output .= '<meta name="' . $name . '" content="' . e(self::$tags[$name]) . '">' . PHP_EOL;
             }
         }
 
         // Open Graph
         foreach (self::$tags as $key => $value) {
             if (strpos($key, 'og:') === 0 && $value !== '' && $value !== null) {
-                $output .= '<meta property="' . $key . '" content="' . Esc::html($value) . '">' . PHP_EOL;
+                $output .= '<meta property="' . $key . '" content="' . e($value) . '">' . PHP_EOL;
             }
         }
 
         // Twitter
         foreach (self::$tags as $key => $value) {
             if (strpos($key, 'twitter:') === 0 && $value !== '' && $value !== null) {
-                $output .= '<meta name="' . $key . '" content="' . Esc::html($value) . '">' . PHP_EOL;
+                $output .= '<meta name="' . $key . '" content="' . e($value) . '">' . PHP_EOL;
             }
         }
 

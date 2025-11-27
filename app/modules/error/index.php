@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
-use App\Helpers\Env;
+
 
 // Determine error type (can be set by Router or default to 404)
 $errorType = $errorType ?? $_GET['type'] ?? '404';
@@ -42,7 +42,7 @@ $metaConfig = [
 Meta::setMultiple($metaConfig[$errorType]);
 
 // Load error-specific assets (development only - production uses bundles)
-if (Env::get('APP_ENV', 'development') !== 'production') {
+if (env('APP_ENV', 'development') !== 'production') {
     $modulePath = __DIR__;
     $assetBase = '/assets/modules/error/view/frontend';
 

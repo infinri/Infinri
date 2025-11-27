@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace App\Base\Helpers;
 
-use App\Helpers\Env;
 
 class ReCaptcha
 {
@@ -28,7 +27,7 @@ class ReCaptcha
             return true;
         }
 
-        $secretKey = Env::get('RECAPTCHA_SECRET_KEY');
+        $secretKey = env('RECAPTCHA_SECRET_KEY');
         if (empty($secretKey)) {
             error_log('ReCaptcha: SECRET_KEY not configured');
             return false;
@@ -124,7 +123,7 @@ class ReCaptcha
         }
 
         // Score threshold check
-        $minScore = (float) Env::get('RECAPTCHA_MIN_SCORE', '0.5');
+        $minScore = (float) env('RECAPTCHA_MIN_SCORE', '0.5');
         $score = (float) ($result['score'] ?? 0.0);
 
         if ($score < $minScore) {
@@ -143,7 +142,7 @@ class ReCaptcha
      */
     public static function isEnabled(): bool
     {
-        return Env::get('RECAPTCHA_ENABLED', 'false') === 'true';
+        return env('RECAPTCHA_ENABLED', 'false') === 'true';
     }
 
     /**
@@ -153,6 +152,6 @@ class ReCaptcha
      */
     public static function getSiteKey(): string
     {
-        return Env::get('RECAPTCHA_SITE_KEY', '');
+        return env('RECAPTCHA_SITE_KEY', '');
     }
 }

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace App\Base\Helpers;
 
-use App\Helpers\{Esc, Env};
+
 
 final class Assets
 {
@@ -42,7 +42,7 @@ final class Assets
      */
     private static function isProduction(): bool
     {
-        return Env::get('APP_ENV', 'development') === 'production';
+        return env('APP_ENV', 'development') === 'production';
     }
 
     /**
@@ -68,7 +68,7 @@ final class Assets
         }
 
         // Use APP_VERSION from env, or timestamp in dev
-        return Env::get('APP_VERSION', (string)time());
+        return env('APP_VERSION', (string)time());
     }
 
     /**
@@ -192,7 +192,7 @@ final class Assets
 
         $output = '';
         foreach (self::$preconnectUrls as $url) {
-            $output .= '<link rel="preconnect" href="' . Esc::html($url) . '" crossorigin>' . PHP_EOL;
+            $output .= '<link rel="preconnect" href="' . e($url) . '" crossorigin>' . PHP_EOL;
         }
 
         return $output;
@@ -211,13 +211,13 @@ final class Assets
 
         $output = '';
         foreach (self::$headScripts as $script) {
-            $output .= '<script src="' . Esc::html($script['url']) . '"';
+            $output .= '<script src="' . e($script['url']) . '"';
             
             foreach ($script['attributes'] as $attr => $value) {
                 if ($value === true) {
                     $output .= ' ' . $attr;
                 } else {
-                    $output .= ' ' . $attr . '="' . Esc::html($value) . '"';
+                    $output .= ' ' . $attr . '="' . e($value) . '"';
                 }
             }
             
@@ -237,7 +237,7 @@ final class Assets
     {
         // Get CSP nonce from globals (set in pub/index.php)
         $nonce = $GLOBALS['cspNonce'] ?? '';
-        $nonceAttr = $nonce ? ' nonce="' . Esc::html($nonce) . '"' : '';
+        $nonceAttr = $nonce ? ' nonce="' . e($nonce) . '"' : '';
         
         $css = '';
         
@@ -305,7 +305,7 @@ final class Assets
         
         // Production: Load non-critical CSS (critical CSS is already inlined)
         if (self::isProduction()) {
-            $allBundle = '/assets/dist/all.min.css?v=' . Esc::html($version);
+            $allBundle = '/assets/dist/all.min.css?v=' . e($version);
             
             // Preload CSS for high-priority loading (tells browser to fetch immediately)
             $output .= '<link rel="preload" href="' . $allBundle . '" as="style">' . PHP_EOL;
@@ -322,7 +322,7 @@ final class Assets
         // Development: Load CSS normally for easier debugging
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$css[$layer] as $file) {
-                $url = Esc::html($file) . '?v=' . Esc::html($version);
+                $url = e($file) . '?v=' . e($version);
                 $output .= '<link rel="stylesheet" href="' . $url . '">' . PHP_EOL;
             }
         }
@@ -344,7 +344,7 @@ final class Assets
         // Production: Use single all-in-one bundle
         if (self::isProduction()) {
             // All-in-one bundle (base + frontend + all modules) - single request
-            $allBundle = '/assets/dist/all.min.js?v=' . Esc::html($version);
+            $allBundle = '/assets/dist/all.min.js?v=' . e($version);
             $output .= '<script src="' . $allBundle . '" defer></script>' . PHP_EOL;
             
             return $output;
@@ -353,7 +353,7 @@ final class Assets
         // Development: Load individual files for easier debugging
         foreach (['base', 'frontend', 'module'] as $layer) {
             foreach (self::$js[$layer] as $file) {
-                $url = Esc::html($file) . '?v=' . Esc::html($version);
+                $url = e($file) . '?v=' . e($version);
                 $output .= '<script src="' . $url . '" defer></script>' . PHP_EOL;
             }
         }

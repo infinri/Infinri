@@ -115,11 +115,11 @@ if (!function_exists('storage_path')) {
 
 if (!function_exists('logger')) {
     /**
-     * Log a message to the logs
+     * Get the logger instance or log a message
      *
      * @param string|null $message
      * @param array $context
-     * @return \App\Core\Contracts\Log\LoggerInterface|void
+     * @return \App\Core\Log\LogManager|void
      */
     function logger(?string $message = null, array $context = [])
     {
@@ -130,5 +130,293 @@ if (!function_exists('logger')) {
         }
 
         $logger->info($message, $context);
+    }
+}
+
+if (!function_exists('log_exception')) {
+    /**
+     * Log an exception with full details
+     *
+     * @param Throwable $e The exception to log
+     * @param array $context Additional context
+     * @return void
+     */
+    function log_exception(Throwable $e, array $context = []): void
+    {
+        $logger = logger();
+        
+        if ($logger instanceof \App\Core\Log\LogManager) {
+            $logger->exception($e, $context);
+        } else {
+            $logger->error($e->getMessage(), array_merge([
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], $context));
+        }
+    }
+}
+
+if (!function_exists('log_security')) {
+    /**
+     * Log a security event
+     *
+     * @param string $event The security event
+     * @param array $context Additional context
+     * @return void
+     */
+    function log_security(string $event, array $context = []): void
+    {
+        $logger = logger();
+        
+        if ($logger instanceof \App\Core\Log\LogManager) {
+            $logger->security($event, $context);
+        } else {
+            $logger->warning('[SECURITY] ' . $event, $context);
+        }
+    }
+}
+
+if (!function_exists('log_system')) {
+    /**
+     * Log a system event
+     *
+     * @param string $message The system message
+     * @param array $context Additional context
+     * @return void
+     */
+    function log_system(string $message, array $context = []): void
+    {
+        $logger = logger();
+        
+        if ($logger instanceof \App\Core\Log\LogManager) {
+            $logger->system($message, $context);
+        } else {
+            $logger->info('[SYSTEM] ' . $message, $context);
+        }
+    }
+}
+
+if (!function_exists('db')) {
+    /**
+     * Get the database manager or a specific connection
+     *
+     * @param string|null $connection
+     * @return \App\Core\Database\DatabaseManager|\App\Core\Contracts\Database\ConnectionInterface
+     */
+    function db(?string $connection = null)
+    {
+        $manager = app(\App\Core\Database\DatabaseManager::class);
+        
+        if ($connection === null) {
+            return $manager;
+        }
+        
+        return $manager->connection($connection);
+    }
+}
+
+if (!function_exists('cache')) {
+    /**
+     * Get the cache manager or retrieve/store a value
+     *
+     * @param string|null $key
+     * @param mixed $default
+     * @return \App\Core\Cache\CacheManager|mixed
+     */
+    function cache(?string $key = null, mixed $default = null): mixed
+    {
+        static $manager = null;
+        
+        if ($manager === null) {
+            $manager = new \App\Core\Cache\CacheManager([
+                'default' => 'file',
+                'stores' => [
+                    'file' => [
+                        'driver' => 'file',
+                        'path' => app()->storagePath('cache'),
+                    ],
+                    'array' => [
+                        'driver' => 'array',
+                    ],
+                ],
+            ]);
+        }
+        
+        if ($key === null) {
+            return $manager;
+        }
+        
+        return $manager->get($key, $default);
+    }
+}
+
+if (!function_exists('sanitize')) {
+    /**
+     * Sanitize a value using the Sanitizer
+     *
+     * @param string $value
+     * @param string $method
+     * @return string
+     */
+    function sanitize(string $value, string $method = 'html'): string
+    {
+        return \App\Core\Security\Sanitizer::$method($value);
+    }
+}
+
+if (!function_exists('e')) {
+    /**
+     * Escape HTML special characters (shorthand for sanitize)
+     *
+     * @param string $value
+     * @return string
+     */
+    function e(string $value): string
+    {
+        return \App\Core\Security\Sanitizer::html($value);
+    }
+}
+
+if (!function_exists('session')) {
+    /**
+     * Get the session manager or a session value
+     *
+     * @param string|null $key
+     * @param mixed $default
+     * @return \App\Core\Session\SessionManager|mixed
+     */
+    function session(?string $key = null, mixed $default = null): mixed
+    {
+        static $manager = null;
+        
+        if ($manager === null) {
+            $manager = new \App\Core\Session\SessionManager();
+        }
+        
+        if ($key === null) {
+            return $manager;
+        }
+        
+        return $manager->get($key, $default);
+    }
+}
+
+if (!function_exists('csrf_token')) {
+    /**
+     * Get the CSRF token
+     *
+     * @return string
+     */
+    function csrf_token(): string
+    {
+        static $csrf = null;
+        
+        if ($csrf === null) {
+            $csrf = new \App\Core\Security\Csrf();
+        }
+        
+        return $csrf->token();
+    }
+}
+
+if (!function_exists('csrf_field')) {
+    /**
+     * Get the CSRF hidden input field
+     *
+     * @return string
+     */
+    function csrf_field(): string
+    {
+        static $csrf = null;
+        
+        if ($csrf === null) {
+            $csrf = new \App\Core\Security\Csrf();
+        }
+        
+        return $csrf->field();
+    }
+}
+
+if (!function_exists('csrf_verify')) {
+    /**
+     * Verify a CSRF token
+     *
+     * @param string $token
+     * @return bool
+     */
+    function csrf_verify(string $token): bool
+    {
+        static $csrf = null;
+        
+        if ($csrf === null) {
+            $csrf = new \App\Core\Security\Csrf();
+        }
+        
+        return $csrf->verify($token);
+    }
+}
+
+if (!function_exists('rate_limit')) {
+    /**
+     * Check rate limit for a key
+     *
+     * @param string $key Unique identifier (e.g., IP address)
+     * @param int $maxAttempts Maximum attempts allowed
+     * @param int $decaySeconds Time window in seconds
+     * @return bool True if allowed, false if rate limited
+     */
+    function rate_limit(string $key, int $maxAttempts = 5, int $decaySeconds = 300): bool
+    {
+        static $limiter = null;
+        
+        if ($limiter === null) {
+            $limiter = new \App\Core\Security\RateLimiter(
+                new \App\Core\Cache\FileStore(
+                    (function_exists('app') ? app()->storagePath('cache/rate_limits') : sys_get_temp_dir() . '/rate_limits')
+                )
+            );
+        }
+        
+        return !$limiter->tooManyAttempts($key, $maxAttempts);
+    }
+}
+
+if (!function_exists('rate_limit_hit')) {
+    /**
+     * Record a rate limit hit
+     *
+     * @param string $key
+     * @param int $decaySeconds
+     * @return int Current attempt count
+     */
+    function rate_limit_hit(string $key, int $decaySeconds = 300): int
+    {
+        static $limiter = null;
+        
+        if ($limiter === null) {
+            $limiter = new \App\Core\Security\RateLimiter(
+                new \App\Core\Cache\FileStore(
+                    (function_exists('app') ? app()->storagePath('cache/rate_limits') : sys_get_temp_dir() . '/rate_limits')
+                )
+            );
+        }
+        
+        return $limiter->hit($key, $decaySeconds);
+    }
+}
+
+if (!function_exists('validator')) {
+    /**
+     * Create a new validator instance
+     *
+     * @param array $data
+     * @param array $rules
+     * @param array $messages
+     * @return \App\Core\Validation\Validator
+     */
+    function validator(array $data, array $rules = [], array $messages = []): \App\Core\Validation\Validator
+    {
+        return \App\Core\Validation\Validator::make($data, $rules, $messages);
     }
 }

@@ -42,7 +42,88 @@ class HealthCheck
             'timestamp' => date('Y-m-d\TH:i:s.uP'),
             'app' => $this->getAppInfo(),
             'system' => $this->getSystemInfo(),
+            'http' => $this->getHttpInfo(),
+            'database' => $this->getDatabaseInfo(),
         ];
+    }
+
+    /**
+     * Get database information (Phase 3)
+     *
+     * @return array
+     */
+    protected function getDatabaseInfo(): array
+    {
+        $info = [
+            'status' => 'not_configured',
+            'connection' => null,
+            'last_migration' => null,
+        ];
+
+        // Check if database manager is registered
+        if (!$this->app->has(\App\Core\Database\DatabaseManager::class)) {
+            return $info;
+        }
+
+        try {
+            $db = $this->app->make(\App\Core\Database\DatabaseManager::class);
+            $connection = $db->connection();
+            
+            // Test connection
+            $connection->select('SELECT 1');
+            $info['status'] = 'connected';
+            $info['connection'] = $connection->getName();
+            $info['driver'] = $connection->getDriverName();
+            $info['database'] = $connection->getDatabaseName();
+
+            // Get last migration
+            try {
+                $result = $connection->selectOne(
+                    'SELECT migration FROM migrations ORDER BY id DESC LIMIT 1'
+                );
+                $info['last_migration'] = $result['migration'] ?? null;
+            } catch (\Throwable $e) {
+                $info['last_migration'] = 'migrations_table_not_found';
+            }
+
+        } catch (\Throwable $e) {
+            $info['status'] = 'error';
+            $info['error'] = $e->getMessage();
+        }
+
+        return $info;
+    }
+
+    /**
+     * Get HTTP layer information (Phase 2)
+     *
+     * @return array
+     */
+    protected function getHttpInfo(): array
+    {
+        $info = [
+            'router' => 'not_registered',
+            'routes_count' => 0,
+            'middleware' => [],
+        ];
+
+        // Check if router is registered
+        if ($this->app->has(\App\Core\Contracts\Routing\RouterInterface::class)) {
+            try {
+                $router = $this->app->make(\App\Core\Contracts\Routing\RouterInterface::class);
+                $info['router'] = 'active';
+                $info['routes_count'] = count($router->getRoutes());
+            } catch (\Throwable $e) {
+                $info['router'] = 'error';
+            }
+        }
+
+        // Check if kernel is registered
+        if ($this->app->has(\App\Core\Contracts\Http\KernelInterface::class)) {
+            $info['kernel'] = 'active';
+        }
+
+        return $info;
     }
 
     /**

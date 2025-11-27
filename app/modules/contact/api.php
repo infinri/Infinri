@@ -6,8 +6,8 @@ declare(strict_types=1);
  * Handles contact form POST requests
  */
 
-use App\Base\Helpers\{Validator, Mail, Logger, RateLimiter, ReCaptcha, BrevoContacts};
-use App\Helpers\Session;
+use App\Core\Validation\Validator;
+use App\Base\Helpers\{Mail, ReCaptcha, BrevoContacts};
 
 // Set JSON response header
 header('Content-Type: application/json');
@@ -17,15 +17,12 @@ try {
     $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
     // 1. Rate Limiting Check (5 attempts per 5 minutes)
-    if (!RateLimiter::check($clientIp, 5, 300)) {
-        $resetTime = RateLimiter::getResetTime($clientIp, 300);
-        $minutes = ceil($resetTime / 60);
-        
-        Logger::warning('Rate limit exceeded', ['ip' => $clientIp]);
+    if (!rate_limit($clientIp, 5, 300)) {
+        logger()->warning('Rate limit exceeded', ['ip' => $clientIp]);
         http_response_code(429);
         echo json_encode([
             'success' => false, 
-            'message' => "Too many attempts. Please try again in {$minutes} minute(s)."
+            'message' => "Too many attempts. Please try again in 5 minute(s)."
         ]);
         exit;
     }
@@ -33,7 +30,7 @@ try {
     // 2. Honeypot Check (anti-bot)
     $honeypot = $_POST['company_url'] ?? '';
     if (!empty($honeypot)) {
-        Logger::warning('Bot detected via spam trap', [
+        logger()->warning('Bot detected via spam trap', [
             'ip' => $clientIp,
             'field_value' => substr($honeypot, 0, 50)
         ]);
@@ -45,8 +42,8 @@ try {
     // 3. CSRF Token Verification
     $submittedToken = $_POST['csrf_token'] ?? '';
     
-    if (!Session::verifyCsrf($submittedToken)) {
-        Logger::warning('CSRF token verification failed', ['ip' => $clientIp]);
+    if (!csrf_verify($submittedToken)) {
+        logger()->warning('CSRF token verification failed', ['ip' => $clientIp]);
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh the page and try again.']);
         exit;
@@ -57,7 +54,7 @@ try {
         $recaptchaToken = $_POST['recaptcha_token'] ?? '';
         
         if (!ReCaptcha::verify($recaptchaToken, 'contact_form')) {
-            Logger::warning('reCAPTCHA verification failed', ['ip' => $clientIp]);
+            logger()->warning('reCAPTCHA verification failed', ['ip' => $clientIp]);
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Security verification failed. Please try again.']);
             exit;
@@ -65,7 +62,7 @@ try {
     }
 
     // Log form submission attempt
-    Logger::info('Contact form submission started', ['ip' => $clientIp]);
+    logger()->info('Contact form submission started', ['ip' => $clientIp]);
     
     // 5. Input Validation
     $validator = new Validator($_POST);
@@ -79,20 +76,20 @@ try {
     
     // Verify privacy consent is checked (value should be 'on' or '1')
     if (empty($_POST['privacy_consent']) || ($_POST['privacy_consent'] !== 'on' && $_POST['privacy_consent'] !== '1')) {
-        Logger::warning('Privacy consent not accepted');
+        logger()->warning('Privacy consent not accepted');
         echo json_encode(['success' => false, 'message' => 'You must agree to the Privacy Policy to submit this form.']);
         exit;
     }
     
     if ($validator->fails()) {
-        Logger::warning('Contact form validation failed', [
+        logger()->warning('Contact form validation failed', [
             'errors' => $validator->errors()
         ]);
         echo json_encode(['success' => false, 'errors' => $validator->errors()]);
         exit;
     }
     
-    Logger::info('Contact form validation passed');
+    logger()->info('Contact form validation passed');
     
     // 5. Get Validated & Sanitized Data
     // Note: Sanitization (htmlspecialchars) happens in Mail::sendContactForm()
@@ -100,7 +97,7 @@ try {
     
     // 6. Send Email
     try {
-        Logger::info('Attempting to send contact form email', [
+        logger()->info('Attempting to send contact form email', [
             'customer_name' => $data['name'],
             'customer_email' => $data['email'],
             'subject' => $data['subject']
@@ -112,15 +109,15 @@ try {
         BrevoContacts::addContact($data);
         
         // Record this attempt for rate limiting (only after successful send)
-        RateLimiter::record($clientIp);
+        rate_limit_hit($clientIp, 300);
         
-        Logger::info('Contact form email sent successfully');
+        logger()->info('Contact form email sent successfully');
         
         echo json_encode(['success' => true, 'message' => 'Message sent successfully!']);
         exit;
         
     } catch (Exception $e) {
-        Logger::error('Contact form email failed', [
+        logger()->error('Contact form email failed', [
             'error' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine()
@@ -131,7 +128,7 @@ try {
     
 } catch (Throwable $e) {
     // Catch any PHP errors/exceptions
-    Logger::error('Contact form fatal error', [
+    logger()->error('Contact form fatal error', [
         'error' => $e->getMessage(),
         'file' => $e->getFile(),
         'line' => $e->getLine()

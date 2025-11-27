@@ -4,61 +4,52 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Concerns\ManagesPaths;
+use App\Core\Concerns\ManagesProviders;
 use App\Core\Container\Container;
 use App\Core\Container\ServiceProvider;
 use App\Core\Contracts\Config\ConfigInterface;
 use App\Core\Contracts\Container\ContainerInterface;
 use App\Core\Contracts\Log\LoggerInterface;
 use App\Core\Config\Config;
-use App\Core\Log\Logger;
+use App\Core\Log\LogManager;
+use App\Core\Module\ModuleLoader;
+use App\Core\Module\ModuleRegistry;
 use App\Core\Support\Environment;
 
 /**
  * Application
  * 
- * The core application class that bootstraps the framework
+ * The core application class that bootstraps the framework.
+ * Uses traits for path and provider management (Single Responsibility).
  */
 class Application extends Container
 {
+    use ManagesPaths;
+    use ManagesProviders;
+
     /**
      * The Infinri framework version
-     *
-     * @var string
      */
     const VERSION = '0.1.0';
 
     /**
-     * The base path for the Infinri installation
-     *
-     * @var string
+     * The base path for the installation
      */
     protected string $basePath;
 
     /**
      * Indicates if the application has been bootstrapped
-     *
-     * @var bool
      */
     protected bool $hasBeenBootstrapped = false;
 
     /**
-     * The array of service providers
-     *
-     * @var array<ServiceProvider>
+     * The module loader
      */
-    protected array $serviceProviders = [];
-
-    /**
-     * The names of the loaded service providers
-     *
-     * @var array<string, bool>
-     */
-    protected array $loadedProviders = [];
+    protected ?ModuleLoader $moduleLoader = null;
 
     /**
      * The application instance
-     *
-     * @var static|null
      */
     protected static ?Application $instance = null;
 
@@ -161,13 +152,60 @@ class Application extends Container
         // Register logger
         $this->registerLogger();
 
-        // Log application start
-        logger()->info('Application bootstrapped', [
-            'version' => $this->version(),
-            'environment' => env('APP_ENV', 'production'),
-        ]);
+        // Load modules and their service providers
+        $this->loadModules();
+
+        // Boot all service providers
+        $this->boot();
+
+        // Log application start to system channel
+        $logger = logger();
+        if ($logger instanceof LogManager) {
+            $logger->system('Application bootstrapped', [
+                'version' => $this->version(),
+                'environment' => env('APP_ENV', 'production'),
+                'php_version' => PHP_VERSION,
+                'base_path' => $this->basePath,
+                'modules_loaded' => count($this->getModuleLoader()->getModules()),
+            ]);
+        } else {
+            $logger->info('Application bootstrapped', [
+                'version' => $this->version(),
+                'environment' => env('APP_ENV', 'production'),
+            ]);
+        }
 
         $this->hasBeenBootstrapped = true;
+    }
+
+    /**
+     * Load modules and their service providers
+     *
+     * @return void
+     */
+    protected function loadModules(): void
+    {
+        $this->moduleLoader = new ModuleLoader($this);
+        
+        // Bind to container
+        $this->instance(ModuleLoader::class, $this->moduleLoader);
+        $this->instance(ModuleRegistry::class, $this->moduleLoader->getRegistry());
+        
+        // Load all modules
+        $this->moduleLoader->load();
+    }
+
+    /**
+     * Get the module loader
+     *
+     * @return ModuleLoader
+     */
+    public function getModuleLoader(): ModuleLoader
+    {
+        if ($this->moduleLoader === null) {
+            $this->moduleLoader = new ModuleLoader($this);
+        }
+        return $this->moduleLoader;
     }
 
     /**
@@ -217,17 +255,21 @@ class Application extends Container
      */
     protected function registerLogger(): void
     {
-        $logPath = $this->storagePath('log/app.log');
+        $logDirectory = $this->storagePath('log');
         
-        $logger = new Logger($logPath);
+        $logger = new LogManager($logDirectory);
 
         // Set correlation ID if we're in a web context
         if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             $logger->setCorrelationId($this->generateRequestId());
         }
 
+        // Add environment context
+        $logger->addGlobalContext('environment', env('APP_ENV', 'production'));
+        $logger->addGlobalContext('app_name', env('APP_NAME', 'Infinri'));
+
         $this->instance(LoggerInterface::class, $logger);
-        $this->instance(Logger::class, $logger);
+        $this->instance(LogManager::class, $logger);
     }
 
     /**
@@ -238,150 +280,6 @@ class Application extends Container
     protected function generateRequestId(): string
     {
         return 'req_' . bin2hex(random_bytes(6));
-    }
-
-    /**
-     * Register a service provider
-     *
-     * @param ServiceProvider|string $provider
-     * @param bool $force
-     * @return ServiceProvider
-     */
-    public function register(ServiceProvider|string $provider, bool $force = false): ServiceProvider
-    {
-        // If already registered, return the existing instance
-        if (($registered = $this->getProvider($provider)) && !$force) {
-            return $registered;
-        }
-
-        // Create instance if string was passed
-        if (is_string($provider)) {
-            $provider = new $provider($this);
-        }
-
-        // Call register method
-        $provider->register();
-
-        // Mark as loaded
-        $this->markAsRegistered($provider);
-
-        // If already bootstrapped, call boot immediately
-        if ($this->hasBeenBootstrapped) {
-            $this->bootProvider($provider);
-        }
-
-        return $provider;
-    }
-
-    /**
-     * Get a registered service provider
-     *
-     * @param ServiceProvider|string $provider
-     * @return ServiceProvider|null
-     */
-    public function getProvider(ServiceProvider|string $provider): ?ServiceProvider
-    {
-        $name = is_string($provider) ? $provider : get_class($provider);
-
-        foreach ($this->serviceProviders as $value) {
-            if ($value instanceof $name) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Mark the given provider as registered
-     *
-     * @param ServiceProvider $provider
-     * @return void
-     */
-    protected function markAsRegistered(ServiceProvider $provider): void
-    {
-        $this->serviceProviders[] = $provider;
-        $this->loadedProviders[get_class($provider)] = true;
-    }
-
-    /**
-     * Boot the given service provider
-     *
-     * @param ServiceProvider $provider
-     * @return void
-     */
-    protected function bootProvider(ServiceProvider $provider): void
-    {
-        if (method_exists($provider, 'boot')) {
-            $provider->boot();
-        }
-    }
-
-    /**
-     * Boot all registered providers
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        foreach ($this->serviceProviders as $provider) {
-            $this->bootProvider($provider);
-        }
-    }
-
-    /**
-     * Get the base path of the Infinri installation
-     *
-     * @param string $path
-     * @return string
-     */
-    public function basePath(string $path = ''): string
-    {
-        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . $path : '');
-    }
-
-    /**
-     * Get the path to the application "app" directory
-     *
-     * @param string $path
-     * @return string
-     */
-    public function appPath(string $path = ''): string
-    {
-        return $this->basePath('app' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
-    }
-
-    /**
-     * Get the path to the storage directory
-     *
-     * @param string $path
-     * @return string
-     */
-    public function storagePath(string $path = ''): string
-    {
-        return $this->basePath('var' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
-    }
-
-    /**
-     * Get the path to the public directory
-     *
-     * @param string $path
-     * @return string
-     */
-    public function publicPath(string $path = ''): string
-    {
-        return $this->basePath('pub' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
-    }
-
-    /**
-     * Get the path to the configuration directory
-     *
-     * @param string $path
-     * @return string
-     */
-    public function configPath(string $path = ''): string
-    {
-        return $this->basePath('config' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**

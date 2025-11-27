@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Portfolio Console Application
+ * Console Application
  * 
  * Command-line interface for project management
  */
@@ -11,11 +11,21 @@ declare(strict_types=1);
 // Bootstrap
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Console\Application;
+use App\Core\Console\Application;
+use App\Console\Commands\{AssetsCommand, MinifyCommand};
 
 try {
     $app = new Application();
-    $app->run($argv);
+    
+    // Register asset commands (module-specific)
+    $app->register('assets:publish', AssetsCommand::class);
+    $app->register('assets:clear', AssetsCommand::class);
+    $app->register('assets:force-clear', AssetsCommand::class);
+    $app->register('setup:minify', MinifyCommand::class);
+    $app->alias('s:min', 'setup:minify');
+    
+    $exitCode = $app->run($argv);
+    exit($exitCode);
 } catch (Throwable $e) {
     echo "Error: " . $e->getMessage() . PHP_EOL;
     exit(1);

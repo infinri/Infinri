@@ -7,7 +7,6 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets, ReCaptcha};
-use App\Helpers\Session;
 
 // Handle POST requests (form submission)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -26,9 +25,9 @@ Meta::setMultiple([
 ]);
 
 // Load contact-specific assets (development only - production uses bundles)
-use App\Helpers\Env;
 
-if (Env::get('APP_ENV', 'development') !== 'production') {
+
+if (env('APP_ENV', 'development') !== 'production') {
     $modulePath = __DIR__;
     $assetBase = '/assets/modules/contact/view/frontend';
 
@@ -48,7 +47,7 @@ if (ReCaptcha::isEnabled() && !empty(ReCaptcha::getSiteKey())) {
 }
 
 // Generate CSRF token for the form
-$csrf = Session::csrf();
+$csrf = csrf_token();
 
 // Load template
 require __DIR__ . '/view/frontend/templates/contact.php';

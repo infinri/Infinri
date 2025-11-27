@@ -188,27 +188,7 @@ app/modules/contact/
 - No existing modules need changes
 - **Result:** Database ready, but modules stay static until Phase 5
 
-**Phase 4 (Refactor Helpers):**
-- Convert helpers to service providers
-- Helpers become **facades** that call container
-- Old code still works (backward compatible)
-- **Example:**
-  ```php
-  // OLD (still works)
-  Cache::get('key');
-  
-  // NEW (container)
-  app(CacheInterface::class)->get('key');
-  
-  // HELPER AS FACADE (BC layer)
-  class Cache {
-      public static function get($key) {
-          return app(CacheInterface::class)->get($key);
-      }
-  }
-  ```
-
-**Phase 5 (Module Migration):**
+**Phase 4 (Module Migration):**
 - Migrate modules one-by-one to new structure
 - Order: Contact → Legal → Head → Footer → Home/About/Services → Error
 - Each module adds:

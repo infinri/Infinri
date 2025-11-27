@@ -6,6 +6,7 @@ namespace Tests\Unit\Container;
 
 use App\Core\Container\BindingResolutionException;
 use App\Core\Container\Container;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ContainerTest extends TestCase
@@ -22,7 +23,7 @@ class ContainerTest extends TestCase
         $this->container->flush();
     }
 
-    /** @test */
+    #[Test]
     public function it_can_bind_and_resolve_a_concrete_class(): void
     {
         $this->container->bind(ConcreteClass::class);
@@ -32,7 +33,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $resolved);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_bind_interface_to_implementation(): void
     {
         $this->container->bind(ContractInterface::class, ConcreteImplementation::class);
@@ -42,7 +43,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteImplementation::class, $resolved);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_bind_using_closure(): void
     {
         $this->container->bind(ConcreteClass::class, function ($container) {
@@ -54,7 +55,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $resolved);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_new_instance_for_transient_bindings(): void
     {
         $this->container->bind(ConcreteClass::class);
@@ -65,7 +66,7 @@ class ContainerTest extends TestCase
         $this->assertNotSame($first, $second);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_same_instance_for_singleton_bindings(): void
     {
         $this->container->singleton(ConcreteClass::class);
@@ -76,7 +77,7 @@ class ContainerTest extends TestCase
         $this->assertSame($first, $second);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_bind_instance(): void
     {
         $instance = new ConcreteClass();
@@ -88,7 +89,7 @@ class ContainerTest extends TestCase
         $this->assertSame($instance, $resolved);
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_resolves_constructor_dependencies(): void
     {
         $resolved = $this->container->make(ClassWithDependency::class);
@@ -97,7 +98,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $resolved->dependency);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_nested_dependencies(): void
     {
         $resolved = $this->container->make(ClassWithNestedDependency::class);
@@ -107,7 +108,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $resolved->dependency->dependency);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_bound_implementation_for_interface_dependency(): void
     {
         $this->container->bind(ContractInterface::class, ConcreteImplementation::class);
@@ -117,7 +118,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteImplementation::class, $resolved->dependency);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_circular_dependencies(): void
     {
         $this->expectException(BindingResolutionException::class);
@@ -126,7 +127,7 @@ class ContainerTest extends TestCase
         $this->container->make(CircularDependencyA::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_unresolvable_interface(): void
     {
         $this->expectException(BindingResolutionException::class);
@@ -134,7 +135,7 @@ class ContainerTest extends TestCase
         $this->container->make(ClassWithInterfaceDependency::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_unresolvable_primitive(): void
     {
         $this->expectException(BindingResolutionException::class);
@@ -143,7 +144,7 @@ class ContainerTest extends TestCase
         $this->container->make(ClassWithPrimitiveDependency::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_default_value_for_optional_parameters(): void
     {
         $resolved = $this->container->make(ClassWithOptionalDependency::class);
@@ -151,7 +152,7 @@ class ContainerTest extends TestCase
         $this->assertNull($resolved->dependency);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_resolve_with_parameters(): void
     {
         $resolved = $this->container->make(ClassWithPrimitiveDependency::class, [
@@ -161,7 +162,7 @@ class ContainerTest extends TestCase
         $this->assertEquals('test-value', $resolved->value);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_aliases(): void
     {
         $this->container->bind(ConcreteClass::class);
@@ -172,7 +173,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $resolved);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_self_alias(): void
     {
         $this->expectException(\LogicException::class);
@@ -181,7 +182,7 @@ class ContainerTest extends TestCase
         $this->container->alias('test', 'test');
     }
 
-    /** @test */
+    #[Test]
     public function it_reports_bound_types(): void
     {
         $this->assertFalse($this->container->bound(ConcreteClass::class));
@@ -191,7 +192,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($this->container->bound(ConcreteClass::class));
     }
 
-    /** @test */
+    #[Test]
     public function it_reports_resolved_types(): void
     {
         $this->container->bind(ConcreteClass::class);
@@ -203,7 +204,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($this->container->resolved(ConcreteClass::class));
     }
 
-    /** @test */
+    #[Test]
     public function it_rebinds_and_clears_resolved_instances(): void
     {
         $this->container->singleton(ConcreteClass::class);
@@ -215,7 +216,7 @@ class ContainerTest extends TestCase
         $this->assertNotSame($first, $second);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_flush_all_bindings(): void
     {
         $this->container->bind(ConcreteClass::class);
@@ -229,7 +230,7 @@ class ContainerTest extends TestCase
         $this->assertFalse($this->container->bound('test'));
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_non_instantiable_class(): void
     {
         $this->expectException(BindingResolutionException::class);
@@ -238,12 +239,63 @@ class ContainerTest extends TestCase
         $this->container->make(AbstractClass::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_nullable_dependencies_as_null(): void
     {
         $resolved = $this->container->make(ClassWithNullableDependency::class);
         
         $this->assertNull($resolved->dependency);
+    }
+
+    #[Test]
+    public function it_uses_default_value_for_primitive_with_class_dependency(): void
+    {
+        $resolved = $this->container->make(ClassWithMixedDependency::class);
+        
+        $this->assertInstanceOf(ConcreteClass::class, $resolved->concrete);
+        $this->assertEquals('default', $resolved->value);
+    }
+
+    #[Test]
+    public function it_throws_for_nonexistent_class(): void
+    {
+        $this->expectException(BindingResolutionException::class);
+        
+        $this->container->make('NonExistent\\Class\\That\\Does\\Not\\Exist');
+    }
+
+    #[Test]
+    public function it_resolves_bound_interface_with_different_concrete(): void
+    {
+        // Bind interface to a concrete class (concrete != abstract)
+        $this->container->bind(ContractInterface::class, ConcreteImplementation::class);
+        
+        $resolved = $this->container->make(ContractInterface::class);
+        
+        $this->assertInstanceOf(ConcreteImplementation::class, $resolved);
+    }
+
+    #[Test]
+    public function it_resolves_string_binding_to_different_class(): void
+    {
+        // Bind a string abstract to a different concrete class (triggers line 166)
+        $this->container->bind('my.service', ConcreteClass::class);
+        
+        $resolved = $this->container->make('my.service');
+        
+        $this->assertInstanceOf(ConcreteClass::class, $resolved);
+    }
+
+    #[Test]
+    public function it_resolves_nested_interface_bindings(): void
+    {
+        // Bind ServiceA to interface, ServiceA depends on ConcreteClass
+        $this->container->bind('service.wrapper', ServiceWrapper::class);
+        
+        $resolved = $this->container->make('service.wrapper');
+        
+        $this->assertInstanceOf(ServiceWrapper::class, $resolved);
+        $this->assertInstanceOf(ConcreteClass::class, $resolved->dependency);
     }
 }
 
@@ -319,4 +371,20 @@ class ClassWithNullableDependency
 
 abstract class AbstractClass
 {
+}
+
+class ClassWithMixedDependency
+{
+    public function __construct(
+        public ConcreteClass $concrete,
+        public string $value = 'default'
+    ) {
+    }
+}
+
+class ServiceWrapper
+{
+    public function __construct(public ConcreteClass $dependency)
+    {
+    }
 }

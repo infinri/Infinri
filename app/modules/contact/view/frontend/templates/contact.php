@@ -7,7 +7,6 @@ declare(strict_types=1);
  * Meta and assets loaded in index.php
  */
 
-use App\Helpers\{Session, Esc};
 use App\Base\Helpers\ReCaptcha;
 ?>
 
@@ -104,8 +103,8 @@ use App\Base\Helpers\ReCaptcha;
                 </div>
                 
                 <form method="POST" action="/contact" class="contact-form" id="contactForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo Esc::html($csrf ?? Session::csrf()); ?>">
-                    <input type="hidden" name="recaptcha_token" id="recaptchaToken" data-sitekey="<?php echo Esc::html(ReCaptcha::getSiteKey()); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrf ?? csrf_token()); ?>">
+                    <input type="hidden" name="recaptcha_token" id="recaptchaToken" data-sitekey="<?php echo e(ReCaptcha::getSiteKey()); ?>">
                     
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
@@ -143,8 +142,8 @@ use App\Base\Helpers\ReCaptcha;
                             <?php
                             $services = require __DIR__ . '/../../../../../../config/services.php';
                             foreach ($services as $value => $label): ?>
-                                <option value="<?php echo Esc::html($value); ?>">
-                                    <?php echo Esc::html($label); ?>
+                                <option value="<?php echo e($value); ?>">
+                                    <?php echo e($label); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

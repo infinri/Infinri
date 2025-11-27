@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\{Meta, Assets};
-use App\Helpers\Env;
+
 
 // Set page-specific meta tags
 Meta::setMultiple([
@@ -20,7 +20,7 @@ Meta::setMultiple([
 ]);
 
 // Load home-specific assets (development only - production uses bundles)
-if (Env::get('APP_ENV', 'development') !== 'production') {
+if (env('APP_ENV', 'development') !== 'production') {
     $modulePath = __DIR__;
     $assetBase = '/assets/modules/home/view/frontend';
 

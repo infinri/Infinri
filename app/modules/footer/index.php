@@ -7,10 +7,10 @@ declare(strict_types=1);
  */
 
 use App\Base\Helpers\Assets;
-use App\Helpers\Env;
+
 
 // Load footer-specific assets (development only - production uses bundles)
-if (Env::get('APP_ENV', 'development') !== 'production') {
+if (env('APP_ENV', 'development') !== 'production') {
     $modulePath = __DIR__;
     $assetBase = '/assets/modules/footer/view/frontend';
 

@@ -14,7 +14,7 @@
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.89",
     "mockery/mockery": "^1.6",
-    "pestphp/pest": "^3.0",
+    "pestphp/pest": "^3.8",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-strict-rules": "^2.0",
@@ -52,12 +52,6 @@
     "sort-packages": true
   },
   "scripts": {
-    "post-install-cmd": [
-      "@fix-brevo"
-    ],
-    "post-update-cmd": [
-      "@fix-brevo"
-    ],
     "fix-brevo": "php fix-brevo-php84.php",
     "s:up": "php bin/console setup:update",
     "minify": "php bin/console setup:minify"

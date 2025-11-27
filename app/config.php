@@ -7,20 +7,19 @@
  * @package App
  */
 
-use App\Helpers\Env;
-use App\Helpers\Module;
+use App\Core\Module\ModuleRegistry;
 
 return [
-    'environment' => Env::get('APP_ENV', 'production'),
+    'environment' => env('APP_ENV', 'production'),
     'site' => [
-        'name' => Env::get('SITE_NAME', 'Infinri'),
-        'url' => filter_var(Env::get('SITE_URL', 'http://localhost'), FILTER_VALIDATE_URL) ?: 'http://localhost',
+        'name' => env('SITE_NAME', 'Infinri'),
+        'url' => filter_var(env('SITE_URL', 'http://localhost'), FILTER_VALIDATE_URL) ?: 'http://localhost',
     ],
-    'allowed_modules' => Module::discover(),
+    'allowed_modules' => array_keys((new ModuleRegistry())->all()),
     'default_module' => 'home',
     'error_module' => 'error',
     'security' => [
-        'csrf_enabled' => Env::get('CSRF_ENABLED', true, 'bool'),
-        'https_only' => Env::get('HTTPS_ONLY', false, 'bool'),
+        'csrf_enabled' => (bool) env('CSRF_ENABLED', true),
+        'https_only' => (bool) env('HTTPS_ONLY', false),
     ],
 ];

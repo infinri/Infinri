@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace App\Base\Helpers;
 
-use App\Helpers\Env;
 use Brevo\Client\Configuration;
 use Brevo\Client\Api\TransactionalEmailsApi;
 use Brevo\Client\ApiException;
@@ -37,11 +36,11 @@ class Mail
         ]));
         
         // Get Brevo configuration from environment
-        $apiKey = Env::get('BREVO_API_KEY');
-        $fromEmail = Env::get('BREVO_SENDER_EMAIL');
-        $fromName = Env::get('BREVO_SENDER_NAME', 'Infinri');
-        $recipientEmail = Env::get('BREVO_RECIPIENT_EMAIL');
-        $recipientName = Env::get('BREVO_RECIPIENT_NAME', '');
+        $apiKey = env('BREVO_API_KEY');
+        $fromEmail = env('BREVO_SENDER_EMAIL');
+        $fromName = env('BREVO_SENDER_NAME', 'Infinri');
+        $recipientEmail = env('BREVO_RECIPIENT_EMAIL');
+        $recipientName = env('BREVO_RECIPIENT_NAME', '');
         
         error_log('Brevo config loaded:');
         error_log('  - API Key: ' . ($apiKey ? substr($apiKey, 0, 15) . '...' : 'NOT SET'));

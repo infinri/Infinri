@@ -8,6 +8,8 @@ use App\Core\Contracts\Container\ContainerInterface;
 use Closure;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
+use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 
@@ -382,5 +384,59 @@ class Container implements ContainerInterface
         $this->aliases = [];
         $this->resolved = [];
         $this->buildStack = [];
+    }
+
+    /**
+     * Check if a binding or instance exists
+     *
+     * @param string $abstract
+     * @return bool
+     */
+    public function has(string $abstract): bool
+    {
+        return $this->bound($abstract) || isset($this->instances[$abstract]);
+    }
+
+    /**
+     * Call a callable with dependency injection
+     *
+     * @param callable|array $callback The callable to invoke
+     * @param array $parameters Parameters to pass to the callable
+     * @return mixed
+     */
+    public function call(callable|array $callback, array $parameters = []): mixed
+    {
+        $reflector = $this->getCallableReflector($callback);
+        $dependencies = $this->resolveDependencies($reflector->getParameters(), $parameters);
+        
+        return $callback(...$dependencies);
+    }
+
+    /**
+     * Get reflection for a callable
+     *
+     * @param callable|array $callback
+     * @return \ReflectionFunctionAbstract
+     * @throws BindingResolutionException
+     */
+    protected function getCallableReflector(callable|array $callback): \ReflectionFunctionAbstract
+    {
+        if (is_array($callback)) {
+            return new ReflectionMethod($callback[0], $callback[1]);
+        }
+        
+        if ($callback instanceof \Closure) {
+            return new ReflectionFunction($callback);
+        }
+        
+        if (is_string($callback) && function_exists($callback)) {
+            return new ReflectionFunction($callback);
+        }
+        
+        if (is_object($callback) && method_exists($callback, '__invoke')) {
+            return new ReflectionMethod($callback, '__invoke');
+        }
+        
+        throw new BindingResolutionException("Unable to resolve callable");
     }
 }
