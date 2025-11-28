@@ -298,16 +298,6 @@ ENV;
         echo "\n";
     }
 
-    protected function getRootDir(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 4);
-    }
-
     // =========================================================================
     // Additional UI Helpers (not in base Command)
     // =========================================================================

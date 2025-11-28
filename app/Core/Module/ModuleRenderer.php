@@ -146,12 +146,7 @@ class ModuleRenderer
      */
     protected function getDefaultModulesPath(): string
     {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('app/modules');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 2) . '/modules';
+        return base_path('app/modules');
     }
 
     /**
@@ -159,11 +154,6 @@ class ModuleRenderer
      */
     protected function getDefaultLayoutPath(): string
     {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('app/base/view/layouts/default.php');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 2) . '/base/view/layouts/default.php';
+        return base_path('app/base/view/layouts/default.php');
     }
 }

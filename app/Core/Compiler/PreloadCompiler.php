@@ -55,7 +55,7 @@ class PreloadCompiler
 
     public function __construct(?string $basePath = null, ?string $outputPath = null)
     {
-        $this->basePath = $basePath ?? $this->getDefaultBasePath();
+        $this->basePath = $basePath ?? base_path();
         $this->outputPath = $outputPath ?? $this->basePath . '/preload.php';
     }
 
@@ -177,15 +177,5 @@ class PreloadCompiler
     public function getOutputPath(): string
     {
         return $this->outputPath;
-    }
-
-    protected function getDefaultBasePath(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Core\Database;
 
 use App\Core\Application;
 use App\Core\Contracts\Database\ConnectionInterface;
+use App\Core\Database\Concerns\HasAttributes;
 use App\Core\Database\Concerns\HasRelationships;
 use App\Core\Support\Str;
 use JsonSerializable;
@@ -17,7 +18,9 @@ use JsonSerializable;
  */
 abstract class Model implements JsonSerializable
 {
+    use HasAttributes;
     use HasRelationships;
+
     /**
      * The table associated with the model
      */
@@ -39,16 +42,6 @@ abstract class Model implements JsonSerializable
     protected bool $incrementing = true;
 
     /**
-     * The model's attributes
-     */
-    protected array $attributes = [];
-
-    /**
-     * The model's original attributes
-     */
-    protected array $original = [];
-
-    /**
      * Indicates if the model exists in the database
      */
     protected bool $exists = false;
@@ -57,31 +50,6 @@ abstract class Model implements JsonSerializable
      * The connection name for the model
      */
     protected ?string $connection = null;
-
-    /**
-     * The attributes that should be cast
-     */
-    protected array $casts = [];
-
-    /**
-     * The attributes that are mass assignable
-     */
-    protected array $fillable = [];
-
-    /**
-     * The attributes that aren't mass assignable
-     */
-    protected array $guarded = ['*'];
-
-    /**
-     * The attributes that should be hidden for serialization
-     */
-    protected array $hidden = [];
-
-    /**
-     * The attributes that should be visible in serialization
-     */
-    protected array $visible = [];
 
     /**
      * Indicates if timestamps should be managed
@@ -104,100 +72,6 @@ abstract class Model implements JsonSerializable
     public function __construct(array $attributes = [])
     {
         $this->fill($attributes);
-    }
-
-    /**
-     * Fill the model with an array of attributes
-     */
-    public function fill(array $attributes): static
-    {
-        foreach ($attributes as $key => $value) {
-            if ($this->isFillable($key)) {
-                $this->setAttribute($key, $value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Determine if a given attribute is fillable
-     */
-    protected function isFillable(string $key): bool
-    {
-        if (in_array($key, $this->fillable)) {
-            return true;
-        }
-
-        if ($this->guarded === ['*']) {
-            return false;
-        }
-
-        return !in_array($key, $this->guarded);
-    }
-
-    /**
-     * Set an attribute on the model
-     */
-    public function setAttribute(string $key, mixed $value): static
-    {
-        // Check for mutator
-        $mutator = 'set' . Str::studly($key) . 'Attribute';
-        if (method_exists($this, $mutator)) {
-            $value = $this->$mutator($value);
-        }
-
-        $this->attributes[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Get an attribute from the model
-     */
-    public function getAttribute(string $key): mixed
-    {
-        // Check for accessor
-        $accessor = 'get' . Str::studly($key) . 'Attribute';
-        if (method_exists($this, $accessor)) {
-            return $this->$accessor($this->attributes[$key] ?? null);
-        }
-
-        $value = $this->attributes[$key] ?? null;
-
-        // Apply casts
-        if (isset($this->casts[$key])) {
-            $value = $this->castAttribute($key, $value);
-        }
-
-        return $value;
-    }
-
-    /**
-     * Cast an attribute to a native PHP type
-     */
-    protected function castAttribute(string $key, mixed $value): mixed
-    {
-        $castType = $this->casts[$key];
-
-        return match ($castType) {
-            'int', 'integer' => (int) $value,
-            'float', 'double' => (float) $value,
-            'string' => (string) $value,
-            'bool', 'boolean' => (bool) $value,
-            'array' => is_string($value) ? json_decode($value, true) : (array) $value,
-            'json' => is_string($value) ? json_decode($value, true) : $value,
-            'datetime' => $value ? new \DateTime($value) : null,
-            default => $value,
-        };
-    }
-
-    /**
-     * Get all attributes
-     */
-    public function getAttributes(): array
-    {
-        return $this->attributes;
     }
 
     /**
@@ -376,39 +250,6 @@ abstract class Model implements JsonSerializable
     }
 
     /**
-     * Get the dirty (changed) attributes
-     */
-    public function getDirty(): array
-    {
-        $dirty = [];
-
-        foreach ($this->attributes as $key => $value) {
-            if (!array_key_exists($key, $this->original) || $this->original[$key] !== $value) {
-                $dirty[$key] = $value;
-            }
-        }
-
-        return $dirty;
-    }
-
-    /**
-     * Determine if the model has been modified
-     */
-    public function isDirty(): bool
-    {
-        return !empty($this->getDirty());
-    }
-
-    /**
-     * Sync the original attributes with the current
-     */
-    public function syncOriginal(): static
-    {
-        $this->original = $this->attributes;
-        return $this;
-    }
-
-    /**
      * Refresh the model from the database
      */
     public function refresh(): static
@@ -425,34 +266,6 @@ abstract class Model implements JsonSerializable
         }
 
         return $this;
-    }
-
-    /**
-     * Convert the model to an array
-     */
-    public function toArray(): array
-    {
-        $attributes = $this->attributes;
-
-        // Apply hidden
-        foreach ($this->hidden as $key) {
-            unset($attributes[$key]);
-        }
-
-        // Apply visible
-        if (!empty($this->visible)) {
-            $attributes = array_intersect_key($attributes, array_flip($this->visible));
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * Convert the model to JSON
-     */
-    public function toJson(int $options = 0): string
-    {
-        return json_encode($this->jsonSerialize(), $options);
     }
 
     /**

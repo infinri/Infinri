@@ -24,7 +24,7 @@ class CompilerManager
 
     public function __construct(?string $basePath = null, ?ModuleRegistry $registry = null)
     {
-        $this->basePath = $basePath ?? $this->getDefaultBasePath();
+        $this->basePath = $basePath ?? base_path();
         $this->registry = $registry ?? new ModuleRegistry();
     }
 
@@ -185,15 +185,5 @@ class CompilerManager
             );
         }
         return $this->middlewareCompiler;
-    }
-
-    protected function getDefaultBasePath(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3);
     }
 }

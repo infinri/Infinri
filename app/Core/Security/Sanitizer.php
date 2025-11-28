@@ -88,10 +88,7 @@ class Sanitizer
      */
     public static function slug(string $value): string
     {
-        $value = strtolower($value);
-        $value = preg_replace('/[^a-z0-9-]/', '-', $value);
-        $value = preg_replace('/-+/', '-', $value);
-        return trim($value, '-');
+        return \App\Core\Support\Str::slug($value);
     }
 
     /**

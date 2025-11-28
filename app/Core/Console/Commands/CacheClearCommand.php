@@ -124,14 +124,4 @@ class CacheClearCommand extends Command
         $this->line("  ✓ container.php");
         $this->line("  ✓ modules.php");
     }
-
-    protected function getRootDir(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 4);
-    }
 }

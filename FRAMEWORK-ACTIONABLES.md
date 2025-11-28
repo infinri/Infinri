@@ -310,6 +310,176 @@ app/
 | 2024-11-27 | Phase 5 | module:enable/disable commands | ✅ Done |
 | 2024-11-27 | Phase 5 | onEnable/onDisable hooks | ✅ Done |
 | 2024-11-27 | Phase 5 | MiddlewareCompiler (HTTP pipeline) | ✅ Done |
+| 2024-11-28 | Phase 0.9 | health:check command | ✅ Done |
+| 2024-11-28 | Phase 0.9 | s:up flags (--skip-*, --dry-run) | ✅ Done |
+| 2024-11-28 | Phase 0.9 | DB backup before migrations | ✅ Done |
+| 2024-11-28 | Phase 1.0 | module:make generator | ✅ Done |
+| 2024-11-28 | Phase 1.0 | make:migration generator | ✅ Done |
+| 2024-11-28 | Phase 1.0 | make:seeder generator | ✅ Done |
+| 2024-11-28 | Phase 0.9 | --env flag + env switching | ✅ Done |
+| 2024-11-28 | Phase 0.9 | Git hash logging | ✅ Done |
+| 2024-11-28 | Phase 0.9 | Final summary output | ✅ Done |
+| 2024-11-28 | Phase 0.9 | MigrationState (rollback safety) | ✅ Done |
+| 2024-11-28 | Phase 0.9 | migrate:reset-state command | ✅ Done |
+| 2024-11-28 | Phase 1.1 | MetricsCollector | ✅ Done |
+| 2024-11-28 | Phase 1.1 | metrics:show command | ✅ Done |
+| 2024-11-28 | Phase 1.1 | MetricsMiddleware | ✅ Done |
+| 2024-11-28 | Phase 1.1 | Prometheus MetricsEndpoint | ✅ Done |
+| 2024-11-28 | Phase 1.2 | code:stats LOC measurement | ✅ Done |
+| 2024-11-28 | Phase 1.1 | /_metrics endpoint wired | ✅ Done |
+| 2024-11-28 | Phase 1.1 | DB query metrics tracking | ✅ Done |
+| 2024-11-28 | Phase 1.1 | Cache hit/miss tracking | ✅ Done |
+| 2024-11-28 | Bugfix | Connection::query() naming conflict | ✅ Fixed |
+| 2024-11-28 | Phase 1.3 | RateLimitMiddleware | ✅ Done |
+| 2024-11-28 | Phase 1.3 | SecurityHeadersMiddleware | ✅ Done |
+| 2024-11-28 | Phase 1.3 | VerifyCsrfToken middleware | ✅ Done |
+| 2024-11-28 | Phase 1.3 | Middleware config updated | ✅ Done |
+| 2024-11-28 | Refactor | DatabaseBackup extracted | ✅ Done |
+| 2024-11-28 | Refactor | EnvManager extracted | ✅ Done |
+| 2024-11-28 | Refactor | HasAttributes trait extracted | ✅ Done |
+
+---
+
+## Phase 0.9 – Safety & Operations ✅
+
+### Health Check
+- [x] `health:check` command (aliases: `doctor`, `sys:check`)
+- [x] Validates .env presence and required keys
+- [x] Validates directory permissions (var/cache, var/log, var/state)
+- [x] Validates database connectivity
+- [x] Validates compiled caches presence
+- [x] Validates module integrity
+
+### s:up Flags
+- [x] `--skip-db` - Skip database migrations
+- [x] `--skip-compile` - Skip compilation step
+- [x] `--skip-cache` - Skip cache clearing
+- [x] `--skip-hooks` - Skip module hooks
+- [x] `--no-backup` - Skip database backup before migrations
+- [x] `--dry-run` - Show what would be done without executing
+- [x] `--env=prod|dev|stage` - Set/switch environment
+
+### Release Awareness
+- [x] Git hash displayed in environment info
+- [x] Final summary with env, version, git hash
+- [x] Production warning when APP_DEBUG=true
+
+### Database Backup
+- [x] Auto-backup before migrations (PostgreSQL & MySQL)
+- [x] Stored in `var/backups/backup_TIMESTAMP.sql`
+- [x] Size displayed after backup
+
+### Migration Safety
+- [x] `MigrationState` tracks running/failed migrations
+- [x] System marked "UNSAFE" on migration failure
+- [x] Prevents running s:up until issue is resolved
+- [x] `migrate:reset-state --force` to clear after recovery
+
+---
+
+## Phase 1.0 – Developer Experience ✅
+
+### Generators
+- [x] `module:make <name>` - Generate module scaffold
+- [x] `make:migration <name>` - Generate migration file
+- [x] `make:seeder <name>` - Generate seeder file
+
+### Module Generator Creates
+- module.php (metadata)
+- index.php (view)
+- config.php
+- events.php
+- hooks.php
+- Providers/{Name}ServiceProvider.php
+- Controllers/, Models/, view/ directories
+
+---
+
+## Phase 1.1 – Observability ✅
+
+### Metrics
+- [x] `MetricsCollector` for basic application metrics
+- [x] Request count, response times, error rates
+- [x] Database query tracking
+- [x] Cache hit/miss ratios
+- [x] Hourly breakdown
+- [x] `metrics:show` command (alias: `metrics`)
+- [x] Stored in `var/state/metrics.php`
+
+### Automatic Collection
+- [x] `MetricsMiddleware` for automatic request tracking
+- [x] Added to global middleware (priority 200)
+
+### Prometheus Export
+- [x] `MetricsEndpoint` for Prometheus scraping
+- [x] Wired to `/_metrics` in pub/index.php
+- [x] Text format (default): Prometheus scrape format
+- [x] JSON format: `?format=json`
+- [x] Authorization: localhost or API key (`METRICS_API_KEY`)
+
+### Integrated Tracking
+- [x] Database queries tracked via `Connection::logQuery()`
+- [x] Cache hits/misses tracked via `FileStore::get()`
+
+---
+
+## Phase 1.2 – Code Quality ✅
+
+### LOC Measurement
+- [x] `code:stats` command (alias: `loc`)
+- [x] Per-directory breakdown
+- [x] Largest files identification
+- [x] Refactoring candidates flagged (>300 lines)
+
+### Current Stats
+- Core Framework: 22,707 LOC (148 files)
+- Tests: 8,691 LOC (41 files)
+- Total: ~36,369 LOC (232 files)
+
+### Refactoring Results
+| File | Before | After | Reduction |
+|------|--------|-------|-----------|
+| SetupCommand.php | 668 | 567 | -15% |
+| Model.php | 527 | 339 | -36% |
+
+### Extracted Classes
+- `DatabaseBackup` - backup/restore/list/prune
+- `EnvManager` - .env read/write operations
+- `HasAttributes` trait - model attribute handling
+
+---
+
+## Phase 1.3 – Security Hardening ✅
+
+### Rate Limiting
+- [x] `RateLimitMiddleware` - thin wrapper around existing `Security\RateLimiter`
+- [x] Uses `FileStore` cache (Redis-ready via `CacheInterface`)
+- [x] Per-IP + path rate limiting
+- [x] Standard headers (X-RateLimit-*)
+
+### Security Headers
+- [x] `SecurityHeadersMiddleware` with defaults
+- [x] X-Content-Type-Options, X-Frame-Options, Referrer-Policy
+- [x] Permissions-Policy, Cross-Origin policies
+- [x] CSP nonce support, optional HSTS
+
+### CSRF Protection
+- [x] `VerifyCsrfToken` - thin wrapper around existing `Security\Csrf`
+- [x] Form field: `csrf_token` (matches existing Csrf class)
+- [x] Header: `X-CSRF-TOKEN`
+- [x] Cookie: `XSRF-TOKEN` for JS frameworks
+
+### Existing Security Classes (reused)
+- `Security\Csrf` - token generation/verification with expiry
+- `Security\RateLimiter` - cache-based rate limiting
+- `Security\Sanitizer` - input sanitization
+
+### Middleware Configuration
+```php
+'web' => [SecurityHeadersMiddleware, VerifyCsrfToken]
+'api' => [RateLimitMiddleware, SecurityHeadersMiddleware]
+'aliases' => ['csrf', 'throttle', 'security']i
+```
 
 ---
 

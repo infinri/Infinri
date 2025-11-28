@@ -262,7 +262,7 @@ class Connection implements ConnectionInterface
     /**
      * Get a new query builder for this connection
      */
-    public function query(): QueryBuilder
+    public function newQuery(): QueryBuilder
     {
         return new QueryBuilder($this);
     }
@@ -272,7 +272,7 @@ class Connection implements ConnectionInterface
      */
     public function table(string $table): QueryBuilder
     {
-        return $this->query()->table($table);
+        return $this->newQuery()->table($table);
     }
 
     protected function logQuery(string $sql, array $bindings, float $time = 0): void
@@ -283,6 +283,15 @@ class Connection implements ConnectionInterface
                 'bindings' => $bindings,
                 'time' => $time,
             ];
+        }
+
+        // Record metrics (skip connection messages)
+        if ($time > 0 && class_exists(\App\Core\Metrics\MetricsCollector::class)) {
+            try {
+                (new \App\Core\Metrics\MetricsCollector())->recordQuery($time);
+            } catch (\Throwable) {
+                // Don't let metrics recording break queries
+            }
         }
 
         // Log slow queries (> 100ms)

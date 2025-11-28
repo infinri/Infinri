@@ -203,25 +203,11 @@ class ModuleHookRunner
      */
     protected function saveState(): void
     {
-        $dir = dirname($this->statePath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $content = "<?php\n\n// Module State - Generated: " . date('Y-m-d H:i:s') . "\n"
-            . "// Tracks installed module versions\n\n"
-            . "return " . var_export($this->state, true) . ";\n";
-
-        file_put_contents($this->statePath, $content);
+        save_php_array($this->statePath, $this->state, 'Module State');
     }
 
     protected function getDefaultStatePath(): string
     {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('var/state/modules.php');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3) . '/var/state/modules.php';
+        return base_path('var/state/modules.php');
     }
 }

@@ -187,16 +187,7 @@ class ModuleManager
      */
     protected function getDefaultModulesPath(): string
     {
-        // Try to get from app() if available
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('app/modules');
-            } catch (\Throwable) {
-                // Fall through to default
-            }
-        }
-        
-        return dirname(__DIR__, 2) . '/modules';
+        return base_path('app/modules');
     }
 
     /**

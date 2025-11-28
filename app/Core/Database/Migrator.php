@@ -113,7 +113,7 @@ class Migrator
     /**
      * Run a single migration
      */
-    protected function runMigration(string $migration): void
+    public function runMigration(string $migration): void
     {
         $instance = $this->resolve($migration);
         $instance->setConnection($this->connection);

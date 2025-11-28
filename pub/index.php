@@ -8,8 +8,8 @@ declare(strict_types=1);
  * @package App
  */
 
-// Load application bootstrap
-require __DIR__ . '/../app/autoload.php';
+// Load Composer autoloader and Core bootstrap
+require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../app/Core/bootstrap.php';
 
 use App\Core\Routing\SimpleRouter;
@@ -74,6 +74,18 @@ session_set_cookie_params([
 
 // Store nonce and config as globals for template access
 $GLOBALS['cspNonce'] = $cspNonce;
+
+// Handle internal metrics endpoint (before session/CSRF overhead)
+if ($_SERVER['REQUEST_URI'] === '/_metrics' || $_SERVER['REQUEST_URI'] === '/_metrics?format=json') {
+    $metricsEndpoint = new \App\Core\Http\MetricsEndpoint();
+    if ($metricsEndpoint->authorize()) {
+        $metricsEndpoint->handle();
+        exit;
+    }
+    http_response_code(403);
+    echo 'Forbidden';
+    exit;
+}
 
 // Load configuration
 $config = require __DIR__ . '/../app/config.php';

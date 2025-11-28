@@ -4,130 +4,51 @@ declare(strict_types=1);
 
 namespace App\Core\Compiler;
 
-use App\Core\Module\ModuleRegistry;
-
 /**
  * Route Compiler
- * 
- * Compiles routes from modules into a cached file for faster resolution.
+ *
+ * Compiles module routes into a cached route table.
  */
-class RouteCompiler
+class RouteCompiler extends AbstractCompiler
 {
-    protected string $basePath;
-    protected string $cachePath;
-    protected ModuleRegistry $registry;
-
-    public function __construct(
-        ?string $basePath = null,
-        ?string $cachePath = null,
-        ?ModuleRegistry $registry = null
-    ) {
-        $this->basePath = $basePath ?? $this->getDefaultBasePath();
-        $this->cachePath = $cachePath ?? $this->basePath . '/var/cache/routes.php';
-        $this->registry = $registry ?? new ModuleRegistry();
+    protected function getDefaultCachePath(): string
+    {
+        return $this->basePath . '/var/cache/routes.php';
     }
 
-    /**
-     * Compile all routes into cache
-     */
     public function compile(): array
     {
-        $routes = [
-            'web' => [],
-            'api' => [],
-        ];
-
+        $routes = [];
         $this->registry->load();
 
         foreach ($this->registry->getEnabled() as $module) {
             $moduleRoutes = $module->loadRoutes();
-            
+
             if (!empty($moduleRoutes)) {
-                // Namespace routes under module
-                foreach ($moduleRoutes as $type => $typeRoutes) {
-                    if (in_array($type, ['web', 'api'])) {
-                        foreach ($typeRoutes as $route) {
-                            $route['module'] = $module->name;
-                            $routes[$type][] = $route;
-                        }
-                    }
+                foreach ($moduleRoutes as $route) {
+                    $route['module'] = $module->name;
+                    $routes[] = $route;
                 }
             }
         }
 
-        $this->saveToCache($routes);
-
+        $this->saveToCache($routes, 'Compiled Routes');
         return $routes;
     }
 
-    /**
-     * Load compiled routes
-     */
-    public function load(): array
-    {
-        if ($this->isCached()) {
-            return $this->loadFromCache();
-        }
-
-        return $this->compile();
-    }
-
-    /**
-     * Check if cache exists
-     */
-    public function isCached(): bool
-    {
-        return file_exists($this->cachePath);
-    }
-
-    /**
-     * Clear route cache
-     */
-    public function clear(): void
-    {
-        if (file_exists($this->cachePath)) {
-            unlink($this->cachePath);
-        }
-    }
-
-    /**
-     * Get route count
-     */
     public function getStats(): array
     {
         $routes = $this->load();
+        $byModule = [];
+
+        foreach ($routes as $route) {
+            $module = $route['module'] ?? 'unknown';
+            $byModule[$module] = ($byModule[$module] ?? 0) + 1;
+        }
+
         return [
-            'web' => count($routes['web']),
-            'api' => count($routes['api']),
-            'total' => count($routes['web']) + count($routes['api']),
+            'total' => count($routes),
+            'by_module' => $byModule,
         ];
-    }
-
-    protected function saveToCache(array $routes): void
-    {
-        $cacheDir = dirname($this->cachePath);
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0755, true);
-        }
-
-        $content = "<?php\n\n// Compiled Routes\n// Generated: " . date('Y-m-d H:i:s') . "\n\n"
-            . "return " . var_export($routes, true) . ";\n";
-
-        file_put_contents($this->cachePath, $content);
-    }
-
-    protected function loadFromCache(): array
-    {
-        return require $this->cachePath;
-    }
-
-    protected function getDefaultBasePath(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3);
     }
 }

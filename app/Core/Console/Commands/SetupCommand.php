@@ -8,8 +8,11 @@ use App\Core\Console\Command;
 use App\Core\Compiler\CompilerManager;
 use App\Core\Database\Migrator;
 use App\Core\Database\Connection;
+use App\Core\Database\MigrationState;
+use App\Core\Database\DatabaseBackup;
 use App\Core\Module\ModuleRegistry;
 use App\Core\Module\ModuleHookRunner;
+use App\Core\Support\EnvManager;
 
 /**
  * Setup Command (Core)
@@ -20,6 +23,14 @@ use App\Core\Module\ModuleHookRunner;
  * - Database migrations
  * - Cache clearing
  * - Permissions
+ * 
+ * Flags:
+ *   --skip-db       Skip database migrations
+ *   --skip-compile  Skip compilation step
+ *   --skip-cache    Skip cache clearing
+ *   --skip-hooks    Skip module hooks
+ *   --no-backup     Skip database backup before migrations
+ *   --dry-run       Show what would be done without executing
  */
 class SetupCommand extends Command
 {
@@ -28,18 +39,32 @@ class SetupCommand extends Command
     protected array $aliases = ['s:up'];
 
     protected string $rootDir;
-    protected string $envFile;
-    protected array $envVars = [];
+    protected EnvManager $env;
+
+    // Flags
+    protected bool $skipDb = false;
+    protected bool $skipCompile = false;
+    protected bool $skipCache = false;
+    protected bool $skipHooks = false;
+    protected bool $noBackup = false;
+    protected bool $dryRun = false;
+    protected ?string $targetEnv = null;
 
     public function __construct()
     {
         $this->rootDir = $this->getRootDir();
-        $this->envFile = $this->rootDir . '/.env';
-        $this->loadEnvFile();
+        $this->env = new EnvManager($this->rootDir . '/.env');
     }
 
     public function handle(array $args = []): int
     {
+        // Parse flags
+        $this->parseFlags($args);
+
+        if ($this->dryRun) {
+            echo "🔍 DRY RUN - No changes will be made\n";
+        }
+        
         echo "🚀 Running setup...\n";
         echo str_repeat('─', 50) . "\n";
 
@@ -50,52 +75,161 @@ class SetupCommand extends Command
         $this->rebuildModuleRegistry();
 
         // Step 3: Run module hooks (install/upgrade/beforeSetup)
-        $this->runModuleHooks();
+        if (!$this->skipHooks) {
+            $this->runModuleHooks();
+        } else {
+            echo "\n🪝 Module Hooks\n  ⏭️  Skipped (--skip-hooks)\n";
+        }
 
         // Step 4: Clear runtime caches (before compilation)
-        $this->clearCaches();
+        if (!$this->skipCache) {
+            if ($this->dryRun) {
+                echo "\n🧹 Caches\n  → Would clear file cache\n";
+            } else {
+                $this->clearCaches();
+            }
+        } else {
+            echo "\n🧹 Caches\n  ⏭️  Skipped (--skip-cache)\n";
+        }
 
         // Step 5: Compile configs, events, container
-        $this->runCompilation();
+        if (!$this->skipCompile) {
+            if ($this->dryRun) {
+                echo "\n⚙️  Compilation\n  → Would compile: config, events, container, routes, middleware\n";
+            } else {
+                $this->runCompilation();
+            }
+        } else {
+            echo "\n⚙️  Compilation\n  ⏭️  Skipped (--skip-compile)\n";
+        }
 
         // Step 6: Update APP_VERSION
-        $this->updateAppVersion();
+        if (!$this->dryRun) {
+            $this->updateAppVersion();
+        } else {
+            echo "\n🔄 Cache Busting\n  → Would update APP_VERSION\n";
+        }
 
         // Step 7: Run migrations (if any pending)
-        $this->runMigrations();
+        if (!$this->skipDb) {
+            $this->runMigrations();
+        } else {
+            echo "\n📦 Migrations\n  ⏭️  Skipped (--skip-db)\n";
+        }
 
         // Step 8: Fix permissions
         $this->fixPermissions();
 
         // Step 9: Run module afterSetup hooks
-        $this->runModuleAfterSetupHooks();
+        if (!$this->skipHooks) {
+            $this->runModuleAfterSetupHooks();
+        }
 
         // Hook for extending classes
         $this->afterSetup();
 
         echo str_repeat('─', 50) . "\n";
-        echo "✅ Setup completed!\n\n";
+        
+        if ($this->dryRun) {
+            echo "🔍 DRY RUN complete - no changes made\n\n";
+        } else {
+            echo "✅ Setup completed!\n";
+            $this->printSummary();
+        }
 
         return 0;
+    }
+
+    protected function printSummary(): void
+    {
+        // Reload env to get updated values
+        $this->env->reload();
+        
+        $appEnv = $this->targetEnv ?? $this->env->get('APP_ENV', 'production');
+        $appVersion = $this->env->get('APP_VERSION', 'unknown');
+        $gitHash = $this->getGitHash();
+
+        echo "\n📊 Summary\n";
+        echo "  • Environment: {$appEnv}\n";
+        echo "  • Version: {$appVersion}\n";
+        
+        if ($gitHash) {
+            echo "  • Git: {$gitHash}\n";
+        }
+        
+        echo "\n";
+    }
+
+    protected function parseFlags(array $args): void
+    {
+        $this->skipDb = in_array('--skip-db', $args);
+        $this->skipCompile = in_array('--skip-compile', $args);
+        $this->skipCache = in_array('--skip-cache', $args);
+        $this->skipHooks = in_array('--skip-hooks', $args);
+        $this->noBackup = in_array('--no-backup', $args);
+        $this->dryRun = in_array('--dry-run', $args);
+
+        // Parse --env=value
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--env=')) {
+                $this->targetEnv = substr($arg, 6);
+            }
+        }
     }
 
     protected function checkEnvironment(): void
     {
         echo "\n📋 Environment\n";
 
-        $appEnv = $this->getEnv('APP_ENV', 'production');
+        $appEnv = $this->targetEnv ?? $this->env->get('APP_ENV', 'production');
         $phpVersion = PHP_VERSION;
+        $gitHash = $this->getGitHash();
 
         echo "  • PHP: {$phpVersion}\n";
         echo "  • Environment: {$appEnv}\n";
+        
+        if ($gitHash) {
+            echo "  • Git: {$gitHash}\n";
+        }
+
+        // Environment-specific warnings
+        if ($appEnv === 'production') {
+            $appDebug = $this->env->get('APP_DEBUG', 'false') === 'true';
+            if ($appDebug) {
+                echo "  ⚠️  APP_DEBUG=true in production (disable for security)\n";
+            }
+        }
 
         if (version_compare($phpVersion, '8.1.0', '<')) {
             echo "  ⚠️  PHP 8.1+ required\n";
         }
 
-        if (!file_exists($this->envFile)) {
+        if (!$this->env->exists()) {
             echo "  ⚠️  .env file not found - run: php bin/console s:i\n";
         }
+
+        // If --env was specified, update .env file
+        if ($this->targetEnv !== null && !$this->dryRun) {
+            $this->env->persist('APP_ENV', $this->targetEnv);
+        }
+    }
+
+    protected function getGitHash(): ?string
+    {
+        $gitDir = $this->rootDir . '/.git';
+        if (!is_dir($gitDir)) {
+            return null;
+        }
+
+        $output = [];
+        $result = null;
+        exec('git rev-parse --short HEAD 2>/dev/null', $output, $result);
+
+        if ($result === 0 && !empty($output[0])) {
+            return $output[0];
+        }
+
+        return null;
     }
 
     protected ModuleRegistry $registry;
@@ -209,21 +343,13 @@ class SetupCommand extends Command
     {
         echo "\n🔄 Cache Busting\n";
 
-        if (!file_exists($this->envFile)) {
+        if (!$this->env->exists()) {
             echo "  ⚠️  Skipped (no .env file)\n";
             return;
         }
 
-        $newVersion = time();
-        $content = file_get_contents($this->envFile);
-
-        if (preg_match('/^APP_VERSION=.*/m', $content)) {
-            $content = preg_replace('/^APP_VERSION=.*/m', 'APP_VERSION=' . $newVersion, $content);
-        } else {
-            $content .= "\nAPP_VERSION=" . $newVersion . "\n";
-        }
-
-        file_put_contents($this->envFile, $content);
+        $newVersion = (string) time();
+        $this->env->persist('APP_VERSION', $newVersion);
         echo "  ✓ APP_VERSION updated to {$newVersion}\n";
     }
 
@@ -232,6 +358,18 @@ class SetupCommand extends Command
         echo "\n📦 Migrations\n";
 
         $migrationsPath = $this->rootDir . '/database/migrations';
+        $migrationState = new MigrationState();
+
+        // Check for previous failed migration
+        if (!$migrationState->isSafe()) {
+            $failed = $migrationState->getFailedInfo();
+            echo "  ⛔ System in UNSAFE state - previous migration failed\n";
+            echo "  • Failed: {$failed['migration']}\n";
+            echo "  • Error: {$failed['error']}\n";
+            echo "  ℹ️  Fix the issue manually, then run:\n";
+            echo "      php bin/console migrate:reset-state\n";
+            return;
+        }
 
         if (!is_dir($migrationsPath)) {
             echo "  • No migrations directory\n";
@@ -246,8 +384,8 @@ class SetupCommand extends Command
         }
 
         // Check if database is configured
-        $dbHost = $this->getEnv('DB_HOST');
-        $dbName = $this->getEnv('DB_DATABASE');
+        $dbHost = $this->env->get('DB_HOST');
+        $dbName = $this->env->get('DB_DATABASE');
 
         if (empty($dbHost) || empty($dbName)) {
             echo "  • Found " . count($migrations) . " migration file(s)\n";
@@ -260,32 +398,88 @@ class SetupCommand extends Command
             $connection = $this->createDatabaseConnection();
             $migrator = new Migrator($connection, $migrationsPath);
             
-            $pending = count($migrator->status());
-            $ran = $migrator->migrate();
+            $pending = $migrator->status();
+            $pendingMigrations = array_filter($pending, fn($m) => !$m['ran']);
+            $pendingCount = count($pendingMigrations);
             
-            if (empty($ran)) {
+            if ($pendingCount === 0) {
                 echo "  ✓ No pending migrations\n";
-            } else {
-                foreach ($ran as $migration) {
-                    echo "  ✓ Migrated: {$migration}\n";
-                }
-                echo "  • Ran " . count($ran) . " migration(s)\n";
+                return;
             }
+
+            echo "  • Found {$pendingCount} pending migration(s)\n";
+
+            // Dry run - just show what would run
+            if ($this->dryRun) {
+                foreach ($pendingMigrations as $migration) {
+                    echo "  → Would run: {$migration['migration']}\n";
+                }
+                return;
+            }
+
+            // Backup before migrations (unless --no-backup)
+            if (!$this->noBackup) {
+                $this->backupDatabase();
+            }
+
+            // Run migrations with state tracking
+            foreach ($pendingMigrations as $migration) {
+                $name = $migration['migration'];
+                $migrationState->markStarted($name);
+                
+                try {
+                    $migrator->runMigration($name);
+                    $migrationState->markCompleted($name);
+                    echo "  ✓ Migrated: {$name}\n";
+                } catch (\Throwable $e) {
+                    $migrationState->markFailed($name, $e->getMessage());
+                    throw $e;
+                }
+            }
+            
+            echo "  • Ran {$pendingCount} migration(s)\n";
+            
         } catch (\Throwable $e) {
             echo "  ⚠️  Migration failed: " . $e->getMessage() . "\n";
-            echo "  ℹ️  Run migrations manually: php bin/console migrate\n";
+            echo "  ⛔ System marked as UNSAFE\n";
+            echo "  ℹ️  Fix the issue, then run: php bin/console migrate:reset-state\n";
+            if (!$this->noBackup) {
+                echo "  ℹ️  Restore from var/backups/ if needed\n";
+            }
+        }
+    }
+
+    protected function backupDatabase(): void
+    {
+        $config = [
+            'driver' => $this->env->get('DB_CONNECTION', 'pgsql'),
+            'host' => $this->env->get('DB_HOST', '127.0.0.1'),
+            'port' => $this->env->get('DB_PORT', '5432'),
+            'database' => $this->env->get('DB_DATABASE'),
+            'username' => $this->env->get('DB_USERNAME'),
+            'password' => $this->env->get('DB_PASSWORD'),
+        ];
+
+        $backup = new DatabaseBackup($config);
+        $result = $backup->backup();
+
+        if ($result['success']) {
+            $size = DatabaseBackup::formatBytes($result['size']);
+            echo "  ✓ Database backed up ({$size})\n";
+        } else {
+            echo "  ⚠️  {$result['error']}\n";
         }
     }
 
     protected function createDatabaseConnection(): Connection
     {
         $config = [
-            'driver' => $this->getEnv('DB_CONNECTION', 'pgsql'),
-            'host' => $this->getEnv('DB_HOST', '127.0.0.1'),
-            'port' => (int) $this->getEnv('DB_PORT', '5432'),
-            'database' => $this->getEnv('DB_DATABASE'),
-            'username' => $this->getEnv('DB_USERNAME'),
-            'password' => $this->getEnv('DB_PASSWORD'),
+            'driver' => $this->env->get('DB_CONNECTION', 'pgsql'),
+            'host' => $this->env->get('DB_HOST', '127.0.0.1'),
+            'port' => (int) $this->env->get('DB_PORT', '5432'),
+            'database' => $this->env->get('DB_DATABASE'),
+            'username' => $this->env->get('DB_USERNAME'),
+            'password' => $this->env->get('DB_PASSWORD'),
         ];
 
         return new Connection($config);
@@ -305,14 +499,14 @@ class SetupCommand extends Command
         // Clear file cache
         $cacheDir = $this->rootDir . '/var/cache';
         if (is_dir($cacheDir)) {
-            $this->clearDirectory($cacheDir, true);
+            clear_directory($cacheDir, true);
             echo "  ✓ File cache cleared\n";
         }
 
         // Clear rate limits
         $rateLimitsDir = $this->rootDir . '/var/cache/rate_limits';
         if (is_dir($rateLimitsDir)) {
-            $this->clearDirectory($rateLimitsDir, true);
+            clear_directory($rateLimitsDir, true);
             echo "  ✓ Rate limits cleared\n";
         }
     }
@@ -323,7 +517,6 @@ class SetupCommand extends Command
 
         $permsCmd = new PermissionsCommand();
         
-        // Capture and suppress default output
         ob_start();
         $permsCmd->execute('setup:permissions', []);
         ob_end_clean();
@@ -337,61 +530,5 @@ class SetupCommand extends Command
     protected function afterSetup(): void
     {
         // Override in child classes
-    }
-
-    protected function loadEnvFile(): void
-    {
-        if (!file_exists($this->envFile)) {
-            return;
-        }
-
-        $lines = file($this->envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (str_starts_with(trim($line), '#')) {
-                continue;
-            }
-
-            if (str_contains($line, '=')) {
-                [$key, $value] = explode('=', $line, 2);
-                $this->envVars[trim($key)] = trim($value, " \t\n\r\0\x0B\"'");
-            }
-        }
-    }
-
-    protected function getEnv(string $key, string $default = ''): string
-    {
-        return $this->envVars[$key] ?? $default;
-    }
-
-    protected function getRootDir(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 4);
-    }
-
-    protected function clearDirectory(string $dir, bool $preserve = false): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $items = new \FilesystemIterator($dir);
-
-        foreach ($items as $item) {
-            if ($item->isDir() && !$item->isLink()) {
-                $this->clearDirectory($item->getPathname());
-                @rmdir($item->getPathname());
-            } else {
-                @unlink($item->getPathname());
-            }
-        }
-
-        if (!$preserve) {
-            @rmdir($dir);
-        }
     }
 }

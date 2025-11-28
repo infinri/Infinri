@@ -81,14 +81,4 @@ class PermissionsCommand extends Command
         echo str_repeat('=', 50) . PHP_EOL;
         echo "✅ Permissions updated successfully!" . PHP_EOL;
     }
-
-    protected function getRootDir(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 4);
-    }
 }

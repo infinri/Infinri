@@ -347,21 +347,11 @@ class ModuleRegistry
 
     protected function getDefaultModulesPath(): string
     {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('app/modules');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 2) . '/modules';
+        return base_path('app/modules');
     }
 
     protected function getDefaultCachePath(): string
     {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('var/cache/modules.php');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3) . '/var/cache/modules.php';
+        return base_path('var/cache/modules.php');
     }
 }

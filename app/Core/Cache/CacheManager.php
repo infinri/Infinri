@@ -43,7 +43,7 @@ class CacheManager implements CacheInterface
     {
         $this->config = $config;
         $this->default = $config['default'] ?? 'file';
-        $this->basePath = $basePath ?? $this->getDefaultBasePath();
+        $this->basePath = $basePath ?? base_path();
     }
 
     /**
@@ -93,16 +93,6 @@ class CacheManager implements CacheInterface
     public function getPoolNames(): array
     {
         return self::POOLS;
-    }
-
-    protected function getDefaultBasePath(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath();
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 3);
     }
 
     /**

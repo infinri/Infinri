@@ -124,4 +124,21 @@ abstract class Command
         
         return in_array($line, ['y', 'yes', '1', 'true']);
     }
+
+    // =========================================================================
+    // Path Helpers
+    // =========================================================================
+
+    /**
+     * Get the application root directory
+     */
+    protected function getRootDir(): string
+    {
+        if (function_exists('app')) {
+            try {
+                return app()->basePath();
+            } catch (\Throwable) {}
+        }
+        return dirname(__DIR__, 3);
+    }
 }

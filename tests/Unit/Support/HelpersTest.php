@@ -223,43 +223,6 @@ class HelpersTest extends TestCase
         $this->assertStringEndsWith('app', $result);
     }
 
-    // app_path() helper tests
-
-    #[Test]
-    public function app_path_returns_app_directory(): void
-    {
-        $result = app_path();
-        
-        $this->assertStringEndsWith('app', $result);
-    }
-
-    #[Test]
-    public function app_path_appends_path(): void
-    {
-        $result = app_path('Core');
-        
-        $this->assertStringEndsWith('Core', $result);
-        $this->assertStringContainsString('app', $result);
-    }
-
-    // storage_path() helper tests
-
-    #[Test]
-    public function storage_path_returns_storage_directory(): void
-    {
-        $result = storage_path();
-        
-        $this->assertStringEndsWith('var', $result);
-    }
-
-    #[Test]
-    public function storage_path_appends_path(): void
-    {
-        $result = storage_path('logs');
-        
-        $this->assertStringEndsWith('logs', $result);
-    }
-
     // logger() helper tests
 
     #[Test]

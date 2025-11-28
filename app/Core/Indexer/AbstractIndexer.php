@@ -144,17 +144,6 @@ abstract class AbstractIndexer implements IndexerInterface
     protected function saveState(array $state): void
     {
         $this->state = $state;
-        $path = $this->getStatePath();
-        
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $content = "<?php\n\n// Indexer State: {$this->name}\n// Generated: " 
-            . date('Y-m-d H:i:s') . "\n\n"
-            . "return " . var_export($state, true) . ";\n";
-
-        file_put_contents($path, $content);
+        save_php_array($this->getStatePath(), $state, "Indexer State: {$this->name}");
     }
 }

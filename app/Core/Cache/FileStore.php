@@ -28,9 +28,7 @@ class FileStore implements CacheInterface
         $this->path = rtrim($path, '/');
         $this->defaultTtl = $defaultTtl;
 
-        if (!is_dir($this->path)) {
-            mkdir($this->path, 0755, true);
-        }
+        ensure_directory($this->path);
     }
 
     /**
@@ -41,10 +39,26 @@ class FileStore implements CacheInterface
         $payload = $this->getPayload($key);
 
         if ($payload === null) {
+            $this->recordCacheMetric(false);
             return $default;
         }
 
+        $this->recordCacheMetric(true);
         return $payload['data'];
+    }
+
+    /**
+     * Record cache hit/miss metric
+     */
+    protected function recordCacheMetric(bool $hit): void
+    {
+        if (class_exists(\App\Core\Metrics\MetricsCollector::class)) {
+            try {
+                (new \App\Core\Metrics\MetricsCollector())->recordCache($hit);
+            } catch (\Throwable) {
+                // Don't let metrics recording break cache operations
+            }
+        }
     }
 
     /**
@@ -61,11 +75,7 @@ class FileStore implements CacheInterface
         ];
 
         $path = $this->getPath($key);
-        $directory = dirname($path);
-
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
+        ensure_directory(dirname($path));
 
         return file_put_contents($path, serialize($payload), LOCK_EX) !== false;
     }
@@ -171,7 +181,7 @@ class FileStore implements CacheInterface
             return true;
         }
 
-        return $this->deleteDirectory($this->path, false);
+        return clear_directory($this->path, false);
     }
 
     /**
@@ -246,31 +256,5 @@ class FileStore implements CacheInterface
         }
 
         return $payload;
-    }
-
-    /**
-     * Delete a directory recursively
-     */
-    protected function deleteDirectory(string $directory, bool $preserve = false): bool
-    {
-        if (!is_dir($directory)) {
-            return false;
-        }
-
-        $items = new \FilesystemIterator($directory);
-
-        foreach ($items as $item) {
-            if ($item->isDir() && !$item->isLink()) {
-                $this->deleteDirectory($item->getPathname());
-            } else {
-                unlink($item->getPathname());
-            }
-        }
-
-        if (!$preserve) {
-            @rmdir($directory);
-        }
-
-        return true;
     }
 }

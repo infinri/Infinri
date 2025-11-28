@@ -87,29 +87,58 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('app_path')) {
+if (!function_exists('ensure_directory')) {
     /**
-     * Get the path to the app folder
+     * Ensure a directory exists, creating it if necessary
      *
-     * @param string $path
-     * @return string
+     * @param string $path Directory path
+     * @param int $mode Directory permissions
+     * @return bool True if directory exists or was created
      */
-    function app_path(string $path = ''): string
+    function ensure_directory(string $path, int $mode = 0755): bool
     {
-        return base_path('app' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        if (is_dir($path)) {
+            return true;
+        }
+        return mkdir($path, $mode, true);
     }
 }
 
-if (!function_exists('storage_path')) {
+if (!function_exists('save_php_array')) {
     /**
-     * Get the path to the storage folder
-     *
-     * @param string $path
-     * @return string
+     * Save an array to a PHP file that can be required
      */
-    function storage_path(string $path = ''): string
+    function save_php_array(string $path, array $data, string $header = 'Cached Data', int $flags = 0): bool
     {
-        return base_path('var' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        ensure_directory(dirname($path));
+        $content = "<?php\n\n// {$header}\n// Generated: " . date('Y-m-d H:i:s') . "\n\n"
+            . "return " . var_export($data, true) . ";\n";
+        return file_put_contents($path, $content, $flags) !== false;
+    }
+}
+
+if (!function_exists('clear_directory')) {
+    /**
+     * Recursively clear a directory's contents
+     */
+    function clear_directory(string $dir, bool $preserve = false): bool
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+        $items = new \FilesystemIterator($dir);
+        foreach ($items as $item) {
+            if ($item->isDir() && !$item->isLink()) {
+                clear_directory($item->getPathname());
+                @rmdir($item->getPathname());
+            } else {
+                @unlink($item->getPathname());
+            }
+        }
+        if (!$preserve) {
+            @rmdir($dir);
+        }
+        return true;
     }
 }
 
@@ -130,50 +159,6 @@ if (!function_exists('logger')) {
         }
 
         $logger->info($message, $context);
-    }
-}
-
-if (!function_exists('log_exception')) {
-    /**
-     * Log an exception with full details
-     *
-     * @param Throwable $e The exception to log
-     * @param array $context Additional context
-     * @return void
-     */
-    function log_exception(Throwable $e, array $context = []): void
-    {
-        $logger = logger();
-        
-        if ($logger instanceof \App\Core\Log\LogManager) {
-            $logger->exception($e, $context);
-        } else {
-            $logger->error($e->getMessage(), array_merge([
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], $context));
-        }
-    }
-}
-
-if (!function_exists('log_security')) {
-    /**
-     * Log a security event
-     *
-     * @param string $event The security event
-     * @param array $context Additional context
-     * @return void
-     */
-    function log_security(string $event, array $context = []): void
-    {
-        $logger = logger();
-        
-        if ($logger instanceof \App\Core\Log\LogManager) {
-            $logger->security($event, $context);
-        } else {
-            $logger->warning('[SECURITY] ' . $event, $context);
-        }
     }
 }
 
@@ -248,20 +233,6 @@ if (!function_exists('cache')) {
         }
         
         return $manager->get($key, $default);
-    }
-}
-
-if (!function_exists('sanitize')) {
-    /**
-     * Sanitize a value using the Sanitizer
-     *
-     * @param string $value
-     * @param string $method
-     * @return string
-     */
-    function sanitize(string $value, string $method = 'html'): string
-    {
-        return \App\Core\Security\Sanitizer::$method($value);
     }
 }
 

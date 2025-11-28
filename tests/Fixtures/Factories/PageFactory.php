@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
+namespace Tests\Fixtures\Factories;
+
 use App\Core\Database\Factory;
-use App\Models\Page;
+use Tests\Fixtures\Models\Page;
 
 /**
- * Page Factory
+ * Page Factory (Test Fixture)
  * 
- * Creates Page model instances for testing and seeding.
+ * Creates Page model instances for testing.
  */
 class PageFactory extends Factory
 {
@@ -31,23 +33,13 @@ class PageFactory extends Factory
         ];
     }
 
-    /**
-     * State: Published page
-     */
     public function published(): static
     {
-        return $this->state([
-            'is_published' => true,
-        ]);
+        return $this->state(['is_published' => true]);
     }
 
-    /**
-     * State: Draft page
-     */
     public function draft(): static
     {
-        return $this->state([
-            'is_published' => false,
-        ]);
+        return $this->state(['is_published' => false]);
     }
 }
