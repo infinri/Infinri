@@ -212,4 +212,75 @@ class LogManagerTest extends TestCase
         $this->assertStringContainsString('previous_exception', $content);
         $this->assertStringContainsString('Previous error', $content);
     }
+
+    #[Test]
+    public function it_logs_emergency_level(): void
+    {
+        $this->logger->emergency('Emergency situation');
+        
+        $logFile = $this->logDir . '/exception.log';
+        $this->assertFileExists($logFile);
+        $content = file_get_contents($logFile);
+        $this->assertStringContainsString('Emergency situation', $content);
+    }
+
+    #[Test]
+    public function it_logs_alert_level(): void
+    {
+        $this->logger->alert('Alert message');
+        
+        $logFile = $this->logDir . '/exception.log';
+        $this->assertFileExists($logFile);
+        $content = file_get_contents($logFile);
+        $this->assertStringContainsString('Alert message', $content);
+    }
+
+    #[Test]
+    public function it_logs_debug_level(): void
+    {
+        $this->logger->debug('Debug message');
+        
+        $logFile = $this->logDir . '/debug.log';
+        $this->assertFileExists($logFile);
+        $content = file_get_contents($logFile);
+        $this->assertStringContainsString('Debug message', $content);
+    }
+
+    #[Test]
+    public function it_logs_notice_level(): void
+    {
+        $this->logger->notice('Notice message');
+        
+        $logFile = $this->logDir . '/info.log';
+        $this->assertFileExists($logFile);
+        $content = file_get_contents($logFile);
+        $this->assertStringContainsString('Notice message', $content);
+    }
+
+    #[Test]
+    public function it_rotates_all_channels(): void
+    {
+        // Create some log entries
+        $this->logger->info('Info message');
+        $this->logger->error('Error message');
+        
+        // Rotate all channels
+        $this->logger->rotateAll();
+        
+        // Should not throw
+        $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function it_rotates_specific_channel(): void
+    {
+        // Create a log entry
+        $this->logger->info('Test message');
+        
+        // Rotate specific channel
+        $this->logger->rotate('info');
+        
+        // Should not throw
+        $this->assertTrue(true);
+    }
 }

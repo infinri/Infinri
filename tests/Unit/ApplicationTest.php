@@ -317,6 +317,32 @@ class ApplicationTest extends TestCase
             $this->app->configPath('app.php')
         );
     }
+
+    #[Test]
+    public function it_returns_registered_providers(): void
+    {
+        $this->app->bootstrap();
+        
+        $provider = new TestServiceProvider($this->app);
+        $this->app->register($provider);
+        
+        $providers = $this->app->getProviders();
+        
+        $this->assertIsArray($providers);
+        $this->assertNotEmpty($providers);
+    }
+
+    #[Test]
+    public function it_checks_if_provider_is_loaded(): void
+    {
+        $this->app->bootstrap();
+        
+        $provider = new TestServiceProvider($this->app);
+        $this->app->register($provider);
+        
+        $this->assertTrue($this->app->providerIsLoaded(TestServiceProvider::class));
+        $this->assertFalse($this->app->providerIsLoaded('NonExistentProvider'));
+    }
 }
 
 // Test fixtures

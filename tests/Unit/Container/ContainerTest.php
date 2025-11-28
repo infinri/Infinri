@@ -297,9 +297,49 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ServiceWrapper::class, $resolved);
         $this->assertInstanceOf(ConcreteClass::class, $resolved->dependency);
     }
+
+    #[Test]
+    public function it_calls_invokable_object(): void
+    {
+        $invokable = new InvokableClass();
+        
+        $result = $this->container->call($invokable);
+        
+        $this->assertSame('invoked', $result);
+    }
+
+    #[Test]
+    public function it_calls_string_function(): void
+    {
+        // Test calling a global function by string name
+        $result = $this->container->call('strlen', ['string' => 'hello']);
+        
+        $this->assertSame(5, $result);
+    }
+
+    #[Test]
+    public function it_resolves_alias_to_concrete(): void
+    {
+        // Bind an alias that needs recursive resolution (line 168)
+        $this->container->bind('my.alias', fn() => new ConcreteClass());
+        $this->container->alias(ConcreteClass::class, 'concrete.alias');
+        
+        $result = $this->container->make('my.alias');
+        
+        $this->assertInstanceOf(ConcreteClass::class, $result);
+    }
+
 }
 
 // Test fixtures
+
+class InvokableClass
+{
+    public function __invoke(): string
+    {
+        return 'invoked';
+    }
+}
 
 class ConcreteClass
 {

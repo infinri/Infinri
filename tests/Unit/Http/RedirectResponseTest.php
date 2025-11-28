@@ -81,4 +81,14 @@ class RedirectResponseTest extends TestCase
         
         $this->assertStringContainsString('/target', $output);
     }
+
+    #[Test]
+    public function to_creates_redirect_response(): void
+    {
+        $response = RedirectResponse::to('/destination', 303);
+        
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertEquals('/destination', $response->getTargetUrl());
+        $this->assertEquals(303, $response->getStatusCode());
+    }
 }

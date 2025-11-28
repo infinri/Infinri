@@ -45,8 +45,8 @@ class MetricsMiddleware
     protected function recordMetrics(RequestInterface $request, ResponseInterface $response): void
     {
         $duration = microtime(true) - $this->startTime;
-        $method = $request->getMethod();
-        $path = $request->getPathInfo();
+        $method = $request->method();
+        $path = $request->path();
         $statusCode = $response->getStatusCode();
 
         $this->collector->recordRequest($method, $path, $statusCode, $duration);

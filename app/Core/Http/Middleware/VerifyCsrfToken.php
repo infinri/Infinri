@@ -52,11 +52,11 @@ class VerifyCsrfToken
 
     protected function shouldVerify(RequestInterface $request): bool
     {
-        if (!in_array($request->getMethod(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        if (!in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
             return false;
         }
 
-        $path = $request->getPathInfo();
+        $path = $request->path();
         foreach ($this->except as $pattern) {
             if ($path === $pattern || fnmatch($pattern, $path)) {
                 return false;

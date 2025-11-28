@@ -111,7 +111,7 @@ class DatabaseManager
      */
     public function table(string $table, ?string $connection = null): QueryBuilder
     {
-        return $this->connection($connection)->query()->table($table);
+        return $this->connection($connection)->table($table);
     }
 
     /**

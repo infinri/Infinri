@@ -255,4 +255,24 @@ class RouteTest extends TestCase
         $this->assertTrue($route->matches('/', 'GET'));
         $this->assertEquals('/', $route->getUri());
     }
+
+    #[Test]
+    public function it_handles_optional_parameter_with_prefix_not_ending_in_slash(): void
+    {
+        // URI pattern where optional param comes after text without trailing slash
+        $route = new Route(['GET'], '/file{ext?}', fn() => 'File');
+        
+        $this->assertTrue($route->matches('/file', 'GET'));
+        $this->assertTrue($route->matches('/file.txt', 'GET'));
+    }
+
+    #[Test]
+    public function it_handles_optional_parameter_with_slash_prefix(): void
+    {
+        $route = new Route(['GET'], '/files/{name?}', fn() => 'Files');
+        
+        $this->assertTrue($route->matches('/files', 'GET'));
+        $this->assertTrue($route->matches('/files/', 'GET'));
+        $this->assertTrue($route->matches('/files/document', 'GET'));
+    }
 }

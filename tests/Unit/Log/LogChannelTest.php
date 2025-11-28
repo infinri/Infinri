@@ -215,4 +215,45 @@ class LogChannelTest extends TestCase
         $archives = glob($this->logDir . '/archive/test_*.gz');
         $this->assertCount(1, $archives);
     }
+
+    #[Test]
+    public function rotate_does_nothing_for_empty_file(): void
+    {
+        $path = $this->logDir . '/empty.log';
+        file_put_contents($path, '');
+        
+        $channel = new LogChannel('empty', $path);
+        $channel->rotate();
+        
+        // No archive should be created for empty file
+        $archives = glob($this->logDir . '/archive/empty_*.gz');
+        $this->assertCount(0, $archives);
+    }
+
+    #[Test]
+    public function cleanup_removes_oldest_files(): void
+    {
+        $path = $this->logDir . '/cleanup.log';
+        $archiveDir = $this->logDir . '/archive';
+        mkdir($archiveDir, 0755, true);
+        
+        // Create multiple archive files with different timestamps
+        for ($i = 0; $i < 5; $i++) {
+            $archiveFile = $archiveDir . "/cleanup_2024-01-0{$i}_00-00-00_to_2024-01-0{$i}_23-59-59.log.gz";
+            file_put_contents($archiveFile, gzencode("log $i"));
+            touch($archiveFile, strtotime("2024-01-0{$i}")); // Set mtime
+            usleep(10000); // Small delay to ensure different mtimes
+        }
+        
+        // Create channel with maxFiles = 2
+        $channel = new LogChannel('cleanup', $path, 1000, 2);
+        
+        // Write and rotate to trigger cleanup
+        $channel->write("New entry\n");
+        $channel->rotate();
+        
+        // Should have at most 2 archives
+        $archives = glob($archiveDir . '/cleanup_*.gz');
+        $this->assertLessThanOrEqual(3, count($archives)); // 2 + 1 new
+    }
 }

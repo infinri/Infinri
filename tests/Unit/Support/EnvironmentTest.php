@@ -209,4 +209,22 @@ class EnvironmentTest extends TestCase
         
         $this->assertEquals('trimmed value', getenv('TEST_VAR'));
     }
+
+    #[Test]
+    public function load_throws_for_unreadable_file(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('not readable');
+        
+        // Create file and make it unreadable
+        file_put_contents($this->testEnvFile, 'TEST=value');
+        chmod($this->testEnvFile, 0000);
+        
+        try {
+            $env = new Environment($this->testEnvPath, '.env.test');
+            $env->load();
+        } finally {
+            chmod($this->testEnvFile, 0644); // Restore permissions for cleanup
+        }
+    }
 }

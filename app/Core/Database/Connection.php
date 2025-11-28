@@ -105,6 +105,7 @@ class Connection implements ConnectionInterface
     public function query(string $sql, array $bindings = []): PDOStatement
     {
         $start = microtime(true);
+        $bindings = $this->prepareBindings($bindings);
         
         try {
             $statement = $this->getPdo()->prepare($sql);
@@ -117,6 +118,20 @@ class Connection implements ConnectionInterface
             $this->logQueryError($sql, $bindings, $e);
             throw new QueryException($sql, $bindings, $e);
         }
+    }
+
+    /**
+     * Prepare bindings for PDO (handle booleans for PostgreSQL)
+     */
+    protected function prepareBindings(array $bindings): array
+    {
+        foreach ($bindings as $key => $value) {
+            if (is_bool($value)) {
+                // PostgreSQL needs 't'/'f' or true/false strings
+                $bindings[$key] = $value ? 't' : 'f';
+            }
+        }
+        return $bindings;
     }
 
     public function select(string $sql, array $bindings = []): array

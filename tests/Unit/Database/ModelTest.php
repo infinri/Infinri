@@ -169,12 +169,150 @@ class ModelTest extends TestCase
         
         $this->assertEquals(123, $model->getKey());
     }
+
+    #[Test]
+    public function it_casts_string_type(): void
+    {
+        $model = new StringCastModel(['value' => 123]);
+        
+        $this->assertSame('123', $model->value);
+    }
+
+    #[Test]
+    public function it_casts_array_from_json_string(): void
+    {
+        $model = new ArrayCastModel(['data' => '{"key":"value"}']);
+        
+        $this->assertSame(['key' => 'value'], $model->data);
+    }
+
+    #[Test]
+    public function it_casts_json_type(): void
+    {
+        $model = new JsonCastModel(['payload' => '{"foo":"bar"}']);
+        
+        $this->assertSame(['foo' => 'bar'], $model->payload);
+    }
+
+    #[Test]
+    public function it_casts_datetime_type(): void
+    {
+        $model = new DatetimeCastModel(['created' => '2024-01-15 10:30:00']);
+        
+        $this->assertInstanceOf(\DateTime::class, $model->created);
+    }
+
+    #[Test]
+    public function to_array_respects_visible(): void
+    {
+        $model = new VisibleModel(['name' => 'John', 'email' => 'john@test.com', 'secret' => 'hidden']);
+        
+        $array = $model->toArray();
+        
+        $this->assertArrayHasKey('name', $array);
+        $this->assertArrayHasKey('email', $array);
+        $this->assertArrayNotHasKey('secret', $array);
+    }
+
+    #[Test]
+    public function get_dirty_returns_new_attributes(): void
+    {
+        $model = new TestModel();
+        $model->syncOriginal(); // Set empty original
+        
+        // Add new attribute that wasn't in original
+        $model->name = 'New Name';
+        
+        $dirty = $model->getDirty();
+        
+        $this->assertArrayHasKey('name', $dirty);
+        $this->assertSame('New Name', $dirty['name']);
+    }
+
+    #[Test]
+    public function get_dirty_returns_changed_attributes(): void
+    {
+        $model = new TestModel(['name' => 'Original']);
+        $model->syncOriginal();
+        
+        $model->name = 'Changed';
+        
+        $dirty = $model->getDirty();
+        
+        $this->assertArrayHasKey('name', $dirty);
+        $this->assertSame('Changed', $dirty['name']);
+    }
+
+    #[Test]
+    public function is_dirty_returns_true_for_changes(): void
+    {
+        $model = new TestModel(['name' => 'Original']);
+        $model->syncOriginal();
+        
+        $this->assertFalse($model->isDirty());
+        
+        $model->name = 'Changed';
+        
+        $this->assertTrue($model->isDirty());
+    }
+
+    #[Test]
+    public function refresh_returns_self_when_not_exists(): void
+    {
+        $model = new TestModel(['name' => 'Test']);
+        // exists is false by default
+        
+        $result = $model->refresh();
+        
+        $this->assertSame($model, $result);
+    }
+
+    #[Test]
+    public function json_serialize_returns_array(): void
+    {
+        $model = new TestModel(['name' => 'Test', 'email' => 'test@test.com']);
+        
+        $json = $model->jsonSerialize();
+        
+        $this->assertIsArray($json);
+        $this->assertSame('Test', $json['name']);
+    }
 }
 
 // Test model classes
 class TestModel extends Model
 {
     protected array $guarded = [];
+}
+
+class StringCastModel extends Model
+{
+    protected array $guarded = [];
+    protected array $casts = ['value' => 'string'];
+}
+
+class ArrayCastModel extends Model
+{
+    protected array $guarded = [];
+    protected array $casts = ['data' => 'array'];
+}
+
+class JsonCastModel extends Model
+{
+    protected array $guarded = [];
+    protected array $casts = ['payload' => 'json'];
+}
+
+class DatetimeCastModel extends Model
+{
+    protected array $guarded = [];
+    protected array $casts = ['created' => 'datetime'];
+}
+
+class VisibleModel extends Model
+{
+    protected array $guarded = [];
+    protected array $visible = ['name', 'email'];
 }
 
 class StrictModel extends Model

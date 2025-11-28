@@ -52,7 +52,6 @@ class BelongsToMany extends Relation
             : ', ' . implode(', ', array_map(fn($col) => "pivot.{$col}", $this->pivotColumns));
 
         $query = $this->related->getConnection()
-            ->query()
             ->table($this->related->getTable() . ' as related')
             ->select("related.*{$pivotColumns}")
             ->join(
@@ -85,9 +84,14 @@ class BelongsToMany extends Relation
                 $this->relatedKey => $id,
             ], $attributes);
 
-            $this->parent->getConnection()
-                ->table($this->pivotTable)
-                ->insert($record);
+            $columns = array_keys($record);
+            $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+            $columnList = implode(', ', $columns);
+            
+            // Use raw INSERT without RETURNING for pivot tables
+            $sql = "INSERT INTO {$this->pivotTable} ({$columnList}) VALUES ({$placeholders})";
+            
+            $this->parent->getConnection()->statement($sql, array_values($record));
         }
     }
 

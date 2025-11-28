@@ -47,8 +47,8 @@ class RateLimitMiddleware
 
     protected function resolveKey(RequestInterface $request): string
     {
-        $ip = $request->getClientIp() ?? 'unknown';
-        return sha1($ip . '|' . $request->getPathInfo());
+        $ip = $request->ip() ?? 'unknown';
+        return sha1($ip . '|' . $request->path());
     }
 
     protected function tooManyAttemptsResponse(string $key): ResponseInterface

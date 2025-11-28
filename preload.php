@@ -3,8 +3,8 @@
 /**
  * OPcache Preload File
  * 
- * Generated: 2025-11-27 21:23:57
- * Files: 36
+ * Generated: 2025-11-28 23:47:42
+ * Files: 33
  * 
  * Configure in php.ini:
  *   opcache.preload=/home/infinri/Initrix/Projects/Infinri/preload.php
@@ -48,9 +48,6 @@ $files = [
     '/home/infinri/Initrix/Projects/Infinri/app/Core/Support/Arr.php',
     '/home/infinri/Initrix/Projects/Infinri/app/Core/Support/Str.php',
     '/home/infinri/Initrix/Projects/Infinri/app/Core/Support/helpers.php',
-    '/home/infinri/Initrix/Projects/Infinri/var/cache/config.php',
-    '/home/infinri/Initrix/Projects/Infinri/var/cache/container.php',
-    '/home/infinri/Initrix/Projects/Infinri/var/cache/events.php',
     '/home/infinri/Initrix/Projects/Infinri/var/cache/modules.php',
 ];
 

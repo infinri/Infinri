@@ -250,4 +250,133 @@ class HelpersTest extends TestCase
         
         $this->assertNull($result);
     }
+
+    // log_system() helper tests
+
+    #[Test]
+    public function log_system_logs_message(): void
+    {
+        // Should not throw
+        log_system('System message');
+        
+        $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function log_system_logs_message_with_context(): void
+    {
+        // Should not throw
+        log_system('System message', ['key' => 'value']);
+        
+        $this->assertTrue(true);
+    }
+
+    // db() helper tests
+
+    #[Test]
+    public function db_returns_database_manager(): void
+    {
+        $result = db();
+        
+        $this->assertInstanceOf(\App\Core\Database\DatabaseManager::class, $result);
+    }
+
+    // cache() helper tests
+
+    #[Test]
+    public function cache_returns_cache_manager_when_no_key(): void
+    {
+        $result = cache();
+        
+        $this->assertInstanceOf(\App\Core\Cache\CacheManager::class, $result);
+    }
+
+    #[Test]
+    public function cache_returns_default_for_missing_key(): void
+    {
+        $result = cache('nonexistent_key', 'default_value');
+        
+        $this->assertSame('default_value', $result);
+    }
+
+    // e() helper tests
+
+    #[Test]
+    public function e_escapes_html(): void
+    {
+        $result = e('<script>alert("xss")</script>');
+        
+        $this->assertStringNotContainsString('<script>', $result);
+        $this->assertStringContainsString('&lt;script&gt;', $result);
+    }
+
+    // rate_limit() helper tests
+
+    #[Test]
+    public function rate_limit_returns_true_when_allowed(): void
+    {
+        $key = 'test_rate_limit_' . uniqid();
+        
+        $result = rate_limit($key, 5, 60);
+        
+        $this->assertTrue($result);
+    }
+
+    #[Test]
+    public function rate_limit_allows_under_max(): void
+    {
+        $key = 'test_rate_limit_under_' . uniqid();
+        
+        // First check should pass
+        $result1 = rate_limit($key, 2, 60);
+        $this->assertTrue($result1);
+        
+        // Use same key multiple times
+        rate_limit($key, 2, 60);
+        $result2 = rate_limit($key, 2, 60);
+        
+        // Still allowed within limit
+        $this->assertTrue($result2);
+    }
+
+    // rate_limit_hit() helper tests
+
+    #[Test]
+    public function rate_limit_hit_returns_count(): void
+    {
+        $key = 'test_rate_hit_' . uniqid();
+        
+        $count = rate_limit_hit($key, 60);
+        
+        $this->assertSame(1, $count);
+    }
+
+    #[Test]
+    public function rate_limit_hit_increments(): void
+    {
+        $key = 'test_rate_hit_inc_' . uniqid();
+        
+        rate_limit_hit($key, 60);
+        $count = rate_limit_hit($key, 60);
+        
+        $this->assertSame(2, $count);
+    }
+
+    #[Test]
+    public function db_returns_manager_without_connection(): void
+    {
+        // db() without connection name should return the manager
+        $manager = db();
+        
+        $this->assertInstanceOf(\App\Core\Database\DatabaseManager::class, $manager);
+    }
+
+    #[Test]
+    public function log_system_works_with_logger(): void
+    {
+        // log_system should work without throwing
+        log_system('Test system message', ['context' => 'test']);
+        
+        $this->assertTrue(true);
+    }
 }

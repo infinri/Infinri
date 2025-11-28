@@ -181,4 +181,14 @@ class JsonResponseTest extends TestCase
         
         $this->assertEquals('{"test":true}', $output);
     }
+
+    #[Test]
+    public function from_data_creates_response(): void
+    {
+        $response = JsonResponse::fromData(['key' => 'value'], 201, ['X-Custom' => 'header']);
+        
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals('header', $response->getHeader('x-custom'));
+    }
 }

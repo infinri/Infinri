@@ -326,4 +326,52 @@ class QueryBuilderTest extends TestCase
 
         $this->assertStringContainsString('FROM app_users', $sql);
     }
+
+    #[Test]
+    public function increment_calls_update_with_expression(): void
+    {
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->method('getTablePrefix')->willReturn('');
+        $connection->expects($this->once())
+            ->method('update')
+            ->willReturn(1);
+        
+        $builder = new QueryBuilder($connection);
+        $result = $builder->table('counters')->where('id', 1)->increment('views', 1);
+        
+        $this->assertSame(1, $result);
+    }
+
+    #[Test]
+    public function decrement_calls_update_with_expression(): void
+    {
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->method('getTablePrefix')->willReturn('');
+        $connection->expects($this->once())
+            ->method('update')
+            ->willReturn(1);
+        
+        $builder = new QueryBuilder($connection);
+        $result = $builder->table('counters')->where('id', 1)->decrement('views', 1);
+        
+        $this->assertSame(1, $result);
+    }
+
+    #[Test]
+    public function insert_many_returns_zero_for_empty_array(): void
+    {
+        $builder = new QueryBuilder($this->connection);
+        $result = $builder->table('users')->insertMany([]);
+        
+        $this->assertSame(0, $result);
+    }
+
+    #[Test]
+    public function where_raw_adds_raw_clause(): void
+    {
+        $builder = new QueryBuilder($this->connection);
+        $result = $builder->table('users')->whereRaw('status = ?', ['active']);
+        
+        $this->assertSame($builder, $result);
+    }
 }

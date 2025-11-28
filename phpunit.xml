@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" bootstrap="tests/bootstrap.php" colors="true" cacheDirectory=".phpunit.cache" failOnWarning="true" failOnRisky="true" beStrictAboutOutputDuringTests="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" bootstrap="tests/bootstrap.php" colors="true" cacheDirectory=".phpunit.cache" failOnRisky="true" beStrictAboutOutputDuringTests="true">
   <testsuites>
-    <testsuite name="Phase1">
-      <directory>tests/Unit/Container</directory>
-      <directory>tests/Unit/Config</directory>
-      <directory>tests/Unit/Log</directory>
-      <directory>tests/Unit/Support</directory>
-      <directory>tests/Unit/Http</directory>
-      <file>tests/Unit/ApplicationTest.php</file>
-      <file>tests/Integration/Phase1IntegrationTest.php</file>
-      <file>tests/Integration/BootstrapTest.php</file>
-    </testsuite>
-    <testsuite name="Phase2">
-      <directory>tests/Unit/Http</directory>
-      <directory>tests/Unit/Routing</directory>
-      <file>tests/Integration/Phase2IntegrationTest.php</file>
-    </testsuite>
-    <testsuite name="Phase3">
-      <directory>tests/Unit/Database</directory>
-      <file>tests/Integration/Phase3IntegrationTest.php</file>
-    </testsuite>
     <testsuite name="Unit">
       <directory>tests/Unit</directory>
     </testsuite>

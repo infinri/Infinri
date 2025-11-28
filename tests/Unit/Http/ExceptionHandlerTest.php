@@ -220,4 +220,5 @@ class ExceptionHandlerTest extends TestCase
         $response3 = $this->handler->handle($request, $generic);
         $this->assertEquals(500, $response3->getStatusCode());
     }
+
 }

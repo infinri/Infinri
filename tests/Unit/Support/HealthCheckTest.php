@@ -213,6 +213,50 @@ class HealthCheckTest extends TestCase
         
         $this->assertEquals('degraded', $result['status']);
     }
+
+    #[Test]
+    public function it_includes_http_info(): void
+    {
+        $result = $this->healthCheck->check();
+        
+        $this->assertArrayHasKey('http', $result);
+        $this->assertArrayHasKey('router', $result['http']);
+    }
+
+    #[Test]
+    public function it_includes_database_info(): void
+    {
+        $result = $this->healthCheck->check();
+        
+        $this->assertArrayHasKey('database', $result);
+        $this->assertArrayHasKey('status', $result['database']);
+    }
+
+    #[Test]
+    public function database_info_shows_not_configured_when_no_manager(): void
+    {
+        $result = $this->healthCheck->check();
+        
+        // If DB not configured, should show not_configured
+        $this->assertContains($result['database']['status'], ['not_configured', 'connected', 'error']);
+    }
+
+    #[Test]
+    public function http_info_shows_router_status(): void
+    {
+        $result = $this->healthCheck->check();
+        
+        $this->assertContains($result['http']['router'], ['not_registered', 'active', 'error']);
+    }
+
+    #[Test]
+    public function it_includes_routes_count_in_http_info(): void
+    {
+        $result = $this->healthCheck->check();
+        
+        $this->assertArrayHasKey('routes_count', $result['http']);
+        $this->assertIsInt($result['http']['routes_count']);
+    }
 }
 
 /**

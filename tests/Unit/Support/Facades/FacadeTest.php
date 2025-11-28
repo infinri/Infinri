@@ -183,6 +183,25 @@ class FacadeTest extends TestCase
         
         $this->assertNotNull($result);
     }
+
+    #[Test]
+    public function facade_throws_when_service_not_found(): void
+    {
+        // Create a test facade that returns a non-existent service
+        $this->expectException(\App\Core\Container\BindingResolutionException::class);
+        
+        // Call the test facade - it will fail to resolve 'non.existent.service'
+        NonExistentFacade::someMethod();
+    }
+}
+
+// Test facade for non-existent service
+class NonExistentFacade extends Facade
+{
+    protected static function getFacadeAccessor(): string
+    {
+        return 'non.existent.service';
+    }
 }
 
 // Test concrete facade implementation
