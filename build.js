@@ -12,33 +12,29 @@ const { minify: minifyJS } = require('terser');
 // Configuration
 const config = {
     sourceDir: path.join(__dirname, 'app'),
-    baseViewDir: path.join(__dirname, 'app/base/view'),
+    coreViewDir: path.join(__dirname, 'app/Core/View/view'),
+    modulesDir: path.join(__dirname, 'app/Modules'),
     distDir: path.join(__dirname, 'pub/assets/dist'),
     publicAssetsDir: path.join(__dirname, 'pub/assets'),
-    cssFiles: [
-        // Base CSS (non-critical - critical.css is inlined separately)
-        'base/css/reset.css',
-        'base/css/variables.css',
-        'base/css/base.css',
-        // Frontend CSS
-        'frontend/css/theme.css'
+    
+    // Core CSS files (generic components)
+    coreCssFiles: [
+        'base/web/css/_reset.css',
+        'base/web/css/_variables.css',
+        'base/web/css/components/_buttons.css',
+        'base/web/css/components/_forms.css',
+        'base/web/css/components/_cards.css',
+        'base/web/css/components/_grid.css',
+        'base/web/css/components/_tables.css',
+        'base/web/css/components/_alerts.css',
+        'base/web/css/components/_modals.css',
+        'base/web/css/components/_utilities.css',
+        'frontend/web/css/layout.css'
     ],
-    criticalCss: 'base/css/critical.css', // Inlined separately
-    jsFiles: [
-        // Base JS
-        'base/js/base.js',
-        // Frontend JS
-        'frontend/js/theme.js'
-    ],
-    modules: [
-        'home',
-        'about',
-        'services',
-        'contact',
-        'error',
-        'head',
-        'footer',
-        'legal'
+    
+    // Core JS files
+    coreJsFiles: [
+        'base/web/js/core.js'
     ]
 };
 
@@ -59,25 +55,89 @@ function readFile(filePath) {
     }
 }
 
-// Minify CSS
+/**
+ * Scan app/Modules/ for CSS files
+ * Looks for: app/Modules/{Module}/view/frontend/web/css/*.css
+ * Returns files in order: _variables.css first, then alphabetically
+ */
+function scanModuleCss() {
+    const files = [];
+    
+    if (!fs.existsSync(config.modulesDir)) return files;
+    
+    const modules = fs.readdirSync(config.modulesDir).filter(m => {
+        const modulePath = path.join(config.modulesDir, m);
+        return fs.statSync(modulePath).isDirectory();
+    });
+    
+    for (const module of modules) {
+        const cssDir = path.join(config.modulesDir, module, 'view/frontend/web/css');
+        if (!fs.existsSync(cssDir)) continue;
+        
+        const cssFiles = fs.readdirSync(cssDir)
+            .filter(f => f.endsWith('.css'))
+            .sort((a, b) => {
+                // _variables.css first, then alphabetically
+                if (a === '_variables.css') return -1;
+                if (b === '_variables.css') return 1;
+                return a.localeCompare(b);
+            });
+        
+        for (const cssFile of cssFiles) {
+            files.push({
+                path: path.join(cssDir, cssFile),
+                label: `${module}: ${cssFile}`
+            });
+        }
+    }
+    
+    return files;
+}
+
+/**
+ * Scan app/Modules/ for JS files
+ * Looks for: app/Modules/{Module}/view/frontend/web/js/*.js
+ */
+function scanModuleJs() {
+    const files = [];
+    
+    if (!fs.existsSync(config.modulesDir)) return files;
+    
+    const modules = fs.readdirSync(config.modulesDir).filter(m => {
+        const modulePath = path.join(config.modulesDir, m);
+        return fs.statSync(modulePath).isDirectory();
+    });
+    
+    for (const module of modules) {
+        const jsDir = path.join(config.modulesDir, module, 'view/frontend/web/js');
+        if (!fs.existsSync(jsDir)) continue;
+        
+        const jsFiles = fs.readdirSync(jsDir)
+            .filter(f => f.endsWith('.js'))
+            .sort();
+        
+        for (const jsFile of jsFiles) {
+            files.push({
+                path: path.join(jsDir, jsFile),
+                label: `${module}: ${jsFile}`
+            });
+        }
+    }
+    
+    return files;
+}
+
+// Minify CSS from multiple sources
 async function minifyCSS(files, outputName) {
     console.log(`🎨 Minifying CSS: ${outputName}`);
     
     let combinedCSS = '';
     
-    for (const file of files) {
-        // Base/frontend assets are in app/base/view/, module assets are in app/modules/
-        let filePath;
-        if (file.startsWith('base/') || file.startsWith('frontend/')) {
-            filePath = path.join(config.baseViewDir, file);
-        } else {
-            filePath = path.join(config.sourceDir, file);
-        }
-        
-        const content = readFile(filePath);
+    for (const fileObj of files) {
+        const content = readFile(fileObj.path);
         if (content) {
-            combinedCSS += `\n/* ${file} */\n${content}\n`;
-            console.log(`  ✓ ${file}`);
+            combinedCSS += `\n/* ${fileObj.label} */\n${content}\n`;
+            console.log(`  ✓ ${fileObj.label}`);
         }
     }
     
@@ -104,25 +164,17 @@ async function minifyCSS(files, outputName) {
     return true;
 }
 
-// Minify JavaScript
+// Minify JavaScript from multiple sources
 async function minifyJavaScript(files, outputName) {
     console.log(`⚡ Minifying JS: ${outputName}`);
     
     let combinedJS = '';
     
-    for (const file of files) {
-        // Base/frontend assets are in app/base/view/, module assets are in app/modules/
-        let filePath;
-        if (file.startsWith('base/') || file.startsWith('frontend/')) {
-            filePath = path.join(config.baseViewDir, file);
-        } else {
-            filePath = path.join(config.sourceDir, file);
-        }
-        
-        const content = readFile(filePath);
+    for (const fileObj of files) {
+        const content = readFile(fileObj.path);
         if (content) {
-            combinedJS += `\n/* ${file} */\n${content}\n`;
-            console.log(`  ✓ ${file}`);
+            combinedJS += `\n/* ${fileObj.label} */\n${content}\n`;
+            console.log(`  ✓ ${fileObj.label}`);
         }
     }
     
@@ -176,39 +228,26 @@ function cleanDist() {
     ensureDir(config.distDir);
 }
 
-// Minify critical CSS separately
-async function minifyCriticalCSS() {
-    console.log('🎨 Minifying Critical CSS (inlined separately)');
+// Build critical CSS (header styles for above-the-fold)
+async function buildCriticalCSS() {
+    console.log('🎨 Building Critical CSS (header/hero for LCP)\n');
     
-    const criticalPath = path.join(config.baseViewDir, config.criticalCss);
-    const content = readFile(criticalPath);
+    const criticalFiles = [
+        { path: path.join(config.coreViewDir, 'base/web/css/_variables.css'), label: 'Core: variables' }
+    ];
     
-    if (!content) {
-        console.warn('⚠️  Warning: Critical CSS not found');
-        return false;
+    // Add Theme critical files if they exist
+    const themeCriticalFiles = ['_variables.css', '_header.css', '_hero.css'];
+    const themeDir = path.join(config.modulesDir, 'Theme/view/frontend/web/css');
+    
+    for (const file of themeCriticalFiles) {
+        const filePath = path.join(themeDir, file);
+        if (fs.existsSync(filePath)) {
+            criticalFiles.push({ path: filePath, label: `Theme: ${file}` });
+        }
     }
     
-    const originalSize = Buffer.byteLength(content, 'utf8');
-    
-    const output = new CleanCSS({
-        level: 2,
-        compatibility: 'ie11'
-    }).minify(content);
-    
-    if (output.errors.length > 0) {
-        console.error('❌ Critical CSS Errors:', output.errors);
-        return false;
-    }
-    
-    const outputPath = path.join(config.distDir, 'critical.min.css');
-    fs.writeFileSync(outputPath, output.styles);
-    
-    const minifiedSize = Buffer.byteLength(output.styles, 'utf8');
-    const savings = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
-    
-    console.log(`  ✓ ${config.criticalCss}`);
-    console.log(`  📦 ${(originalSize / 1024).toFixed(1)}KB → ${(minifiedSize / 1024).toFixed(1)}KB (${savings}% smaller)\n`);
-    return true;
+    return await minifyCSS(criticalFiles, 'critical.min.css');
 }
 
 // Main build process
@@ -223,27 +262,47 @@ async function build() {
     
     console.log('\n📦 Building Production Bundles\n');
     
-    // Build critical CSS separately (this gets inlined)
-    await minifyCriticalCSS();
+    // Build critical CSS (header/hero for LCP)
+    await buildCriticalCSS();
     
-    // Build all-in-one CSS bundle (base + all modules, NO critical.css)
-    const allCssFiles = [...config.cssFiles];
-    for (const module of config.modules) {
-        const cssFilename = module === 'head' ? 'header' : module;
-        allCssFiles.push(`modules/${module}/view/frontend/css/${cssFilename}.css`);
+    // Build all-in-one CSS bundle
+    const allCssFiles = [];
+    
+    // 1. Core CSS (from app/Core/View/view/)
+    for (const file of config.coreCssFiles) {
+        const filePath = path.join(config.coreViewDir, file);
+        if (fs.existsSync(filePath)) {
+            allCssFiles.push({
+                path: filePath,
+                label: `Core: ${file}`
+            });
+        }
     }
+    
+    // 2. Modules CSS (dynamically scan app/Modules/)
+    const moduleCssFiles = scanModuleCss();
+    allCssFiles.push(...moduleCssFiles);
+    
     await minifyCSS(allCssFiles, 'all.min.css');
     
     // Build all-in-one JS bundle
-    const allJsFiles = [...config.jsFiles];
-    for (const module of config.modules) {
-        const jsFilename = module === 'head' ? 'header' : module;
-        const jsPath = `modules/${module}/view/frontend/js/${jsFilename}.js`;
-        const jsFilePath = path.join(config.sourceDir, jsPath);
-        if (fs.existsSync(jsFilePath)) {
-            allJsFiles.push(jsPath);
+    const allJsFiles = [];
+    
+    // 1. Core JS (from app/Core/View/view/)
+    for (const file of config.coreJsFiles) {
+        const filePath = path.join(config.coreViewDir, file);
+        if (fs.existsSync(filePath)) {
+            allJsFiles.push({
+                path: filePath,
+                label: `Core: ${file}`
+            });
         }
     }
+    
+    // 2. Modules JS (dynamically scan app/Modules/)
+    const moduleJsFiles = scanModuleJs();
+    allJsFiles.push(...moduleJsFiles);
+    
     await minifyJavaScript(allJsFiles, 'all.min.js');
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);

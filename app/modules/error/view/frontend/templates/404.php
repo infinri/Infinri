@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Meta and assets loaded in index.php
  */
 ?>
+<main id="page-error" class="page page-404">
 
 <!-- Error Hero -->
 <section class="hero error-hero">
@@ -52,3 +53,5 @@ declare(strict_types=1);
         </div>
     </div>
 </section>
+
+</main>

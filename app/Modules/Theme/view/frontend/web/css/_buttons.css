@@ -1,0 +1,58 @@
+/**
+ * Infinri Button Extensions
+ * 
+ * ONLY theme-specific button variants.
+ * Core provides .btn, .btn-primary, .btn-outline, etc.
+ * 
+ * We add:
+ * - .btn-white (for dark backgrounds)
+ * - .btn-outline-white (for dark backgrounds)
+ * - Enhanced hover effects with purple glow
+ */
+
+/* ==================== White Buttons (Dark Backgrounds) ==================== */
+
+.btn-white {
+    background: #fff;
+    color: var(--color-bg);
+    border-color: #fff;
+}
+
+.btn-white:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-100);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-outline-white {
+    background: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+}
+
+.btn-outline-white:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ==================== Theme Hover Enhancements ==================== */
+
+/* Add purple glow to primary buttons in page context */
+.page .btn-primary:hover {
+    box-shadow: var(--glow-primary), var(--shadow-md);
+}
+
+/* Large button variant (matching Core naming) */
+.btn-large {
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--text-lg);
+}
+
+/* ==================== Focus States ==================== */
+
+.btn-white:focus-visible,
+.btn-outline-white:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}

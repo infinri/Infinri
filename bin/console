@@ -12,17 +12,18 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Console\Application;
-use App\Console\Commands\{AssetsCommand, MinifyCommand};
+use App\Core\Console\Commands\AssetsPublishCommand;
+use App\Core\Console\Commands\AssetsBuildCommand;
 
 try {
     $app = new Application();
     
-    // Register asset commands (module-specific)
-    $app->register('assets:publish', AssetsCommand::class);
-    $app->register('assets:clear', AssetsCommand::class);
-    $app->register('assets:force-clear', AssetsCommand::class);
-    $app->register('setup:minify', MinifyCommand::class);
-    $app->alias('s:min', 'setup:minify');
+    // Register Core asset commands
+    $app->register('assets:publish', AssetsPublishCommand::class);
+    $app->register('assets:clear', AssetsPublishCommand::class);
+    $app->register('assets:build', AssetsBuildCommand::class);
+    $app->alias('a:pub', 'assets:publish');
+    $app->alias('a:build', 'assets:build');
     
     $exitCode = $app->run($argv);
     exit($exitCode);

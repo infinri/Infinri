@@ -1,0 +1,129 @@
+/**
+ * Infinri Hero Sections
+ * 
+ * Page hero areas and titles.
+ * Uses Core typography variables.
+ */
+
+/* ==================== Hero Sections ==================== */
+
+.hero,
+.page-hero {
+    padding: var(--space-12) 0;
+    width: 100%;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: var(--content-default);
+    margin: 0 auto;
+}
+
+/* ==================== Hero Titles ==================== */
+
+.hero-title,
+.page-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+    line-height: var(--leading-tight);
+}
+
+.hero-subtitle,
+.page-subtitle {
+    font-size: var(--text-xl);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-3);
+    line-height: var(--leading-normal);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: var(--space-8);
+}
+
+/* ==================== Section Titles ==================== */
+
+.section-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--color-text);
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.section-subtitle {
+    font-size: var(--text-lg);
+    font-weight: var(--font-normal);
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-bottom: var(--space-12);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==================== Page Sections ==================== */
+
+.page-section {
+    padding: var(--space-16) 0;
+}
+
+/* ==================== CTA Sections ==================== */
+
+.cta-section,
+.about-cta,
+.services-cta {
+    padding: var(--space-16) 0;
+    background: var(--color-bg-secondary);
+    text-align: center;
+}
+
+.cta-content {
+    max-width: var(--content-default);
+    margin: 0 auto;
+}
+
+.cta-content h2 {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+}
+
+.cta-content p {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-8);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ==================== Responsive ==================== */
+
+@media (min-width: 768px) {
+    .hero-title,
+    .page-title {
+        font-size: var(--text-4xl);
+    }
+    
+    .hero,
+    .page-hero {
+        padding: var(--space-16) 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-title,
+    .page-title {
+        font-size: var(--text-5xl);
+    }
+}

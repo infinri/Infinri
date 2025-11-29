@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use App\Base\Helpers\ReCaptcha;
 ?>
+<main id="page-contact" class="page">
 
 <!-- Contact Hero -->
 <section class="page-hero contact-hero">
@@ -219,5 +220,7 @@ use App\Base\Helpers\ReCaptcha;
         </div>
     </div>
 </section>
+
+</main>
 
 <!-- reCAPTCHA is lazy-loaded by contact-lazy.js on user interaction -->

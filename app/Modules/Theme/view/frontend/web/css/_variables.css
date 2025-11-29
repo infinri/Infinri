@@ -1,0 +1,15 @@
+/**
+ * Infinri Theme Variables
+ * 
+ * ONLY overrides for Core variables.
+ * Core provides all base variables - we only customize what's different.
+ */
+
+:root {
+    /* Elevated shadow with purple accent (theme-specific) */
+    --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.8), 
+                       0 0 1px rgba(157, 78, 221, 0.15);
+    
+    /* Line height preference */
+    --leading-normal: 1.6;
+}

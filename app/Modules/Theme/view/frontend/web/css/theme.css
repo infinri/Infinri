@@ -1,0 +1,20 @@
+/**
+ * Infinri Theme - Main CSS
+ * 
+ * Imports all theme partials in the correct cascade order.
+ * 
+ * Load order:
+ * 1. Core CSS (loaded by framework)
+ * 2. Theme CSS (this file)
+ * 
+ * Specificity strategy:
+ * - Core provides generic components (.btn, .form-input, etc.)
+ * - Theme provides brand overrides and page-specific styles
+ * - Page IDs (#page-home, #page-about) enable page-specific overrides
+ */
+
+@import '_variables.css';
+@import '_header.css';
+@import '_buttons.css';
+@import '_hero.css';
+@import '_sections.css';

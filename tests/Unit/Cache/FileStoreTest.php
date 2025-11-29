@@ -33,10 +33,10 @@ class FileStoreTest extends TestCase
             if ($item->isDir()) {
                 $this->removeDirectory($item->getPathname());
             } else {
-                unlink($item->getPathname());
+                @unlink($item->getPathname());
             }
         }
-        rmdir($dir);
+        @rmdir($dir);
     }
 
     #[Test]

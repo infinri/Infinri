@@ -141,12 +141,12 @@ class SessionManagerTest extends TestCase
     }
 
     #[Test]
-    public function set_id_calls_session_id(): void
+    public function set_id_returns_false_when_session_active(): void
     {
-        // setId just wraps session_id(), which may not work if session already started
-        $this->session->setId('custom_id');
-        // Just verify it doesn't throw
-        $this->assertTrue(true);
+        // Session is already started in setUp, so setId should return false
+        $result = $this->session->setId('custom_id');
+        
+        $this->assertFalse($result);
     }
 
     #[Test]

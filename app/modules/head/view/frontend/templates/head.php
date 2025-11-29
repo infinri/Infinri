@@ -10,7 +10,7 @@ declare(strict_types=1);
 <header class="header">
     <nav class="nav">
         <a href="/" class="logo">
-            <img src="/assets/base/images/logo.svg" alt="Infinri" class="logo-image" width="267" height="150" fetchpriority="high" decoding="sync">
+            <img src="/images/logo.svg" alt="Infinri" class="logo-image" width="267" height="150" fetchpriority="high" decoding="sync">
         </a>
         
         <button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">

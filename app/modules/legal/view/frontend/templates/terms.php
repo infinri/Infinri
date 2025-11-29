@@ -7,7 +7,7 @@ declare(strict_types=1);
 <div class="legal-document">
     <div class="legal-header">
         <div class="legal-logo">
-            <img src="/assets/base/images/logo.svg" alt="Infinri" width="80" height="80">
+            <img src="/images/logo.svg" alt="Infinri" width="80" height="80">
         </div>
         <h1><?= htmlspecialchars($pageTitle) ?></h1>
         <p class="last-updated">Last Updated: <?= htmlspecialchars($lastUpdated) ?></p>

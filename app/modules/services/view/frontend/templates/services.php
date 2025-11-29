@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Focus on practical solutions and transparent pricing
  */
 ?>
+<main id="page-services" class="page">
 
 <!-- Services Hero -->
 <section class="page-hero services-hero">
@@ -425,8 +426,10 @@ declare(strict_types=1);
                 let's talk about what you need and find the perfect solution.
             </p>
             <div class="cta-buttons">
-                <a href="/contact" class="btn btn-primary btn-lga">Start Your Project</a>
+                <a href="/contact" class="btn btn-primary btn-lg">Start Your Project</a>
             </div>
         </div>
     </div>
 </section>
+
+</main>

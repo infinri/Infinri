@@ -1,0 +1,205 @@
+/**
+ * Infinri Header & Navigation
+ * 
+ * Sticky header with purple accent border.
+ * Mobile-first responsive nav.
+ */
+
+/* ==================== Header ==================== */
+
+.header {
+    background: var(--color-bg);
+    box-shadow: var(--shadow-elevated);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    height: 125px;
+}
+
+/* ==================== Navigation ==================== */
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--content-wide);
+    margin: 0 auto;
+    position: relative;
+}
+
+/* ==================== Logo ==================== */
+
+.logo {
+    display: block;
+    position: absolute;
+    top: 0;
+}
+
+.logo-image {
+    height: 150px;
+    width: 267px;
+    display: block;
+    filter: drop-shadow(var(--glow-primary));
+}
+
+/* ==================== Nav Menu ==================== */
+
+.nav-menu {
+    margin-left: auto;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    list-style: none;
+}
+
+.nav-link {
+    display: inline-block;
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-3) var(--space-5);
+    color: var(--color-text);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    line-height: 1.5;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+    color: var(--color-primary-light);
+    background: var(--color-bg-hover);
+}
+
+.nav-link.active {
+    color: var(--color-primary);
+}
+
+/* ==================== Mobile Menu Toggle ==================== */
+
+.menu-toggle {
+    display: none;
+    margin-left: auto;
+    margin-right: var(--space-4);
+    padding: var(--space-4);
+    min-width: 56px;
+    min-height: 56px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text);
+    position: relative;
+    transition: var(--transition-fast);
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text);
+    left: 0;
+    transition: var(--transition-fast);
+}
+
+.hamburger::before { top: -8px; }
+.hamburger::after { bottom: -8px; }
+
+/* Menu open state */
+.menu-toggle[aria-expanded="true"] .hamburger {
+    background: transparent;
+}
+
+.menu-toggle[aria-expanded="true"] .hamburger::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.menu-toggle[aria-expanded="true"] .hamburger::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+.menu-close {
+    display: none;
+}
+
+/* ==================== Mobile Responsive ==================== */
+
+@media (max-width: 768px) {
+    .header {
+        height: auto;
+        padding: var(--space-2) 0;
+    }
+    
+    .logo-image {
+        height: 80px;
+        width: auto;
+    }
+    
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 80vw;
+        background: var(--color-bg-secondary);
+        box-shadow: var(--shadow-xl);
+        padding: var(--space-6);
+        transform: translateX(100%);
+        transition: transform var(--transition-base);
+        z-index: var(--z-modal);
+    }
+    
+    .nav-menu.active {
+        display: block;
+        transform: translateX(0);
+    }
+    
+    .menu-close {
+        display: block;
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        font-size: var(--text-2xl);
+        background: none;
+        border: none;
+        color: var(--color-text);
+        cursor: pointer;
+        padding: var(--space-2);
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-1);
+        margin-top: var(--space-12);
+    }
+    
+    .nav-link {
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+    }
+    
+    .nav-link:hover {
+        background: var(--color-bg-hover);
+    }
+}

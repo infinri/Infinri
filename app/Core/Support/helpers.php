@@ -120,6 +120,10 @@ if (!function_exists('save_php_array')) {
 if (!function_exists('clear_directory')) {
     /**
      * Recursively clear a directory's contents
+     * 
+     * @param string $dir Directory to clear
+     * @param bool $preserve If true, keep the directory itself
+     * @return bool True if successful
      */
     function clear_directory(string $dir, bool $preserve = false): bool
     {
@@ -129,8 +133,8 @@ if (!function_exists('clear_directory')) {
         $items = new \FilesystemIterator($dir);
         foreach ($items as $item) {
             if ($item->isDir() && !$item->isLink()) {
-                clear_directory($item->getPathname());
-                @rmdir($item->getPathname());
+                // Recursively clear and remove subdirectory
+                clear_directory($item->getPathname(), false);
             } else {
                 @unlink($item->getPathname());
             }
@@ -448,5 +452,17 @@ if (!function_exists('public_path')) {
     function public_path(string $path = ''): string
     {
         return base_path('pub' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+}
+
+if (!function_exists('meta')) {
+    /**
+     * Get the MetaManager instance
+     *
+     * @return \App\Core\View\Meta\MetaManager
+     */
+    function meta(): \App\Core\View\Meta\MetaManager
+    {
+        return app(\App\Core\View\Meta\MetaManager::class);
     }
 }

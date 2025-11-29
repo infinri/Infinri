@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Focus on practical, affordable web solutions
  */
 ?>
+<main id="page-home" class="page">
 
 <section class="hero">
     <div class="container">
@@ -209,3 +210,5 @@ declare(strict_types=1);
         </div>
     </div>
 </section>
+
+</main>

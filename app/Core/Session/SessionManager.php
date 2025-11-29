@@ -140,10 +140,17 @@ class SessionManager
 
     /**
      * Set session ID (must be called before start)
+     * 
+     * @param string $id Session ID to set
+     * @return bool True if set successfully, false if session already active
      */
-    public function setId(string $id): void
+    public function setId(string $id): bool
     {
+        if ($this->isStarted()) {
+            return false;
+        }
         session_id($id);
+        return true;
     }
 
     /**

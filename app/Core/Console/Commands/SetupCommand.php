@@ -125,6 +125,9 @@ class SetupCommand extends Command
             $this->runModuleAfterSetupHooks();
         }
 
+        // Step 10: Generate OPcache preload file (production only)
+        $this->generatePreload();
+
         // Hook for extending classes
         $this->afterSetup();
 
@@ -522,6 +525,35 @@ class SetupCommand extends Command
         ob_end_clean();
 
         echo "  ✓ Permissions fixed\n";
+    }
+
+    /**
+     * Generate OPcache preload file
+     */
+    protected function generatePreload(): void
+    {
+        $appEnv = $this->targetEnv ?? $this->env->get('APP_ENV', 'production');
+        
+        // Only generate in production
+        if ($appEnv !== 'production') {
+            echo "\n⚡ Preload\n  ⏭️  Skipped (not production)\n";
+            return;
+        }
+        
+        if ($this->dryRun) {
+            echo "\n⚡ Preload\n  → Would generate preload.php\n";
+            return;
+        }
+        
+        echo "\n⚡ Preload\n";
+        
+        $preloadCommand = new PreloadGenerateCommand();
+        
+        ob_start();
+        $preloadCommand->handle([]);
+        ob_end_clean();
+        
+        echo "  ✓ preload.php generated\n";
     }
 
     /**

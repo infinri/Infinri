@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Focus on trust, reliability, and understanding their needs
  */
 ?>
+<main id="page-about" class="page">
 
 <!-- About Hero Section -->
 <section class="page-hero about-hero">
@@ -14,7 +15,7 @@ declare(strict_types=1);
         <div class="about-hero-content">
             <div class="about-profile">
                 <div class="profile-image-wrapper">
-                    <img src="/assets/base/images/avatar.webp" 
+                    <img src="/images/avatar.webp" 
                          alt="Lucio Saldivar - Infinri Web Developer" 
                          class="profile-image"
                          width="200" 
@@ -170,3 +171,5 @@ declare(strict_types=1);
         </div>
     </div>
 </section>
+
+</main>

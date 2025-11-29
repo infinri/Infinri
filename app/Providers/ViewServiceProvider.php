@@ -17,6 +17,7 @@ use App\Core\Container\ServiceProvider;
 use App\Core\View\HandleGenerator;
 use App\Core\View\Layout\LayoutRenderer;
 use App\Core\View\Asset\AssetManager;
+use App\Core\View\Meta\MetaManager;
 
 class ViewServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,11 @@ class ViewServiceProvider extends ServiceProvider
         // HandleGenerator - singleton, stateless
         $this->app->singleton(HandleGenerator::class, function () {
             return new HandleGenerator();
+        });
+        
+        // MetaManager - singleton per request
+        $this->app->singleton(MetaManager::class, function () {
+            return new MetaManager();
         });
         
         // AssetManager - singleton per request
