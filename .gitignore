@@ -35,6 +35,17 @@ desktop.ini
 /var/sessions/*
 !/var/sessions/.gitkeep
 
+# State files (runtime generated)
+/var/state/*
+!/var/state/.gitkeep
+
+# Log archives and metadata
+/var/log/archive/
+/var/log/*.meta
+
+# Coverage reports
+/var/coverage*/
+
 # Composer
 composer.phar
 

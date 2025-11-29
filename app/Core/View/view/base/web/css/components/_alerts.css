@@ -1,0 +1,268 @@
+/**
+ * Alerts/Messages - Base Component
+ * 
+ * Notification messages and alerts for both areas.
+ * Includes toast notifications and inline messages.
+ */
+
+/* ==================== Base Alert ==================== */
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--text-sm);
+}
+
+.alert-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--space-1);
+}
+
+.alert-description {
+    color: inherit;
+    opacity: 0.9;
+}
+
+.alert-close {
+    flex-shrink: 0;
+    padding: var(--space-1);
+    margin: calc(var(--space-1) * -1);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--transition-fast);
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* ==================== Alert Variants ==================== */
+
+/* Info (default) */
+.alert-info {
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+/* Success */
+.alert-success {
+    background: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+/* Warning */
+.alert-warning {
+    background: var(--color-warning-bg);
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+/* Danger/Error */
+.alert-danger,
+.alert-error {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* ==================== Alert Sizes ==================== */
+
+.alert-sm {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+}
+
+.alert-lg {
+    padding: var(--space-6);
+    font-size: var(--text-base);
+}
+
+/* ==================== Inline Alert (compact) ==================== */
+
+.alert-inline {
+    display: inline-flex;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+}
+
+/* ==================== Toast Notifications ==================== */
+
+.toast-container {
+    position: fixed;
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    pointer-events: none;
+}
+
+/* Position variants */
+.toast-container-top-right {
+    top: 0;
+    right: 0;
+}
+
+.toast-container-top-left {
+    top: 0;
+    left: 0;
+}
+
+.toast-container-bottom-right {
+    bottom: 0;
+    right: 0;
+}
+
+.toast-container-bottom-left {
+    bottom: 0;
+    left: 0;
+}
+
+.toast-container-top-center {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toast-container-bottom-center {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Toast item */
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-width: 300px;
+    max-width: 450px;
+    pointer-events: auto;
+    animation: toast-in 0.3s ease;
+}
+
+.toast-exiting {
+    animation: toast-out 0.2s ease forwards;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Toast variants */
+.toast-success {
+    border-left: 4px solid var(--color-success);
+}
+
+.toast-warning {
+    border-left: 4px solid var(--color-warning);
+}
+
+.toast-danger,
+.toast-error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.toast-info {
+    border-left: 4px solid var(--color-info);
+}
+
+/* ==================== Badge (small status) ==================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    line-height: 1;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.badge-primary {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.badge-secondary {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+.badge-success {
+    background: var(--color-success);
+    color: #fff;
+}
+
+.badge-warning {
+    background: var(--color-warning);
+    color: #000;
+}
+
+.badge-danger {
+    background: var(--color-danger);
+    color: #fff;
+}
+
+.badge-info {
+    background: var(--color-info);
+    color: #fff;
+}
+
+/* Outline badges */
+.badge-outline {
+    background: transparent;
+    border: 1px solid currentColor;
+}
+
+/* Dot badge (status indicator) */
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: 50%;
+}

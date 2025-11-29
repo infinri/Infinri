@@ -1,0 +1,271 @@
+/**
+ * Carousel/Slider - Base Component
+ * 
+ * Horizontal scrolling carousel with navigation.
+ * Works with or without JavaScript enhancement.
+ */
+
+/* ==================== Base Carousel ==================== */
+
+.carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-inner {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.carousel-inner::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.carousel-item {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+}
+
+/* Multi-item carousel */
+.carousel-multi .carousel-item {
+    flex: 0 0 calc(100% / var(--carousel-items, 1));
+    padding: 0 var(--space-2);
+}
+
+/* ==================== Carousel Navigation ==================== */
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.carousel-nav-prev {
+    left: var(--space-2);
+}
+
+.carousel-nav-next {
+    right: var(--space-2);
+}
+
+.carousel-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+}
+
+.carousel-nav-btn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-primary);
+}
+
+.carousel-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.carousel-nav-btn svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text);
+}
+
+/* ==================== Carousel Indicators ==================== */
+
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4) 0;
+}
+
+.carousel-indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--color-border);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.carousel-indicator:hover {
+    background: var(--color-text-muted);
+}
+
+.carousel-indicator[aria-selected="true"],
+.carousel-indicator.is-active {
+    background: var(--color-primary);
+    width: 24px;
+    border-radius: var(--radius-full);
+}
+
+/* ==================== Carousel Variants ==================== */
+
+/* Fade transition */
+.carousel-fade .carousel-inner {
+    position: relative;
+}
+
+.carousel-fade .carousel-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--transition-slow);
+}
+
+.carousel-fade .carousel-item.is-active {
+    position: relative;
+    opacity: 1;
+}
+
+/* Cards carousel */
+.carousel-cards {
+    --carousel-items: 1;
+}
+
+@media (min-width: 640px) {
+    .carousel-cards { --carousel-items: 2; }
+}
+
+@media (min-width: 1024px) {
+    .carousel-cards { --carousel-items: 3; }
+}
+
+@media (min-width: 1280px) {
+    .carousel-cards { --carousel-items: 4; }
+}
+
+/* ==================== Testimonial Carousel ==================== */
+
+.carousel-testimonial .carousel-item {
+    text-align: center;
+    padding: var(--space-8) var(--space-12);
+}
+
+.carousel-testimonial-quote {
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--color-text);
+    margin-bottom: var(--space-6);
+    line-height: var(--leading-relaxed);
+}
+
+.carousel-testimonial-author {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.carousel-testimonial-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.carousel-testimonial-name {
+    font-weight: var(--font-semibold);
+    color: var(--color-text);
+}
+
+.carousel-testimonial-title {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* ==================== Hero Carousel ==================== */
+
+.carousel-hero {
+    height: 500px;
+}
+
+.carousel-hero .carousel-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+}
+
+.carousel-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.carousel-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    padding: var(--space-8);
+    color: #fff;
+}
+
+.carousel-hero-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+}
+
+.carousel-hero-description {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-6);
+    opacity: 0.9;
+}
+
+/* ==================== Logo Carousel (Auto-scroll) ==================== */
+
+.carousel-logos {
+    --scroll-speed: 30s;
+    overflow: hidden;
+}
+
+.carousel-logos .carousel-inner {
+    animation: carousel-scroll var(--scroll-speed) linear infinite;
+    width: fit-content;
+}
+
+.carousel-logos .carousel-item {
+    flex: 0 0 auto;
+    padding: 0 var(--space-8);
+}
+
+.carousel-logos:hover .carousel-inner {
+    animation-play-state: paused;
+}
+
+@keyframes carousel-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* ==================== Responsive Navigation ==================== */
+
+@media (max-width: 640px) {
+    .carousel-nav {
+        display: none;
+    }
+    
+    /* Show indicators on mobile */
+    .carousel-indicators {
+        display: flex;
+    }
+}

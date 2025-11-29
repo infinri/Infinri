@@ -391,3 +391,62 @@ if (!function_exists('validator')) {
         return \App\Core\Validation\Validator::make($data, $rules, $messages);
     }
 }
+
+if (!function_exists('csp_nonce')) {
+    /**
+     * Get the CSP nonce for inline scripts/styles
+     *
+     * @return string|null
+     */
+    function csp_nonce(): ?string
+    {
+        // Check if nonce is already stored in app
+        $app = app();
+        
+        if ($app->bound('csp.nonce')) {
+            return $app->make('csp.nonce');
+        }
+        
+        // Fallback to GLOBALS for backwards compatibility
+        return $GLOBALS['cspNonce'] ?? null;
+    }
+}
+
+if (!function_exists('csp_nonce_attr')) {
+    /**
+     * Get the CSP nonce as an HTML attribute string
+     *
+     * @return string Empty string if no nonce, or ' nonce="..."' 
+     */
+    function csp_nonce_attr(): string
+    {
+        $nonce = csp_nonce();
+        return $nonce ? ' nonce="' . e($nonce) . '"' : '';
+    }
+}
+
+if (!function_exists('app_path')) {
+    /**
+     * Get the path to the app directory
+     *
+     * @param string $path
+     * @return string
+     */
+    function app_path(string $path = ''): string
+    {
+        return base_path('app' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * Get the path to the public directory
+     *
+     * @param string $path
+     * @return string
+     */
+    function public_path(string $path = ''): string
+    {
+        return base_path('pub' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+}

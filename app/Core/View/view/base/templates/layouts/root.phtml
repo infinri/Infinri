@@ -1,0 +1,72 @@
+<?php
+declare(strict_types=1);
+/**
+ * ROOT LAYOUT - THE HTML SKELETON
+ * 
+ * This is the ONLY place <html>, <head>, <body> are defined.
+ * Both frontend and admin extend this via $areaContent.
+ * 
+ * @var \App\Core\View\Layout\LayoutRenderer $layout
+ * @var \App\Core\View\Asset\AssetManager $assets
+ * @var string $locale Current locale (default: 'en')
+ * @var string $dir Text direction (default: 'ltr')
+ * @var string $bodyClass Additional body classes
+ * @var string $areaContent Content from area layout (frontend/admin wrapper)
+ * @var string $robotsMeta Robots meta tag (default: empty, admin sets noindex)
+ */
+
+$locale = $locale ?? 'en';
+$dir = $dir ?? 'ltr';
+$bodyClass = $bodyClass ?? '';
+$areaContent = $areaContent ?? '';
+$robotsMeta = $robotsMeta ?? '';
+?>
+<!DOCTYPE html>
+<html lang="<?= e($locale) ?>" dir="<?= e($dir) ?>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <?php if ($robotsMeta): ?>
+    <meta name="robots" content="<?= e($robotsMeta) ?>">
+    <?php endif; ?>
+    
+    <?php // Meta tags from layout updates (title, description, OG, etc.) ?>
+    <?= $layout->renderContainer('head.meta') ?>
+    
+    <?php // Preconnects for external resources ?>
+    <?= $assets->renderPreconnects() ?>
+    
+    <?php // Critical CSS (inlined with nonce for instant FCP) ?>
+    <?= $assets->renderCriticalCss() ?>
+    
+    <?php // Area CSS bundle (frontend.min.css or admin.min.css in prod) ?>
+    <?= $assets->renderCss() ?>
+    
+    <?php // Module CSS from layout updates ?>
+    <?= $layout->renderContainer('head.css') ?>
+    
+    <?php // External head scripts (reCAPTCHA, analytics, etc.) ?>
+    <?= $assets->renderHeadScripts() ?>
+    <?= $layout->renderContainer('head.scripts') ?>
+</head>
+<body class="<?= e($bodyClass) ?>">
+    <?php // Skip link for accessibility ?>
+    <a href="#main-content" class="sr-only focus:not-sr-only skip-link">Skip to main content</a>
+    
+    <?php // Body start (cookie consent, etc.) ?>
+    <?= $layout->renderContainer('body.start') ?>
+    
+    <?php // Area-specific content (frontend or admin wrapper) ?>
+    <?= $areaContent ?>
+    
+    <?php // Body end (modals, toasts, etc.) ?>
+    <?= $layout->renderContainer('body.end') ?>
+    
+    <?php // JS at end of body (single bundle in prod) ?>
+    <?= $assets->renderJs() ?>
+    
+    <?php // Module JS from layout updates ?>
+    <?= $layout->renderContainer('body.js') ?>
+</body>
+</html>

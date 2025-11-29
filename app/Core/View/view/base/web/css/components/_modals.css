@@ -1,0 +1,259 @@
+/**
+ * Modals/Dialogs - Base Component
+ * 
+ * Modal dialogs, drawers, and overlay components.
+ */
+
+/* ==================== Modal Backdrop ==================== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-backdrop);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.modal-backdrop[data-visible="true"],
+.modal-backdrop.is-visible {
+    opacity: 1;
+}
+
+/* ==================== Base Modal ==================== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.modal[data-visible="true"],
+.modal.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+/* ==================== Modal Content ==================== */
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - var(--space-8));
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95) translateY(10px);
+    transition: transform var(--transition-base);
+}
+
+.modal[data-visible="true"] .modal-content,
+.modal.is-visible .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+/* ==================== Modal Sizes ==================== */
+
+.modal-sm .modal-content { max-width: 350px; }
+.modal-lg .modal-content { max-width: 700px; }
+.modal-xl .modal-content { max-width: 900px; }
+.modal-full .modal-content { max-width: calc(100vw - var(--space-8)); }
+
+/* ==================== Modal Parts ==================== */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: calc(var(--space-1) * -1);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+}
+
+.modal-body {
+    flex: 1;
+    padding: var(--space-6);
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-tertiary);
+}
+
+/* ==================== Drawer (Side Panel) ==================== */
+
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-backdrop);
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+}
+
+.drawer-backdrop[data-visible="true"],
+.drawer-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer {
+    position: fixed;
+    z-index: var(--z-modal);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-base);
+}
+
+/* Drawer positions */
+.drawer-right {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    max-width: 100%;
+    transform: translateX(100%);
+}
+
+.drawer-left {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 400px;
+    max-width: 100%;
+    transform: translateX(-100%);
+}
+
+.drawer-bottom {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 400px;
+    max-height: 80vh;
+    transform: translateY(100%);
+}
+
+.drawer-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    max-height: 80vh;
+    transform: translateY(-100%);
+}
+
+.drawer[data-visible="true"],
+.drawer.is-visible {
+    transform: translate(0);
+}
+
+/* Drawer content reuses modal parts */
+.drawer .modal-header,
+.drawer .modal-body,
+.drawer .modal-footer {
+    /* Same styles apply */
+}
+
+/* ==================== Confirmation Dialog ==================== */
+
+.dialog-confirm {
+    text-align: center;
+}
+
+.dialog-confirm .modal-body {
+    padding: var(--space-8) var(--space-6);
+}
+
+.dialog-confirm-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+}
+
+.dialog-confirm-icon-danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.dialog-confirm-icon-warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.dialog-confirm-icon-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.dialog-confirm-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--space-2);
+}
+
+.dialog-confirm-message {
+    color: var(--color-text-secondary);
+}
+
+.dialog-confirm .modal-footer {
+    justify-content: center;
+}
+
+/* ==================== Body Scroll Lock ==================== */
+
+body.modal-open {
+    overflow: hidden;
+}

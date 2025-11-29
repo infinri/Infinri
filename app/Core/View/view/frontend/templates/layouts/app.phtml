@@ -1,0 +1,98 @@
+<?php
+declare(strict_types=1);
+/**
+ * FRONTEND AREA LAYOUT
+ * 
+ * Extends base/templates/layouts/root.phtml
+ * Defines frontend-specific body structure.
+ * 
+ * Frontend uses:
+ * - Full-width content area
+ * - Optional sidebars (left or right)
+ * - Public header/footer wrappers
+ * 
+ * @var \App\Core\View\Layout\LayoutRenderer $layout
+ * @var \App\Core\View\Asset\AssetManager $assets
+ * @var string $pageLayout Layout variation (one-column, two-column-left, two-column-right)
+ */
+
+$pageLayout = $pageLayout ?? 'one-column';
+$bodyClass = "frontend {$pageLayout}";
+$locale = $locale ?? 'en';
+$dir = $dir ?? 'ltr';
+
+// Set area for assets
+$assets->setArea('frontend');
+
+// Capture frontend-specific body content
+ob_start();
+?>
+    <?php // Header ?>
+    <div class="header-wrapper">
+        <?= $layout->renderContainer('header.before') ?>
+        <?= $layout->renderContainer('header') ?>
+        <?= $layout->renderContainer('header.after') ?>
+    </div>
+    
+    <?php // Breadcrumbs ?>
+    <?php if ($layout->hasContainer('breadcrumbs')): ?>
+    <nav class="breadcrumbs-wrapper" aria-label="Breadcrumb">
+        <div class="container">
+            <?= $layout->renderContainer('breadcrumbs') ?>
+        </div>
+    </nav>
+    <?php endif; ?>
+    
+    <?php // Main content with optional sidebars ?>
+    <div class="page-wrapper">
+        <div class="container">
+            <?php if ($pageLayout === 'two-column-left'): ?>
+            <div class="layout-two-column">
+                <aside class="sidebar sidebar-left">
+                    <?= $layout->renderContainer('sidebar.left') ?>
+                </aside>
+                <main id="main-content" class="main-content" role="main">
+                    <?= $layout->renderContainer('content.before') ?>
+                    <?= $layout->renderContainer('content.top') ?>
+                    <?= $layout->renderContainer('content') ?>
+                    <?= $layout->renderContainer('content.bottom') ?>
+                    <?= $layout->renderContainer('content.after') ?>
+                </main>
+            </div>
+            <?php elseif ($pageLayout === 'two-column-right' || $pageLayout === 'two-column'): ?>
+            <div class="layout-two-column">
+                <main id="main-content" class="main-content" role="main">
+                    <?= $layout->renderContainer('content.before') ?>
+                    <?= $layout->renderContainer('content.top') ?>
+                    <?= $layout->renderContainer('content') ?>
+                    <?= $layout->renderContainer('content.bottom') ?>
+                    <?= $layout->renderContainer('content.after') ?>
+                </main>
+                <aside class="sidebar sidebar-right">
+                    <?= $layout->renderContainer('sidebar.right') ?>
+                </aside>
+            </div>
+            <?php else: ?>
+            <?php // Default: one-column ?>
+            <main id="main-content" class="main-content" role="main">
+                <?= $layout->renderContainer('content.before') ?>
+                <?= $layout->renderContainer('content.top') ?>
+                <?= $layout->renderContainer('content') ?>
+                <?= $layout->renderContainer('content.bottom') ?>
+                <?= $layout->renderContainer('content.after') ?>
+            </main>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php // Footer ?>
+    <div class="footer-wrapper">
+        <?= $layout->renderContainer('footer.before') ?>
+        <?= $layout->renderContainer('footer') ?>
+        <?= $layout->renderContainer('footer.after') ?>
+    </div>
+<?php
+$areaContent = ob_get_clean();
+
+// Include base root layout
+include __DIR__ . '/../../../base/templates/layouts/root.phtml';

@@ -1,0 +1,97 @@
+/**
+ * Frontend Layout Styles
+ * 
+ * Layout structure for public-facing pages.
+ */
+
+/* ==================== Container ==================== */
+
+.container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: 0 var(--space-6);
+    }
+}
+
+/* ==================== Header ==================== */
+
+.header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ==================== Page Wrapper ==================== */
+
+.page-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) 0;
+}
+
+/* ==================== Main Content ==================== */
+
+.main-content {
+    width: 100%;
+}
+
+/* ==================== Two Column Layout ==================== */
+
+.layout-two-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+    .layout-two-column {
+        flex-direction: row;
+    }
+    
+    .layout-two-column .main-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .layout-two-column .sidebar {
+        width: 300px;
+        flex-shrink: 0;
+    }
+    
+    /* Left sidebar layout */
+    .two-column-left .layout-two-column {
+        flex-direction: row-reverse;
+    }
+}
+
+/* ==================== Sidebar ==================== */
+
+.sidebar {
+    background: var(--color-bg-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+}
+
+/* ==================== Breadcrumbs ==================== */
+
+.breadcrumbs-wrapper {
+    background: var(--color-bg-secondary);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ==================== Footer ==================== */
+
+.footer-wrapper {
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-12) 0;
+    margin-top: auto;
+}

@@ -1,0 +1,84 @@
+<?php
+declare(strict_types=1);
+/**
+ * ADMIN AREA LAYOUT
+ * 
+ * Extends base/templates/layouts/root.phtml
+ * Defines admin-specific body structure.
+ * 
+ * Admin uses:
+ * - Collapsible sidebar navigation
+ * - Top header bar with user menu
+ * - Page title and action buttons
+ * - Flash messages area
+ * 
+ * @var \App\Core\View\Layout\LayoutRenderer $layout
+ * @var \App\Core\View\Asset\AssetManager $assets
+ * @var string $pageLayout Layout variation (dashboard, form, list)
+ * @var string $pageTitle Current page title
+ */
+
+$pageLayout = $pageLayout ?? 'default';
+$pageTitle = $pageTitle ?? 'Admin';
+$bodyClass = "admin admin-{$pageLayout}";
+$locale = $locale ?? 'en';
+$dir = $dir ?? 'ltr';
+$robotsMeta = 'noindex, nofollow'; // Admin pages should not be indexed
+
+// Set area for assets
+$assets->setArea('admin');
+
+// Capture admin-specific body content
+ob_start();
+?>
+    <div class="admin-wrapper">
+        <?php // Sidebar navigation ?>
+        <aside class="admin-sidebar" data-sidebar>
+            <?= $layout->renderContainer('sidebar') ?>
+        </aside>
+        
+        <?php // Main content area ?>
+        <div class="admin-main">
+            <?php // Top header bar ?>
+            <header class="admin-header">
+                <?= $layout->renderContainer('header') ?>
+            </header>
+            
+            <?php // Page content ?>
+            <main id="main-content" class="admin-content" role="main">
+                <?php // Page header with title and actions ?>
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <?php if ($layout->hasContainer('page.title')): ?>
+                            <?= $layout->renderContainer('page.title') ?>
+                        <?php else: ?>
+                            <h1 class="page-title"><?= e($pageTitle) ?></h1>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if ($layout->hasContainer('page.actions')): ?>
+                    <div class="page-actions">
+                        <?= $layout->renderContainer('page.actions') ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <?php // Flash messages ?>
+                <div class="messages-wrapper">
+                    <?= $layout->renderContainer('messages') ?>
+                </div>
+                
+                <?php // Main content ?>
+                <div class="content-wrapper">
+                    <?= $layout->renderContainer('content.before') ?>
+                    <?= $layout->renderContainer('content') ?>
+                    <?= $layout->renderContainer('content.after') ?>
+                </div>
+            </main>
+        </div>
+    </div>
+<?php
+$areaContent = ob_get_clean();
+
+// Include base root layout
+include __DIR__ . '/../../../base/templates/layouts/root.phtml';
