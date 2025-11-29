@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Core\Events;
 
 use App\Core\Contracts\Events\EventDispatcherInterface;
+use App\Core\Contracts\Events\EventSubscriberInterface;
 
 /**
  * Event Dispatcher
  * 
  * Dispatches events to registered listeners with priority support.
+ * Supports both legacy subscribe() method and EventSubscriberInterface.
  */
 class EventDispatcher implements EventDispatcherInterface
 {
@@ -54,18 +56,77 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * Register a subscriber (class with multiple listeners)
+     * 
+     * Supports both:
+     * - EventSubscriberInterface::getSubscribedEvents()
+     * - Legacy subscribe($dispatcher) method
      */
     public function subscribe(string|object $subscriber): void
     {
         $subscriber = is_string($subscriber) ? new $subscriber() : $subscriber;
 
-        if (!method_exists($subscriber, 'subscribe')) {
-            throw new \InvalidArgumentException(
-                'Subscriber must implement a subscribe() method'
-            );
+        // New interface-based subscriber
+        if ($subscriber instanceof EventSubscriberInterface) {
+            $this->addSubscriber($subscriber);
+            return;
         }
 
-        $subscriber->subscribe($this);
+        // Legacy subscribe() method
+        if (method_exists($subscriber, 'subscribe')) {
+            $subscriber->subscribe($this);
+            return;
+        }
+
+        throw new \InvalidArgumentException(
+            'Subscriber must implement EventSubscriberInterface or have a subscribe() method'
+        );
+    }
+
+    /**
+     * Add an EventSubscriberInterface subscriber
+     */
+    public function addSubscriber(EventSubscriberInterface $subscriber): void
+    {
+        foreach ($subscriber::getSubscribedEvents() as $eventName => $params) {
+            if (is_string($params)) {
+                // Simple: 'eventName' => 'methodName'
+                $this->listen($eventName, [$subscriber, $params]);
+            } elseif (is_array($params)) {
+                if (is_string($params[0] ?? null)) {
+                    // With priority: 'eventName' => ['methodName', priority]
+                    $this->listen($eventName, [$subscriber, $params[0]], $params[1] ?? 0);
+                } else {
+                    // Multiple handlers: 'eventName' => [['method1', priority], ['method2', priority]]
+                    foreach ($params as $handler) {
+                        $this->listen(
+                            $eventName,
+                            [$subscriber, $handler[0]],
+                            $handler[1] ?? 0
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Remove a subscriber
+     */
+    public function removeSubscriber(EventSubscriberInterface $subscriber): void
+    {
+        foreach ($subscriber::getSubscribedEvents() as $eventName => $params) {
+            if (is_string($params)) {
+                $this->forget($eventName, [$subscriber, $params]);
+            } elseif (is_array($params)) {
+                if (is_string($params[0] ?? null)) {
+                    $this->forget($eventName, [$subscriber, $params[0]]);
+                } else {
+                    foreach ($params as $handler) {
+                        $this->forget($eventName, [$subscriber, $handler[0]]);
+                    }
+                }
+            }
+        }
     }
 
     /**
