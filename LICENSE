@@ -1,0 +1,134 @@
+PROPRIETARY SOFTWARE LICENSE
+
+Copyright (c) 2024-2025 Lucio Saldivar / Infinri. All Rights Reserved.
+
+================================================================================
+                            INFINRI FRAMEWORK LICENSE
+================================================================================
+
+This software and associated documentation files (the "Software") are the 
+exclusive proprietary property of Lucio Saldivar, operating as Infinri ("Owner").
+
+1. OWNERSHIP
+------------
+The Software, including all source code, documentation, designs, algorithms,
+and related intellectual property, is and shall remain the sole and exclusive
+property of the Owner. No transfer of ownership or intellectual property rights
+is granted by this license.
+
+2. RESTRICTIONS
+---------------
+Unless expressly authorized in writing by the Owner, you may NOT:
+
+   a) Copy, reproduce, or duplicate the Software or any portion thereof
+   b) Modify, adapt, translate, or create derivative works of the Software
+   c) Distribute, publish, display, or transmit the Software to any third party
+   d) Sublicense, lease, rent, loan, or otherwise transfer the Software
+   e) Reverse engineer, decompile, disassemble, or attempt to derive the 
+      source code of the Software
+   f) Remove, alter, or obscure any proprietary notices, labels, or marks
+   g) Use the Software to develop competing products or services
+   h) Use the Software for any purpose not expressly authorized by the Owner
+
+3. CONFIDENTIALITY
+------------------
+The Software contains trade secrets and confidential information belonging to
+the Owner. Any person with access to this Software agrees to:
+
+   a) Maintain strict confidentiality of all Software components
+   b) Not disclose any part of the Software to unauthorized parties
+   c) Use the Software only for purposes authorized by the Owner
+   d) Notify the Owner immediately upon discovery of any unauthorized access,
+      use, or disclosure
+
+4. AUTHORIZED USE
+-----------------
+Use of this Software is permitted only by:
+
+   a) The Owner and their authorized employees
+   b) Contractors bound by written confidentiality agreements
+   c) Parties with explicit written authorization from the Owner
+
+Authorized use includes:
+   - Development and deployment of Owner's business applications
+   - Client-facing projects developed by or for the Owner
+   - Internal tools and services operated by the Owner
+
+5. COLLABORATORS AND CONTRACTORS
+--------------------------------
+Any collaborator, contractor, or third party granted access to this Software:
+
+   a) Must sign a confidentiality and non-disclosure agreement
+   b) May only access portions of the Software necessary for their work
+   c) Must return or destroy all copies upon termination of their engagement
+   d) Remains bound by confidentiality obligations indefinitely
+   e) May not retain, copy, or use the Software after their engagement ends
+
+6. CLIENT WORK AND COMMERCIAL USE
+---------------------------------
+The Owner retains full rights to:
+
+   a) Use the Software framework in client-facing projects
+   b) Develop commercial products and services using the Software
+   c) Create and sell derivative works based on the Software
+   d) License or sublicense the Software to third parties
+   e) Modify the licensing terms for future versions
+
+Clients receiving applications built with this Software do NOT receive any 
+rights to the underlying framework, unless explicitly granted in writing.
+
+7. NO WARRANTY
+--------------
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+OWNER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE
+USE OF THE SOFTWARE.
+
+8. LIMITATION OF LIABILITY
+--------------------------
+IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED TO LOSS OF
+PROFITS, BUSINESS INTERRUPTION, OR LOSS OF DATA) ARISING OUT OF OR IN 
+CONNECTION WITH THIS SOFTWARE.
+
+9. TERMINATION
+--------------
+Any unauthorized access, use, or disclosure of this Software automatically
+terminates any implied or granted rights and may result in legal action.
+The Owner reserves the right to seek injunctive relief, damages, and any
+other remedies available under applicable law.
+
+10. GOVERNING LAW
+-----------------
+This license shall be governed by and construed in accordance with applicable
+intellectual property and contract laws. Any disputes shall be resolved in
+the courts of the Owner's jurisdiction.
+
+11. FUTURE LICENSING
+--------------------
+The Owner reserves the right to:
+
+   a) Release future versions under different licensing terms
+   b) Offer commercial licenses to third parties
+   c) Open-source portions of the Software at their discretion
+   d) Modify these terms for subsequent versions
+
+Any such changes do not retroactively affect the terms under which previous
+versions were accessed.
+
+12. CONTACT
+-----------
+For licensing inquiries, authorized access requests, or questions regarding
+this license, contact:
+
+   Infinri
+   https://infinri.com
+   legal@infinri.com
+
+================================================================================
+
+BY ACCESSING THIS SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD,
+AND AGREE TO BE BOUND BY THE TERMS OF THIS LICENSE.
+
+================================================================================

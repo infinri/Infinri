@@ -302,7 +302,26 @@ Comprehensive architecture documentation in `docs/`:
 
 ---
 
+## License
+
+**Proprietary Software** — All Rights Reserved  
+Copyright (c) 2024-2025 Lucio Saldivar / Infinri
+
+This software is the exclusive property of Lucio Saldivar / Infinri. Unauthorized 
+copying, distribution, modification, or use is strictly prohibited.
+
+| Document | Purpose |
+|----------|---------|
+| [LICENSE](LICENSE) | Full proprietary license terms |
+| [LEGAL.md](docs/LEGAL.md) | Terms of access and legal notices |
+| [CONTRIBUTOR-AGREEMENT.md](docs/CONTRIBUTOR-AGREEMENT.md) | Collaborator/contractor terms |
+
+For licensing inquiries: legal@infinri.com
+
+---
+
 ## Contact
 
 - **GitHub:** [github.com/infinri](https://github.com/infinri)
 - **Website:** [infinri.com](https://infinri.com)
+- **Licensing:** legal@infinri.com
