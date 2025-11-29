@@ -39,7 +39,7 @@ final class TemplateResolver implements TemplateResolverInterface
 
     public function __construct(?string $appPath = null)
     {
-        $this->appPath = $appPath ?? $this->getDefaultAppPath();
+        $this->appPath = $appPath ?? app_path();
     }
 
     /**
@@ -216,13 +216,5 @@ final class TemplateResolver implements TemplateResolverInterface
     public function clearCache(): void
     {
         $this->cache = [];
-    }
-
-    /**
-     * Get default app path
-     */
-    private function getDefaultAppPath(): string
-    {
-        return defined('BASE_PATH') ? BASE_PATH . '/app' : dirname(__DIR__, 3);
     }
 }

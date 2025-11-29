@@ -228,7 +228,7 @@ class ContactController {
     }
 }
 
-// Module B: Listen to event
+// Module B: Listen to event (legacy approach)
 class NotifyAdminListener {
     public function handle(ContactSubmitted $event) {
         Mail::send(new ContactNotification($event->submission));
@@ -240,6 +240,65 @@ class NotifyAdminListener {
 **Data Flow:** Fire → Dispatcher → Listeners (async possible)  
 **Performance:** ★★ Slower (event overhead)  
 **Coupling:** None (modules don't know each other)
+
+---
+
+### Pattern 2b: Event Subscriber (Formal Contract)
+
+```php
+use App\Core\Contracts\Events\EventSubscriberInterface;
+
+// Module B: Subscriber implementing formal contract
+class ContactEventSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ContactSubmitted::class => 'onContactSubmitted',
+            ContactUpdated::class => ['onContactUpdated', 10], // priority
+            ContactDeleted::class => [
+                ['logDeletion', 100],   // high priority
+                ['notifyAdmin', 0],     // normal priority
+            ],
+        ];
+    }
+    
+    public function onContactSubmitted(ContactSubmitted $event): void
+    {
+        Mail::send(new ContactNotification($event->submission));
+    }
+    
+    public function onContactUpdated(ContactUpdated $event): void { }
+    public function logDeletion(ContactDeleted $event): void { }
+    public function notifyAdmin(ContactDeleted $event): void { }
+}
+
+// Registration in module's boot():
+$dispatcher->addSubscriber(new ContactEventSubscriber());
+
+// Or via service provider:
+$dispatcher->subscribe(ContactEventSubscriber::class);
+```
+
+**Event Subscriber Contract:**
+```php
+interface EventSubscriberInterface {
+    public static function getSubscribedEvents(): array;
+}
+```
+
+**Connector:** EventDispatcher with addSubscriber()/removeSubscriber()  
+**Benefits:**
+- Formal connector definition (SEI C&C compliance)
+- Multiple events in one class
+- Priority-based execution
+- Removable at runtime
+
+**Lifecycle:**
+1. Module boots → registers subscriber
+2. Event dispatched → dispatcher finds subscribers
+3. Listeners called in priority order (high → low)
+4. Stoppable events can halt propagation
 
 ---
 
@@ -532,6 +591,6 @@ Queue Job ──→ Redis Queue ──→ Queue Worker
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** November 24, 2025  
+**Version:** 1.1  
+**Last Updated:** November 28, 2025  
 **Next Review:** After Phase 2 completion

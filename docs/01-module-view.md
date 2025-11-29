@@ -349,6 +349,108 @@ app/base/view/
 
 ---
 
+## 🔄 Module Lifecycle
+
+### Discovery Phase
+
+```
+Application Boot
+    │
+    ↓
+ModuleRegistry::scan()
+    │
+    ├─→ Scan app/Modules/ directory
+    ├─→ Load module.php config files
+    ├─→ Create ModuleDefinition instances
+    └─→ Cache module metadata (var/state/modules.php)
+```
+
+### Validation Phase
+
+```
+ModuleRegistry::resolveDependencies()
+    │
+    ├─→ Build dependency graph
+    ├─→ Detect circular dependencies (throws exception)
+    ├─→ Topological sort (dependency order)
+    └─→ Return ordered module list
+```
+
+### Registration Phase
+
+```
+For each module (in dependency order):
+    │
+    ↓
+ModuleInterface::register($container)
+    │
+    ├─→ Bind services to container
+    ├─→ Register service providers
+    ├─→ Register interfaces → implementations
+    └─→ No dependencies resolved yet
+```
+
+### Boot Phase
+
+```
+For each module (in dependency order):
+    │
+    ↓
+ModuleInterface::boot($container)
+    │
+    ├─→ Dependencies now available
+    ├─→ Register event subscribers
+    ├─→ Register routes
+    ├─→ Configure services
+    └─→ Publish assets (if needed)
+```
+
+### Module Integration Points
+
+| Hook | Purpose | Example |
+|------|---------|---------|
+| `register()` | Bind services | `$container->bind(MailInterface::class, BrevoMail::class)` |
+| `boot()` | Configure services | `$router->group('/api', ...)` |
+| `getProviders()` | Service providers | `[ContactServiceProvider::class]` |
+| `getCommands()` | CLI commands | `[ContactExportCommand::class]` |
+| `getDependencies()` | Required modules | `['mail', 'validation']` |
+
+### Creating a Module
+
+```php
+// Option 1: Extend AbstractModule (recommended)
+class ContactModule extends AbstractModule
+{
+    protected string $name = 'contact';
+    protected string $version = '1.0.0';
+    protected array $dependencies = ['mail', 'validation'];
+    protected array $providers = [ContactServiceProvider::class];
+    protected array $commands = [ContactExportCommand::class];
+    
+    public function boot(ContainerInterface $container): void
+    {
+        // Register routes
+        $router = $container->make(RouterInterface::class);
+        $router->post('/contact', ContactController::class);
+        
+        // Register event subscribers
+        $dispatcher = $container->make(EventDispatcherInterface::class);
+        $dispatcher->addSubscriber(new ContactEventSubscriber());
+    }
+}
+
+// Option 2: Config-based (legacy, backwards compatible)
+// app/modules/contact/module.php
+return [
+    'name' => 'contact',
+    'version' => '1.0.0',
+    'depends' => ['mail', 'validation'],
+    'providers' => [ContactServiceProvider::class],
+];
+```
+
+---
+
 ## 📦 Layer 3: Feature Modules
 
 User-facing modules that compose services.
@@ -506,6 +608,84 @@ Blog/
 
 ---
 
+## 📜 Platform Contracts
+
+### Module Contracts
+
+**Location:** `app/Core/Contracts/Module/`
+
+```php
+// Core module contract - all platform modules implement this
+interface ModuleInterface {
+    public function getName(): string;
+    public function getVersion(): string;
+    public function getDependencies(): array;
+    public function register(ContainerInterface $container): void;
+    public function boot(ContainerInterface $container): void;
+    public function getProviders(): array;
+    public function getCommands(): array;
+    public function isEnabled(): bool;
+}
+
+// For components with boot phase
+interface BootableInterface {
+    public function boot(): void;
+}
+
+// For modules with lifecycle hooks
+interface InstallableInterface {
+    public function install(): void;
+    public function upgrade(string $from, string $to): void;
+    public function uninstall(): void;
+}
+```
+
+**Base Implementation:** `App\Core\Module\AbstractModule`
+
+### Event Subscriber Contract
+
+**Location:** `app/Core/Contracts/Events/`
+
+```php
+// Formal connector definition per SEI C&C structure
+interface EventSubscriberInterface {
+    public static function getSubscribedEvents(): array;
+}
+
+// Usage:
+class UserEventSubscriber implements EventSubscriberInterface {
+    public static function getSubscribedEvents(): array {
+        return [
+            UserCreated::class => 'onUserCreated',
+            UserDeleted::class => ['onUserDeleted', 10], // with priority
+        ];
+    }
+}
+```
+
+### Template Resolution Contract
+
+**Location:** `app/Core/Contracts/View/`
+
+```php
+// Theme fallback resolution
+interface TemplateResolverInterface {
+    public function resolve(string $template, string $module, string $area): ?string;
+    public function exists(string $template, string $module, string $area): bool;
+    public function setTheme(?string $theme): void;
+    public function getTheme(): ?string;
+}
+```
+
+**Resolution Order:**
+```
+1. Theme/view/{area}/templates/{module}/{template}  ← Theme override
+2. Module/view/{area}/templates/{template}          ← Module default
+3. Core/View/view/{area}/templates/{template}       ← Core fallback
+```
+
+---
+
 ## 📝 Change Impact Analysis
 
 **Adding a new module:**
@@ -528,6 +708,6 @@ Blog/
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** November 24, 2025  
+**Version:** 1.1  
+**Last Updated:** November 28, 2025  
 **Next Review:** After Phase 1 completion

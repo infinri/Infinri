@@ -623,6 +623,150 @@ Instead:
 
 ---
 
+## ADR-009: Formal Platform Contracts for Modules and Events
+
+**Status:** ✅ ACCEPTED  
+**Date:** November 28, 2025  
+**Deciders:** Architecture team
+
+### Context
+
+Modules and events work but lack formal contracts:
+- Modules use `module.php` config files but no interface
+- Events work but subscribers have no defined contract
+- Third-party modules have no guaranteed API
+- SEI architecture requires "defined elements and relationships"
+
+**Considered options:**
+1. Keep config-based module system (simpler, less safe)
+2. Require all modules to extend base class (inheritance coupling)
+3. Define formal interfaces (composition, contract-based)
+
+### Decision
+
+We will define **formal contracts** for platform components:
+
+**Module Contracts:**
+```php
+interface ModuleInterface {
+    public function getName(): string;
+    public function getVersion(): string;
+    public function getDependencies(): array;
+    public function register(ContainerInterface $container): void;
+    public function boot(ContainerInterface $container): void;
+    public function getProviders(): array;
+    public function getCommands(): array;
+    public function isEnabled(): bool;
+}
+
+interface BootableInterface {
+    public function boot(): void;
+}
+
+interface InstallableInterface {
+    public function install(): void;
+    public function upgrade(string $from, string $to): void;
+    public function uninstall(): void;
+}
+```
+
+**Event Subscriber Contract:**
+```php
+interface EventSubscriberInterface {
+    public static function getSubscribedEvents(): array;
+}
+```
+
+**Template Resolution Contract:**
+```php
+interface TemplateResolverInterface {
+    public function resolve(string $template, string $module, string $area): ?string;
+    public function exists(string $template, string $module, string $area): bool;
+    public function setTheme(?string $theme): void;
+    public function getTheme(): ?string;
+}
+```
+
+**Implementations:**
+- `AbstractModule` - Base class implementing `ModuleInterface`
+- `TemplateResolver` - Theme → Module → Core fallback chain
+
+### Consequences
+
+**Positive:**
+- ✅ Modules have architectural identity (SEI compliance)
+- ✅ Third-party modules have clear contract
+- ✅ Type safety for module operations
+- ✅ IDE autocompletion and static analysis
+- ✅ Event subscribers are formally defined connectors
+- ✅ Template resolution is extensible
+
+**Negative:**
+- ⚠️ Existing modules need to implement interface (migration)
+- ⚠️ More boilerplate for simple modules
+
+**Mitigation:**
+- `AbstractModule` provides default implementations
+- Config-based modules still work (backwards compatible)
+- Gradual migration path for existing modules
+
+**Trade-off accepted:** Type safety > Simplicity
+
+---
+
+## ADR-010: Theme Fallback Chain for Templates
+
+**Status:** ✅ ACCEPTED  
+**Date:** November 28, 2025  
+**Deciders:** Architecture team
+
+### Context
+
+Template resolution is hardcoded:
+- No way to override module templates from theme
+- No fallback chain for missing templates
+- Each module resolves its own templates
+
+**Considered options:**
+1. Module-only templates (simple, no customization)
+2. Theme-first resolution (flexible, complex)
+3. Fallback chain with caching (balanced)
+
+### Decision
+
+Implement **TemplateResolver** with fallback chain:
+
+```
+Resolution Order:
+1. Theme/view/{area}/templates/{module}/{template}  ← Theme override
+2. Module/view/{area}/templates/{template}          ← Module default
+3. Core/View/view/{area}/templates/{template}       ← Core fallback
+4. modules/{module}/view/{area}/templates/          ← Legacy support
+```
+
+**Features:**
+- Caches resolved paths for performance
+- Supports frontend and admin areas
+- Resolves templates, layouts, and assets
+- Theme can be changed at runtime
+
+### Consequences
+
+**Positive:**
+- ✅ Themes can override any module template
+- ✅ Modules don't need to know about themes
+- ✅ Core provides sensible defaults
+- ✅ Legacy module paths still work
+- ✅ Performance via caching
+
+**Negative:**
+- ⚠️ More file system lookups (mitigated by cache)
+- ⚠️ Debugging requires knowing fallback order
+
+**Trade-off accepted:** Customizability > Simplicity
+
+---
+
 ## 📋 Decision Log
 
 | ADR | Decision | Status | Impact | Review Date |
@@ -635,6 +779,8 @@ Instead:
 | ADR-006 | Events for Communication | ✅ Accepted | Architecture | After Phase 4 |
 | ADR-007 | Plain PHP Templates | ⚠️ Temporary | Developer UX | Phase 4 |
 | ADR-008 | PostgreSQL Exclusive | ✅ Accepted | Database | After Phase 3 |
+| ADR-009 | Platform Contracts | ✅ Accepted | Architecture | After Phase 1 |
+| ADR-010 | Theme Fallback Chain | ✅ Accepted | Theming | After Phase 4 |
 
 ---
 
@@ -706,6 +852,6 @@ Instead:
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** November 24, 2025  
+**Version:** 1.2  
+**Last Updated:** November 28, 2025  
 **Next Review:** After Phase 1 completion

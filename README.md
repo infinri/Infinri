@@ -1,177 +1,250 @@
 # Infinri
 
-**Website development, hosting, and maintenance platform for small businesses.**
+**A modular PHP platform built with SEI-compliant architecture.**
 
-A modular PHP web application built with clean architecture principles. Designed for maintainability, security, and performance. Transparent pricing starting at $10 - from quick templates to monthly support plans.
+Designed for maintainability, security, and performance. The core framework is complete — modules are the next development phase.
+
+---
+
+## Project Status
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| **Phase 1: Core Framework** | ✅ Complete | DI Container, Router, Events, Config, Cache, Session |
+| **Phase 2: Platform Contracts** | ✅ Complete | ModuleInterface, EventSubscriberInterface, TemplateResolver |
+| **Phase 3: Module Development** | 🚧 Next | Business logic modules (Blog, Auth, CMS, etc.) |
+
+---
+
+## Project Metrics
+
+### Codebase Size
+
+| Category | Files | Lines of Code |
+|----------|-------|---------------|
+| **Core Framework** | 166 | 25,017 |
+| **Application Total** | 205 | 28,943 |
+| **Test Suite** | 144 | 26,501 |
+| **Total (with tests)** | 349 | 55,444 |
+
+### Test Coverage
+
+| Metric | Value |
+|--------|-------|
+| **Total Tests** | 1,885 |
+| **Assertions** | 2,923 |
+| **Test Duration** | ~4.5s |
+
+### Production Footprint
+
+| Metric | Value |
+|--------|-------|
+| **App Size (production)** | 3.4 MB |
+| **Vendor (production)** | 20 MB |
+| **Vendor (with dev)** | 76 MB |
+| **Production Dependencies** | 29 packages |
+| **Dev Dependencies** | 72 packages |
+
+### Runtime Performance
+
+| Metric | Value |
+|--------|-------|
+| **Autoload Time** | ~9ms |
+| **Bootstrap Time** | ~2ms |
+| **Total Boot Time** | ~11ms |
+| **Memory (boot)** | 4 MB |
+| **Peak Memory** | 6 MB |
+
+### Architecture Components
+
+| Component | Count |
+|-----------|-------|
+| **Contracts (Interfaces)** | 21 |
+| **Console Commands** | 19 |
+| **Feature Modules** | 8 |
+| **ADRs (Design Decisions)** | 10 |
+
+---
 
 ## Architecture
 
-**Core Design**
-- Modular monolith pattern with clear separation of concerns
-- MVC-inspired structure with controller-view pattern
-- DRY principles with centralized shared components
-- SOLID design patterns applied throughout
+### Core Design (SEI-Compliant)
 
-**Code Organization**
-- Feature-based module structure
-- Standardized coding style (PSR-12)
-- Type-safe with PHP 8.4 strict types
-- Comprehensive docblock documentation
+- **Layers + Microkernel** — Core defines interfaces, modules implement them
+- **Dependency Inversion** — Dependencies flow downward only
+- **Formal Contracts** — `ModuleInterface`, `EventSubscriberInterface`, `TemplateResolverInterface`
+- **Theme Fallback Chain** — Theme → Module → Core template resolution
 
-## Security
+### Quality Attributes Achieved
 
-**Contact Form Protection**
-- CSRF token verification on all submissions
-- Rate limiting (5 attempts per 5 minutes per IP)
-- Honeypot anti-spam field
-- Input validation and sanitization
-- XSS prevention with output encoding
+| Attribute | Status | Implementation |
+|-----------|--------|----------------|
+| **Modifiability** | ⭐ Excellent | DI, interfaces, service providers |
+| **Performance** | ⭐ Very Good | 11ms boot, 6MB peak memory |
+| **Security** | ⭐ Excellent | CSRF, rate limiting, input validation |
+| **Testability** | ⭐ Excellent | 1,885 tests, pure PHP, DI |
+| **Deployability** | ⭐ Excellent | 3.4MB footprint, predictable |
+| **Reusability** | ⭐ Very High | Contracts and providers |
+| **Integrability** | ⭐ High | Modules plug in easily |
 
-**Application Security**
-- Secure session management
-- Environment-based configuration
-- Error handling without information leakage
-- HTTPS enforcement in production
-
-## Email System
-
-**SMTP Integration**
-- PHPMailer for reliable email delivery
-- SMTP configuration via environment variables
-- Professional HTML email templates
-- Reply-to header for direct customer responses
-- Automatic space removal in SMTP passwords
-- Plain text fallback support
-
-## Performance
-
-**Optimization**
-- Caddy web server with HTTP/2 support
-- Optimized for low memory usage
-- Asset minification and bundling
-- Browser caching headers
-- Lazy loading for non-critical resources
-- Minimal dependency footprint
-
-## User Interface
-
-**Design**
-- Dark theme with purple accent color
-- Responsive across all device sizes
-- WCAG 2.1 AA accessibility standards
-- Professional Lucide icon system
-- Smooth animations and transitions
-- Clean URL structure
+---
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/infinri/Portfolio.git
-cd Portfolio
+git clone https://github.com/infinri/Infinri.git
+cd Infinri
 composer install
 cp .env.example .env
-# Edit .env with your Brevo credentials
-php bin/console s:up  # Setup and deploy assets
-caddy run
+# Edit .env with your configuration
+php bin/console s:up  # Setup project
 ```
 
-Visit `http://localhost:8080`
+### Commands
 
-**Commands:**
-- `setup:minify` - Build production assets (local only, needs Node.js)
-- `setup:update` (s:up) - Publish assets and setup project
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `setup:update` | `s:up` | Full project setup (cache, assets, preload) |
+| `assets:publish` | - | Publish module assets to pub/ |
+| `assets:build` | - | Build production bundles (requires Node.js) |
+| `cache:clear` | - | Clear all caches |
+| `preload:generate` | - | Generate OPcache preload file |
 
-For detailed setup instructions, environment configuration, and production deployment, see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-## Development
-
-**After Changing CSS/JS**
-```bash
-php bin/console setup:minify  # Build production bundles
-git add pub/assets/dist/
-git commit -m "Update assets"
-```
-
-**Test Email Integration**
-```bash
-php tests/manual-email-test.php  # Test Brevo API integration with real email
-```
-This will verify your email configuration and send a test email via Brevo API. See `tests/README.md` for details.
+---
 
 ## Project Structure
 
 ```
 app/
-├── base/           Core framework and shared components
-│   ├── console/    CLI commands
-│   ├── helpers/    Utility classes (Mail, RateLimiter, etc.)
-│   └── view/       Base assets (CSS, JS)
-├── modules/        Feature modules
-│   ├── head/       Navigation and header
-│   ├── footer/     Site footer
-│   ├── home/       Landing page
-│   ├── about/      About section
-│   ├── services/   Services showcase
-│   ├── contact/    Contact form with SMTP email
-│   └── error/      Error pages (400, 404, 500, maintenance)
-bin/                Console entry point
-config/             Configuration files
-├── services.php    Contact form service dropdown options
-pub/                Web root
-├── assets/         Published assets
-└── index.php       Application entry point
-tests/              Test suite
-var/                Runtime data (logs, cache, sessions)
+├── Core/               Framework kernel (25,017 LOC)
+│   ├── Application.php     Application bootstrap
+│   ├── Container/          DI container with autowiring
+│   ├── Contracts/          21 interfaces (public API)
+│   ├── Router/             HTTP routing
+│   ├── Events/             Event dispatcher + subscribers
+│   ├── Cache/              File-based caching
+│   ├── Config/             Configuration management
+│   ├── Console/            19 CLI commands
+│   ├── Module/             Module system + registry
+│   ├── View/               Layout engine + TemplateResolver
+│   └── ...
+├── modules/            Feature modules (8 modules)
+│   ├── head/           Navigation header
+│   ├── footer/         Site footer
+│   ├── home/           Landing page
+│   ├── about/          About section
+│   ├── contact/        Contact form
+│   ├── legal/          Legal pages
+│   └── error/          Error pages
+├── Modules/            Platform modules
+│   ├── Theme/          Theme assets and overrides
+│   └── Mail/           Email service (Brevo)
+bin/                    Console entry point
+config/                 Configuration files
+docs/                   Architecture documentation (12 docs)
+pub/                    Web root
+tests/                  Test suite (1,885 tests)
+var/                    Runtime data (cache, logs, sessions)
 ```
+
+---
+
+## Module Development (Next Phase)
+
+The core framework is complete. Modules are the next development focus.
+
+### Creating a Module
+
+```php
+use App\Core\Module\AbstractModule;
+use App\Core\Contracts\Container\ContainerInterface;
+
+class BlogModule extends AbstractModule
+{
+    protected string $name = 'blog';
+    protected string $version = '1.0.0';
+    protected array $dependencies = ['database', 'cache'];
+    protected array $providers = [BlogServiceProvider::class];
+    protected array $commands = [BlogImportCommand::class];
+    
+    public function boot(ContainerInterface $container): void
+    {
+        // Register routes
+        $router = $container->make(RouterInterface::class);
+        $router->get('/blog', [BlogController::class, 'index']);
+        
+        // Register event subscribers
+        $dispatcher = $container->make(EventDispatcherInterface::class);
+        $dispatcher->addSubscriber(new BlogEventSubscriber());
+    }
+}
+```
+
+### Module Lifecycle
+
+```
+Discovery → Validation → Registration → Boot
+    │           │            │           │
+    │           │            │           └─→ Routes, events, config
+    │           │            └─→ Bind services to container
+    │           └─→ Resolve dependencies, detect cycles
+    └─→ Scan directories, load module.php
+```
+
+### Planned Modules
+
+- [ ] **Auth** — User authentication and authorization
+- [ ] **Blog** — Posts, categories, tags
+- [ ] **CMS** — Page management
+- [ ] **Media** — File uploads and management
+- [ ] **SEO** — Meta tags, sitemaps
+- [ ] **Analytics** — Usage tracking
+
+---
 
 ## Technology Stack
 
-**Backend**
-- PHP 8.4 with strict types
-- Brevo API for email delivery (HTTPS, no SMTP port 587)
-- Composer for dependency management
+| Layer | Technology |
+|-------|------------|
+| **Runtime** | PHP 8.4 (strict types) |
+| **Web Server** | Caddy 2.x (HTTP/2, auto-HTTPS) |
+| **Database** | PostgreSQL 16 |
+| **Cache** | File-based (Redis-ready) |
+| **Email** | Brevo API |
+| **Testing** | PestPHP + PHPUnit |
+| **Assets** | esbuild via Node.js |
 
-**Frontend**
-- Vanilla JavaScript (ES6+)
-- Modern CSS3 with custom properties
-- Lucide icon system
-- No framework dependencies
+---
 
-**Web Server**
-- Caddy 2.x with HTTP/2 support
-- Optimized for low memory usage
-- Automatic HTTPS in production
+## Documentation
 
-**Development Tools**
-- npm for asset bundling and minification
-- Console commands for asset management
+Comprehensive architecture documentation in `docs/`:
 
-**Infrastructure**
-- File-based caching for rate limiting
-- Session-based CSRF protection
-- Environment-based configuration
+| Document | Purpose |
+|----------|---------|
+| `01-module-view.md` | Component decomposition, layer rules |
+| `02-component-connector-view.md` | Runtime behavior, request flows |
+| `03-allocation-view.md` | Deployment mapping |
+| `04-quality-scenarios.md` | SEI quality attribute scenarios |
+| `05-atam-evaluation.md` | Architecture tradeoff analysis |
+| `06-architecture-patterns.md` | Patterns and tactics |
+| `07-design-decisions.md` | 10 ADRs with rationale |
+| `10-theming-strategy.md` | Theme fallback system |
 
-## Configuration
+---
 
-**Environment Setup**
+## Security
 
-Copy `.env.example` to `.env` and configure:
-- Brevo API credentials for email delivery
-- Application environment (development/production)
-- Security settings (CSRF, HTTPS)
+- **CSRF Protection** — Token verification on all forms
+- **Rate Limiting** — Configurable per-endpoint limits
+- **Input Validation** — Strict validation with sanitization
+- **XSS Prevention** — Output encoding
+- **HTTPS Enforcement** — Production auto-redirect
+- **Session Security** — Secure cookies, regeneration
 
-**Customize Contact Form Services**
-
-Edit `config/services.php` to change dropdown options:
-```php
-return [
-    'general' => 'General Inquiry',
-    'your-service' => 'Your Service Name',
-];
-```
+---
 
 ## Contact
 
 - **GitHub:** [github.com/infinri](https://github.com/infinri)
-- **Repository:** [github.com/infinri/Portfolio](https://github.com/infinri/Portfolio)
 - **Website:** [infinri.com](https://infinri.com)
