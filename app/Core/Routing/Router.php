@@ -49,6 +49,21 @@ class Router implements RouterInterface
     protected array $namedRoutes = [];
 
     /**
+     * Static routes indexed by METHOD:uri for O(1) lookup
+     * 
+     * @var array<string, Route>
+     */
+    protected array $staticRoutes = [];
+
+    /**
+     * Dynamic routes indexed by METHOD, then first segment for O(k) lookup
+     * where k = routes sharing same first segment (typically << total routes)
+     * 
+     * @var array<string, array<string, array<int, Route>>>
+     */
+    protected array $dynamicRoutes = [];
+
+    /**
      * URL generator instance
      */
     protected ?UrlGenerator $urlGenerator = null;
@@ -126,7 +141,32 @@ class Router implements RouterInterface
         $this->applyRouteAttributes($route);
         $this->routes[] = $route;
         
+        // Index route for O(1) or O(k) lookup
+        $this->indexRoute($route);
+        
         return $route;
+    }
+
+    /**
+     * Index a route for optimized lookup
+     * 
+     * Static routes: O(1) via hash lookup
+     * Dynamic routes: O(k) where k = routes with same first segment
+     */
+    protected function indexRoute(Route $route): void
+    {
+        $normalizedUri = $route->getUri();
+        
+        foreach ($route->getMethods() as $method) {
+            if ($route->isStatic()) {
+                // Static route - index by METHOD:uri for O(1) lookup
+                $this->staticRoutes[$method . ':' . $normalizedUri] = $route;
+            } else {
+                // Dynamic route - index by METHOD and first segment for O(k) lookup
+                $firstSegment = $route->getFirstSegment();
+                $this->dynamicRoutes[$method][$firstSegment][] = $route;
+            }
+        }
     }
 
     /**

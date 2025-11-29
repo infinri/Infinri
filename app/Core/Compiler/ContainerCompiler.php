@@ -53,8 +53,14 @@ class ContainerCompiler extends AbstractCompiler
                             }
                         }
                     }
-                } catch (\Throwable) {
-                    // Skip if can't reflect
+                } catch (\Throwable $e) {
+                    // Skip providers that can't be reflected (missing dependencies, etc)
+                    if (function_exists('logger')) {
+                        logger()->debug('Container compiler skipped provider', [
+                            'provider' => $providerClass,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
             }
         }

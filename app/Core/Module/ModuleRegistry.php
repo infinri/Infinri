@@ -316,7 +316,10 @@ class ModuleRegistry
             
             $this->loadOrder = $data['loadOrder'];
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            if (function_exists('logger')) {
+                logger()->warning('Module registry cache load failed', ['error' => $e->getMessage()]);
+            }
             return false;
         }
     }

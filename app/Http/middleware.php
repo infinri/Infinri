@@ -21,6 +21,7 @@ return [
      * Web middleware group
      */
     'web' => [
+        \App\Core\Http\Middleware\EncryptCookies::class => ['priority' => 100],  // Decrypt first, encrypt last
         \App\Core\Http\Middleware\SecurityHeadersMiddleware::class => ['priority' => 90],
         \App\Core\Http\Middleware\VerifyCsrfToken::class => ['priority' => 50],
         // \App\Http\Middleware\ShareErrorsFromSession::class => ['priority' => 40],

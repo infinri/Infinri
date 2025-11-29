@@ -85,6 +85,7 @@ class ReporterTest extends TestCase
     {
         $called = false;
         $reporter = new Reporter();
+        $reporter->suppressFallback(); // Suppress error_log in tests
         $reporter->addReporter(function($e, $ctx) use (&$called) {
             $called = true;
             return true;
@@ -100,6 +101,7 @@ class ReporterTest extends TestCase
     {
         $secondCalled = false;
         $reporter = new Reporter();
+        $reporter->suppressFallback(); // Suppress error_log in tests
         
         $reporter->addReporter(fn($e, $ctx) => false);
         $reporter->addReporter(function($e, $ctx) use (&$secondCalled) {
@@ -116,6 +118,7 @@ class ReporterTest extends TestCase
     {
         $receivedContext = [];
         $reporter = new Reporter();
+        $reporter->suppressFallback(); // Suppress error_log in tests
         $reporter->addContext('env', 'testing');
         $reporter->addReporter(function($e, $ctx) use (&$receivedContext) {
             $receivedContext = $ctx;
@@ -131,6 +134,7 @@ class ReporterTest extends TestCase
     public function report_handles_reporter_exceptions(): void
     {
         $reporter = new Reporter();
+        $reporter->suppressFallback(); // Suppress error_log in tests
         $reporter->addReporter(function($e, $ctx) {
             throw new \RuntimeException('Reporter failed');
         });
@@ -149,6 +153,7 @@ class ReporterTest extends TestCase
         $logger->method('error')->willThrowException(new \RuntimeException('Logger failed'));
         
         $reporter = new Reporter($logger);
+        $reporter->suppressFallback(); // Suppress error_log in tests
         
         // Should not throw, should fall back to error_log
         $reporter->report(new \Exception('Test error'));

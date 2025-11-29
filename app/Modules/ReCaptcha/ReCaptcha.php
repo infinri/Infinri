@@ -29,14 +29,14 @@ class ReCaptcha
 
         $secretKey = env('RECAPTCHA_SECRET_KEY');
         if (empty($secretKey)) {
-            error_log('ReCaptcha: SECRET_KEY not configured');
+            logger()->error('ReCaptcha: SECRET_KEY not configured');
             return false;
         }
 
         // Sanitize & validate token
         $token = trim($token);
         if ($token === '') {
-            error_log('ReCaptcha: Empty or invalid token');
+            logger()->warning('ReCaptcha: Empty or invalid token');
             return false;
         }
 
@@ -81,14 +81,14 @@ class ReCaptcha
         }
 
         if ($response === false || !$response) {
-            error_log('ReCaptcha: Failed to contact Google verification server');
+            logger()->error('ReCaptcha: Failed to contact Google verification server');
             return false;
         }
 
         $result = json_decode($response, true);
 
         if (!is_array($result)) {
-            error_log('ReCaptcha: Invalid JSON response from Google');
+            logger()->error('ReCaptcha: Invalid JSON response from Google');
             return false;
         }
 
@@ -98,27 +98,27 @@ class ReCaptcha
 
         // Must be successful
         if (!($result['success'] ?? false)) {
-            error_log('ReCaptcha: Verification failed - ' . json_encode($result['error-codes'] ?? []));
+            logger()->warning('ReCaptcha verification failed', ['errors' => $result['error-codes'] ?? []]);
             return false;
         }
 
         // Action must match
         if (!isset($result['action']) || $result['action'] !== $action) {
-            error_log("ReCaptcha: Action mismatch - expected '{$action}', got '" . ($result['action'] ?? 'none') . "'");
+            logger()->warning('ReCaptcha action mismatch', ['expected' => $action, 'got' => $result['action'] ?? 'none']);
             return false;
         }
 
         // Token must be fresh (max 2 minutes old)
         $timestamp = strtotime($result['challenge_ts'] ?? '');
         if (!$timestamp || (time() - $timestamp) > 120) {
-            error_log('ReCaptcha: Token expired (older than 120 seconds)');
+            logger()->warning('ReCaptcha: Token expired');
             return false;
         }
 
         // Hostname check (protects against token reuse on other domains)
         $expectedHost = $_SERVER['SERVER_NAME'] ?? '';
         if (!isset($result['hostname']) || $result['hostname'] !== $expectedHost) {
-            error_log("ReCaptcha: Hostname mismatch - expected '{$expectedHost}', got '" . ($result['hostname'] ?? 'none') . "'");
+            logger()->warning('ReCaptcha hostname mismatch', ['expected' => $expectedHost, 'got' => $result['hostname'] ?? 'none']);
             return false;
         }
 
@@ -127,11 +127,11 @@ class ReCaptcha
         $score = (float) ($result['score'] ?? 0.0);
 
         if ($score < $minScore) {
-            error_log("ReCaptcha: Score too low ({$score}) threshold is {$minScore}");
+            logger()->warning('ReCaptcha score too low', ['score' => $score, 'threshold' => $minScore]);
             return false;
         }
 
-        error_log("ReCaptcha: Verification passed | Score={$score} | Action={$action}");
+        logger()->debug('ReCaptcha verification passed', ['score' => $score, 'action' => $action]);
         return true;
     }
 

@@ -10,8 +10,8 @@ use App\Core\Support\HealthCheck;
 /**
  * Health Check Endpoint Handler
  * 
- * Simple handler for /health endpoint (Phase 1)
- * Will be replaced by proper routing in Phase 2
+ * Handles /health endpoint requests for system health monitoring.
+ * Can be used standalone or integrated with the router.
  */
 class HealthEndpoint
 {

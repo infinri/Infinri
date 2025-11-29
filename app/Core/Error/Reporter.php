@@ -30,6 +30,11 @@ class Reporter
      */
     protected array $globalContext = [];
 
+    /**
+     * Whether to suppress fallback error_log output (useful in tests)
+     */
+    protected bool $suppressFallback = false;
+
     public function __construct(?LoggerInterface $logger = null)
     {
         $this->logger = $logger;
@@ -87,6 +92,10 @@ class Reporter
      */
     protected function fallbackLog(Throwable $e, string $prefix = ''): void
     {
+        if ($this->suppressFallback) {
+            return;
+        }
+        
         $message = sprintf(
             '%s[%s] %s in %s:%d',
             $prefix ? "[$prefix] " : '',
@@ -163,6 +172,15 @@ class Reporter
     public function clearReporters(): static
     {
         $this->reporters = [];
+        return $this;
+    }
+
+    /**
+     * Suppress fallback error_log output (useful in tests)
+     */
+    public function suppressFallback(bool $suppress = true): static
+    {
+        $this->suppressFallback = $suppress;
         return $this;
     }
 }

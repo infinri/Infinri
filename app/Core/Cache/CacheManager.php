@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Core\Cache;
 
 use App\Core\Contracts\Cache\CacheInterface;
+use App\Core\Redis\RedisManager;
 
 /**
  * Cache Manager
  * 
  * Manages cache stores and provides a unified interface.
+ * Supports file, array, and Redis backends.
  */
 class CacheManager implements CacheInterface
 {
@@ -35,15 +37,21 @@ class CacheManager implements CacheInterface
     protected string $basePath;
 
     /**
+     * Redis manager instance (lazy loaded)
+     */
+    protected ?RedisManager $redisManager = null;
+
+    /**
      * Named cache pools
      */
     protected const POOLS = ['runtime', 'views', 'data'];
 
-    public function __construct(array $config = [], ?string $basePath = null)
+    public function __construct(array $config = [], ?string $basePath = null, ?RedisManager $redisManager = null)
     {
         $this->config = $config;
-        $this->default = $config['default'] ?? 'file';
+        $this->default = $config['default'] ?? env('CACHE_DRIVER', 'file');
         $this->basePath = $basePath ?? base_path();
+        $this->redisManager = $redisManager;
     }
 
     /**
@@ -115,7 +123,7 @@ class CacheManager implements CacheInterface
     protected function resolve(string $name): CacheInterface
     {
         $config = $this->config['stores'][$name] ?? [];
-        $driver = $config['driver'] ?? 'file';
+        $driver = $config['driver'] ?? $this->default;
 
         return match ($driver) {
             'file' => new FileStore(
@@ -123,8 +131,44 @@ class CacheManager implements CacheInterface
                 $config['ttl'] ?? 3600
             ),
             'array' => new ArrayStore(),
+            'redis' => $this->createRedisStore($config),
             default => throw new \InvalidArgumentException("Unsupported cache driver: {$driver}"),
         };
+    }
+
+    /**
+     * Create a Redis store instance
+     */
+    protected function createRedisStore(array $config): RedisStore
+    {
+        $redis = $this->getRedisManager();
+
+        return new RedisStore(
+            $redis,
+            $config['connection'] ?? 'cache',
+            $config['ttl'] ?? 3600,
+            $config['prefix'] ?? 'cache:'
+        );
+    }
+
+    /**
+     * Get the Redis manager instance
+     */
+    protected function getRedisManager(): RedisManager
+    {
+        if ($this->redisManager === null) {
+            $this->redisManager = new RedisManager($this->config['redis'] ?? []);
+        }
+
+        return $this->redisManager;
+    }
+
+    /**
+     * Set the Redis manager
+     */
+    public function setRedisManager(RedisManager $redis): void
+    {
+        $this->redisManager = $redis;
     }
 
     // Proxy methods to default store

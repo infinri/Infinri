@@ -26,6 +26,12 @@ class Response implements ResponseInterface
     protected bool $headersSent = false;
 
     /**
+     * Cookies to send with response
+     * @var Cookie[]
+     */
+    protected array $cookies = [];
+
+    /**
      * Create a new response instance
      */
     public function __construct(string $content = '', int $status = HttpStatus::OK, array $headers = [])
@@ -175,6 +181,9 @@ class Response implements ResponseInterface
             return $this;
         }
         
+        // Send cookies first (before header() calls)
+        $this->sendCookies();
+        
         header(sprintf('HTTP/%s %d %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
         
         foreach ($this->headers->all() as $name => $values) {
@@ -232,5 +241,84 @@ class Response implements ResponseInterface
         return $this->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    // ==================== Cookies ====================
+
+    /**
+     * Add a cookie to the response
+     */
+    public function cookie(
+        string $name,
+        string $value = '',
+        int $minutes = 0,
+        string $path = '/',
+        string $domain = '',
+        bool $secure = true,
+        bool $httpOnly = true,
+        string $sameSite = 'Lax'
+    ): static {
+        $this->cookies[$name] = new Cookie(
+            $name, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite
+        );
+        return $this;
+    }
+
+    /**
+     * Add a Cookie object to the response
+     */
+    public function withCookie(Cookie $cookie): static
+    {
+        $this->cookies[$cookie->name] = $cookie;
+        return $this;
+    }
+
+    /**
+     * Add multiple cookies
+     *
+     * @param Cookie[] $cookies
+     */
+    public function withCookies(array $cookies): static
+    {
+        foreach ($cookies as $cookie) {
+            $this->withCookie($cookie);
+        }
+        return $this;
+    }
+
+    /**
+     * Remove a cookie (set expiration in the past)
+     */
+    public function forgetCookie(string $name, string $path = '/'): static
+    {
+        return $this->withCookie(Cookie::forget($name, $path));
+    }
+
+    /**
+     * Get all cookies
+     *
+     * @return Cookie[]
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    /**
+     * Check if response has a specific cookie
+     */
+    public function hasCookie(string $name): bool
+    {
+        return isset($this->cookies[$name]);
+    }
+
+    /**
+     * Send all cookies
+     */
+    protected function sendCookies(): void
+    {
+        foreach ($this->cookies as $cookie) {
+            $cookie->send();
+        }
     }
 }

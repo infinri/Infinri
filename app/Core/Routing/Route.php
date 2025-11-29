@@ -217,6 +217,25 @@ class Route implements RouteInterface
     }
 
     /**
+     * Check if this is a static route (no parameters)
+     */
+    public function isStatic(): bool
+    {
+        return empty($this->parameterNames);
+    }
+
+    /**
+     * Get the first URI segment for route indexing
+     * 
+     * @return string The first segment (e.g., "users" from "/users/{id}")
+     */
+    public function getFirstSegment(): string
+    {
+        $segments = explode('/', trim($this->uri, '/'));
+        return $segments[0] ?? '';
+    }
+
+    /**
      * Normalize URI (ensure leading slash, no trailing slash)
      */
     protected function normalizeUri(string $uri): string

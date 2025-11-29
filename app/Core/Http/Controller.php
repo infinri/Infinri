@@ -71,22 +71,18 @@ abstract class Controller
     }
 
     /**
-     * Validate request data (placeholder for future validation)
+     * Validate request data using the Validator
+     * 
+     * @throws \App\Core\Validation\ValidationException
      */
-    protected function validate(RequestInterface $request, array $rules): array
+    protected function validate(RequestInterface $request, array $rules, array $messages = []): array
     {
-        // Basic validation - to be enhanced with full Validator in future phase
-        $data = $request->all();
-        $validated = [];
+        $validator = \App\Core\Validation\Validator::make($request->all(), $rules, $messages);
         
-        foreach ($rules as $field => $rule) {
-            if (isset($data[$field])) {
-                $validated[$field] = $data[$field];
-            } elseif (str_contains($rule, 'required')) {
-                throw new \InvalidArgumentException("Field [{$field}] is required");
-            }
+        if ($validator->fails()) {
+            throw new \App\Core\Validation\ValidationException($validator);
         }
         
-        return $validated;
+        return $validator->validated();
     }
 }

@@ -132,8 +132,8 @@ class ControllerTest extends TestCase
         
         $request = Request::create('/test', 'POST', []);
         
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Field [name] is required');
+        $this->expectException(\App\Core\Validation\ValidationException::class);
+        $this->expectExceptionMessage('Name is required');
         
         $controller->testValidate($request, ['name' => 'required']);
     }

@@ -132,4 +132,28 @@ final class Arr
         
         return $merged;
     }
+
+    /**
+     * Flatten a multi-dimensional array with dot notation keys
+     * 
+     * ['app' => ['name' => 'Infinri']] becomes ['app.name' => 'Infinri']
+     * Indexed arrays are preserved as values, not flattened further.
+     */
+    public static function dot(array $array, string $prefix = ''): array
+    {
+        $result = [];
+        
+        foreach ($array as $key => $value) {
+            $flatKey = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+            
+            // Recurse into associative arrays, but not indexed arrays
+            if (is_array($value) && !empty($value) && !isset($value[0])) {
+                $result = array_merge($result, self::dot($value, $flatKey));
+            } else {
+                $result[$flatKey] = $value;
+            }
+        }
+        
+        return $result;
+    }
 }

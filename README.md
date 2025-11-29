@@ -31,9 +31,9 @@ Designed for maintainability, security, and performance. The core framework is c
 
 | Metric | Value |
 |--------|-------|
-| **Total Tests** | 1,885 |
-| **Assertions** | 2,923 |
-| **Test Duration** | ~4.5s |
+| **Total Tests** | 2,263 |
+| **Assertions** | 3,531 |
+| **Test Duration** | ~39s |
 
 ### Production Footprint
 
@@ -47,13 +47,14 @@ Designed for maintainability, security, and performance. The core framework is c
 
 ### Runtime Performance
 
-| Metric | Value |
-|--------|-------|
-| **Autoload Time** | ~9ms |
-| **Bootstrap Time** | ~2ms |
-| **Total Boot Time** | ~11ms |
-| **Memory (boot)** | 4 MB |
-| **Peak Memory** | 6 MB |
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **Autoload Time** | ~9ms | ✅ Excellent |
+| **Bootstrap Time** | ~2ms | ✅ Excellent |
+| **Total Boot Time** | ~11ms | ✅ Excellent |
+| **Config Boot (cached)** | 108 µs | ✅ < 150µs goal |
+| **Memory (boot)** | 4 MB | ✅ Excellent |
+| **Peak Memory** | 6 MB | ✅ Excellent |
 
 ### Architecture Components
 
@@ -80,12 +81,69 @@ Designed for maintainability, security, and performance. The core framework is c
 | Attribute | Status | Implementation |
 |-----------|--------|----------------|
 | **Modifiability** | ⭐ Excellent | DI, interfaces, service providers |
-| **Performance** | ⭐ Very Good | 11ms boot, 6MB peak memory |
+| **Performance** | ⭐ Excellent | O(1) routing, 108µs config, 11ms boot |
 | **Security** | ⭐ Excellent | CSRF, rate limiting, input validation |
-| **Testability** | ⭐ Excellent | 1,885 tests, pure PHP, DI |
+| **Testability** | ⭐ Excellent | 2,263 tests, pure PHP, DI |
 | **Deployability** | ⭐ Excellent | 3.4MB footprint, predictable |
 | **Reusability** | ⭐ Very High | Contracts and providers |
 | **Integrability** | ⭐ High | Modules plug in easily |
+
+---
+
+## Performance Benchmarks
+
+*Benchmarked on PHP 8.4.15 — November 2025*
+
+### Routing Performance
+
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **Scaling Pattern** | O(1) Constant | ✅ Excellent |
+| **Efficiency Score** | 11.25 | ✅ Excellent |
+| **Static Routes** | ~21 µs (47,955 ops/sec) | ✅ |
+| **Dynamic Routes** | ~22 µs (45,696 ops/sec) | ✅ |
+| **1000 Routes (any position)** | ~20 µs | ✅ Consistent |
+| **Position Sensitivity** | ~1x | ✅ No impact |
+
+**Optimization:** Indexed route storage with O(1) static lookup and O(k) dynamic segment matching.
+
+### Config Performance
+
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **First Load** | 108 µs | ✅ < 150µs goal |
+| **Subsequent Access** | 0.36 µs | ✅ 84x faster |
+| **Direct Static Access** | 0.05 µs | ✅ 602x faster |
+
+**Optimization:** Static compiled config class with OPcache interning.
+
+### Middleware Performance
+
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **Per-Layer Cost** | 2.64 µs | ✅ < 30µs goal |
+| **10 Middleware Stack** | 35 µs | ✅ Excellent |
+| **SecurityHeaders** | 32 µs | ✅ |
+
+### Full Benchmark Suite
+
+| Suite | Status | Duration |
+|-------|--------|----------|
+| autoloader | ✅ | 0.72s |
+| module | ✅ | 0.21s |
+| middleware | ✅ | 0.45s |
+| routing | ✅ | 0.49s |
+| database | ✅ | 4.37s |
+| reflection | ✅ | 0.05s |
+| serialization | ✅ | 2.69s |
+| config | ✅ | 0.33s |
+| error | ✅ | 0.23s |
+| io | ✅ | 1.28s |
+| longrunning | ✅ | 0.23s |
+| security | ✅ | 0.17s |
+| framework | ✅ | 0.02s |
+
+**Total:** 13 suites, 0 failures, 11.25s
 
 ---
 
@@ -143,7 +201,7 @@ bin/                    Console entry point
 config/                 Configuration files
 docs/                   Architecture documentation (12 docs)
 pub/                    Web root
-tests/                  Test suite (1,885 tests)
+tests/                  Test suite (2,263 tests)
 var/                    Runtime data (cache, logs, sessions)
 ```
 

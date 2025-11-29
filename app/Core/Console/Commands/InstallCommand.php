@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
+use App\Core\Security\CookieEncrypter;
 
 /**
  * Install Command
@@ -145,6 +146,7 @@ class InstallCommand extends Command
         $isProduction = $config['APP_ENV'] === 'production';
         
         // Auto-generated values
+        $config['APP_KEY'] = CookieEncrypter::generateKey();
         $config['APP_VERSION'] = (string) time();
         $config['HTTPS_ONLY'] = $isProduction ? 'true' : 'false';
         $config['CSRF_ENABLED'] = 'true';
@@ -192,6 +194,11 @@ class InstallCommand extends Command
 # -----------------------------------------------------------------------------
 APP_ENV={APP_ENV}
 APP_DEBUG={APP_DEBUG}
+
+# -----------------------------------------------------------------------------
+# SECURITY - Application Key (DO NOT SHARE)
+# -----------------------------------------------------------------------------
+APP_KEY={APP_KEY}
 
 # -----------------------------------------------------------------------------
 # USER DEFINED - Site
@@ -284,6 +291,7 @@ ENV;
         echo "  • Site: {$config['SITE_NAME']} ({$config['SITE_URL']})\n";
         echo "  • Database: {$config['DB_DATABASE']}@{$config['DB_HOST']}\n";
         echo "  • Redis: {$config['REDIS_HOST']}:{$config['REDIS_PORT']}\n";
+        echo "  • App Key: " . substr($config['APP_KEY'], 0, 15) . "... (auto-generated)\n";
         
         if (!empty($config['ADMIN_DOMAIN'])) {
             echo "  • Admin: {$config['ADMIN_DOMAIN']}\n";

@@ -53,20 +53,23 @@ class SecurityHeadersMiddleware
                 $value = $this->replacePlaceholders($value);
             }
 
-            if (method_exists($response, 'withHeader')) {
+            // Use Response's header() method (our implementation)
+            // or withHeader() for PSR-7 compatibility
+            if (method_exists($response, 'header')) {
+                $response->header($name, (string) $value);
+            } elseif (method_exists($response, 'withHeader')) {
                 $response = $response->withHeader($name, $value);
-            } else {
-                header("{$name}: {$value}");
             }
+            // Don't fall back to native header() - it breaks in CLI/testing
         }
 
         // Add HSTS if enabled and request is HTTPS
         if ($this->enableHsts && $request->isSecure()) {
             $hsts = 'max-age=31536000; includeSubDomains';
-            if (method_exists($response, 'withHeader')) {
+            if (method_exists($response, 'header')) {
+                $response->header('Strict-Transport-Security', $hsts);
+            } elseif (method_exists($response, 'withHeader')) {
                 $response = $response->withHeader('Strict-Transport-Security', $hsts);
-            } else {
-                header("Strict-Transport-Security: {$hsts}");
             }
         }
 

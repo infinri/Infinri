@@ -11,6 +11,7 @@ use App\Core\Http\JsonResponse;
 use App\Core\Routing\Route;
 use App\Core\Routing\Exceptions\RouteNotFoundException;
 use App\Core\Routing\Exceptions\MethodNotAllowedException;
+use App\Core\Support\Str;
 use Closure;
 
 /**
@@ -60,30 +61,84 @@ trait DispatchesRoutes
     }
 
     /**
-     * Find a matching route
+     * Find a matching route using indexed lookups
+     * 
+     * Lookup strategy:
+     * 1. Static routes: O(1) hash lookup by METHOD:path
+     * 2. Dynamic routes: O(k) where k = routes with same first segment
+     * 3. Fallback: O(n) linear scan (only for edge cases)
      */
     protected function findRoute(string $path, string $method): ?Route
     {
-        foreach ($this->routes as $route) {
-            if ($route->matches($path, $method)) {
-                return $route;
+        $method = strtoupper($method);
+        $normalizedPath = Str::normalizeUri($path);
+        
+        // 1. Try static route lookup - O(1)
+        $staticKey = $method . ':' . $normalizedPath;
+        if (isset($this->staticRoutes[$staticKey])) {
+            $route = $this->staticRoutes[$staticKey];
+            // Static routes always match, but call matches() to set parameters
+            $route->matches($normalizedPath, $method);
+            return $route;
+        }
+        
+        // 2. Try dynamic route lookup by first segment - O(k)
+        $firstSegment = explode('/', trim($normalizedPath, '/'))[0] ?? '';
+        if (isset($this->dynamicRoutes[$method][$firstSegment])) {
+            foreach ($this->dynamicRoutes[$method][$firstSegment] as $route) {
+                if ($route->matches($normalizedPath, $method)) {
+                    return $route;
+                }
             }
         }
+        
+        // 3. Fallback: check dynamic routes with empty/wildcard first segment - O(m)
+        // This handles routes like /{slug} that match any first segment
+        if (isset($this->dynamicRoutes[$method][''])) {
+            foreach ($this->dynamicRoutes[$method][''] as $route) {
+                if ($route->matches($normalizedPath, $method)) {
+                    return $route;
+                }
+            }
+        }
+        
         return null;
     }
 
     /**
-     * Get allowed methods for a path
+     * Get allowed methods for a path using indexed lookups
      */
     protected function getAllowedMethods(string $path): array
     {
         $methods = [];
+        $normalizedPath = Str::normalizeUri($path);
+        $firstSegment = explode('/', trim($normalizedPath, '/'))[0] ?? '';
         
-        foreach ($this->routes as $route) {
-            foreach ($route->getMethods() as $method) {
-                if ($route->matches($path, $method)) {
-                    $methods = array_merge($methods, $route->getMethods());
-                    break;
+        // Check static routes for all methods
+        foreach (['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as $method) {
+            $staticKey = $method . ':' . $normalizedPath;
+            if (isset($this->staticRoutes[$staticKey])) {
+                $methods[] = $method;
+            }
+        }
+        
+        // Check dynamic routes by first segment
+        foreach ($this->dynamicRoutes as $method => $segmentRoutes) {
+            if (isset($segmentRoutes[$firstSegment])) {
+                foreach ($segmentRoutes[$firstSegment] as $route) {
+                    if ($route->matches($normalizedPath, $method)) {
+                        $methods = array_merge($methods, $route->getMethods());
+                        break;
+                    }
+                }
+            }
+            // Also check wildcard routes
+            if (isset($segmentRoutes[''])) {
+                foreach ($segmentRoutes[''] as $route) {
+                    if ($route->matches($normalizedPath, $method)) {
+                        $methods = array_merge($methods, $route->getMethods());
+                        break;
+                    }
                 }
             }
         }

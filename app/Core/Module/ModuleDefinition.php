@@ -22,6 +22,8 @@ class ModuleDefinition
     public readonly ?string $configFile;
     public readonly ?string $routesFile;
     public readonly bool $enabled;
+    public readonly bool $lazy;
+    public readonly array $routePrefixes;
 
     public function __construct(array $data, string $path)
     {
@@ -36,6 +38,8 @@ class ModuleDefinition
         $this->configFile = $data['config'] ?? null;
         $this->routesFile = $data['routes'] ?? null;
         $this->enabled = $data['enabled'] ?? true;
+        $this->lazy = $data['lazy'] ?? false;
+        $this->routePrefixes = $data['route_prefixes'] ?? [];
     }
 
     /**
@@ -135,6 +139,8 @@ class ModuleDefinition
             'config' => $this->configFile,
             'routes' => $this->routesFile,
             'enabled' => $this->enabled,
+            'lazy' => $this->lazy,
+            'route_prefixes' => $this->routePrefixes,
         ];
     }
 

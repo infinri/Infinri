@@ -68,6 +68,7 @@ class HandlerTest extends TestCase
     public function register_adds_custom_handler(): void
     {
         $handler = new Handler();
+        $handler->getReporter()->suppressFallback(); // Suppress error_log in tests
         $called = false;
         
         $handler->register(\InvalidArgumentException::class, function($e) use (&$called) {
