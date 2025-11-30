@@ -1,0 +1,69 @@
+<?php
+/**
+ * Email Verification Notice Template
+ * Shown when user needs to verify their email
+ */
+
+$this->layout('layouts/one-column');
+$this->setTitle('Verify Email');
+?>
+
+<?php $this->startBlock('head_css') ?>
+<link rel="stylesheet" href="<?= $this->moduleAsset('Auth', 'base/web/css/auth.css') ?>">
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('main') ?>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h1 class="auth-title">Verify Your Email</h1>
+            <p class="auth-subtitle">We've sent a verification link to your email address</p>
+        </div>
+
+        <?php if ($status = $this->flash('status')): ?>
+            <div class="alert alert-success" role="alert">
+                <?= e($status) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($error = $this->flash('error')): ?>
+            <div class="alert alert-error" role="alert">
+                <?= e($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="auth-content">
+            <p class="auth-text">
+                Please check your inbox and click the verification link to activate your account.
+                If you didn't receive the email, you can request a new one.
+            </p>
+        </div>
+
+        <form method="POST" action="/email/verification-notification" class="auth-form">
+            <?= csrf_field() ?>
+            
+            <button type="submit" class="btn btn-primary btn-block" data-submit-btn>
+                Resend Verification Email
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <form method="POST" action="/logout" class="auth-logout-form">
+                <?= csrf_field() ?>
+                <button type="submit" class="auth-link auth-link-btn">
+                    Sign out
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('footer_js') ?>
+<script src="<?= $this->moduleAsset('Auth', 'base/web/js/auth.js') ?>"></script>
+<?php $this->endBlock() ?>

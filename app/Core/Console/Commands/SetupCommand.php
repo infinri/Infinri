@@ -16,12 +16,13 @@ namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
 use App\Core\Compiler\CompilerManager;
-use App\Core\Database\Migrator;
 use App\Core\Database\Connection;
-use App\Core\Database\MigrationState;
 use App\Core\Database\DatabaseBackup;
 use App\Core\Module\ModuleRegistry;
 use App\Core\Module\ModuleHookRunner;
+use App\Core\Setup\SchemaProcessor;
+use App\Core\Setup\PatchApplier;
+use App\Core\Setup\PatchRegistry;
 use App\Core\Support\EnvManager;
 
 /**
@@ -368,98 +369,143 @@ class SetupCommand extends Command
 
     protected function runMigrations(): void
     {
-        echo "\n📦 Migrations\n";
-
-        $migrationsPath = $this->rootDir . '/database/migrations';
-        $migrationState = new MigrationState();
-
-        // Check for previous failed migration
-        if (!$migrationState->isSafe()) {
-            $failed = $migrationState->getFailedInfo();
-            echo "  ⛔ System in UNSAFE state - previous migration failed\n";
-            echo "  • Failed: {$failed['migration']}\n";
-            echo "  • Error: {$failed['error']}\n";
-            echo "  ℹ️  Fix the issue manually, then run:\n";
-            echo "      php bin/console migrate:reset-state\n";
-            return;
-        }
-
-        if (!is_dir($migrationsPath)) {
-            echo "  • No migrations directory\n";
-            return;
-        }
-
-        $migrations = glob($migrationsPath . '/*.php');
-
-        if (empty($migrations)) {
-            echo "  • No pending migrations\n";
-            return;
-        }
+        echo "\n📦 Database Setup\n";
 
         // Check if database is configured
         $dbHost = $this->env->get('DB_HOST');
         $dbName = $this->env->get('DB_DATABASE');
 
         if (empty($dbHost) || empty($dbName)) {
-            echo "  • Found " . count($migrations) . " migration file(s)\n";
             echo "  ℹ️  Database not configured - skipping\n";
             return;
         }
 
-        // Try to run migrations
         try {
             $connection = $this->createDatabaseConnection();
-            $migrator = new Migrator($connection, $migrationsPath);
-            
-            $pending = $migrator->status();
-            $pendingMigrations = array_filter($pending, fn($m) => !$m['ran']);
-            $pendingCount = count($pendingMigrations);
-            
-            if ($pendingCount === 0) {
-                echo "  ✓ No pending migrations\n";
-                return;
-            }
 
-            echo "  • Found {$pendingCount} pending migration(s)\n";
+            // Step 1: Process declarative schemas from modules
+            $this->processSchemas($connection);
 
-            // Dry run - just show what would run
-            if ($this->dryRun) {
-                foreach ($pendingMigrations as $migration) {
-                    echo "  → Would run: {$migration['migration']}\n";
-                }
-                return;
-            }
+            // Step 2: Apply patches (schema patches first, then data patches)
+            $this->applyPatches($connection);
 
-            // Backup before migrations (unless --no-backup)
-            if (!$this->noBackup) {
-                $this->backupDatabase();
-            }
-
-            // Run migrations with state tracking
-            foreach ($pendingMigrations as $migration) {
-                $name = $migration['migration'];
-                $migrationState->markStarted($name);
-                
-                try {
-                    $migrator->runMigration($name);
-                    $migrationState->markCompleted($name);
-                    echo "  ✓ Migrated: {$name}\n";
-                } catch (\Throwable $e) {
-                    $migrationState->markFailed($name, $e->getMessage());
-                    throw $e;
-                }
-            }
-            
-            echo "  • Ran {$pendingCount} migration(s)\n";
-            
         } catch (\Throwable $e) {
-            echo "  ⚠️  Migration failed: " . $e->getMessage() . "\n";
-            echo "  ⛔ System marked as UNSAFE\n";
-            echo "  ℹ️  Fix the issue, then run: php bin/console migrate:reset-state\n";
+            echo "  ⚠️  Database setup failed: " . $e->getMessage() . "\n";
             if (!$this->noBackup) {
                 echo "  ℹ️  Restore from var/backups/ if needed\n";
             }
+            throw $e;
         }
+    }
+
+    /**
+     * Process declarative schemas from all modules
+     */
+    protected function processSchemas(Connection $connection): void
+    {
+        echo "\n  Schema Processing:\n";
+
+        $schemaProcessor = new SchemaProcessor($connection, $this->registry);
+
+        if ($this->dryRun) {
+            $pending = $schemaProcessor->getPending();
+            if (empty($pending)) {
+                echo "    ✓ No pending schema changes\n";
+                return;
+            }
+            foreach ($pending as $change) {
+                echo "    → Would {$change['type']}: {$change['table']} ({$change['module']})\n";
+            }
+            return;
+        }
+
+        // Backup before schema changes (unless --no-backup)
+        if (!$this->noBackup) {
+            $this->backupDatabase();
+        }
+
+        $results = $schemaProcessor->processAll();
+
+        if (!empty($results['created'])) {
+            foreach ($results['created'] as $table) {
+                echo "    ✓ Created: {$table}\n";
+            }
+        }
+
+        if (!empty($results['modified'])) {
+            foreach ($results['modified'] as $table) {
+                echo "    ✓ Modified: {$table}\n";
+            }
+        }
+
+        $total = count($results['created']) + count($results['modified']);
+        if ($total === 0) {
+            echo "    ✓ Schema up to date\n";
+        } else {
+            echo "    • Processed {$total} table(s)\n";
+        }
+    }
+
+    /**
+     * Apply data and schema patches from all modules
+     */
+    protected function applyPatches(Connection $connection): void
+    {
+        echo "\n  Patch Application:\n";
+
+        $patchRegistry = new PatchRegistry($connection);
+        $patchApplier = new PatchApplier($connection, $patchRegistry, $this->registry);
+
+        if ($this->dryRun) {
+            $pending = $patchApplier->getPending();
+            $schemaCount = count($pending['schema']);
+            $dataCount = count($pending['data']);
+
+            if ($schemaCount === 0 && $dataCount === 0) {
+                echo "    ✓ No pending patches\n";
+                return;
+            }
+
+            foreach ($pending['schema'] as $patch) {
+                echo "    → Would apply schema patch: {$patch['class']}\n";
+            }
+            foreach ($pending['data'] as $patch) {
+                echo "    → Would apply data patch: {$patch['class']}\n";
+            }
+            return;
+        }
+
+        $results = $patchApplier->applyAll();
+
+        if (!empty($results['schema'])) {
+            foreach ($results['schema'] as $patch) {
+                $shortName = $this->getShortPatchName($patch);
+                echo "    ✓ Schema patch: {$shortName}\n";
+            }
+        }
+
+        if (!empty($results['data'])) {
+            foreach ($results['data'] as $patch) {
+                $shortName = $this->getShortPatchName($patch);
+                echo "    ✓ Data patch: {$shortName}\n";
+            }
+        }
+
+        $total = count($results['schema']) + count($results['data']);
+        if ($total === 0) {
+            echo "    ✓ All patches applied\n";
+        } else {
+            echo "    • Applied {$total} patch(es)\n";
+        }
+    }
+
+    /**
+     * Get short patch name for display
+     */
+    protected function getShortPatchName(string $fullClass): string
+    {
+        $parts = explode('\\', $fullClass);
+        return end($parts);
     }
 
     protected function backupDatabase(): void

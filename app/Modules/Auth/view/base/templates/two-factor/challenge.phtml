@@ -1,0 +1,126 @@
+<?php
+/**
+ * Two-Factor Authentication Challenge Template
+ * Shown after password verification when 2FA is enabled
+ * 
+ * Available variables from controller:
+ * - $context: 'customer' or 'admin'
+ * - $isAdmin: bool
+ */
+
+$this->layout('layouts/one-column');
+$this->setTitle('Two-Factor Authentication');
+?>
+
+<?php $this->startBlock('head_css') ?>
+<link rel="stylesheet" href="<?= $this->moduleAsset('Auth', 'base/web/css/auth.css') ?>">
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('main') ?>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <?php if ($isAdmin ?? false): ?>
+                <span class="badge auth-badge-admin">Admin Portal</span>
+            <?php endif; ?>
+            <div class="auth-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h1 class="auth-title">Two-Factor Authentication</h1>
+            <p class="auth-subtitle">Enter the code from your authenticator app</p>
+        </div>
+
+        <?php if ($error = $this->flash('error')): ?>
+            <div class="alert alert-error" role="alert">
+                <?= e($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($warning = $this->flash('warning')): ?>
+            <div class="alert alert-warning" role="alert">
+                <?= e($warning) ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- TOTP Code Form -->
+        <form method="POST" action="<?= ($isAdmin ?? false) ? '/admin/two-factor-challenge' : '/two-factor-challenge' ?>" class="auth-form" data-auth-form id="totp-form">
+            <?= csrf_field() ?>
+
+            <div class="form-group">
+                <label for="code" class="form-label">Authentication Code</label>
+                <input 
+                    type="text" 
+                    id="code" 
+                    name="code" 
+                    class="form-input form-input-code" 
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    required 
+                    autofocus
+                    placeholder="000000"
+                    data-2fa-input
+                >
+                <p class="form-help">Enter the 6-digit code from your authenticator app</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" data-submit-btn>
+                Verify
+            </button>
+        </form>
+
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+
+        <!-- Recovery Code Form (hidden by default) -->
+        <div class="auth-recovery" data-recovery-section>
+            <button type="button" class="auth-link" data-toggle-recovery>
+                Use a recovery code instead
+            </button>
+
+            <form method="POST" action="<?= ($isAdmin ?? false) ? '/admin/two-factor-challenge/recovery' : '/two-factor-challenge/recovery' ?>" class="auth-form" data-recovery-form hidden>
+                <?= csrf_field() ?>
+
+                <div class="form-group">
+                    <label for="recovery_code" class="form-label">Recovery Code</label>
+                    <input 
+                        type="text" 
+                        id="recovery_code" 
+                        name="recovery_code" 
+                        class="form-input" 
+                        autocomplete="off"
+                        required
+                        placeholder="XXXX-XXXX-XXXX"
+                    >
+                    <p class="form-help">Enter one of your recovery codes</p>
+                </div>
+
+                <button type="submit" class="btn btn-secondary btn-block" data-submit-btn>
+                    Use Recovery Code
+                </button>
+
+                <button type="button" class="auth-link" data-toggle-recovery style="margin-top: 1rem;">
+                    ← Back to authenticator code
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <form method="POST" action="<?= ($isAdmin ?? false) ? '/admin/logout' : '/logout' ?>" class="auth-logout-form">
+                <?= csrf_field() ?>
+                <button type="submit" class="auth-link auth-link-btn">
+                    Cancel and sign out
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('footer_js') ?>
+<script src="<?= $this->moduleAsset('Auth', 'base/web/js/auth.js') ?>"></script>
+<?php $this->endBlock() ?>

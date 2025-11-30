@@ -1,0 +1,50 @@
+# =============================================================================
+# Infinri Caddyfile - Docker Environment
+# =============================================================================
+# Reverse proxy to RoadRunner with static file serving
+# =============================================================================
+
+:80 {
+	# Serve static files directly from Caddy (faster)
+	root * /srv/pub
+	
+	@static {
+		path *.css *.js *.ico *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp
+	}
+	handle @static {
+		file_server
+		header Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	# Proxy all other requests to RoadRunner
+	handle {
+		reverse_proxy app:8080 {
+			health_uri /health
+			health_interval 10s
+		}
+	}
+
+	# Compression
+	encode gzip zstd
+
+	# Security headers
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Block sensitive files
+	@blocked {
+		path /.* /composer.* /phpunit.* /phpstan.* /.php-cs-fixer.* /docker* /var/* /vendor/*
+	}
+	respond @blocked 404
+
+	# Logging
+	log {
+		output stdout
+		format console
+	}
+}

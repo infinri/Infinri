@@ -1,0 +1,44 @@
+# =============================================================================
+# Infinri RoadRunner Systemd Service
+# =============================================================================
+# Install: sudo cp docker/infinri-rr.service /etc/systemd/system/
+# Enable:  sudo systemctl enable infinri-rr
+# Start:   sudo systemctl start infinri-rr
+# Status:  sudo systemctl status infinri-rr
+# Logs:    sudo journalctl -u infinri-rr -f
+# =============================================================================
+
+[Unit]
+Description=Infinri RoadRunner Application Server
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/infinri
+ExecStart=/usr/local/bin/rr serve -c .rr.yaml
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/infinri/roadrunner.log
+StandardError=append:/var/log/infinri/roadrunner-error.log
+
+# Environment
+Environment=APP_ENV=production
+Environment=RR_NUM_WORKERS=4
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/infinri/var
+PrivateTmp=true
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

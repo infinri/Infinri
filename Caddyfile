@@ -1,0 +1,129 @@
+# =============================================================================
+# Infinri Caddyfile - RoadRunner Reverse Proxy
+# =============================================================================
+# Development: Start RoadRunner first, then caddy run
+# Production:  Copy to /etc/caddy/Caddyfile and update domain
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DEVELOPMENT CONFIGURATION (Default)
+# -----------------------------------------------------------------------------
+# 1. Start RoadRunner: rr serve -c .rr.yaml
+# 2. Start Caddy: caddy run
+# 3. Access at: http://localhost:80
+# -----------------------------------------------------------------------------
+
+:80 {
+	# Serve static files directly (faster than proxying)
+	root * {$SITE_ROOT:./pub}
+	
+	@static {
+		path *.css *.js *.ico *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.ttf *.eot
+	}
+	handle @static {
+		file_server
+		header Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	# Proxy all other requests to RoadRunner
+	handle {
+		reverse_proxy localhost:8080 {
+			health_uri /health
+			health_interval 10s
+		}
+	}
+
+	# Logging (development)
+	log {
+		output file ./var/log/caddy.log {
+			roll_size 10mb
+			roll_keep 3
+		}
+		format console
+	}
+
+	# Compression
+	encode gzip zstd
+
+	# Security headers
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Block sensitive files
+	@blocked {
+		path /.* /composer.* /phpunit.* /phpstan.* /.php-cs-fixer.* /docker* /var/* /vendor/* /.rr.yaml /worker.php
+	}
+	respond @blocked 404
+}
+
+
+# -----------------------------------------------------------------------------
+# PRODUCTION CONFIGURATION (Uncomment and configure)
+# -----------------------------------------------------------------------------
+# 1. Replace yourdomain.com with your actual domain
+# 2. Ensure RoadRunner is running (via systemd service)
+# 3. Copy this file to /etc/caddy/Caddyfile
+# 4. Run: sudo systemctl reload caddy
+# Caddy will automatically obtain and renew SSL certificates!
+# -----------------------------------------------------------------------------
+
+# yourdomain.com {
+# 	# Serve static files directly
+# 	root * /var/www/infinri/pub
+# 	
+# 	@static {
+# 		path *.css *.js *.ico *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.ttf *.eot
+# 	}
+# 	handle @static {
+# 		file_server
+# 		header Cache-Control "public, max-age=31536000, immutable"
+# 	}
+#
+# 	# Proxy to RoadRunner
+# 	handle {
+# 		reverse_proxy localhost:8080 {
+# 			health_uri /health
+# 			health_interval 10s
+# 			fail_duration 30s
+# 		}
+# 	}
+#
+# 	# Production logging
+# 	log {
+# 		output file /var/log/caddy/infinri.log {
+# 			roll_size 50mb
+# 			roll_keep 5
+# 		}
+# 		format json
+# 	}
+#
+# 	# Compression
+# 	encode gzip zstd
+#
+# 	# Security headers (production)
+# 	header {
+# 		X-Frame-Options "SAMEORIGIN"
+# 		X-Content-Type-Options "nosniff"
+# 		X-XSS-Protection "1; mode=block"
+# 		Referrer-Policy "strict-origin-when-cross-origin"
+# 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+# 		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+# 		-Server
+# 	}
+#
+# 	# Block sensitive files
+# 	@blocked {
+# 		path /.* /composer.* /phpunit.* /phpstan.* /.php-cs-fixer.* /docker* /var/* /vendor/* /.rr.yaml /worker.php
+# 	}
+# 	respond @blocked 404
+# }
+#
+# # Redirect www to non-www
+# www.yourdomain.com {
+# 	redir https://yourdomain.com{uri} permanent
+# }

@@ -2,6 +2,7 @@
     "name": "Theme",
     "description": "Infinri brand theme - purple dark theme with custom components",
     "version": "1.0.0",
+    "provider": "App\\Modules\\Theme\\ThemeServiceProvider",
     "enabled": true,
     "order": 1,
     "dependencies": []

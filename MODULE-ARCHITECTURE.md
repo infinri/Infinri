@@ -53,34 +53,45 @@ app/modules/contact/
 
 ```
 app/Modules/Contact/
-├── ContactServiceProvider.php  # ➕ NEW: Register & boot
-├── module.json                 # ➕ NEW: Metadata
-├── schema.php                  # ➕ NEW: Database schema
-├── config/
-│   └── contact.php             # ➕ NEW: Module config
-├── Controllers/                # ⚠️ REFACTOR: From index.php
+├── module.json                 # Module manifest (metadata, dependencies)
+├── README.md                   # Documentation
+├── ContactServiceProvider.php  # Register & boot services
+├── Config/                     # Configuration files
+│   ├── contact.php             # Module settings
+│   ├── routes.php              # Web route definitions
+│   └── Api/                    # API-specific config
+│       └── routes.php          # API route definitions
+├── Contracts/                  # Interfaces
+├── Controllers/
 │   └── ContactController.php
-├── Models/                     # ➕ NEW: Data models
+├── Models/
 │   └── ContactSubmission.php
-├── View/                       # ✅ KEEP: Expand structure
-│   ├── frontend/
-│   │   ├── css/
-│   │   │   └── contact.css
-│   │   ├── js/
-│   │   │   └── contact.js
-│   │   └── templates/
-│   │       └── contact.php
-│   └── admin/                  # ➕ NEW: Admin interface
-│       ├── css/
-│       ├── js/
-│       └── templates/
-│           └── submissions.php
-├── Setup/                      # ➕ NEW: Database patches
-│   └── Patch/
-│       └── Data/
-│           └── SeedDefaults.php
-└── routes.php                  # ⚠️ REFACTOR: From index.php
+├── Services/
+├── Setup/                      # Database setup
+│   ├── schema.php              # Database schema definition
+│   └── Data/                   # Seeders
+│       └── SeedDefaults.php
+└── view/                       # View layer (lowercase!)
+    ├── base/                   # Default: shared templates/assets
+    │   ├── templates/
+    │   │   └── contact.phtml
+    │   └── web/
+    │       ├── css/
+    │       └── js/
+    ├── frontend/               # Only if different from base
+    └── admin/                  # Only if different from base
 ```
+
+**Root Directory Convention:**
+
+| Allowed in Root | Not Allowed in Root |
+|-----------------|---------------------|
+| `module.json` | `schema.php` → `Setup/` |
+| `README.md`, `*.md` | `routes.php` → `Config/` |
+| `*ServiceProvider.php` | `routes_api.php` → `Config/Api/` |
+| | `config.php` → `Config/` |
+
+This keeps the module root clean and predictable.
 
 ### Migration Path (Per Module)
 
@@ -100,17 +111,17 @@ class ContactServiceProvider extends ServiceProvider {
 ```
 
 **Phase 2: Add Database Support (Optional)**
-- Create `schema.php` if module needs database
+- Create `Setup/schema.php` if module needs database
 - Create `Models/` directory
-- Create `Setup/Patch/Data/` for seeding
+- Create `Setup/Data/` for seeding
 
 **Phase 3: Refactor Controller (When Ready)**
 - Move logic from `index.php` to `Controllers/`
-- Update `routes.php` to use controller
+- Move routes to `Config/routes.php`
 - Keep `index.php` as fallback during transition
 
 **Phase 4: Add Admin Interface (If Needed)**
-- Add `View/admin/` directory
+- Add `view/admin/` directory (only if different from base)
 - Create admin templates
 - Register admin routes
 
@@ -175,8 +186,9 @@ app/Modules/Blog/
 ├── Models/
 │   ├── Post.php                  # Data models
 │   └── Category.php
-├── View/                         # View layer (CSS + JS + Templates)
-│   ├── frontend/
+├── view/                         # View layer (CSS + JS + Templates)
+│   ├── base/                     # Default: shared templates/assets
+│   ├── frontend/                 # Only if different from base
 │   │   ├── css/
 │   │   │   ├── blog.css          # Blog list styles
 │   │   │   └── post.css          # Single post styles
@@ -279,13 +291,13 @@ class SeoServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/routes.php');
+        $this->loadRoutesFrom(__DIR__ . '/Config/routes.php');
         
         // Register views
-        $this->loadViewsFrom(__DIR__ . '/View/frontend/templates', 'seo');
+        $this->loadViewsFrom(__DIR__ . '/view/base/templates', 'seo');
         
         // Register schema
-        $this->loadSchemaFrom(__DIR__ . '/schema.php');
+        $this->loadSchemaFrom(__DIR__ . '/Setup/schema.php');
         
         // Register middleware
         $this->app['router']->middleware('seo', InjectMetaTags::class);
@@ -346,7 +358,7 @@ class ContactServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/routes.php');
-        $this->loadViewsFrom(__DIR__ . '/View/frontend/templates', 'contact');
+        $this->loadViewsFrom(__DIR__ . '/view/base/templates', 'contact');
     }
 }
 ```
@@ -365,8 +377,8 @@ app/Modules/Contact/
 ├── routes.php
 ├── Controllers/
 │   └── ContactController.php
-└── View/
-    └── frontend/
+└── view/
+    └── base/
         └── templates/
             └── form.php
 ```
@@ -384,7 +396,7 @@ class PagesServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Register schema
-        $this->loadSchemaFrom(__DIR__ . '/schema.php');
+        $this->loadSchemaFrom(__DIR__ . '/Setup/schema.php');
     }
     
     public function boot(): void
@@ -395,8 +407,8 @@ class PagesServiceProvider extends ServiceProvider
         // Register policies
         Gate::policy(Page::class, PagePolicy::class);
         
-        // Register data patches
-        $this->loadPatchesFrom(__DIR__ . '/Setup/Patch');
+        // Register data patches (seeders)
+        $this->loadPatchesFrom(__DIR__ . '/Setup/Data');
     }
 }
 ```
@@ -404,26 +416,25 @@ class PagesServiceProvider extends ServiceProvider
 **Structure:**
 ```
 app/Modules/Pages/
-├── PagesServiceProvider.php
 ├── module.json
-├── schema.php              # Schema definition (PHP arrays)
+├── README.md
+├── PagesServiceProvider.php
+├── Config/
 ├── Models/
 │   ├── Page.php
 │   └── PageVersion.php
 ├── Setup/
-│   └── Patch/
-│       ├── Data/
-│       │   ├── SeedDefaultPages.php
-│       │   └── MigrateOldPages.php
-│       └── Schema/
-│           └── AddFullTextIndex.php
+│   ├── schema.php          # Database schema definition
+│   └── Data/               # Seeders
+│       ├── SeedDefaultPages.php
+│       └── MigrateOldPages.php
 ├── Observers/
 │   └── PageObserver.php
 └── Policies/
     └── PagePolicy.php
 ```
 
-**Schema Definition (schema.php):**
+**Schema Definition (Setup/schema.php):**
 ```php
 <?php
 
@@ -477,52 +488,59 @@ return [
 ];
 ```
 
-**Data Patch (SeedDefaultPages.php):**
+**Data Patch (Setup/Data/SeedDefaultPages.php):**
 ```php
 <?php
 
-namespace App\Modules\Pages\Setup\Patch\Data;
+namespace App\Modules\Pages\Setup\Data;
 
+use App\Core\Setup\Patch\AbstractPatch;
 use App\Core\Setup\Patch\DataPatchInterface;
-use App\Core\Database\Connection;
+use App\Core\Contracts\Database\ConnectionInterface;
 
-class SeedDefaultPages implements DataPatchInterface
+class SeedDefaultPages extends AbstractPatch implements DataPatchInterface
 {
-    public function __construct(protected Connection $db) {}
-    
     public function apply(): void
     {
         $pages = [
-            [
-                'slug' => 'home',
-                'title' => 'Home',
-                'content' => '<h1>Welcome</h1>',
-                'status' => 'published',
-            ],
-            [
-                'slug' => 'about',
-                'title' => 'About Us',
-                'content' => '<h1>About Us</h1>',
-                'status' => 'published',
-            ],
+            ['slug' => 'home', 'title' => 'Home', 'status' => 'published'],
+            ['slug' => 'about', 'title' => 'About Us', 'status' => 'published'],
         ];
         
         foreach ($pages as $page) {
-            $this->db->table('pages')->insert($page);
+            // Use helper from AbstractPatch
+            $this->insertIfNotExists('pages', [
+                ...$page,
+                'content' => '<h1>' . $page['title'] . '</h1>',
+                'created_at' => $this->now(),
+                'updated_at' => $this->now(),
+            ], 'slug');
         }
     }
     
-    public static function getDependencies(): array
-    {
-        return [];
-    }
-    
-    public function getAliases(): array
-    {
-        return [];
-    }
+    // getDependencies() and getAliases() inherited from AbstractPatch
 }
 ```
+
+**How Setup Works (Magento-style):**
+
+When you run `php bin/console s:up`, the framework:
+
+1. **Processes Schema** (`Setup/schema.php`)
+   - Reads declarative schema from each enabled module
+   - Creates/modifies tables as needed
+   - Respects dependencies between modules
+
+2. **Applies Patches** (`Setup/Data/*.php`)
+   - Discovers all `DataPatchInterface` implementations
+   - Checks `patch_list` table to see which have run
+   - Runs pending patches in dependency order
+   - Records each patch as applied (runs only once)
+
+**Tracking:**
+- Applied patches stored in `patch_list` table
+- Schema state stored in `var/state/schema.php`
+- Patches never re-run unless table cleared
 
 ---
 
@@ -537,8 +555,9 @@ class SeedDefaultPages implements DataPatchInterface
 app/Modules/Blog/
 ├── BlogServiceProvider.php
 ├── module.json
-├── View/                         # Complete view layer
-│   ├── frontend/                 # Public-facing
+├── view/                         # Complete view layer
+│   ├── base/                     # Default: shared templates/assets
+│   ├── frontend/                 # Only if different from base
 │   │   ├── css/
 │   │   │   ├── blog.css          # Module-specific styles (overrides only)
 │   │   │   └── post.css
@@ -578,8 +597,10 @@ class BlogServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Register view paths
-        $this->loadViewsFrom(__DIR__ . '/View/frontend/templates', 'Blog');
-        $this->loadViewsFrom(__DIR__ . '/View/admin/templates', 'BlogAdmin');
+        $this->loadViewsFrom(__DIR__ . '/view/base/templates', 'Blog');
+        // Only register frontend/admin if they differ from base
+        // $this->loadViewsFrom(__DIR__ . '/view/frontend/templates', 'BlogFrontend');
+        // $this->loadViewsFrom(__DIR__ . '/view/admin/templates', 'BlogAdmin');
     }
     
     public function boot(): void
@@ -595,7 +616,7 @@ class BlogServiceProvider extends ServiceProvider
 **Template Example (Inherits Base Layout):**
 
 ```php
-<!-- app/Modules/Blog/View/frontend/templates/post/view.php -->
+<!-- app/Modules/Blog/view/base/templates/post/view.php -->
 
 <?php 
 // Extend base layout
@@ -651,7 +672,7 @@ $this->setTitle($post->title);
 **Module JavaScript (post.js):**
 
 ```javascript
-// app/Modules/Blog/View/frontend/js/post.js
+// app/Modules/Blog/view/base/web/js/post.js
 
 class BlogPost {
     constructor() {
@@ -727,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
 **Module CSS (Only Overrides):**
 
 ```css
-/* app/Modules/Blog/View/frontend/css/post.css */
+/* app/Modules/Blog/view/base/web/css/post.css */
 
 /* Module-specific styles - inherits all base component styles */
 
@@ -767,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
 2. **Minimal CSS** - Module CSS should be tiny (2-5 KB)
 3. **Self-Contained JS** - Each module's JS is independent
 4. **Layout Reuse** - Extend base layouts (one-column, two-column, etc.)
-5. **Asset Discovery** - CSS/JS auto-loaded from `View/` directory
+5. **Asset Discovery** - CSS/JS auto-loaded from `view/` directory
 
 ---
 

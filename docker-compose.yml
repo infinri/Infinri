@@ -1,0 +1,100 @@
+# =============================================================================
+# Infinri Docker Compose - Local Development
+# =============================================================================
+# Usage:
+#   docker compose up -d        # Start all services
+#   docker compose logs -f app  # View logs
+#   docker compose down         # Stop all services
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Application (RoadRunner)
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      target: development
+    ports:
+      - "8080:8080"      # HTTP
+      - "2114:2114"      # Health check
+      - "2112:2112"      # Metrics
+    volumes:
+      - .:/app
+      - /app/vendor      # Exclude vendor from bind mount
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DB_HOST=postgres
+      - DB_DATABASE=infinri
+      - DB_USERNAME=infinri
+      - DB_PASSWORD=secret
+      - REDIS_HOST=redis
+      - RR_NUM_WORKERS=2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2114/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Caddy (Reverse Proxy + Static Files)
+  # ---------------------------------------------------------------------------
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.docker:/etc/caddy/Caddyfile:ro
+      - ./pub:/srv/pub:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: infinri
+      POSTGRES_USER: infinri
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infinri"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

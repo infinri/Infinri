@@ -1,0 +1,619 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Cache/CacheManager.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Cache/RedisStore.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Compiler/ConfigCompiler.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Compiler/MiddlewareCompiler.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Compiler/RouteCompiler.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: app/Core/Config/ConfigValidator.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Application.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Console/Command.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/AssetsBuildCommand.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Console/Commands/AssetsBuildCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/AssetsPublishCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Console/Commands/CacheClearCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/CodeStatsCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/CodeStatsCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/HealthCheckCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 6
+			path: app/Core/Console/Commands/HealthCheckCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/HelpCommand.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Console/Commands/HelpCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 4
+			path: app/Core/Console/Commands/IndexReindexCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Console/Commands/IndexReindexCommand.php
+
+		-
+			message: '#^Call to function array_search\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Console/Commands/InstallCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Console/Commands/InstallCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/InstallCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/KeyGenerateCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Console/Commands/KeyGenerateCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/MetricsShowCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Console/Commands/MetricsShowCommand.php
+
+		-
+			message: '#^Foreach overwrites \$hour with its key variable\.$#'
+			identifier: foreach.keyOverwrite
+			count: 1
+			path: app/Core/Console/Commands/MetricsShowCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/MigrateResetStateCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Console/Commands/ModuleDisableCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 2
+			path: app/Core/Console/Commands/ModuleListCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: app/Core/Console/Commands/ModuleListCommand.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Console/Commands/ModuleListCommand.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 6
+			path: app/Core/Console/Commands/SetupCommand.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 8
+			path: app/Core/Console/Commands/SetupCommand.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 3
+			path: app/Core/Container/BindingResolutionException.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Log\\LogManager\|null\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Container/BindingResolutionException.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Log\\LogManager\|null\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Database/DatabaseException.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Contracts\\Database\\ConnectionInterface\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Database/DatabaseManager.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Core/Database/Factory.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 5
+			path: app/Core/Database/Grammar/Grammar.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Database/Migrator.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 4
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
+			identifier: ternary.condNotBoolean
+			count: 1
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 4
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Variable method call on \$this\(App\\Core\\Database\\Model\)\.$#'
+			identifier: method.dynamicName
+			count: 3
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Database\\ModelQueryBuilder\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Variable method call on static\(App\\Core\\Database\\Model\)\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Database/Model.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Database\\QueryBuilder\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Database/ModelQueryBuilder.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Database/QueryBuilder.php
+
+		-
+			message: '#^App\\Core\\Database\\Relations\\BelongsTo\:\:__construct\(\) does not call parent constructor from App\\Core\\Database\\Relations\\Relation\.$#'
+			identifier: constructor.missingParentCall
+			count: 1
+			path: app/Core/Database/Relations/BelongsTo.php
+
+		-
+			message: '#^App\\Core\\Database\\Relations\\BelongsToMany\:\:__construct\(\) does not call parent constructor from App\\Core\\Database\\Relations\\Relation\.$#'
+			identifier: constructor.missingParentCall
+			count: 1
+			path: app/Core/Database/Relations/BelongsToMany.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Database/Relations/BelongsToMany.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: app/Core/Database/Relations/BelongsToMany.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 9
+			path: app/Core/Error/HttpException.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Events/EventDispatcher.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 6
+			path: app/Core/Http/Cookie.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Http/JsonResponse.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 3
+			path: app/Core/Http/JsonResponse.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Http/Kernel.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Http/MetricsEndpoint.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Http/MetricsEndpoint.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Http/Middleware/Pipeline.php
+
+		-
+			message: '#^Variable method call on object\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Http/Middleware/Pipeline.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 5
+			path: app/Core/Http/Middleware/ResponseCacheMiddleware.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Http/Middleware/ResponseCacheMiddleware.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Http/Middleware/VerifyCsrfToken.php
+
+		-
+			message: '#^Only booleans are allowed in &&, mixed given on the left side\.$#'
+			identifier: booleanAnd.leftNotBoolean
+			count: 1
+			path: app/Core/Http/Middleware/VerifyCsrfToken.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 4
+			path: app/Core/Http/RedirectResponse.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Http/Request.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 2
+			path: app/Core/Http/Request.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Core/Http/Response.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Module/AbstractModule.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Core/Queue/Job.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Contracts\\Log\\LoggerInterface\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Queue/QueueWorker.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Redis/RedisManager.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Log\\LogManager\|null\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Routing/Exceptions/MethodNotAllowedException.php
+
+		-
+			message: '#^Variable method call on App\\Core\\Log\\LogManager\|null\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Routing/Exceptions/RouteNotFoundException.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Routing/Route.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: app/Core/Routing/Router.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Routing/Router.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Routing/UrlGenerator.php
+
+		-
+			message: '#^Call to function base64_decode\(\) requires parameter \#2 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: app/Core/Security/CookieEncrypter.php
+
+		-
+			message: '#^Variable static method call on App\\Core\\Security\\Sanitizer\.$#'
+			identifier: staticMethod.dynamicName
+			count: 1
+			path: app/Core/Security/Sanitizer.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: app/Core/Session/RedisSessionHandler.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Session/RedisSessionHandler.php
+
+		-
+			message: '#^Only booleans are allowed in &&, mixed given on the left side\.$#'
+			identifier: booleanAnd.leftNotBoolean
+			count: 1
+			path: app/Core/Session/RedisSessionHandler.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/Support/Arr.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Support/EnvManager.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Support/EnvManager.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Support/Environment.php
+
+		-
+			message: '#^Only booleans are allowed in a negated boolean, mixed given\.$#'
+			identifier: booleanNot.exprNotBoolean
+			count: 1
+			path: app/Core/Support/Facades/Facade.php
+
+		-
+			message: '#^Variable method call on mixed\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: app/Core/Support/Facades/Facade.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: app/Core/Support/HealthCheck.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/Support/Str.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Support/helpers.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: app/Core/Validation/ValidationException.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 3
+			path: app/Core/Validation/Validator.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: app/Core/Validation/Validator.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 4
+			path: app/Core/View/Asset/AssetManager.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: app/Core/View/HandleGenerator.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: app/Core/View/Layout/LayoutRenderer.php

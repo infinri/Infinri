@@ -1,0 +1,14 @@
+{
+    "name": "Auth",
+    "description": "Authentication, authorization, and session management",
+    "version": "1.0.0",
+    "provider": "App\\Modules\\Auth\\AuthServiceProvider",
+    "enabled": true,
+    "order": 5,
+    "dependencies": [],
+    "config": "Config/auth.php",
+    "routes": {
+        "web": "Config/routes.php",
+        "api": "Config/Api/routes_api.php"
+    }
+}

@@ -1,0 +1,61 @@
+/**
+ * Admin Theme Entry Point
+ * 
+ * Load order:
+ * 1. Core base CSS (loaded by layout)
+ * 2. _variables.css (color overrides for neon look)
+ * 3. admin.css (layout + neon enhancements)
+ */
+
+@import '_variables.css';
+@import 'admin.css';
+
+/* ============================================================================
+ * DARK SCROLLBAR
+ * ============================================================================ */
+
+.admin ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.admin ::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+.admin ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+}
+
+.admin ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-50);
+}
+
+/* Firefox */
+.admin * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) var(--color-bg);
+}
+
+/* ============================================================================
+ * SELECTION & FOCUS
+ * ============================================================================ */
+
+.admin ::selection {
+    background: var(--color-primary);
+    color: white;
+}
+
+.admin :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+ * CODE - Neon accent
+ * ============================================================================ */
+
+.admin code {
+    color: var(--color-primary-light);
+}

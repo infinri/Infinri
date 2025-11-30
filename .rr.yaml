@@ -1,0 +1,63 @@
+# =============================================================================
+# RoadRunner Configuration
+# =============================================================================
+# High-performance PHP application server
+# Docs: https://roadrunner.dev/docs
+# =============================================================================
+
+version: '3'
+
+server:
+  command: "php worker.php"
+  relay: "pipes"
+
+http:
+  address: "0.0.0.0:8080"
+  
+  pool:
+    num_workers: ${RR_NUM_WORKERS:-4}
+    max_jobs: ${RR_MAX_JOBS:-500}
+    allocate_timeout: 60s
+    destroy_timeout: 60s
+  
+  # Static file serving (optional - Caddy handles this in production)
+  static:
+    dir: "pub"
+    forbid: [".php", ".htaccess", ".env"]
+  
+  # Request limits
+  max_request_size: 10  # MB
+  
+  # Middleware
+  middleware:
+    - gzip
+    - static
+
+  # Headers
+  headers:
+    response:
+      X-Powered-By: "Infinri"
+
+# Logging
+logs:
+  mode: development
+  level: info
+  encoding: console
+  output: stderr
+
+# Health check endpoint
+status:
+  address: "0.0.0.0:2114"
+
+# Metrics for monitoring (Prometheus-compatible)
+metrics:
+  address: "0.0.0.0:2112"
+
+# Reload on file changes (development only)
+reload:
+  interval: 1s
+  patterns: [".php"]
+  services:
+    http:
+      dirs: ["app"]
+      recursive: true

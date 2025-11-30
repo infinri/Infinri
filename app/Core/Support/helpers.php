@@ -659,3 +659,110 @@ if (!function_exists('cookie_forget')) {
         return \App\Core\Http\Cookie::forget($name, $path);
     }
 }
+
+// ==================== Safe Redirect Helpers ====================
+
+if (!function_exists('safe_redirect')) {
+    /**
+     * Create a safe redirect response (prevents open redirect attacks)
+     * 
+     * @param string $url The requested redirect URL
+     * @param string $fallback Fallback URL if requested URL is invalid
+     * @param int $status HTTP status code
+     * @return \App\Core\Http\RedirectResponse
+     */
+    function safe_redirect(string $url, string $fallback = '/', int $status = 302): \App\Core\Http\RedirectResponse
+    {
+        return \App\Core\Security\SafeRedirect::to($url, $fallback, $status);
+    }
+}
+
+if (!function_exists('safe_redirect_intended')) {
+    /**
+     * Redirect to the intended URL from request, with validation
+     * 
+     * @param string $param Request parameter name (default: 'redirect')
+     * @param string $default Default URL if parameter is missing/invalid
+     * @return \App\Core\Http\RedirectResponse
+     */
+    function safe_redirect_intended(string $param = 'redirect', string $default = '/'): \App\Core\Http\RedirectResponse
+    {
+        return \App\Core\Security\SafeRedirect::fromRequest($param, $default);
+    }
+}
+
+if (!function_exists('is_safe_redirect_url')) {
+    /**
+     * Check if a URL is safe for redirect
+     * 
+     * @param string $url The URL to check
+     * @return bool True if URL is safe
+     */
+    function is_safe_redirect_url(string $url): bool
+    {
+        return \App\Core\Security\SafeRedirect::isSafe($url);
+    }
+}
+
+// ==================== Authorization Helpers ====================
+
+if (!function_exists('gate')) {
+    /**
+     * Get the Gate instance
+     * 
+     * @return \App\Core\Authorization\Gate
+     */
+    function gate(): \App\Core\Authorization\Gate
+    {
+        static $gate = null;
+        
+        if ($gate === null) {
+            $gate = new \App\Core\Authorization\Gate();
+        }
+        
+        return $gate;
+    }
+}
+
+if (!function_exists('can')) {
+    /**
+     * Check if the current user can perform an ability
+     * 
+     * @param string $ability The ability to check
+     * @param mixed ...$arguments Arguments (typically the model)
+     * @return bool
+     */
+    function can(string $ability, mixed ...$arguments): bool
+    {
+        return gate()->allows($ability, ...$arguments);
+    }
+}
+
+if (!function_exists('cannot')) {
+    /**
+     * Check if the current user cannot perform an ability
+     * 
+     * @param string $ability The ability to check
+     * @param mixed ...$arguments Arguments (typically the model)
+     * @return bool
+     */
+    function cannot(string $ability, mixed ...$arguments): bool
+    {
+        return gate()->denies($ability, ...$arguments);
+    }
+}
+
+if (!function_exists('authorize')) {
+    /**
+     * Authorize an ability (throws AuthorizationException if denied)
+     * 
+     * @param string $ability The ability to check
+     * @param mixed ...$arguments Arguments (typically the model)
+     * @return \App\Core\Authorization\Response
+     * @throws \App\Core\Authorization\AuthorizationException
+     */
+    function authorize(string $ability, mixed ...$arguments): \App\Core\Authorization\Response
+    {
+        return gate()->authorize($ability, ...$arguments);
+    }
+}

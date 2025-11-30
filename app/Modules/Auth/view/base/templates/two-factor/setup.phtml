@@ -1,0 +1,132 @@
+<?php
+/**
+ * Two-Factor Authentication Setup Template
+ * Shown when user enables 2FA
+ * 
+ * Available variables:
+ * - $qrUrl: string - URL to QR code image
+ * - $secret: string - TOTP secret for manual entry
+ * - $recoveryCodes: array - list of recovery codes
+ */
+
+$this->layout('layouts/one-column');
+$this->setTitle('Enable Two-Factor Authentication');
+?>
+
+<?php $this->startBlock('head_css') ?>
+<link rel="stylesheet" href="<?= $this->moduleAsset('Auth', 'base/web/css/auth.css') ?>">
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('main') ?>
+<div class="auth-container auth-container--wide">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Enable Two-Factor Authentication</h1>
+            <p class="auth-subtitle">Add an extra layer of security to your account</p>
+        </div>
+
+        <?php if ($error = $this->flash('error')): ?>
+            <div class="alert alert-error" role="alert">
+                <?= e($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="two-factor-setup">
+            <!-- Step 1: Scan QR Code -->
+            <div class="setup-step">
+                <div class="setup-step-number">1</div>
+                <div class="setup-step-content">
+                    <h3 class="setup-step-title">Scan the QR Code</h3>
+                    <p class="setup-step-desc">Use your authenticator app (Google Authenticator, Authy, etc.) to scan this QR code:</p>
+                    
+                    <div class="qr-code-container">
+                        <img src="<?= e($qrUrl ?? '') ?>" alt="2FA QR Code" class="qr-code-image">
+                    </div>
+
+                    <details class="setup-manual-entry">
+                        <summary>Can't scan? Enter code manually</summary>
+                        <div class="setup-manual-content">
+                            <code class="setup-secret"><?= e($secret ?? '') ?></code>
+                            <button type="button" class="btn btn--sm" data-copy="<?= e($secret ?? '') ?>">
+                                Copy
+                            </button>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Step 2: Save Recovery Codes -->
+            <div class="setup-step">
+                <div class="setup-step-number">2</div>
+                <div class="setup-step-content">
+                    <h3 class="setup-step-title">Save Your Recovery Codes</h3>
+                    <p class="setup-step-desc">Store these codes safely. You can use them to access your account if you lose your authenticator.</p>
+                    
+                    <div class="recovery-codes-container">
+                        <div class="recovery-codes-grid">
+                            <?php foreach (($recoveryCodes ?? []) as $code): ?>
+                                <code class="recovery-code"><?= e($code) ?></code>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="recovery-codes-actions">
+                            <button type="button" class="btn btn-sm" data-copy-codes>
+                                Copy All
+                            </button>
+                            <button type="button" class="btn btn-sm" data-download-codes>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Each recovery code can only be used once. 
+                        Keep them secure and don't share them with anyone.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Verify -->
+            <div class="setup-step">
+                <div class="setup-step-number">3</div>
+                <div class="setup-step-content">
+                    <h3 class="setup-step-title">Verify Setup</h3>
+                    <p class="setup-step-desc">Enter a code from your authenticator app to confirm setup:</p>
+                    
+                    <form method="POST" action="/two-factor/enable" class="auth-form" data-auth-form>
+                        <?= csrf_field() ?>
+
+                        <div class="form-group">
+                            <label for="code" class="form-label">Verification Code</label>
+                            <input 
+                                type="text" 
+                                id="code" 
+                                name="code" 
+                                class="form-input form-input-code" 
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="6"
+                                autocomplete="one-time-code"
+                                required
+                                placeholder="000000"
+                                data-2fa-input
+                            >
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" data-submit-btn>
+                            Enable Two-Factor Authentication
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-footer">
+            <a href="/two-factor" class="auth-link">← Cancel and go back</a>
+        </div>
+    </div>
+</div>
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('footer_js') ?>
+<script src="<?= $this->moduleAsset('Auth', 'base/web/js/auth.js') ?>"></script>
+<?php $this->endBlock() ?>

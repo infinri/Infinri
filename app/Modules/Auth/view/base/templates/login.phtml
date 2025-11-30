@@ -1,0 +1,112 @@
+<?php
+/**
+ * Login Template
+ * Context-aware: adapts for customer vs admin
+ * 
+ * Available variables from controller:
+ * - $context: 'customer' or 'admin'
+ * - $isAdmin: bool
+ * - $isCustomer: bool
+ * - $allowRegistration: bool
+ * - $allowRemember: bool
+ * - $allowPasswordReset: bool
+ * - $loginUrl: string
+ * - $homeUrl: string
+ */
+
+$this->layout('layouts/one-column');
+$this->setTitle($isAdmin ? 'Admin Login' : 'Sign In');
+?>
+
+<?php $this->startBlock('head_css') ?>
+<link rel="stylesheet" href="<?= $this->moduleAsset('Auth', 'base/web/css/auth.css') ?>">
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('main') ?>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <?php if ($isAdmin): ?>
+                <span class="badge auth-badge-admin">Admin Portal</span>
+            <?php endif; ?>
+            <h1 class="auth-title"><?= $isAdmin ? 'Admin Login' : 'Welcome Back' ?></h1>
+            <p class="auth-subtitle">
+                <?= $isAdmin ? 'Authorized personnel only' : 'Sign in to your account' ?>
+            </p>
+        </div>
+
+        <?php if ($error = $this->flash('error')): ?>
+            <div class="alert alert-error" role="alert">
+                <?= e($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="<?= e($loginUrl) ?>" class="auth-form" data-auth-form>
+            <?= csrf_field() ?>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    value="<?= e($this->old('email', '')) ?>"
+                    required 
+                    autofocus
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="form-input-toggle-wrapper">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="form-input-toggle" data-toggle-password aria-label="Toggle password visibility">
+                        <span class="icon-eye"></span>
+                    </button>
+                </div>
+            </div>
+
+            <?php if ($allowRemember): ?>
+            <div class="form-group">
+                <label class="form-check">
+                    <input type="checkbox" name="remember" value="1" class="form-check-input">
+                    <span class="form-check-label">Remember me</span>
+                </label>
+            </div>
+            <?php endif; ?>
+
+            <button type="submit" class="btn btn-primary btn-block" data-submit-btn>
+                Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <?php if ($allowPasswordReset): ?>
+            <a href="<?= $isAdmin ? '/admin/forgot-password' : '/forgot-password' ?>" class="auth-link">
+                Forgot your password?
+            </a>
+            <?php endif; ?>
+
+            <?php if ($allowRegistration): ?>
+            <p class="auth-footer-text">
+                Don't have an account? 
+                <a href="/register" class="auth-link">Create one</a>
+            </p>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+<?php $this->endBlock() ?>
+
+<?php $this->startBlock('footer_js') ?>
+<script src="<?= $this->moduleAsset('Auth', 'base/web/js/auth.js') ?>"></script>
+<?php $this->endBlock() ?>

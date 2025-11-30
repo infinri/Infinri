@@ -2,9 +2,18 @@
 
 Site-specific theming for the Infinri brand.
 
-## Status: Planned Migration
+## Status: Active
 
-This module will contain all Infinri-specific theming that currently lives in `app/base/view/`. The goal is to separate site-specific styling from Core's generic components.
+This module contains Infinri-specific theming that overrides Core's generic components.
+
+### Completed
+- ✅ `module.json` — Module manifest
+- ✅ `ThemeServiceProvider.php` — Registers theme with Core
+- ✅ `Config/theme.php` — Brand colors, fonts, asset paths
+- ✅ `view/frontend/web/css/*` — Frontend theme CSS
+- ✅ `view/frontend/web/js/theme.js` — Frontend interactions
+- ✅ `view/admin/web/css/*` — Admin dark neon theme (GitKraken-inspired)
+- ✅ `view/admin/web/js/admin.js` — Admin sidebar toggle
 
 ---
 
@@ -229,11 +238,11 @@ return [
 
 ## Implementation Order
 
-1. **Phase 1**: Create module structure and migrate CSS variables
-2. **Phase 2**: Migrate header/footer templates and styles
-3. **Phase 3**: Migrate theme.js functionality
-4. **Phase 4**: Create layout updates for block injection
-5. **Phase 5**: Remove migrated files from `app/base/view/`
+1. **Phase 1**: Create module structure and migrate CSS variables ✅
+2. **Phase 2**: Migrate header/footer templates and styles (pending)
+3. **Phase 3**: Migrate theme.js functionality ✅
+4. **Phase 4**: Create layout updates for block injection (pending)
+5. **Phase 5**: Remove migrated files from `app/base/view/` ✅
 
 ---
 
