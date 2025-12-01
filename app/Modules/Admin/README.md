@@ -4,7 +4,7 @@ Admin panel for Infinri platform management.
 
 ## Status: Planned
 
-**Depends on:** Auth module (must be implemented first)
+**Depends on:** Auth module
 
 ---
 

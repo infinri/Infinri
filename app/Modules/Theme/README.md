@@ -74,34 +74,6 @@ Theme/
 
 ---
 
-## Migration Plan
-
-### Files to Migrate from `app/base/view/`
-
-| Current Location | New Location | Notes |
-|-----------------|--------------|-------|
-| `base/css/variables.css` | `Theme/view/frontend/web/css/variables.css` | Infinri purple palette |
-| `base/css/critical.css` | `Theme/view/frontend/web/css/critical.css` | Header/nav styles |
-| `frontend/css/theme.css` | `Theme/view/frontend/web/css/theme.css` | Button/form overrides |
-| `frontend/js/theme.js` | `Theme/view/frontend/web/js/theme.js` | Mobile menu, smooth scroll |
-
-### What Stays in Core
-
-| File | Reason |
-|------|--------|
-| `_reset.css` | Universal, not brand-specific |
-| `_buttons.css` | Generic button styles |
-| `_forms.css` | Generic form elements |
-| `_grid.css` | Generic layout utilities |
-| `_tables.css` | Generic data tables |
-| `_alerts.css` | Generic alerts/toasts |
-| `_modals.css` | Generic modals |
-| `_carousel.css` | Generic carousels |
-| `_utilities.css` | Generic utility classes |
-| `core.js` | Generic JS utilities |
-
----
-
 ## Theme Configuration
 
 **`config/theme.php`:**
@@ -233,16 +205,6 @@ return [
 
 - **Purple Glow**: `0 0 20px rgba(157, 78, 221, 0.4)` - For featured elements
 - **Elevated**: Dark shadows with subtle purple tint
-
----
-
-## Implementation Order
-
-1. **Phase 1**: Create module structure and migrate CSS variables ✅
-2. **Phase 2**: Migrate header/footer templates and styles (pending)
-3. **Phase 3**: Migrate theme.js functionality ✅
-4. **Phase 4**: Create layout updates for block injection (pending)
-5. **Phase 5**: Remove migrated files from `app/base/view/` ✅
 
 ---
 

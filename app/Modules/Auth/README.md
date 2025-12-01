@@ -138,7 +138,8 @@ Auth/
 │   └── RequireTwoFactor.php
 ├── Services/
 │   ├── AuthManager.php
-│   ├── PasswordResetService.phpb
+│   ├── PasswordResetService.php
+│   ├── PasswordService.php
 │   └── TwoFactorService.php
 └── view/base/templates/
     ├── login.phtml
