@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -23,13 +20,13 @@ use SessionUpdateTimestampHandlerInterface;
 
 /**
  * Redis Session Handler
- * 
+ *
  * Custom session handler using Redis for distributed session storage.
  * Supports session locking, automatic expiration, and clustering.
  */
-class RedisSessionHandler implements 
-    SessionHandlerInterface, 
-    SessionIdInterface, 
+class RedisSessionHandler implements
+    SessionHandlerInterface,
+    SessionIdInterface,
     SessionUpdateTimestampHandlerInterface
 {
     /**
@@ -115,6 +112,7 @@ class RedisSessionHandler implements
     {
         // Release session lock
         $this->releaseLock();
+
         return true;
     }
 
@@ -128,9 +126,11 @@ class RedisSessionHandler implements
 
         try {
             $data = $this->redis()->get($this->key($id));
+
             return $data === false ? '' : $data;
         } catch (RedisException $e) {
             logger()->warning('Session read failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+
             return '';
         }
     }
@@ -144,6 +144,7 @@ class RedisSessionHandler implements
             return $this->redis()->setex($this->key($id), $this->ttl, $data);
         } catch (RedisException $e) {
             logger()->error('Session write failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -158,9 +159,11 @@ class RedisSessionHandler implements
 
         try {
             $this->redis()->del($this->key($id));
+
             return true;
         } catch (RedisException $e) {
             logger()->error('Session destroy failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -201,6 +204,7 @@ class RedisSessionHandler implements
             return $this->redis()->expire($this->key($id), $this->ttl);
         } catch (RedisException $e) {
             logger()->warning('Session timestamp update failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -295,6 +299,7 @@ class RedisSessionHandler implements
             return $this->redis()->exists($this->key($id)) > 0;
         } catch (RedisException $e) {
             logger()->warning('Session exists check failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -310,11 +315,12 @@ class RedisSessionHandler implements
 
             // Filter out lock keys and remove prefix
             return array_values(array_filter(array_map(
-                fn($key) => str_starts_with($key, $lockPrefix) ? null : substr($key, strlen($this->prefix)),
+                fn ($key) => str_starts_with($key, $lockPrefix) ? null : substr($key, strlen($this->prefix)),
                 $keys
             )));
         } catch (RedisException $e) {
             logger()->warning('Failed to get session IDs', ['error' => $e->getMessage()]);
+
             return [];
         }
     }
@@ -337,9 +343,11 @@ class RedisSessionHandler implements
             if (empty($keys)) {
                 return 0;
             }
+
             return $this->redis()->del(...$keys);
         } catch (RedisException $e) {
             logger()->error('Failed to destroy all sessions', ['error' => $e->getMessage()]);
+
             return 0;
         }
     }

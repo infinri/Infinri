@@ -1,30 +1,28 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Module;
 
+use InvalidArgumentException;
+
 /**
  * Module Manager
- * 
+ *
  * @deprecated Use ModuleRegistry instead. This class will be removed in a future version.
- * 
+ *
  * ModuleRegistry provides:
  * - Module metadata (module.php)
  * - Dependency ordering
  * - Caching to var/cache/modules.php
  * - Service provider discovery
- * 
  * @see ModuleRegistry
  * @see ModuleDefinition
  */
@@ -61,23 +59,23 @@ class ModuleManager
 
         $modules = [];
 
-        if (!is_dir($this->modulesPath)) {
+        if (! is_dir($this->modulesPath)) {
             return $this->discovered = [];
         }
 
         $items = scandir($this->modulesPath);
-        $dirs = array_filter($items, fn($item) => $item !== '.' && $item !== '..');
+        $dirs = array_filter($items, fn ($item) => $item !== '.' && $item !== '..');
 
         foreach ($dirs as $dir) {
             $path = $this->modulesPath . '/' . $dir;
 
             // Must be a directory
-            if (!is_dir($path)) {
+            if (! is_dir($path)) {
                 continue;
             }
 
             // Validate module name (lowercase alphanumeric with hyphens/underscores)
-            if (!$this->isValidName($dir)) {
+            if (! $this->isValidName($dir)) {
                 continue;
             }
 
@@ -97,6 +95,7 @@ class ModuleManager
     {
         $this->validateName($name);
         $className = ucfirst($name) . 'Module.php';
+
         return $this->modulesPath . '/' . $name . '/' . $className;
     }
 
@@ -106,6 +105,7 @@ class ModuleManager
     public function getClassName(string $name): string
     {
         $moduleName = ucfirst($name);
+
         return "\\App\\Modules\\{$moduleName}\\{$moduleName}Module";
     }
 
@@ -116,11 +116,11 @@ class ModuleManager
     {
         $this->validateName($name);
         $path = $this->modulesPath . '/' . $name;
-        
+
         if ($subPath !== '') {
             $path .= '/' . ltrim($subPath, '/');
         }
-        
+
         return $path;
     }
 
@@ -129,10 +129,10 @@ class ModuleManager
      */
     public function exists(string $name): bool
     {
-        if (!$this->isValidName($name)) {
+        if (! $this->isValidName($name)) {
             return false;
         }
-        
+
         return file_exists($this->getClassFile($name));
     }
 
@@ -141,11 +141,12 @@ class ModuleManager
      */
     public function hasAssets(string $name, string $context = 'frontend'): bool
     {
-        if (!$this->isValidName($name)) {
+        if (! $this->isValidName($name)) {
             return false;
         }
 
         $assetsPath = $this->getPath($name, "view/{$context}");
+
         return is_dir($assetsPath);
     }
 
@@ -179,8 +180,8 @@ class ModuleManager
      */
     protected function validateName(string $name): void
     {
-        if (!$this->isValidName($name)) {
-            throw new \InvalidArgumentException("Invalid module name: {$name}");
+        if (! $this->isValidName($name)) {
+            throw new InvalidArgumentException("Invalid module name: {$name}");
         }
     }
 
@@ -206,11 +207,11 @@ class ModuleManager
     public static function discoverModules(): array
     {
         static $instance = null;
-        
+
         if ($instance === null) {
             $instance = new self();
         }
-        
+
         return $instance->discover();
     }
 }

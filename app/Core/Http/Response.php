@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -20,7 +17,7 @@ use App\Core\Support\Str;
 
 /**
  * HTTP Response
- * 
+ *
  * Represents an HTTP response to be sent to the client.
  * Uses HttpStatus for centralized status code management.
  */
@@ -37,6 +34,7 @@ class Response implements ResponseInterface
 
     /**
      * Cookies to send with response
+     *
      * @var Cookie[]
      */
     protected array $cookies = [];
@@ -65,6 +63,7 @@ class Response implements ResponseInterface
     public function setContent(string $content): static
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -83,6 +82,7 @@ class Response implements ResponseInterface
     {
         $this->statusCode = $code;
         $this->statusText = $text ?? HttpStatus::text($code);
+
         return $this;
     }
 
@@ -108,6 +108,7 @@ class Response implements ResponseInterface
     public function header(string $key, string $value, bool $replace = true): static
     {
         $this->headers->set($key, $value, $replace);
+
         return $this;
     }
 
@@ -119,6 +120,7 @@ class Response implements ResponseInterface
         foreach ($headers as $key => $value) {
             $this->headers->set($key, $value);
         }
+
         return $this;
     }
 
@@ -139,6 +141,7 @@ class Response implements ResponseInterface
         foreach ($this->headers->all() as $key => $values) {
             $headers[$key] = $values[0] ?? null;
         }
+
         return $headers;
     }
 
@@ -156,6 +159,7 @@ class Response implements ResponseInterface
     public function setProtocolVersion(string $version): static
     {
         $this->version = $version;
+
         return $this;
     }
 
@@ -174,11 +178,11 @@ class Response implements ResponseInterface
     {
         $this->sendHeaders();
         $this->sendContent();
-        
+
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-        
+
         return $this;
     }
 
@@ -190,12 +194,12 @@ class Response implements ResponseInterface
         if ($this->headersSent || headers_sent()) {
             return $this;
         }
-        
+
         // Send cookies first (before header() calls)
         $this->sendCookies();
-        
+
         header(sprintf('HTTP/%s %d %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
-        
+
         foreach ($this->headers->all() as $name => $values) {
             $name = Str::headerToHttpFormat($name);
             $replace = true;
@@ -204,8 +208,9 @@ class Response implements ResponseInterface
                 $replace = false;
             }
         }
-        
+
         $this->headersSent = true;
+
         return $this;
     }
 
@@ -215,6 +220,7 @@ class Response implements ResponseInterface
     public function sendContent(): static
     {
         echo $this->content;
+
         return $this;
     }
 
@@ -240,6 +246,7 @@ class Response implements ResponseInterface
     public function cache(int $seconds, bool $public = true): static
     {
         $directive = $public ? 'public' : 'private';
+
         return $this->header('Cache-Control', "$directive, max-age=$seconds");
     }
 
@@ -269,8 +276,16 @@ class Response implements ResponseInterface
         string $sameSite = 'Lax'
     ): static {
         $this->cookies[$name] = new Cookie(
-            $name, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite
+            $name,
+            $value,
+            $minutes,
+            $path,
+            $domain,
+            $secure,
+            $httpOnly,
+            $sameSite
         );
+
         return $this;
     }
 
@@ -280,6 +295,7 @@ class Response implements ResponseInterface
     public function withCookie(Cookie $cookie): static
     {
         $this->cookies[$cookie->name] = $cookie;
+
         return $this;
     }
 
@@ -293,6 +309,7 @@ class Response implements ResponseInterface
         foreach ($cookies as $cookie) {
             $this->withCookie($cookie);
         }
+
         return $this;
     }
 

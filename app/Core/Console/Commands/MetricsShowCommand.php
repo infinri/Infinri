@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Metrics\MetricsCollector;
 
 /**
  * Metrics Show Command
- * 
+ *
  * Displays application metrics.
  */
 class MetricsShowCommand extends Command
@@ -67,7 +64,7 @@ class MetricsShowCommand extends Command
         }
 
         // Status codes
-        if (!empty($summary['status_codes'])) {
+        if (! empty($summary['status_codes'])) {
             $this->line("\n📈 Status Codes");
             ksort($summary['status_codes']);
             foreach ($summary['status_codes'] as $code => $count) {
@@ -88,6 +85,7 @@ class MetricsShowCommand extends Command
         }
 
         $this->line();
+
         return 0;
     }
 }

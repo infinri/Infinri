@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Module\ModuleRegistry;
 
 /**
  * Module List Command
- * 
+ *
  * Lists all registered modules.
  */
 class ModuleListCommand extends Command
@@ -31,7 +28,7 @@ class ModuleListCommand extends Command
     public function handle(array $args = []): int
     {
         $registry = new ModuleRegistry();
-        
+
         // Check for --rebuild flag
         if (in_array('--rebuild', $args) || in_array('-r', $args)) {
             $this->line("Rebuilding module registry...");
@@ -47,6 +44,7 @@ class ModuleListCommand extends Command
 
         if (empty($modules)) {
             $this->warn("No modules found.");
+
             return 0;
         }
 
@@ -57,22 +55,34 @@ class ModuleListCommand extends Command
         // Header
         $this->line(sprintf(
             "  %-15s %-10s %-8s %-10s %s",
-            "NAME", "VERSION", "STATUS", "FEATURES", "DESCRIPTION"
+            "NAME",
+            "VERSION",
+            "STATUS",
+            "FEATURES",
+            "DESCRIPTION"
         ));
         $this->line(str_repeat('─', 70));
 
         foreach ($modules as $module) {
             $status = $module->enabled ? '✓' : '✗';
             $statusColor = $module->enabled ? "\033[32m" : "\033[31m";
-            
+
             // Feature indicators
             $features = [];
-            if (!empty($module->providers)) $features[] = 'P';
-            if (!empty($module->commands)) $features[] = 'C';
-            if ($module->eventsFile) $features[] = 'E';
-            if ($module->configFile) $features[] = 'F';
+            if (! empty($module->providers)) {
+                $features[] = 'P';
+            }
+            if (! empty($module->commands)) {
+                $features[] = 'C';
+            }
+            if ($module->eventsFile) {
+                $features[] = 'E';
+            }
+            if ($module->configFile) {
+                $features[] = 'F';
+            }
             $featureStr = implode('', $features) ?: '-';
-            
+
             $this->line(sprintf(
                 "  %-15s %-10s %s%-8s\033[0m %-10s %s",
                 $module->name,

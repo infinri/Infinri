@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,10 +13,11 @@ namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
 use App\Core\Indexer\IndexerRegistry;
+use Throwable;
 
 /**
  * Index Reindex Command
- * 
+ *
  * Runs module indexers.
  */
 class IndexReindexCommand extends Command
@@ -68,6 +66,7 @@ class IndexReindexCommand extends Command
             $this->line();
             $this->line("Modules can register indexers via their service provider:");
             $this->line("  \$indexerRegistry->register(new MyIndexer());");
+
             return 0;
         }
 
@@ -86,6 +85,7 @@ class IndexReindexCommand extends Command
         }
 
         $this->line();
+
         return 0;
     }
 
@@ -96,6 +96,7 @@ class IndexReindexCommand extends Command
         if ($indexer === null) {
             $this->error("Indexer not found: {$name}");
             $this->line("Run 'index:reindex --list' to see available indexers.");
+
             return 1;
         }
 
@@ -112,6 +113,7 @@ class IndexReindexCommand extends Command
         $duration = round((microtime(true) - $start) * 1000);
 
         $this->info("  ✓ Indexed {$count} item(s) in {$duration}ms");
+
         return 0;
     }
 
@@ -121,6 +123,7 @@ class IndexReindexCommand extends Command
 
         if (empty($indexers)) {
             $this->warn("No indexers registered.");
+
             return 0;
         }
 
@@ -147,6 +150,7 @@ class IndexReindexCommand extends Command
 
         $this->line(str_repeat('─', 40));
         $this->info("✅ Total: {$totalCount} item(s) in {$duration}ms");
+
         return 0;
     }
 
@@ -156,7 +160,8 @@ class IndexReindexCommand extends Command
         if (function_exists('app')) {
             try {
                 return app()->make(IndexerRegistry::class);
-            } catch (\Throwable) {}
+            } catch (Throwable) {
+            }
         }
 
         return new IndexerRegistry();

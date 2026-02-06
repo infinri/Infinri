@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -156,8 +154,7 @@ final class ModuleScalabilityBenchmark
 
             // Create service provider
             $providerCode = <<<PHP
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 namespace App\Modules\SyntheticModule{$i};
 
 use App\Core\Container\ServiceProvider;
@@ -180,8 +177,7 @@ PHP;
 
             // Create service class
             $serviceCode = <<<PHP
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 namespace App\Modules\SyntheticModule{$i};
 
 class SyntheticService{$i}

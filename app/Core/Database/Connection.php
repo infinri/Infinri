@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -22,22 +19,20 @@ use Throwable;
 
 /**
  * Database Connection
- * 
+ *
  * Wraps PDO and provides a fluent interface for database operations.
  */
 class Connection implements ConnectionInterface
 {
     protected ?PDO $pdo = null;
-    protected array $config;
-    protected string $name;
     protected int $transactionLevel = 0;
     protected array $queryLog = [];
     protected bool $loggingQueries = false;
 
-    public function __construct(array $config, string $name = 'default')
-    {
-        $this->config = $config;
-        $this->name = $name;
+    public function __construct(
+        protected array $config,
+        protected string $name = 'default'
+    ) {
     }
 
     public function getPdo(): PDO
@@ -52,7 +47,7 @@ class Connection implements ConnectionInterface
     protected function connect(): void
     {
         $dsn = $this->buildDsn();
-        
+
         try {
             $this->pdo = new PDO(
                 $dsn,
@@ -60,11 +55,11 @@ class Connection implements ConnectionInterface
                 $this->config['password'] ?? null,
                 $this->getOptions()
             );
-            
+
             $this->configureConnection();
-            
+
             $this->logQuery('Connected to database', []);
-            
+
         } catch (PDOException $e) {
             $this->logConnectionError($e);
             throw new DatabaseException(
@@ -116,13 +111,13 @@ class Connection implements ConnectionInterface
     {
         $start = microtime(true);
         $bindings = $this->prepareBindings($bindings);
-        
+
         try {
             $statement = $this->getPdo()->prepare($sql);
             $statement->execute($bindings);
-            
+
             $this->logQuery($sql, $bindings, microtime(true) - $start);
-            
+
             return $statement;
         } catch (PDOException $e) {
             $this->logQueryError($sql, $bindings, $e);
@@ -141,6 +136,7 @@ class Connection implements ConnectionInterface
                 $bindings[$key] = $value ? 't' : 'f';
             }
         }
+
         return $bindings;
     }
 
@@ -152,12 +148,14 @@ class Connection implements ConnectionInterface
     public function selectOne(string $sql, array $bindings = []): ?array
     {
         $result = $this->query($sql, $bindings)->fetch();
+
         return $result === false ? null : $result;
     }
 
     public function insert(string $sql, array $bindings = []): int|string
     {
         $this->query($sql, $bindings);
+
         return $this->getPdo()->lastInsertId();
     }
 
@@ -185,7 +183,7 @@ class Connection implements ConnectionInterface
         }
 
         $this->transactionLevel++;
-        
+
         return true;
     }
 
@@ -196,7 +194,7 @@ class Connection implements ConnectionInterface
         }
 
         $this->transactionLevel = max(0, $this->transactionLevel - 1);
-        
+
         return true;
     }
 
@@ -210,7 +208,7 @@ class Connection implements ConnectionInterface
         }
 
         $this->transactionLevel = max(0, $this->transactionLevel - 1);
-        
+
         return true;
     }
 
@@ -221,6 +219,7 @@ class Connection implements ConnectionInterface
         try {
             $result = $callback($this);
             $this->commit();
+
             return $result;
         } catch (Throwable $e) {
             $this->rollBack();
@@ -313,8 +312,8 @@ class Connection implements ConnectionInterface
         // Record metrics (skip connection messages)
         if ($time > 0 && class_exists(\App\Core\Metrics\MetricsCollector::class)) {
             try {
-                (new \App\Core\Metrics\MetricsCollector())->recordQuery($time);
-            } catch (\Throwable) {
+                new \App\Core\Metrics\MetricsCollector()->recordQuery($time);
+            } catch (Throwable) {
                 // Don't let metrics recording break queries
             }
         }

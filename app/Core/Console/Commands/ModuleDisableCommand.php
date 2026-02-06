@@ -1,22 +1,19 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
-use App\Core\Module\ModuleRegistry;
 use App\Core\Module\ModuleHookRunner;
+use App\Core\Module\ModuleRegistry;
 
 /**
  * Module Disable Command
@@ -33,20 +30,23 @@ class ModuleDisableCommand extends Command
 
         if ($moduleName === null) {
             $this->error("Usage: module:disable <module-name>");
+
             return 1;
         }
 
         $registry = new ModuleRegistry();
-        
-        if (!$registry->has($moduleName)) {
+
+        if (! $registry->has($moduleName)) {
             $this->error("Module not found: {$moduleName}");
+
             return 1;
         }
 
         $module = $registry->get($moduleName);
-        
-        if (!$module->enabled) {
+
+        if (! $module->enabled) {
             $this->warn("Module '{$moduleName}' is already disabled.");
+
             return 0;
         }
 
@@ -54,6 +54,7 @@ class ModuleDisableCommand extends Command
         $coreModules = ['error', 'home'];
         if (in_array($moduleName, $coreModules)) {
             $this->error("Cannot disable core module: {$moduleName}");
+
             return 1;
         }
 
@@ -64,8 +65,9 @@ class ModuleDisableCommand extends Command
         $hookRunner->runDisableHook($moduleName);
 
         // Disable the module
-        if (!$registry->disable($moduleName)) {
+        if (! $registry->disable($moduleName)) {
             $this->error("Failed to disable module.");
+
             return 1;
         }
 

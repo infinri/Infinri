@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Contracts\Indexer\IndexerInterface;
 
 /**
  * Indexer Registry
- * 
+ *
  * Manages registered indexers from modules.
  * Modules register their indexers via service providers or module.php.
  */
@@ -26,12 +23,14 @@ class IndexerRegistry
 {
     /**
      * Registered indexers
+     *
      * @var array<string, IndexerInterface>
      */
     protected array $indexers = [];
 
     /**
      * Indexer classes (for lazy instantiation)
+     *
      * @var array<string, string>
      */
     protected array $indexerClasses = [];
@@ -67,6 +66,7 @@ class IndexerRegistry
             $class = $this->indexerClasses[$name];
             if (class_exists($class)) {
                 $this->indexers[$name] = new $class();
+
                 return $this->indexers[$name];
             }
         }
@@ -95,14 +95,14 @@ class IndexerRegistry
 
     /**
      * Get all indexers
-     * 
+     *
      * @return IndexerInterface[]
      */
     public function all(): array
     {
         // Instantiate all lazy-loaded indexers
         foreach ($this->indexerClasses as $name => $class) {
-            if (!isset($this->indexers[$name]) && class_exists($class)) {
+            if (! isset($this->indexers[$name]) && class_exists($class)) {
                 $this->indexers[$name] = new $class();
             }
         }

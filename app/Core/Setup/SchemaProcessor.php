@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -8,16 +6,16 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
  */
-
 namespace App\Core\Setup;
 
 use App\Core\Contracts\Database\ConnectionInterface;
 use App\Core\Database\Schema\SchemaBuilder;
 use App\Core\Module\ModuleRegistry;
+use Throwable;
 
 /**
  * Schema Processor
- * 
+ *
  * Processes declarative schema.php files from modules and applies
  * them to the database. Handles:
  * - Table creation
@@ -25,7 +23,7 @@ use App\Core\Module\ModuleRegistry;
  * - Index creation
  * - Foreign key constraints
  * - Dependency ordering between modules
- * 
+ *
  * Schema files are declarative - you define the desired state,
  * and the processor figures out what changes to apply.
  */
@@ -52,7 +50,7 @@ class SchemaProcessor
 
     /**
      * Process all module schemas
-     * 
+     *
      * @return array Results of processing
      */
     public function processAll(): array
@@ -74,7 +72,7 @@ class SchemaProcessor
         foreach ($ordered as $schemaInfo) {
             try {
                 $result = $this->processSchema($schemaInfo);
-                
+
                 if ($result['created']) {
                     $results['created'] = array_merge($results['created'], $result['created']);
                 }
@@ -84,7 +82,7 @@ class SchemaProcessor
                 if ($result['skipped']) {
                     $results['skipped'] = array_merge($results['skipped'], $result['skipped']);
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $results['errors'][] = [
                     'module' => $schemaInfo['module'],
                     'error' => $e->getMessage(),
@@ -111,7 +109,7 @@ class SchemaProcessor
             $tables = $definition['tables'] ?? [];
 
             foreach ($tables as $tableName => $tableDefinition) {
-                if (!$this->schema->hasTable($tableName)) {
+                if (! $this->schema->hasTable($tableName)) {
                     $pending[] = [
                         'type' => 'create',
                         'table' => $tableName,
@@ -119,7 +117,7 @@ class SchemaProcessor
                     ];
                 } else {
                     $changes = $this->getTableChanges($tableName, $tableDefinition);
-                    if (!empty($changes)) {
+                    if (! empty($changes)) {
                         $pending[] = [
                             'type' => 'modify',
                             'table' => $tableName,
@@ -144,13 +142,13 @@ class SchemaProcessor
         foreach ($this->modules->getEnabled() as $module) {
             $schemaFile = $module->path . '/Setup/schema.php';
 
-            if (!file_exists($schemaFile)) {
+            if (! file_exists($schemaFile)) {
                 continue;
             }
 
             $definition = require $schemaFile;
 
-            if (!is_array($definition)) {
+            if (! is_array($definition)) {
                 continue;
             }
 
@@ -173,9 +171,9 @@ class SchemaProcessor
         $sorted = [];
         $seen = [];
 
-        $visit = function (array $schema) use (&$visit, &$sorted, &$seen, $schemas) {
+        $visit = function (array $schema) use (&$visit, &$sorted, &$seen, $schemas): void {
             $name = $schema['module'];
-            
+
             if (isset($seen[$name])) {
                 return;
             }
@@ -219,13 +217,13 @@ class SchemaProcessor
         $tables = $definition['tables'] ?? [];
 
         foreach ($tables as $tableName => $tableDefinition) {
-            if (!$this->schema->hasTable($tableName)) {
+            if (! $this->schema->hasTable($tableName)) {
                 $this->createTable($tableName, $tableDefinition);
                 $result['created'][] = $tableName;
                 $this->markTableProcessed($tableName, $module);
             } else {
                 $changes = $this->applyTableChanges($tableName, $tableDefinition);
-                if (!empty($changes)) {
+                if (! empty($changes)) {
                     $result['modified'][] = $tableName;
                 } else {
                     $result['skipped'][] = $tableName;
@@ -241,7 +239,7 @@ class SchemaProcessor
      */
     protected function createTable(string $tableName, array $definition): void
     {
-        $this->schema->create($tableName, function ($table) use ($definition) {
+        $this->schema->create($tableName, function ($table) use ($definition): void {
             $columns = $definition['columns'] ?? [];
 
             foreach ($columns as $columnName => $columnDef) {
@@ -298,6 +296,7 @@ class SchemaProcessor
                 break;
             case 'timestamps':
                 $table->timestamps();
+
                 return;
             case 'foreignId':
                 $column = $table->foreignId($name);
@@ -430,8 +429,8 @@ class SchemaProcessor
     protected function saveState(): void
     {
         $dir = dirname($this->statePath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0o755, true);
         }
         save_php_array($this->statePath, $this->schemaState, 'Schema State');
     }

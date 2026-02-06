@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Module;
 
 /**
  * Module Renderer
- * 
+ *
  * Renders modules with layout wrapping.
  * Handles the view layer for module-based routing.
  */
@@ -44,15 +41,17 @@ class ModuleRenderer
     public function render(string $module): void
     {
         // Security: Validate module name
-        if (!preg_match('/^[a-z0-9_-]+$/', $module)) {
+        if (! preg_match('/^[a-z0-9_-]+$/', $module)) {
             $this->renderError(500);
+
             return;
         }
 
         $modulePath = $this->modulesPath . "/{$module}/index.php";
 
-        if (!file_exists($modulePath)) {
+        if (! file_exists($modulePath)) {
             $this->renderError(404);
+
             return;
         }
 
@@ -72,7 +71,7 @@ class ModuleRenderer
     {
         http_response_code($code);
 
-        $type = $type ?? match ($code) {
+        $type ??= match ($code) {
             400 => '400',
             404 => '404',
             500, 503 => '500',
@@ -84,7 +83,7 @@ class ModuleRenderer
 
         $errorModulePath = $this->modulesPath . "/error/index.php";
 
-        if (!file_exists($errorModulePath)) {
+        if (! file_exists($errorModulePath)) {
             echo "Error {$code}";
             exit;
         }

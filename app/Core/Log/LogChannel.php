@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Log;
 
 /**
  * Log Channel
- * 
+ *
  * Represents a single log channel with its own file and rotation settings.
  */
 class LogChannel
@@ -44,7 +41,7 @@ class LogChannel
         $this->path = $path;
         $this->maxSize = $maxSize;
         $this->maxFiles = $maxFiles;
-        
+
         $this->ensureDirectoryExists();
         $this->loadMetadata();
     }
@@ -65,16 +62,16 @@ class LogChannel
     public function write(string $entry): void
     {
         $this->checkRotation();
-        
+
         // Track first entry date
         if ($this->firstEntryDate === null) {
             $this->firstEntryDate = date('Y-m-d_H-i-s');
             $this->saveMetadata();
         }
-        
+
         // Update last entry date
         $this->lastEntryDate = date('Y-m-d_H-i-s');
-        
+
         file_put_contents($this->path, $entry, FILE_APPEND | LOCK_EX);
     }
 
@@ -83,10 +80,10 @@ class LogChannel
      */
     protected function checkRotation(): void
     {
-        if (!file_exists($this->path)) {
+        if (! file_exists($this->path)) {
             return;
         }
-        
+
         if (filesize($this->path) >= $this->maxSize) {
             $this->rotate();
         }
@@ -97,15 +94,15 @@ class LogChannel
      */
     public function rotate(): void
     {
-        if (!file_exists($this->path) || filesize($this->path) === 0) {
+        if (! file_exists($this->path) || filesize($this->path) === 0) {
             return;
         }
-        
+
         $archiveDir = dirname($this->path) . '/archive';
-        if (!is_dir($archiveDir)) {
-            mkdir($archiveDir, 0755, true);
+        if (! is_dir($archiveDir)) {
+            mkdir($archiveDir, 0o755, true);
         }
-        
+
         // Build archive filename with date range
         $firstDate = $this->firstEntryDate ?? date('Y-m-d_H-i-s');
         $lastDate = $this->lastEntryDate ?? date('Y-m-d_H-i-s');
@@ -115,21 +112,21 @@ class LogChannel
             $firstDate,
             $lastDate
         );
-        
+
         $archivePath = $archiveDir . '/' . $archiveName;
         $zipPath = $archivePath . '.gz';
-        
+
         // Compress and archive
         $this->compressFile($this->path, $zipPath);
-        
+
         // Clear current log file
         file_put_contents($this->path, '');
-        
+
         // Reset date tracking
         $this->firstEntryDate = null;
         $this->lastEntryDate = null;
         $this->saveMetadata();
-        
+
         // Cleanup old archives
         $this->cleanupOldArchives($archiveDir);
     }
@@ -151,14 +148,14 @@ class LogChannel
     {
         $pattern = $archiveDir . '/' . $this->name . '_*.gz';
         $files = glob($pattern);
-        
+
         if ($files === false || count($files) <= $this->maxFiles) {
             return;
         }
-        
+
         // Sort by modification time (oldest first)
-        usort($files, fn($a, $b) => filemtime($a) - filemtime($b));
-        
+        usort($files, fn ($a, $b) => filemtime($a) - filemtime($b));
+
         // Remove oldest files
         $toRemove = count($files) - $this->maxFiles;
         for ($i = 0; $i < $toRemove; $i++) {
@@ -172,8 +169,8 @@ class LogChannel
     protected function ensureDirectoryExists(): void
     {
         $directory = dirname($this->path);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
+        if (! is_dir($directory)) {
+            mkdir($directory, 0o755, true);
         }
     }
 

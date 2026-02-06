@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Config;
 
 /**
  * Config Validator
- * 
+ *
  * Validates configuration against schema definitions.
  */
 class ConfigValidator
@@ -28,7 +25,7 @@ class ConfigValidator
 
     /**
      * Validate config against a schema
-     * 
+     *
      * Schema format:
      * [
      *     'key' => ['type' => 'string', 'required' => true],
@@ -55,6 +52,7 @@ class ConfigValidator
         // Required check
         if (($rules['required'] ?? false) && $value === null) {
             $this->errors[$key][] = "Field '{$key}' is required";
+
             return;
         }
 
@@ -95,14 +93,14 @@ class ConfigValidator
         }
 
         // Enum/in check
-        if (isset($rules['in']) && !in_array($value, $rules['in'], true)) {
+        if (isset($rules['in']) && ! in_array($value, $rules['in'], true)) {
             $allowed = implode(', ', $rules['in']);
             $this->errors[$key][] = "Field '{$key}' must be one of: {$allowed}";
         }
 
         // Pattern check
         if (isset($rules['pattern']) && is_string($value)) {
-            if (!preg_match($rules['pattern'], $value)) {
+            if (! preg_match($rules['pattern'], $value)) {
                 $this->errors[$key][] = "Field '{$key}' does not match required pattern";
             }
         }
@@ -133,7 +131,7 @@ class ConfigValidator
             default => true,
         };
 
-        if (!$valid) {
+        if (! $valid) {
             $actualType = gettype($value);
             $this->errors[$key][] = "Field '{$key}' must be of type {$type}, got {$actualType}";
         }
@@ -148,7 +146,7 @@ class ConfigValidator
         $value = $config;
 
         foreach ($keys as $k) {
-            if (!is_array($value) || !array_key_exists($k, $value)) {
+            if (! is_array($value) || ! array_key_exists($k, $value)) {
                 return null;
             }
             $value = $value[$k];
@@ -176,6 +174,7 @@ class ConfigValidator
                 $messages[] = $error;
             }
         }
+
         return $messages;
     }
 
@@ -192,6 +191,6 @@ class ConfigValidator
      */
     public function fails(): bool
     {
-        return !empty($this->errors);
+        return ! empty($this->errors);
     }
 }

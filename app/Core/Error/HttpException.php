@@ -1,24 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Error;
 
 use RuntimeException;
+use Throwable;
 
 /**
  * HTTP Exception
- * 
+ *
  * Exception with HTTP status code for proper error responses.
  */
 class HttpException extends RuntimeException
@@ -29,7 +27,7 @@ class HttpException extends RuntimeException
     public function __construct(
         int $statusCode,
         string $message = '',
-        ?\Throwable $previous = null,
+        ?Throwable $previous = null,
         array $headers = [],
         int $code = 0
     ) {

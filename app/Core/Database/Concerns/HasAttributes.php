@@ -1,24 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Database\Concerns;
 
 use App\Core\Support\Str;
+use DateTime;
 
 /**
  * Has Attributes
- * 
+ *
  * Handles model attribute management: getting, setting, casting, filling.
  */
 trait HasAttributes
@@ -85,7 +83,7 @@ trait HasAttributes
             return false;
         }
 
-        return !in_array($key, $this->guarded);
+        return ! in_array($key, $this->guarded);
     }
 
     /**
@@ -139,7 +137,7 @@ trait HasAttributes
             'bool', 'boolean' => (bool) $value,
             'array' => is_string($value) ? json_decode($value, true) : (array) $value,
             'json' => is_string($value) ? json_decode($value, true) : $value,
-            'datetime' => $value ? new \DateTime($value) : null,
+            'datetime' => $value ? new DateTime($value) : null,
             default => $value,
         };
     }
@@ -160,7 +158,7 @@ trait HasAttributes
         $dirty = [];
 
         foreach ($this->attributes as $key => $value) {
-            if (!array_key_exists($key, $this->original)) {
+            if (! array_key_exists($key, $this->original)) {
                 $dirty[$key] = $value;
             } elseif ($value !== $this->original[$key]) {
                 $dirty[$key] = $value;
@@ -184,6 +182,7 @@ trait HasAttributes
     public function syncOriginal(): static
     {
         $this->original = $this->attributes;
+
         return $this;
     }
 
@@ -201,7 +200,7 @@ trait HasAttributes
             }
 
             // If visible is set, only include those
-            if (!empty($this->visible) && !in_array($key, $this->visible)) {
+            if (! empty($this->visible) && ! in_array($key, $this->visible)) {
                 continue;
             }
 

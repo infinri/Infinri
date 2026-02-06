@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database;
 
 /**
  * Model Query Builder
- * 
+ *
  * Extends the base query builder with model-specific functionality.
  */
 class ModelQueryBuilder
@@ -54,7 +51,7 @@ class ModelQueryBuilder
         $results = $this->query->get();
 
         return array_map(
-            fn(array $attributes) => $this->model->newFromBuilder($attributes),
+            fn (array $attributes) => $this->model->newFromBuilder($attributes),
             $results
         );
     }
@@ -95,6 +92,7 @@ class ModelQueryBuilder
     public function where(string $column, mixed $operator = null, mixed $value = null): static
     {
         $this->query->where($column, $operator, $value);
+
         return $this;
     }
 
@@ -104,6 +102,7 @@ class ModelQueryBuilder
     public function orWhere(string $column, mixed $operator = null, mixed $value = null): static
     {
         $this->query->orWhere($column, $operator, $value);
+
         return $this;
     }
 
@@ -113,6 +112,7 @@ class ModelQueryBuilder
     public function whereIn(string $column, array $values): static
     {
         $this->query->whereIn($column, $values);
+
         return $this;
     }
 
@@ -122,6 +122,7 @@ class ModelQueryBuilder
     public function whereNull(string $column): static
     {
         $this->query->whereNull($column);
+
         return $this;
     }
 
@@ -131,6 +132,7 @@ class ModelQueryBuilder
     public function whereNotNull(string $column): static
     {
         $this->query->whereNotNull($column);
+
         return $this;
     }
 
@@ -140,6 +142,7 @@ class ModelQueryBuilder
     public function orderBy(string $column, string $direction = 'asc'): static
     {
         $this->query->orderBy($column, $direction);
+
         return $this;
     }
 
@@ -148,7 +151,8 @@ class ModelQueryBuilder
      */
     public function latest(?string $column = null): static
     {
-        $column = $column ?? ($this->model->createdAt ?? 'created_at');
+        $column ??= ($this->model->createdAt ?? 'created_at');
+
         return $this->orderBy($column, 'desc');
     }
 
@@ -157,7 +161,8 @@ class ModelQueryBuilder
      */
     public function oldest(?string $column = null): static
     {
-        $column = $column ?? ($this->model->createdAt ?? 'created_at');
+        $column ??= ($this->model->createdAt ?? 'created_at');
+
         return $this->orderBy($column, 'asc');
     }
 
@@ -167,6 +172,7 @@ class ModelQueryBuilder
     public function limit(int $limit): static
     {
         $this->query->limit($limit);
+
         return $this;
     }
 
@@ -184,6 +190,7 @@ class ModelQueryBuilder
     public function offset(int $offset): static
     {
         $this->query->offset($offset);
+
         return $this;
     }
 
@@ -201,6 +208,7 @@ class ModelQueryBuilder
     public function select(string|array $columns = ['*']): static
     {
         $this->query->select($columns);
+
         return $this;
     }
 

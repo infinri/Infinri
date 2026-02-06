@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Contracts\Http\ResponseInterface;
 
 /**
  * Security Headers Middleware
- * 
+ *
  * Adds security-related HTTP headers to responses.
  * Configurable for different security requirements.
  */
@@ -33,7 +30,7 @@ class SecurityHeadersMiddleware
     {
         $this->enableHsts = $options['hsts'] ?? false;
         $this->cspNonce = $options['csp_nonce'] ?? null;
-        
+
         $this->headers = array_merge($this->getDefaultHeaders(), $options['headers'] ?? []);
     }
 
@@ -106,22 +103,22 @@ class SecurityHeadersMiddleware
         return [
             // Prevent MIME type sniffing
             'X-Content-Type-Options' => 'nosniff',
-            
+
             // Prevent clickjacking
             'X-Frame-Options' => 'DENY',
-            
+
             // XSS Protection (legacy, but still useful)
             'X-XSS-Protection' => '1; mode=block',
-            
+
             // Referrer policy
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            
+
             // Permissions policy (disable dangerous features)
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(), payment=()',
-            
+
             // Prevent caching of sensitive pages (can be overridden per-route)
             // 'Cache-Control' => 'no-store, no-cache, must-revalidate',
-            
+
             // Cross-Origin policies
             'Cross-Origin-Opener-Policy' => 'same-origin',
             'Cross-Origin-Resource-Policy' => 'same-origin',

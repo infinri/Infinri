@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Contracts\Cache\CacheInterface;
 
 /**
  * Rate Limiter
- * 
+ *
  * Limits the rate of actions by key (IP, user ID, etc).
  */
 class RateLimiter
@@ -83,6 +80,7 @@ class RateLimiter
     public function retriesLeft(string $key, int $maxAttempts): int
     {
         $attempts = $this->attempts($key);
+
         return max(0, $maxAttempts - $attempts);
     }
 

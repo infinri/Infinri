@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -22,7 +19,7 @@ use Traversable;
 
 /**
  * Header Bag
- * 
+ *
  * Container for HTTP headers with case-insensitive access
  */
 class HeaderBag implements IteratorAggregate, Countable
@@ -97,13 +94,14 @@ class HeaderBag implements IteratorAggregate, Countable
      *
      * @param string $key
      * @param string|null $default
+     *
      * @return string|null
      */
     public function get(string $key, ?string $default = null): ?string
     {
         $key = $this->normalizeKey($key);
-        
-        if (!array_key_exists($key, $this->headers)) {
+
+        if (! array_key_exists($key, $this->headers)) {
             return $default;
         }
 
@@ -122,7 +120,7 @@ class HeaderBag implements IteratorAggregate, Countable
         $key = $this->normalizeKey($key);
         $values = is_array($values) ? array_values($values) : [$values];
 
-        if ($replace || !isset($this->headers[$key])) {
+        if ($replace || ! isset($this->headers[$key])) {
             $this->headers[$key] = $values;
         } else {
             $this->headers[$key] = array_merge($this->headers[$key], $values);
@@ -133,6 +131,7 @@ class HeaderBag implements IteratorAggregate, Countable
      * Check if header exists
      *
      * @param string $key
+     *
      * @return bool
      */
     public function has(string $key): bool
@@ -169,7 +168,7 @@ class HeaderBag implements IteratorAggregate, Countable
     public function getContentLength(): ?int
     {
         $length = $this->get('Content-Length');
-        
+
         return $length !== null ? (int) $length : null;
     }
 
@@ -197,6 +196,7 @@ class HeaderBag implements IteratorAggregate, Countable
      * Normalize header key (lowercase with dashes)
      *
      * @param string $key
+     *
      * @return string
      */
     protected function normalizeKey(string $key): string
@@ -212,14 +212,14 @@ class HeaderBag implements IteratorAggregate, Countable
     public function __toString(): string
     {
         $headers = [];
-        
+
         foreach ($this->headers as $name => $values) {
             $name = Str::headerToHttpFormat($name);
             foreach ($values as $value) {
                 $headers[] = "$name: $value";
             }
         }
-        
+
         return implode("\r\n", $headers);
     }
 }

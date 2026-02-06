@@ -1,24 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Code Stats Command
- * 
+ *
  * Measures lines of code (LOC) and identifies large files.
  */
 class CodeStatsCommand extends Command
@@ -51,13 +51,13 @@ class CodeStatsCommand extends Command
 
         foreach ($dirs as $dir => $label) {
             $path = $rootDir . '/' . $dir;
-            if (!is_dir($path)) {
+            if (! is_dir($path)) {
                 continue;
             }
 
             $stats = $this->scanDirectory($path);
             $this->stats[$dir] = $stats;
-            
+
             $totalLoc += $stats['loc'];
             $totalFiles += $stats['files'];
 
@@ -69,7 +69,7 @@ class CodeStatsCommand extends Command
                 $stats['files'] > 0 ? round($stats['loc'] / $stats['files']) : 0
             ));
 
-            if ($verbose && !empty($stats['largest'])) {
+            if ($verbose && ! empty($stats['largest'])) {
                 $this->line("   Largest files:");
                 foreach (array_slice($stats['largest'], 0, 3) as $file) {
                     $relativePath = str_replace($rootDir . '/', '', $file['path']);
@@ -84,6 +84,7 @@ class CodeStatsCommand extends Command
         $this->showLargestFiles($rootDir);
 
         $this->line();
+
         return 0;
     }
 
@@ -93,12 +94,12 @@ class CodeStatsCommand extends Command
         $files = 0;
         $largest = [];
 
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS)
         );
 
         foreach ($iterator as $file) {
-            if (!$file->isFile() || $file->getExtension() !== 'php') {
+            if (! $file->isFile() || $file->getExtension() !== 'php') {
                 continue;
             }
 
@@ -110,7 +111,7 @@ class CodeStatsCommand extends Command
             $largest[] = ['path' => $file->getPathname(), 'loc' => $lines];
         }
 
-        usort($largest, fn($a, $b) => $b['loc'] <=> $a['loc']);
+        usort($largest, fn ($a, $b) => $b['loc'] <=> $a['loc']);
 
         return [
             'loc' => $loc,
@@ -129,7 +130,7 @@ class CodeStatsCommand extends Command
             }
         }
 
-        usort($allFiles, fn($a, $b) => $b['loc'] <=> $a['loc']);
+        usort($allFiles, fn ($a, $b) => $b['loc'] <=> $a['loc']);
 
         $this->line("\n🔍 Largest Files (candidates for refactoring)");
         foreach (array_slice($allFiles, 0, 10) as $file) {

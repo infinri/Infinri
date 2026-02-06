@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database\Schema;
 
 /**
  * Foreign Key Definition
- * 
+ *
  * Represents a foreign key constraint.
  */
 class ForeignKeyDefinition
@@ -39,6 +36,7 @@ class ForeignKeyDefinition
     public function references(string $column): static
     {
         $this->referencedColumn = $column;
+
         return $this;
     }
 
@@ -48,6 +46,7 @@ class ForeignKeyDefinition
     public function on(string $table): static
     {
         $this->referencedTable = $table;
+
         return $this;
     }
 
@@ -57,6 +56,7 @@ class ForeignKeyDefinition
     public function onDelete(string $action): static
     {
         $this->onDelete = strtoupper($action);
+
         return $this;
     }
 
@@ -66,6 +66,7 @@ class ForeignKeyDefinition
     public function onUpdate(string $action): static
     {
         $this->onUpdate = strtoupper($action);
+
         return $this;
     }
 
@@ -99,6 +100,7 @@ class ForeignKeyDefinition
     public function name(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 

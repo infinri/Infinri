@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,10 +15,10 @@ use Throwable;
 
 /**
  * Error Handler
- * 
+ *
  * Central exception handling for the application.
  * Context-agnostic - works for HTTP, CLI, Queue, Events.
- * 
+ *
  * SEI Pattern: Isolated fault handling module.
  */
 class Handler
@@ -64,6 +61,7 @@ class Handler
         foreach ($this->handlers as $type => $handler) {
             if ($e instanceof $type) {
                 $handler($e, $context);
+
                 return;
             }
         }
@@ -74,7 +72,7 @@ class Handler
      */
     public function report(Throwable $e, array $context = []): void
     {
-        if (!$this->shouldReport($e)) {
+        if (! $this->shouldReport($e)) {
             return;
         }
 
@@ -101,6 +99,7 @@ class Handler
     public function dontReport(array $types): static
     {
         $this->dontReport = array_merge($this->dontReport, $types);
+
         return $this;
     }
 
@@ -110,6 +109,7 @@ class Handler
     public function register(string $exceptionType, callable $handler): static
     {
         $this->handlers[$exceptionType] = $handler;
+
         return $this;
     }
 
@@ -127,6 +127,7 @@ class Handler
     public function setDebug(bool $debug): static
     {
         $this->debug = $debug;
+
         return $this;
     }
 
@@ -179,6 +180,7 @@ class Handler
                 $frame['function'] ?? 'unknown'
             );
         }
+
         return $trace;
     }
 }

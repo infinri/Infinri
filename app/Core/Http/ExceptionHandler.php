@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -17,33 +14,22 @@ namespace App\Core\Http;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
 use App\Core\Error\Handler as ErrorHandler;
-use App\Core\Error\HttpException;
-use App\Core\Routing\Exceptions\RouteNotFoundException;
 use App\Core\Routing\Exceptions\MethodNotAllowedException;
+use App\Core\Routing\Exceptions\RouteNotFoundException;
 use Throwable;
 
 /**
  * HTTP Exception Handler
- * 
+ *
  * Converts exceptions to appropriate HTTP responses.
  * Delegates reporting to Core\Error\Handler.
  */
 class ExceptionHandler
 {
-    /**
-     * Whether to show debug information
-     */
-    protected bool $debug;
-
-    /**
-     * Core error handler for reporting
-     */
-    protected ?ErrorHandler $errorHandler;
-
-    public function __construct(bool $debug = false, ?ErrorHandler $errorHandler = null)
-    {
-        $this->debug = $debug;
-        $this->errorHandler = $errorHandler;
+    public function __construct(
+        protected bool $debug = false,
+        protected ?ErrorHandler $errorHandler = null
+    ) {
     }
 
     /**
@@ -69,7 +55,7 @@ class ExceptionHandler
                 'message' => $e->getMessage(),
             ], HttpStatus::NOT_FOUND);
         }
-        
+
         return $this->htmlResponse(
             'Not Found',
             $e->getMessage(),
@@ -93,7 +79,7 @@ class ExceptionHandler
                 $e->getMessage(),
                 HttpStatus::METHOD_NOT_ALLOWED
             );
-        
+
         return $response->header('Allow', implode(', ', $e->getAllowedMethods()));
     }
 
@@ -103,11 +89,11 @@ class ExceptionHandler
     public function handleGeneric(RequestInterface $request, Throwable $e): ResponseInterface
     {
         $this->logException($e, $request);
-        
+
         if ($request->expectsJson()) {
             return $this->jsonErrorResponse($e);
         }
-        
+
         return $this->htmlErrorResponse($e);
     }
 
@@ -120,13 +106,13 @@ class ExceptionHandler
             'error' => 'Internal Server Error',
             'message' => $this->debug ? $e->getMessage() : 'An unexpected error occurred.',
         ];
-        
+
         if ($this->debug) {
             $data['exception'] = get_class($e);
             $data['file'] = $e->getFile();
             $data['line'] = $e->getLine();
         }
-        
+
         return new JsonResponse($data, HttpStatus::INTERNAL_SERVER_ERROR);
     }
 
@@ -136,11 +122,13 @@ class ExceptionHandler
     protected function htmlErrorResponse(Throwable $e): Response
     {
         $message = $this->debug
-            ? sprintf('%s<pre>%s</pre>', 
-                htmlspecialchars($e->getMessage()), 
-                htmlspecialchars($e->getTraceAsString()))
+            ? sprintf(
+                '%s<pre>%s</pre>',
+                htmlspecialchars($e->getMessage()),
+                htmlspecialchars($e->getTraceAsString())
+            )
             : 'An unexpected error occurred.';
-        
+
         return $this->htmlResponse('Internal Server Error', $message, HttpStatus::INTERNAL_SERVER_ERROR);
     }
 
@@ -150,7 +138,7 @@ class ExceptionHandler
     protected function htmlResponse(string $title, string $message, int $status): Response
     {
         $content = sprintf('<h1>%d %s</h1><p>%s</p>', $status, $title, $message);
-        
+
         return new Response($content, $status, ['Content-Type' => 'text/html; charset=UTF-8']);
     }
 
@@ -171,6 +159,7 @@ class ExceptionHandler
         // Use Core Error Handler if available
         if ($this->errorHandler) {
             $this->errorHandler->report($e, $context);
+
             return;
         }
 

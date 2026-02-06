@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -17,13 +14,14 @@ namespace App\Core\Http\Middleware;
 use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
-use App\Core\Security\CookieEncrypter;
 use App\Core\Http\Cookie;
+use App\Core\Security\CookieEncrypter;
 use Closure;
+use Throwable;
 
 /**
  * Encrypt Cookies Middleware
- * 
+ *
  * Automatically decrypts incoming cookies and encrypts outgoing cookies.
  * Provides enterprise-grade cookie security with tamper detection.
  */
@@ -36,6 +34,7 @@ class EncryptCookies implements MiddlewareInterface
 
     /**
      * Cookies that should not be encrypted
+     *
      * @var string[]
      */
     protected array $except = [
@@ -80,7 +79,7 @@ class EncryptCookies implements MiddlewareInterface
             try {
                 $decryptedValue = $this->encrypter->decrypt($value);
                 $decrypted[$name] = $decryptedValue ?? $value;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // If decryption fails, cookie might be tampered, old, or invalid
                 // Log for security monitoring, pass through original
                 logger()->warning('Cookie decryption failed (possible tampering)', ['cookie' => $name, 'error' => $e->getMessage()]);
@@ -97,7 +96,7 @@ class EncryptCookies implements MiddlewareInterface
      */
     protected function encryptCookies(ResponseInterface $response): ResponseInterface
     {
-        if (!method_exists($response, 'getCookies')) {
+        if (! method_exists($response, 'getCookies')) {
             return $response;
         }
 
@@ -110,7 +109,7 @@ class EncryptCookies implements MiddlewareInterface
 
             // Create encrypted cookie preserving original attributes
             $encryptedValue = $this->encrypter->encrypt($cookie->value);
-            
+
             if (method_exists($response, 'withCookie')) {
                 $response = $response->withCookie($this->createEncryptedCookie($cookie, $encryptedValue));
             }
@@ -147,12 +146,12 @@ class EncryptCookies implements MiddlewareInterface
      */
     protected function isDisabled(string $name): bool
     {
-        return !$this->encrypter->shouldEncrypt($name);
+        return ! $this->encrypter->shouldEncrypt($name);
     }
 
     /**
      * Update request with decrypted cookies
-     * 
+     *
      * Note: This requires Request to support cookie modification.
      * For now, we'll update the underlying ParameterBag.
      */
@@ -180,6 +179,7 @@ class EncryptCookies implements MiddlewareInterface
     {
         $cookies = is_array($cookies) ? $cookies : [$cookies];
         $this->encrypter->except($cookies);
+
         return $this;
     }
 }

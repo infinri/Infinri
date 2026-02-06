@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,16 +13,19 @@ namespace App\Core\Container;
 
 use App\Core\Contracts\Container\ContainerInterface;
 use Closure;
+use Exception;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 
 /**
  * IoC Container
- * 
+ *
  * Provides dependency injection and service location
  * with automatic constructor injection via reflection
  */
@@ -75,10 +75,10 @@ class Container implements ContainerInterface
         unset($this->instances[$abstract], $this->resolved[$abstract]);
 
         // If no concrete type given, assume the abstract is concrete
-        $concrete = $concrete ?? $abstract;
+        $concrete ??= $abstract;
 
         // Wrap non-closure concretes in a closure
-        if (!$concrete instanceof Closure) {
+        if (! $concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
@@ -125,7 +125,7 @@ class Container implements ContainerInterface
     public function alias(string $abstract, string $alias): void
     {
         if ($alias === $abstract) {
-            throw new \LogicException("[{$abstract}] is aliased to itself.");
+            throw new LogicException("[{$abstract}] is aliased to itself.");
         }
 
         $this->aliases[$alias] = $abstract;
@@ -136,7 +136,7 @@ class Container implements ContainerInterface
      */
     public function bound(string $abstract): bool
     {
-        return isset($this->bindings[$abstract]) 
+        return isset($this->bindings[$abstract])
             || isset($this->instances[$abstract])
             || isset($this->aliases[$abstract]);
     }
@@ -146,7 +146,7 @@ class Container implements ContainerInterface
      */
     public function resolved(string $abstract): bool
     {
-        return isset($this->resolved[$abstract]) 
+        return isset($this->resolved[$abstract])
             || isset($this->instances[$abstract]);
     }
 
@@ -155,8 +155,10 @@ class Container implements ContainerInterface
      *
      * @param string $abstract The abstract type to resolve
      * @param array $parameters Optional parameters
-     * @return mixed
+     *
      * @throws BindingResolutionException
+     *
+     * @return mixed
      */
     protected function resolve(string $abstract, array $parameters = []): mixed
     {
@@ -193,6 +195,7 @@ class Container implements ContainerInterface
      * Get the concrete type for a given abstract
      *
      * @param string $abstract
+     *
      * @return mixed
      */
     protected function getConcrete(string $abstract): mixed
@@ -211,6 +214,7 @@ class Container implements ContainerInterface
      *
      * @param mixed $concrete
      * @param string $abstract
+     *
      * @return bool
      */
     protected function isBuildable(mixed $concrete, string $abstract): bool
@@ -223,8 +227,10 @@ class Container implements ContainerInterface
      *
      * @param Closure|string $concrete
      * @param array $parameters
-     * @return mixed
+     *
      * @throws BindingResolutionException
+     *
+     * @return mixed
      */
     protected function build(Closure|string $concrete, array $parameters = []): mixed
     {
@@ -240,7 +246,7 @@ class Container implements ContainerInterface
         }
 
         // Check if the class is instantiable
-        if (!$reflector->isInstantiable()) {
+        if (! $reflector->isInstantiable()) {
             throw BindingResolutionException::uninstantiable($concrete, "Class is not instantiable");
         }
 
@@ -258,6 +264,7 @@ class Container implements ContainerInterface
             // If there's no constructor, instantiate directly
             if ($constructor === null) {
                 unset($this->buildStack[$concrete]);
+
                 return new $concrete();
             }
 
@@ -270,8 +277,8 @@ class Container implements ContainerInterface
             unset($this->buildStack[$concrete]);
 
             return $reflector->newInstanceArgs($dependencies);
-            
-        } catch (\Exception $e) {
+
+        } catch (Exception $e) {
             unset($this->buildStack[$concrete]);
             throw BindingResolutionException::unresolvable($concrete, $e->getMessage());
         }
@@ -282,8 +289,10 @@ class Container implements ContainerInterface
      *
      * @param ReflectionParameter[] $dependencies
      * @param array $parameters
-     * @return array
+     *
      * @throws BindingResolutionException
+     *
+     * @return array
      */
     protected function resolveDependencies(array $dependencies, array $parameters): array
     {
@@ -308,15 +317,17 @@ class Container implements ContainerInterface
      * Resolve a single dependency
      *
      * @param ReflectionParameter $parameter
-     * @return mixed
+     *
      * @throws BindingResolutionException
+     *
+     * @return mixed
      */
     protected function resolveDependency(ReflectionParameter $parameter): mixed
     {
         $type = $parameter->getType();
 
         // If no type hint, check for default value
-        if (!$type instanceof ReflectionNamedType || $type->isBuiltin()) {
+        if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
             if ($parameter->isDefaultValueAvailable()) {
                 return $parameter->getDefaultValue();
             }
@@ -351,11 +362,12 @@ class Container implements ContainerInterface
      *
      * @param string $abstract
      * @param string $concrete
+     *
      * @return Closure
      */
     protected function getClosure(string $abstract, string $concrete): Closure
     {
-        return fn(Container $container, array $parameters = []) 
+        return fn (Container $container, array $parameters = [])
             => $container->build($concrete, $parameters);
     }
 
@@ -363,6 +375,7 @@ class Container implements ContainerInterface
      * Get the alias for an abstract if available
      *
      * @param string $abstract
+     *
      * @return string
      */
     protected function getAlias(string $abstract): string
@@ -374,6 +387,7 @@ class Container implements ContainerInterface
      * Determine if a given type is bound as a singleton
      *
      * @param string $abstract
+     *
      * @return bool
      */
     protected function isSingleton(string $abstract): bool
@@ -400,6 +414,7 @@ class Container implements ContainerInterface
      * Check if a binding or instance exists
      *
      * @param string $abstract
+     *
      * @return bool
      */
     public function has(string $abstract): bool
@@ -412,13 +427,14 @@ class Container implements ContainerInterface
      *
      * @param callable|array $callback The callable to invoke
      * @param array $parameters Parameters to pass to the callable
+     *
      * @return mixed
      */
     public function call(callable|array $callback, array $parameters = []): mixed
     {
         $reflector = $this->getCallableReflector($callback);
         $dependencies = $this->resolveDependencies($reflector->getParameters(), $parameters);
-        
+
         return $callback(...$dependencies);
     }
 
@@ -426,27 +442,29 @@ class Container implements ContainerInterface
      * Get reflection for a callable
      *
      * @param callable|array $callback
-     * @return \ReflectionFunctionAbstract
+     *
      * @throws BindingResolutionException
+     *
+     * @return ReflectionFunctionAbstract
      */
-    protected function getCallableReflector(callable|array $callback): \ReflectionFunctionAbstract
+    protected function getCallableReflector(callable|array $callback): ReflectionFunctionAbstract
     {
         if (is_array($callback)) {
             return new ReflectionMethod($callback[0], $callback[1]);
         }
-        
-        if ($callback instanceof \Closure) {
+
+        if ($callback instanceof Closure) {
             return new ReflectionFunction($callback);
         }
-        
+
         if (is_string($callback) && function_exists($callback)) {
             return new ReflectionFunction($callback);
         }
-        
+
         if (is_object($callback) && method_exists($callback, '__invoke')) {
             return new ReflectionMethod($callback, '__invoke');
         }
-        
+
         throw new BindingResolutionException("Unable to resolve callable");
     }
 }

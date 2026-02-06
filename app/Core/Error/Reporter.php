@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use Throwable;
 
 /**
  * Exception Reporter
- * 
+ *
  * Reports exceptions to various channels (log, external services).
  * Extensible via custom reporters.
  */
@@ -80,6 +77,7 @@ class Reporter
     {
         if ($this->logger === null) {
             $this->fallbackLog($e);
+
             return;
         }
 
@@ -105,7 +103,7 @@ class Reporter
         if ($this->suppressFallback) {
             return;
         }
-        
+
         $message = sprintf(
             '%s[%s] %s in %s:%d',
             $prefix ? "[$prefix] " : '',
@@ -135,18 +133,20 @@ class Reporter
                 $frame['function'] ?? 'unknown'
             );
         }
+
         return $trace;
     }
 
     /**
      * Add a custom reporter
-     * 
+     *
      * Reporter receives (Throwable $e, array $context)
      * Return false to stop further reporting
      */
     public function addReporter(callable $reporter): static
     {
         $this->reporters[] = $reporter;
+
         return $this;
     }
 
@@ -156,6 +156,7 @@ class Reporter
     public function addContext(string $key, mixed $value): static
     {
         $this->globalContext[$key] = $value;
+
         return $this;
     }
 
@@ -165,6 +166,7 @@ class Reporter
     public function setLogger(LoggerInterface $logger): static
     {
         $this->logger = $logger;
+
         return $this;
     }
 
@@ -182,6 +184,7 @@ class Reporter
     public function clearReporters(): static
     {
         $this->reporters = [];
+
         return $this;
     }
 
@@ -191,6 +194,7 @@ class Reporter
     public function suppressFallback(bool $suppress = true): static
     {
         $this->suppressFallback = $suppress;
+
         return $this;
     }
 }

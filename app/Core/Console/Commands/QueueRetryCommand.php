@@ -1,26 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
-use App\Core\Queue\RedisQueue;
 use App\Core\Contracts\Queue\QueueInterface;
+use App\Core\Queue\RedisQueue;
+use Throwable;
 
 /**
  * Queue Retry Command
- * 
+ *
  * Retries failed jobs.
  */
 class QueueRetryCommand extends Command
@@ -47,6 +45,7 @@ class QueueRetryCommand extends Command
 
         if (env('QUEUE_CONNECTION') !== 'redis') {
             $this->error("Queue connection is not set to 'redis'");
+
             return 1;
         }
 
@@ -54,8 +53,9 @@ class QueueRetryCommand extends Command
             $app = \App\Core\Application::getInstance();
             $queueInstance = $app->make(QueueInterface::class);
 
-            if (!$queueInstance instanceof RedisQueue) {
+            if (! $queueInstance instanceof RedisQueue) {
                 $this->error("Queue is not a Redis queue");
+
                 return 1;
             }
 
@@ -81,6 +81,7 @@ class QueueRetryCommand extends Command
                     $this->info("✓ Job at index {$index} queued for retry");
                 } else {
                     $this->error("Failed to retry job at index {$index}");
+
                     return 1;
                 }
 
@@ -90,13 +91,15 @@ class QueueRetryCommand extends Command
                 $this->line("  queue:retry --all           Retry all failed jobs");
                 $this->line("  queue:retry 0               Retry job at index 0");
                 $this->line("  queue:retry 0 --queue=mail  Retry from specific queue");
+
                 return 1;
             }
 
             return 0;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error("Error: " . $e->getMessage());
+
             return 1;
         }
     }

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework - Auth Module
@@ -11,12 +9,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Auth\Middleware;
 
-use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
-use App\Core\Http\JsonResponse;
-use App\Modules\Auth\Middleware\Concerns\ChecksRequestType;
-use App\Modules\Auth\Services\AuthManager;
 use Closure;
 
 /**
@@ -25,25 +19,8 @@ use Closure;
  * Ensures the user is authenticated before accessing the route.
  * Redirects to login for web requests, returns 401 for API requests.
  */
-class Authenticate implements MiddlewareInterface
+class Authenticate extends AbstractAuthMiddleware
 {
-    use ChecksRequestType;
-    /**
-     * Auth manager
-     */
-    protected AuthManager $auth;
-
-    /**
-     * Create a new middleware instance
-     */
-    public function __construct(AuthManager $auth)
-    {
-        $this->auth = $auth;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function handle(RequestInterface $request, Closure $next): ResponseInterface
     {
         // Check if specified guards are authenticated
@@ -80,24 +57,12 @@ class Authenticate implements MiddlewareInterface
         return $guards;
     }
 
-    /**
-     * Handle an unauthenticated request
-     */
     protected function unauthenticated(RequestInterface $request, array $guards): ResponseInterface
     {
-        // For API requests, return JSON response
         if ($this->expectsJson($request)) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Unauthenticated.',
-            ], 401);
+            return $this->jsonError('Unauthenticated.', 401);
         }
-
-        // For web requests, redirect to login using Core's safe_redirect
-        // Store intended URL in session for redirect after login
         session()->set('url.intended', $request->getUri());
-
         return safe_redirect(config('auth.redirects.login', '/login'));
     }
-
 }

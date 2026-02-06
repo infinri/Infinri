@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Support\Str;
 
 /**
  * Model Factory
- * 
+ *
  * Creates model instances for testing and seeding.
  */
 abstract class Factory
@@ -50,6 +47,7 @@ abstract class Factory
     {
         $clone = clone $this;
         $clone->count = $count;
+
         return $clone;
     }
 
@@ -60,6 +58,7 @@ abstract class Factory
     {
         $clone = clone $this;
         $clone->states[] = $state;
+
         return $clone;
     }
 
@@ -76,6 +75,7 @@ abstract class Factory
         for ($i = 0; $i < $this->count; $i++) {
             $models[] = $this->makeOne($attributes);
         }
+
         return $models;
     }
 
@@ -92,6 +92,7 @@ abstract class Factory
         for ($i = 0; $i < $this->count; $i++) {
             $models[] = $this->createOne($attributes);
         }
+
         return $models;
     }
 
@@ -123,6 +124,7 @@ abstract class Factory
     {
         $model = $this->makeOne($attributes);
         $model->save();
+
         return $model;
     }
 
@@ -174,6 +176,7 @@ abstract class Factory
         $startTs = strtotime($start);
         $endTs = strtotime($end);
         $randomTs = random_int($startTs, $endTs);
+
         return date('Y-m-d H:i:s', $randomTs);
     }
 }

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,11 +13,10 @@ namespace App\Core\Http;
 
 use App\Core\Application;
 use App\Core\Contracts\Http\RequestInterface;
-use App\Core\Contracts\Http\ResponseInterface;
 
 /**
  * Base Controller
- * 
+ *
  * Provides common functionality for all controllers.
  */
 abstract class Controller
@@ -82,17 +78,17 @@ abstract class Controller
 
     /**
      * Validate request data using the Validator
-     * 
+     *
      * @throws \App\Core\Validation\ValidationException
      */
     protected function validate(RequestInterface $request, array $rules, array $messages = []): array
     {
         $validator = \App\Core\Validation\Validator::make($request->all(), $rules, $messages);
-        
+
         if ($validator->fails()) {
             throw new \App\Core\Validation\ValidationException($validator);
         }
-        
+
         return $validator->validated();
     }
 }

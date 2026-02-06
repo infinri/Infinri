@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Database\MigrationState;
 
 /**
  * Migrate Reset State Command
- * 
+ *
  * Clears the "unsafe" migration state after manual recovery.
  */
 class MigrateResetStateCommand extends Command
@@ -34,11 +31,12 @@ class MigrateResetStateCommand extends Command
 
         if ($state->isSafe()) {
             $this->info("Migration state is already safe.");
+
             return 0;
         }
 
         $failed = $state->getFailedInfo();
-        
+
         $this->line("Current State:");
         $this->line("  • Migration: {$failed['migration']}");
         $this->line("  • Error: {$failed['error']}");
@@ -46,7 +44,7 @@ class MigrateResetStateCommand extends Command
         $this->line();
 
         // Require confirmation unless --force
-        if (!in_array('--force', $args) && !in_array('-f', $args)) {
+        if (! in_array('--force', $args) && ! in_array('-f', $args)) {
             $this->warn("⚠️  Only reset state after manually fixing the issue!");
             $this->line();
             $this->line("Have you:");
@@ -54,6 +52,7 @@ class MigrateResetStateCommand extends Command
             $this->line("  2. Restored from backup if needed?");
             $this->line();
             $this->line("Run with --force to confirm reset.");
+
             return 1;
         }
 

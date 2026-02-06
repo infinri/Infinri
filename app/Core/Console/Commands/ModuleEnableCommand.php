@@ -1,22 +1,19 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
-use App\Core\Module\ModuleRegistry;
 use App\Core\Module\ModuleHookRunner;
+use App\Core\Module\ModuleRegistry;
 
 /**
  * Module Enable Command
@@ -33,28 +30,32 @@ class ModuleEnableCommand extends Command
 
         if ($moduleName === null) {
             $this->error("Usage: module:enable <module-name>");
+
             return 1;
         }
 
         $registry = new ModuleRegistry();
-        
-        if (!$registry->has($moduleName)) {
+
+        if (! $registry->has($moduleName)) {
             $this->error("Module not found: {$moduleName}");
+
             return 1;
         }
 
         $module = $registry->get($moduleName);
-        
+
         if ($module->enabled) {
             $this->warn("Module '{$moduleName}' is already enabled.");
+
             return 0;
         }
 
         $this->line("Enabling module: {$moduleName}");
 
         // Enable the module
-        if (!$registry->enable($moduleName)) {
+        if (! $registry->enable($moduleName)) {
             $this->error("Failed to enable module.");
+
             return 1;
         }
 

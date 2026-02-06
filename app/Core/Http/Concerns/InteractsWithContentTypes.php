@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Http\Concerns;
 
 /**
  * Provides content type detection methods for Request
- * 
+ *
  * Centralizes logic for determining request/response content types
  * and content negotiation.
  */
@@ -84,13 +81,13 @@ trait InteractsWithContentTypes
     public function prefers(array $contentTypes): ?string
     {
         $accept = $this->header('accept', '');
-        
+
         foreach ($contentTypes as $type) {
             if (str_contains($accept, $type)) {
                 return $type;
             }
         }
-        
+
         return null;
     }
 

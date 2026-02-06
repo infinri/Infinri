@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Support;
 
 /**
  * Environment Manager
- * 
+ *
  * Handles reading and writing .env file values.
  */
 class EnvManager
@@ -36,6 +33,7 @@ class EnvManager
     public function get(string $key, string $default = ''): string
     {
         $this->load();
+
         return $this->vars[$key] ?? $_ENV[$key] ?? getenv($key) ?: $default;
     }
 
@@ -54,6 +52,7 @@ class EnvManager
     public function has(string $key): bool
     {
         $this->load();
+
         return isset($this->vars[$key]) || isset($_ENV[$key]) || getenv($key) !== false;
     }
 
@@ -63,6 +62,7 @@ class EnvManager
     public function all(): array
     {
         $this->load();
+
         return $this->vars;
     }
 
@@ -71,7 +71,7 @@ class EnvManager
      */
     public function persist(string $key, string $value): bool
     {
-        if (!file_exists($this->envFile)) {
+        if (! file_exists($this->envFile)) {
             return false;
         }
 
@@ -84,7 +84,7 @@ class EnvManager
         }
 
         $result = file_put_contents($this->envFile, $content) !== false;
-        
+
         if ($result) {
             $this->vars[$key] = $value;
         }
@@ -138,15 +138,15 @@ class EnvManager
 
         $this->loaded = true;
 
-        if (!file_exists($this->envFile)) {
+        if (! file_exists($this->envFile)) {
             return;
         }
 
         $lines = file($this->envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
-            
+
             // Skip comments
             if (str_starts_with($line, '#')) {
                 continue;

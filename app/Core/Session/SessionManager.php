@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Session;
 
 /**
  * Session Manager
- * 
+ *
  * Handles session lifecycle and data management.
  * CSRF is handled separately by Core\Security\Csrf.
  */
@@ -34,6 +31,7 @@ class SessionManager
     {
         if (self::$started || session_status() === PHP_SESSION_ACTIVE) {
             self::$started = true;
+
             return true;
         }
 
@@ -53,6 +51,7 @@ class SessionManager
     public function get(string $key, mixed $default = null): mixed
     {
         $this->start();
+
         return $_SESSION[$key] ?? $default;
     }
 
@@ -71,6 +70,7 @@ class SessionManager
     public function has(string $key): bool
     {
         $this->start();
+
         return isset($_SESSION[$key]);
     }
 
@@ -89,6 +89,7 @@ class SessionManager
     public function all(): array
     {
         $this->start();
+
         return $_SESSION ?? [];
     }
 
@@ -107,6 +108,7 @@ class SessionManager
     public function regenerate(bool $deleteOld = true): bool
     {
         $this->start();
+
         return session_regenerate_id($deleteOld);
     }
 
@@ -150,8 +152,9 @@ class SessionManager
 
     /**
      * Set session ID (must be called before start)
-     * 
+     *
      * @param string $id Session ID to set
+     *
      * @return bool True if set successfully, false if session already active
      */
     public function setId(string $id): bool
@@ -160,6 +163,7 @@ class SessionManager
             return false;
         }
         session_id($id);
+
         return true;
     }
 
@@ -177,7 +181,7 @@ class SessionManager
     public function flash(string $key, mixed $value): void
     {
         $this->set('_flash.' . $key, $value);
-        
+
         $flashKeys = $this->get('_flash_keys', []);
         $flashKeys[] = $key;
         $this->set('_flash_keys', array_unique($flashKeys));
@@ -197,11 +201,11 @@ class SessionManager
     public function ageFlashData(): void
     {
         $flashKeys = $this->get('_flash_keys', []);
-        
+
         foreach ($flashKeys as $key) {
             $this->forget('_flash.' . $key);
         }
-        
+
         $this->forget('_flash_keys');
     }
 }

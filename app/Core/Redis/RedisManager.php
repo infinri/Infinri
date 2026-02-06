@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use RedisException;
 
 /**
  * Redis Connection Manager
- * 
+ *
  * Manages Redis connections with support for persistent connections,
  * connection pooling, and automatic reconnection.
  */
@@ -27,6 +24,7 @@ class RedisManager
 {
     /**
      * Active Redis connections
+     *
      * @var array<string, Redis>
      */
     protected array $connections = [];
@@ -52,14 +50,14 @@ class RedisManager
      */
     public function connection(?string $name = null): Redis
     {
-        $name = $name ?? $this->default;
+        $name ??= $this->default;
 
-        if (!isset($this->connections[$name])) {
+        if (! isset($this->connections[$name])) {
             $this->connections[$name] = $this->connect($name);
         }
 
         // Verify connection is still alive
-        if (!$this->isConnected($this->connections[$name])) {
+        if (! $this->isConnected($this->connections[$name])) {
             $this->connections[$name] = $this->connect($name);
         }
 
@@ -92,13 +90,13 @@ class RedisManager
                 );
             }
 
-            if (!$connected) {
+            if (! $connected) {
                 throw new RedisConnectionException("Failed to connect to Redis [{$name}]");
             }
 
             // Authenticate if password is set
-            if (!empty($config['password'])) {
-                if (!$redis->auth($config['password'])) {
+            if (! empty($config['password'])) {
+                if (! $redis->auth($config['password'])) {
                     throw new RedisConnectionException("Redis authentication failed [{$name}]");
                 }
             }
@@ -109,7 +107,7 @@ class RedisManager
             }
 
             // Set prefix for keys
-            if (!empty($config['prefix'])) {
+            if (! empty($config['prefix'])) {
                 $redis->setOption(Redis::OPT_PREFIX, $config['prefix']);
             }
 
@@ -158,9 +156,11 @@ class RedisManager
     {
         try {
             $redis->ping();
+
             return true;
         } catch (RedisException $e) {
             logger()->debug('Redis connection check failed', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -170,7 +170,7 @@ class RedisManager
      */
     public function disconnect(?string $name = null): void
     {
-        $name = $name ?? $this->default;
+        $name ??= $this->default;
 
         if (isset($this->connections[$name])) {
             try {

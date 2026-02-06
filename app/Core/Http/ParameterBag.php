@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -21,7 +18,7 @@ use Traversable;
 
 /**
  * Parameter Bag
- * 
+ *
  * Container for request parameters with convenient access methods
  */
 class ParameterBag implements IteratorAggregate, Countable
@@ -86,6 +83,7 @@ class ParameterBag implements IteratorAggregate, Countable
      *
      * @param string $key
      * @param mixed $default
+     *
      * @return mixed
      */
     public function get(string $key, mixed $default = null): mixed
@@ -108,6 +106,7 @@ class ParameterBag implements IteratorAggregate, Countable
      * Check if parameter exists
      *
      * @param string $key
+     *
      * @return bool
      */
     public function has(string $key): bool
@@ -130,12 +129,13 @@ class ParameterBag implements IteratorAggregate, Countable
      *
      * @param string $key
      * @param string $default
+     *
      * @return string
      */
     public function getString(string $key, string $default = ''): string
     {
         $value = $this->get($key, $default);
-        
+
         return is_scalar($value) ? (string) $value : $default;
     }
 
@@ -144,6 +144,7 @@ class ParameterBag implements IteratorAggregate, Countable
      *
      * @param string $key
      * @param int $default
+     *
      * @return int
      */
     public function getInt(string $key, int $default = 0): int
@@ -156,12 +157,13 @@ class ParameterBag implements IteratorAggregate, Countable
      *
      * @param string $key
      * @param bool $default
+     *
      * @return bool
      */
     public function getBoolean(string $key, bool $default = false): bool
     {
         $value = $this->get($key, $default);
-        
+
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $default;
     }
 

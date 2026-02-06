@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,10 +13,11 @@ namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
 use App\Core\Database\Connection;
+use Throwable;
 
 /**
  * Health Check Command
- * 
+ *
  * Validates system health: env, database, directories, config.
  */
 class HealthCheckCommand extends Command
@@ -55,18 +53,21 @@ class HealthCheckCommand extends Command
 
         // Summary
         $this->line(str_repeat('═', 50));
-        
+
         if ($this->errors > 0) {
             $this->error("Health check failed: {$this->errors} error(s), {$this->warnings} warning(s)");
+
             return 1;
         }
 
         if ($this->warnings > 0) {
             $this->warn("Health check passed with {$this->warnings} warning(s)");
+
             return 0;
         }
 
         $this->info("✅ All checks passed!");
+
         return 0;
     }
 
@@ -78,9 +79,10 @@ class HealthCheckCommand extends Command
         $envFile = $rootDir . '/.env';
 
         // Check .env exists
-        if (!file_exists($envFile)) {
+        if (! file_exists($envFile)) {
             $this->addError(".env file not found");
             $this->line("  Run: php bin/console s:i");
+
             return;
         }
         $this->pass(".env file exists");
@@ -88,7 +90,7 @@ class HealthCheckCommand extends Command
         // Load and check required keys
         $env = $this->loadEnv($envFile);
         $required = ['APP_ENV', 'APP_KEY', 'SITE_URL'];
-        
+
         foreach ($required as $key) {
             if (empty($env[$key])) {
                 $this->addError("Missing required env: {$key}");
@@ -100,7 +102,7 @@ class HealthCheckCommand extends Command
         // Warn if debug in production
         $appEnv = $env['APP_ENV'] ?? 'production';
         $appDebug = ($env['APP_DEBUG'] ?? 'false') === 'true';
-        
+
         if ($appEnv === 'production' && $appDebug) {
             $this->addWarning("APP_DEBUG=true in production environment");
         }
@@ -126,13 +128,13 @@ class HealthCheckCommand extends Command
 
         foreach ($dirs as $dir => $writable) {
             $path = $rootDir . '/' . $dir;
-            
-            if (!is_dir($path)) {
+
+            if (! is_dir($path)) {
                 $this->addError("Directory missing: {$dir}");
                 continue;
             }
 
-            if ($writable && !is_writable($path)) {
+            if ($writable && ! is_writable($path)) {
                 $this->addError("Directory not writable: {$dir}");
                 continue;
             }
@@ -142,7 +144,7 @@ class HealthCheckCommand extends Command
             }
         }
 
-        if (!$verbose && $this->errors === 0) {
+        if (! $verbose && $this->errors === 0) {
             $this->pass("All directories OK");
         }
     }
@@ -160,6 +162,7 @@ class HealthCheckCommand extends Command
 
         if (empty($dbHost) || empty($dbName)) {
             $this->addWarning("Database not configured (skipping connectivity test)");
+
             return;
         }
 
@@ -176,10 +179,10 @@ class HealthCheckCommand extends Command
 
             $connection = new Connection($config);
             $pdo = $connection->getPdo();
-            
+
             // Simple connectivity test
             $pdo->query('SELECT 1');
-            
+
             $this->pass("Database connection OK ({$config['driver']}://{$dbHost}/{$dbName})");
 
             // Check migrations table
@@ -189,11 +192,11 @@ class HealthCheckCommand extends Command
                 if ($verbose) {
                     $this->line("    • {$count} migration(s) recorded");
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 $this->addWarning("Migrations table not found (run s:up)");
             }
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->addError("Database connection failed: " . $e->getMessage());
         }
     }
@@ -217,17 +220,17 @@ class HealthCheckCommand extends Command
         $missing = [];
         foreach ($cacheFiles as $file => $desc) {
             $path = $cacheDir . '/' . $file;
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 $missing[] = $desc;
             } elseif ($verbose) {
                 $this->pass("{$desc} cached");
             }
         }
 
-        if (!empty($missing)) {
+        if (! empty($missing)) {
             $this->addWarning("Compiled caches missing: " . implode(', ', $missing));
             $this->line("    Run: php bin/console s:up");
-        } elseif (!$verbose) {
+        } elseif (! $verbose) {
             $this->pass("All compiled caches present");
         }
     }
@@ -239,8 +242,9 @@ class HealthCheckCommand extends Command
         $rootDir = $this->getRootDir();
         $modulesCache = $rootDir . '/var/cache/modules.php';
 
-        if (!file_exists($modulesCache)) {
+        if (! file_exists($modulesCache)) {
             $this->addWarning("Module registry not cached");
+
             return;
         }
 
@@ -261,14 +265,14 @@ class HealthCheckCommand extends Command
 
         $this->pass("{$enabled} module(s) enabled, {$disabled} disabled");
 
-        if ($verbose && !empty($loadOrder)) {
+        if ($verbose && ! empty($loadOrder)) {
             $this->line("    Load order: " . implode(' → ', $loadOrder));
         }
 
         // Check for missing module files
         foreach ($modules as $name => $module) {
             $path = $module['path'] ?? '';
-            if (!empty($path) && !is_dir($path)) {
+            if (! empty($path) && ! is_dir($path)) {
                 $this->addError("Module directory missing: {$name}");
             }
         }
@@ -276,13 +280,13 @@ class HealthCheckCommand extends Command
 
     protected function loadEnv(string $path): array
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return [];
         }
 
         $env = [];
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        
+
         foreach ($lines as $line) {
             if (str_starts_with(trim($line), '#')) {
                 continue;

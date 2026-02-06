@@ -1,27 +1,25 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Support;
 
 use App\Core\Application;
-use App\Core\Redis\RedisManager;
 use App\Core\Contracts\Queue\QueueInterface;
 use App\Core\Queue\RedisQueue;
+use App\Core\Redis\RedisManager;
+use Throwable;
 
 /**
  * Health Check
- * 
+ *
  * Provides system health information for monitoring
  */
 class HealthCheck
@@ -35,6 +33,7 @@ class HealthCheck
 
     /**
      * Component health statuses
+     *
      * @var array<string, string>
      */
     protected array $componentStatus = [];
@@ -86,14 +85,14 @@ class HealthCheck
         ];
 
         // Check if database manager is registered
-        if (!$this->app->has(\App\Core\Database\DatabaseManager::class)) {
+        if (! $this->app->has(\App\Core\Database\DatabaseManager::class)) {
             return $info;
         }
 
         try {
             $db = $this->app->make(\App\Core\Database\DatabaseManager::class);
             $connection = $db->connection();
-            
+
             // Test connection
             $connection->select('SELECT 1');
             $info['status'] = 'connected';
@@ -107,11 +106,11 @@ class HealthCheck
                     'SELECT migration FROM migrations ORDER BY id DESC LIMIT 1'
                 );
                 $info['last_migration'] = $result['migration'] ?? null;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $info['last_migration'] = 'migrations_table_not_found';
             }
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $info['status'] = 'error';
             $info['error'] = $e->getMessage();
         }
@@ -138,7 +137,7 @@ class HealthCheck
                 $router = $this->app->make(\App\Core\Contracts\Routing\RouterInterface::class);
                 $info['router'] = 'active';
                 $info['routes_count'] = count($router->getRoutes());
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $info['router'] = 'error';
             }
         }
@@ -163,13 +162,13 @@ class HealthCheck
             'connection' => null,
         ];
 
-        if (env('CACHE_DRIVER') !== 'redis' && 
-            env('SESSION_DRIVER') !== 'redis' && 
+        if (env('CACHE_DRIVER') !== 'redis' &&
+            env('SESSION_DRIVER') !== 'redis' &&
             env('QUEUE_CONNECTION') !== 'redis') {
             return $info;
         }
 
-        if (!$this->app->has(RedisManager::class)) {
+        if (! $this->app->has(RedisManager::class)) {
             return $info;
         }
 
@@ -177,18 +176,18 @@ class HealthCheck
             $redis = $this->app->make(RedisManager::class);
             $connection = $redis->connection();
             $connection->ping();
-            
+
             $info['status'] = 'connected';
             $info['connection'] = 'default';
-            
+
             $redisInfo = $connection->info();
             $info['version'] = $redisInfo['redis_version'] ?? 'unknown';
             $info['memory_used'] = $redisInfo['used_memory_human'] ?? 'unknown';
             $info['connected_clients'] = $redisInfo['connected_clients'] ?? 0;
             $info['uptime_seconds'] = $redisInfo['uptime_in_seconds'] ?? 0;
-            
+
             $this->componentStatus['redis'] = 'healthy';
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $info['status'] = 'error';
             $info['error'] = $e->getMessage();
             $this->componentStatus['redis'] = 'critical';
@@ -209,23 +208,23 @@ class HealthCheck
             'driver' => env('QUEUE_CONNECTION', 'sync'),
         ];
 
-        if (!$this->app->has(QueueInterface::class)) {
+        if (! $this->app->has(QueueInterface::class)) {
             return $info;
         }
 
         try {
             $queue = $this->app->make(QueueInterface::class);
             $info['status'] = 'active';
-            
+
             if ($queue instanceof RedisQueue) {
                 $stats = $queue->stats();
                 $info['pending'] = $stats['pending'] ?? 0;
                 $info['delayed'] = $stats['delayed'] ?? 0;
                 $info['failed'] = $stats['failed'] ?? 0;
             }
-            
+
             $this->componentStatus['queue'] = 'healthy';
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $info['status'] = 'error';
             $info['error'] = $e->getMessage();
             $this->componentStatus['queue'] = 'degraded';
@@ -248,13 +247,13 @@ class HealthCheck
 
         try {
             $cache = cache();
-            
+
             // Test cache operation
             $testKey = '_health_check_' . time();
             $cache->put($testKey, true, 10);
             $result = $cache->get($testKey);
             $cache->forget($testKey);
-            
+
             if ($result === true) {
                 $info['status'] = 'active';
                 $this->componentStatus['cache'] = 'healthy';
@@ -262,7 +261,7 @@ class HealthCheck
                 $info['status'] = 'degraded';
                 $this->componentStatus['cache'] = 'degraded';
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $info['status'] = 'error';
             $info['error'] = $e->getMessage();
             $this->componentStatus['cache'] = 'critical';
@@ -284,19 +283,19 @@ class HealthCheck
             'deferred' => 0,
         ];
 
-        if (!$this->app->has(\App\Core\Module\ModuleLoader::class)) {
+        if (! $this->app->has(\App\Core\Module\ModuleLoader::class)) {
             return $info;
         }
 
         try {
             $loader = $this->app->make(\App\Core\Module\ModuleLoader::class);
             $registry = $loader->getRegistry();
-            
+
             $info['total'] = count($registry->getEnabled());
             $info['loaded'] = count($loader->getLoadedModuleNames());
             $info['deferred'] = count($loader->getDeferredModules());
             $info['modules'] = array_map(
-                fn($m) => [
+                fn ($m) => [
                     'name' => $m->name,
                     'version' => $m->version,
                     'lazy' => $m->lazy,
@@ -304,7 +303,7 @@ class HealthCheck
                 ],
                 $registry->getEnabled()
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $info['error'] = $e->getMessage();
         }
 
@@ -392,6 +391,7 @@ class HealthCheck
      * Convert PHP ini memory value to bytes
      *
      * @param string $value
+     *
      * @return int
      */
     protected function convertToBytes(string $value): int

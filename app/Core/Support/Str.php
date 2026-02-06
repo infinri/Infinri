@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Support;
 
 /**
  * String Helper
- * 
+ *
  * Centralized string manipulation utilities.
  * Single source of truth for common string operations.
  */
@@ -28,11 +25,11 @@ final class Str
     public static function normalizeUri(string $uri, bool $keepTrailing = false): string
     {
         $uri = '/' . trim($uri, '/');
-        
+
         if ($uri === '/') {
             return '/';
         }
-        
+
         return $keepTrailing ? $uri : rtrim($uri, '/');
     }
 
@@ -41,7 +38,8 @@ final class Str
      */
     public static function joinUri(string ...$segments): string
     {
-        $path = implode('/', array_map(fn($s) => trim($s, '/'), $segments));
+        $path = implode('/', array_map(fn ($s) => trim($s, '/'), $segments));
+
         return self::normalizeUri($path);
     }
 
@@ -61,6 +59,7 @@ final class Str
         if (str_starts_with($key, 'HTTP_')) {
             $key = substr($key, 5);
         }
+
         return str_replace('_', '-', $key);
     }
 
@@ -74,6 +73,7 @@ final class Str
                 return true;
             }
         }
+
         return false;
     }
 
@@ -85,23 +85,23 @@ final class Str
         if (is_string($value)) {
             return $value;
         }
-        
+
         if (is_scalar($value)) {
             return (string) $value;
         }
-        
+
         if (is_null($value)) {
             return '';
         }
-        
+
         if (is_array($value)) {
             return json_encode($value) ?: '';
         }
-        
+
         if (is_object($value) && method_exists($value, '__toString')) {
             return (string) $value;
         }
-        
+
         return '';
     }
 
@@ -113,14 +113,14 @@ final class Str
         if (is_bool($value)) {
             return $value;
         }
-        
+
         if (is_string($value)) {
             return match (strtolower($value)) {
                 'true', '1', 'yes', 'on' => true,
                 default => false,
             };
         }
-        
+
         return (bool) $value;
     }
 
@@ -130,6 +130,7 @@ final class Str
     public static function studly(string $value): string
     {
         $words = explode(' ', str_replace(['-', '_'], ' ', $value));
+
         return implode('', array_map('ucfirst', $words));
     }
 
@@ -147,6 +148,7 @@ final class Str
     public static function snake(string $value, string $delimiter = '_'): string
     {
         $value = preg_replace('/\s+/u', '', ucwords($value));
+
         return strtolower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
     }
 
@@ -164,6 +166,7 @@ final class Str
     public static function classBasename(string|object $class): string
     {
         $class = is_object($class) ? get_class($class) : $class;
+
         return basename(str_replace('\\', '/', $class));
     }
 
@@ -174,6 +177,7 @@ final class Str
     {
         $value = preg_replace('/[^\pL\d]+/u', $separator, $value);
         $value = preg_replace('/[' . preg_quote($separator) . ']+/u', $separator, $value);
+
         return strtolower(trim($value, $separator));
     }
 
@@ -185,6 +189,7 @@ final class Str
         if (mb_strlen($value) <= $limit) {
             return $value;
         }
+
         return mb_substr($value, 0, $limit) . $end;
     }
 
@@ -199,6 +204,7 @@ final class Str
         for ($i = 0; $i < $length; $i++) {
             $result .= $chars[random_int(0, $max)];
         }
+
         return $result;
     }
 
@@ -212,6 +218,7 @@ final class Str
                 return true;
             }
         }
+
         return false;
     }
 
@@ -225,6 +232,7 @@ final class Str
                 return true;
             }
         }
+
         return false;
     }
 }

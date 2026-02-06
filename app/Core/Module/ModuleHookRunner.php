@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Module;
 
+use Throwable;
+
 /**
  * Module Hook Runner
- * 
+ *
  * Executes module lifecycle hooks:
  * - onInstall() - First time setup
  * - onUpgrade($fromVersion) - Version upgrades
@@ -52,7 +51,7 @@ class ModuleHookRunner
 
         foreach ($this->registry->getEnabled() as $module) {
             // Check if new install
-            if (!isset($this->state['installed'][$module->name])) {
+            if (! isset($this->state['installed'][$module->name])) {
                 if ($this->runHook($module, 'onInstall')) {
                     $results['installed'][] = $module->name;
                 }
@@ -101,32 +100,34 @@ class ModuleHookRunner
     {
         $hooksFile = $module->getFilePath('hooks.php');
 
-        if (!file_exists($hooksFile)) {
+        if (! file_exists($hooksFile)) {
             return false;
         }
 
         $hooks = require $hooksFile;
 
-        if (!is_array($hooks) || !isset($hooks[$hook])) {
+        if (! is_array($hooks) || ! isset($hooks[$hook])) {
             return false;
         }
 
         $callback = $hooks[$hook];
 
-        if (!is_callable($callback)) {
+        if (! is_callable($callback)) {
             return false;
         }
 
         try {
             $callback(...$args);
+
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Log error but don't fail
             if (function_exists('log_error')) {
                 log_error("Module hook failed: {$module->name}::{$hook}", [
                     'error' => $e->getMessage(),
                 ]);
             }
+
             return false;
         }
     }
@@ -179,7 +180,7 @@ class ModuleHookRunner
      */
     public function needsInstall(string $name): bool
     {
-        return !isset($this->state['installed'][$name]);
+        return ! isset($this->state['installed'][$name]);
     }
 
     /**
@@ -188,7 +189,7 @@ class ModuleHookRunner
     public function needsUpgrade(ModuleDefinition $module): bool
     {
         $installed = $this->state['installed'][$module->name] ?? null;
-        
+
         if ($installed === null) {
             return false;
         }

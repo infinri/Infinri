@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Queue;
 
+use Throwable;
+
 /**
  * Base Job Class
- * 
+ *
  * Base class for all queueable jobs.
  */
 abstract class Job
@@ -49,7 +48,7 @@ abstract class Job
     /**
      * Handle a job failure
      */
-    public function failed(?\Throwable $exception = null): void
+    public function failed(?Throwable $exception = null): void
     {
         // Override in child classes to handle failures
     }
@@ -68,6 +67,7 @@ abstract class Job
     public function onQueue(string $queue): static
     {
         $this->queue = $queue;
+
         return $this;
     }
 
@@ -77,6 +77,7 @@ abstract class Job
     public function onConnection(string $connection): static
     {
         $this->connection = $connection;
+
         return $this;
     }
 }

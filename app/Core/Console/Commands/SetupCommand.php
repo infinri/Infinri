@@ -1,40 +1,38 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
-use App\Core\Console\Command;
 use App\Core\Compiler\CompilerManager;
+use App\Core\Console\Command;
 use App\Core\Database\Connection;
 use App\Core\Database\DatabaseBackup;
-use App\Core\Module\ModuleRegistry;
 use App\Core\Module\ModuleHookRunner;
-use App\Core\Setup\SchemaProcessor;
+use App\Core\Module\ModuleRegistry;
 use App\Core\Setup\PatchApplier;
 use App\Core\Setup\PatchRegistry;
+use App\Core\Setup\SchemaProcessor;
 use App\Core\Support\EnvManager;
+use Throwable;
 
 /**
  * Setup Command (Core)
- * 
+ *
  * Handles framework-level setup and updates:
  * - Module registry
  * - APP_VERSION cache busting
  * - Database migrations
  * - Cache clearing
  * - Permissions
- * 
+ *
  * Flags:
  *   --skip-db       Skip database migrations
  *   --skip-compile  Skip compilation step
@@ -75,7 +73,7 @@ class SetupCommand extends Command
         if ($this->dryRun) {
             echo "🔍 DRY RUN - No changes will be made\n";
         }
-        
+
         echo "🚀 Running setup...\n";
         echo str_repeat('─', 50) . "\n";
 
@@ -86,14 +84,14 @@ class SetupCommand extends Command
         $this->rebuildModuleRegistry();
 
         // Step 3: Run module hooks (install/upgrade/beforeSetup)
-        if (!$this->skipHooks) {
+        if (! $this->skipHooks) {
             $this->runModuleHooks();
         } else {
             echo "\n🪝 Module Hooks\n  ⏭️  Skipped (--skip-hooks)\n";
         }
 
         // Step 4: Clear runtime caches (before compilation)
-        if (!$this->skipCache) {
+        if (! $this->skipCache) {
             if ($this->dryRun) {
                 echo "\n🧹 Caches\n  → Would clear file cache\n";
             } else {
@@ -104,7 +102,7 @@ class SetupCommand extends Command
         }
 
         // Step 5: Compile configs, events, container
-        if (!$this->skipCompile) {
+        if (! $this->skipCompile) {
             if ($this->dryRun) {
                 echo "\n⚙️  Compilation\n  → Would compile: config, events, container, routes, middleware\n";
             } else {
@@ -115,14 +113,14 @@ class SetupCommand extends Command
         }
 
         // Step 6: Update APP_VERSION
-        if (!$this->dryRun) {
+        if (! $this->dryRun) {
             $this->updateAppVersion();
         } else {
             echo "\n🔄 Cache Busting\n  → Would update APP_VERSION\n";
         }
 
         // Step 7: Run migrations (if any pending)
-        if (!$this->skipDb) {
+        if (! $this->skipDb) {
             $this->runMigrations();
         } else {
             echo "\n📦 Migrations\n  ⏭️  Skipped (--skip-db)\n";
@@ -132,7 +130,7 @@ class SetupCommand extends Command
         $this->fixPermissions();
 
         // Step 9: Run module afterSetup hooks
-        if (!$this->skipHooks) {
+        if (! $this->skipHooks) {
             $this->runModuleAfterSetupHooks();
         }
 
@@ -143,7 +141,7 @@ class SetupCommand extends Command
         $this->afterSetup();
 
         echo str_repeat('─', 50) . "\n";
-        
+
         if ($this->dryRun) {
             echo "🔍 DRY RUN complete - no changes made\n\n";
         } else {
@@ -158,7 +156,7 @@ class SetupCommand extends Command
     {
         // Reload env to get updated values
         $this->env->reload();
-        
+
         $appEnv = $this->targetEnv ?? $this->env->get('APP_ENV', 'production');
         $appVersion = $this->env->get('APP_VERSION', 'unknown');
         $gitHash = $this->getGitHash();
@@ -166,11 +164,11 @@ class SetupCommand extends Command
         echo "\n📊 Summary\n";
         echo "  • Environment: {$appEnv}\n";
         echo "  • Version: {$appVersion}\n";
-        
+
         if ($gitHash) {
             echo "  • Git: {$gitHash}\n";
         }
-        
+
         echo "\n";
     }
 
@@ -201,7 +199,7 @@ class SetupCommand extends Command
 
         echo "  • PHP: {$phpVersion}\n";
         echo "  • Environment: {$appEnv}\n";
-        
+
         if ($gitHash) {
             echo "  • Git: {$gitHash}\n";
         }
@@ -218,12 +216,12 @@ class SetupCommand extends Command
             echo "  ⚠️  PHP 8.1+ required\n";
         }
 
-        if (!$this->env->exists()) {
+        if (! $this->env->exists()) {
             echo "  ⚠️  .env file not found - run: php bin/console s:i\n";
         }
 
         // If --env was specified, update .env file
-        if ($this->targetEnv !== null && !$this->dryRun) {
+        if ($this->targetEnv !== null && ! $this->dryRun) {
             $this->env->persist('APP_ENV', $this->targetEnv);
         }
     }
@@ -231,7 +229,7 @@ class SetupCommand extends Command
     protected function getGitHash(): ?string
     {
         $gitDir = $this->rootDir . '/.git';
-        if (!is_dir($gitDir)) {
+        if (! is_dir($gitDir)) {
             return null;
         }
 
@@ -239,7 +237,7 @@ class SetupCommand extends Command
         $result = null;
         exec('git rev-parse --short HEAD 2>/dev/null', $output, $result);
 
-        if ($result === 0 && !empty($output[0])) {
+        if ($result === 0 && ! empty($output[0])) {
             return $output[0];
         }
 
@@ -258,7 +256,7 @@ class SetupCommand extends Command
             $this->registry->rebuild();
 
             $modules = $this->registry->all();
-            $enabled = array_filter($modules, fn($m) => $m->enabled);
+            $enabled = array_filter($modules, fn ($m) => $m->enabled);
 
             echo "  ✓ Registry rebuilt\n";
             echo "  • Found " . count($modules) . " module(s)\n";
@@ -266,14 +264,14 @@ class SetupCommand extends Command
             echo "  • Load order: " . implode(' → ', $this->registry->getLoadOrder()) . "\n";
 
             $this->hookRunner = new ModuleHookRunner($this->registry);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo "  ✗ Failed: " . $e->getMessage() . "\n";
         }
     }
 
     protected function runModuleHooks(): void
     {
-        if (!isset($this->hookRunner)) {
+        if (! isset($this->hookRunner)) {
             return;
         }
 
@@ -282,13 +280,13 @@ class SetupCommand extends Command
         try {
             $results = $this->hookRunner->runSetupHooks();
 
-            if (!empty($results['installed'])) {
+            if (! empty($results['installed'])) {
                 foreach ($results['installed'] as $name) {
                     echo "  ✓ Installed: {$name}\n";
                 }
             }
 
-            if (!empty($results['upgraded'])) {
+            if (! empty($results['upgraded'])) {
                 foreach ($results['upgraded'] as $info) {
                     echo "  ✓ Upgraded: {$info}\n";
                 }
@@ -302,21 +300,21 @@ class SetupCommand extends Command
             if (empty($results['installed']) && empty($results['upgraded']) && $hookCount === 0) {
                 echo "  • No hooks to run\n";
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo "  ⚠️  Hook error: " . $e->getMessage() . "\n";
         }
     }
 
     protected function runModuleAfterSetupHooks(): void
     {
-        if (!isset($this->hookRunner)) {
+        if (! isset($this->hookRunner)) {
             return;
         }
 
         try {
             $results = $this->hookRunner->runAfterSetupHooks();
             // Silent unless there's an error
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo "\n⚠️  afterSetup hook error: " . $e->getMessage() . "\n";
         }
     }
@@ -330,25 +328,25 @@ class SetupCommand extends Command
             $compiler->compileAll();
 
             $stats = $compiler->getStats();
-            
+
             echo "  ✓ Config compiled\n";
             echo "  ✓ Events compiled\n";
             echo "  ✓ Container compiled\n";
             echo "  ✓ Routes compiled\n";
             echo "  ✓ Middleware compiled\n";
-            
+
             if ($stats['container']['total_providers'] > 0) {
                 echo "  • Providers: " . $stats['container']['total_providers'] . "\n";
             }
             if ($stats['container']['deferred_providers'] > 0) {
                 echo "  • Deferred: " . $stats['container']['deferred_providers'] . "\n";
             }
-            
+
             $eventCount = array_sum($stats['events']);
             if ($eventCount > 0) {
                 echo "  • Event listeners: " . $eventCount . "\n";
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo "  ✗ Failed: " . $e->getMessage() . "\n";
         }
     }
@@ -357,8 +355,9 @@ class SetupCommand extends Command
     {
         echo "\n🔄 Cache Busting\n";
 
-        if (!$this->env->exists()) {
+        if (! $this->env->exists()) {
             echo "  ⚠️  Skipped (no .env file)\n";
+
             return;
         }
 
@@ -377,6 +376,7 @@ class SetupCommand extends Command
 
         if (empty($dbHost) || empty($dbName)) {
             echo "  ℹ️  Database not configured - skipping\n";
+
             return;
         }
 
@@ -389,9 +389,9 @@ class SetupCommand extends Command
             // Step 2: Apply patches (schema patches first, then data patches)
             $this->applyPatches($connection);
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo "  ⚠️  Database setup failed: " . $e->getMessage() . "\n";
-            if (!$this->noBackup) {
+            if (! $this->noBackup) {
                 echo "  ℹ️  Restore from var/backups/ if needed\n";
             }
             throw $e;
@@ -411,28 +411,30 @@ class SetupCommand extends Command
             $pending = $schemaProcessor->getPending();
             if (empty($pending)) {
                 echo "    ✓ No pending schema changes\n";
+
                 return;
             }
             foreach ($pending as $change) {
                 echo "    → Would {$change['type']}: {$change['table']} ({$change['module']})\n";
             }
+
             return;
         }
 
         // Backup before schema changes (unless --no-backup)
-        if (!$this->noBackup) {
+        if (! $this->noBackup) {
             $this->backupDatabase();
         }
 
         $results = $schemaProcessor->processAll();
 
-        if (!empty($results['created'])) {
+        if (! empty($results['created'])) {
             foreach ($results['created'] as $table) {
                 echo "    ✓ Created: {$table}\n";
             }
         }
 
-        if (!empty($results['modified'])) {
+        if (! empty($results['modified'])) {
             foreach ($results['modified'] as $table) {
                 echo "    ✓ Modified: {$table}\n";
             }
@@ -463,6 +465,7 @@ class SetupCommand extends Command
 
             if ($schemaCount === 0 && $dataCount === 0) {
                 echo "    ✓ No pending patches\n";
+
                 return;
             }
 
@@ -472,19 +475,20 @@ class SetupCommand extends Command
             foreach ($pending['data'] as $patch) {
                 echo "    → Would apply data patch: {$patch['class']}\n";
             }
+
             return;
         }
 
         $results = $patchApplier->applyAll();
 
-        if (!empty($results['schema'])) {
+        if (! empty($results['schema'])) {
             foreach ($results['schema'] as $patch) {
                 $shortName = $this->getShortPatchName($patch);
                 echo "    ✓ Schema patch: {$shortName}\n";
             }
         }
 
-        if (!empty($results['data'])) {
+        if (! empty($results['data'])) {
             foreach ($results['data'] as $patch) {
                 $shortName = $this->getShortPatchName($patch);
                 echo "    ✓ Data patch: {$shortName}\n";
@@ -505,6 +509,7 @@ class SetupCommand extends Command
     protected function getShortPatchName(string $fullClass): string
     {
         $parts = explode('\\', $fullClass);
+
         return end($parts);
     }
 
@@ -575,7 +580,7 @@ class SetupCommand extends Command
         echo "\n🔒 Permissions\n";
 
         $permsCmd = new PermissionsCommand();
-        
+
         ob_start();
         $permsCmd->execute('setup:permissions', []);
         ob_end_clean();
@@ -589,26 +594,28 @@ class SetupCommand extends Command
     protected function generatePreload(): void
     {
         $appEnv = $this->targetEnv ?? $this->env->get('APP_ENV', 'production');
-        
+
         // Only generate in production
         if ($appEnv !== 'production') {
             echo "\n⚡ Preload\n  ⏭️  Skipped (not production)\n";
+
             return;
         }
-        
+
         if ($this->dryRun) {
             echo "\n⚡ Preload\n  → Would generate preload.php\n";
+
             return;
         }
-        
+
         echo "\n⚡ Preload\n";
-        
+
         $preloadCommand = new PreloadGenerateCommand();
-        
+
         ob_start();
         $preloadCommand->handle([]);
         ob_end_clean();
-        
+
         echo "  ✓ preload.php generated\n";
     }
 

@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -20,13 +17,13 @@ use App\Core\Http\JsonResponse;
 
 /**
  * Authorize Middleware
- * 
+ *
  * Apply authorization checks at the route level.
- * 
+ *
  * Usage in routes:
  *   $router->get('/posts/{id}/edit', [PostController::class, 'edit'])
  *       ->middleware(AuthorizeMiddleware::class . ':update,post');
- * 
+ *
  * Or with custom ability:
  *   ->middleware('can:admin-access')
  */
@@ -104,39 +101,39 @@ class AuthorizeMiddleware
     protected function render403Page(string $message): string
     {
         $escapedMessage = e($message); // Uses Core\Security\Sanitizer::html()
-        
+
         return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>403 Forbidden</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-               display: flex; justify-content: center; align-items: center; 
-               min-height: 100vh; margin: 0; background: #f5f5f5; }
-        .container { text-align: center; padding: 40px; }
-        h1 { font-size: 72px; margin: 0; color: #333; }
-        p { color: #666; margin: 20px 0; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>403</h1>
-        <p>{$escapedMessage}</p>
-        <a href="/">Return Home</a>
-    </div>
-</body>
-</html>
-HTML;
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>403 Forbidden</title>
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                           display: flex; justify-content: center; align-items: center; 
+                           min-height: 100vh; margin: 0; background: #f5f5f5; }
+                    .container { text-align: center; padding: 40px; }
+                    h1 { font-size: 72px; margin: 0; color: #333; }
+                    p { color: #666; margin: 20px 0; }
+                    a { color: #0066cc; text-decoration: none; }
+                    a:hover { text-decoration: underline; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>403</h1>
+                    <p>{$escapedMessage}</p>
+                    <a href="/">Return Home</a>
+                </div>
+            </body>
+            </html>
+            HTML;
     }
 
     /**
      * Create middleware instance with parameters
-     * 
+     *
      * @param string $ability The ability to check
      * @param string|null $model Route parameter name for the model
      */

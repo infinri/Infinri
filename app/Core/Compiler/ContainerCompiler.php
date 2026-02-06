@@ -1,22 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Compiler;
 
+use ReflectionClass;
+use Throwable;
+
 /**
  * Container Compiler
- * 
+ *
  * Compiles service provider bindings for faster container resolution.
  */
 class ContainerCompiler extends AbstractCompiler
@@ -38,7 +38,7 @@ class ContainerCompiler extends AbstractCompiler
 
         foreach ($this->registry->getEnabled() as $module) {
             foreach ($module->providers as $providerClass) {
-                if (!class_exists($providerClass)) {
+                if (! class_exists($providerClass)) {
                     continue;
                 }
 
@@ -48,13 +48,13 @@ class ContainerCompiler extends AbstractCompiler
                 ];
 
                 try {
-                    $reflection = new \ReflectionClass($providerClass);
-                    
+                    $reflection = new ReflectionClass($providerClass);
+
                     if ($reflection->hasMethod('isDeferred')) {
                         $instance = $reflection->newInstanceWithoutConstructor();
                         if ($instance->isDeferred()) {
                             $compiled['deferred'][] = $providerClass;
-                            
+
                             if ($reflection->hasMethod('provides')) {
                                 $provides = $instance->provides();
                                 foreach ($provides as $service) {
@@ -63,7 +63,7 @@ class ContainerCompiler extends AbstractCompiler
                             }
                         }
                     }
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     // Skip providers that can't be reflected (missing dependencies, etc)
                     if (function_exists('logger')) {
                         logger()->debug('Container compiler skipped provider', [
@@ -83,7 +83,7 @@ class ContainerCompiler extends AbstractCompiler
     public function getStats(): array
     {
         $data = $this->load();
-        
+
         return [
             'total_providers' => count($data['providers']),
             'deferred_providers' => count($data['deferred']),

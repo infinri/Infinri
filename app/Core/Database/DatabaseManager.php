@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,16 +16,16 @@ use App\Core\Contracts\Database\ConnectionInterface;
 
 /**
  * Database Manager
- * 
+ *
  * Manages multiple database connections and provides a facade for database operations.
  */
 class DatabaseManager
 {
     protected Application $app;
-    
+
     /** @var array<string, ConnectionInterface> */
     protected array $connections = [];
-    
+
     protected string $defaultConnection = 'default';
 
     public function __construct(Application $app)
@@ -41,9 +38,9 @@ class DatabaseManager
      */
     public function connection(?string $name = null): ConnectionInterface
     {
-        $name = $name ?? $this->getDefaultConnection();
+        $name ??= $this->getDefaultConnection();
 
-        if (!isset($this->connections[$name])) {
+        if (! isset($this->connections[$name])) {
             $this->connections[$name] = $this->makeConnection($name);
         }
 
@@ -109,10 +106,10 @@ class DatabaseManager
      */
     public function reconnect(?string $name = null): ConnectionInterface
     {
-        $name = $name ?? $this->getDefaultConnection();
-        
+        $name ??= $this->getDefaultConnection();
+
         $this->disconnect($name);
-        
+
         return $this->connection($name);
     }
 

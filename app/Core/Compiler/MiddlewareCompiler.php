@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Compiler;
 
 /**
  * Middleware Compiler
- * 
+ *
  * Compiles middleware definitions from modules with priority ordering.
  */
 class MiddlewareCompiler extends AbstractCompiler
@@ -91,7 +88,7 @@ class MiddlewareCompiler extends AbstractCompiler
                         $priority = 0;
                     }
 
-                    if (!in_array($class, $compiled[$group])) {
+                    if (! in_array($class, $compiled[$group])) {
                         $compiled[$group][] = $class;
                         $compiled['priority'][$class] = $priority;
                     }
@@ -111,6 +108,7 @@ class MiddlewareCompiler extends AbstractCompiler
         usort($middleware, function ($a, $b) use ($priorities) {
             $priorityA = $priorities[$a] ?? 0;
             $priorityB = $priorities[$b] ?? 0;
+
             return $priorityB <=> $priorityA;
         });
 
@@ -120,6 +118,7 @@ class MiddlewareCompiler extends AbstractCompiler
     public function getStats(): array
     {
         $compiled = $this->load();
+
         return [
             'global' => count($compiled['global']),
             'web' => count($compiled['web']),

@@ -1,25 +1,23 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Queue;
 
-use App\Core\Contracts\Queue\QueueInterface;
 use App\Core\Contracts\Queue\JobInterface;
+use App\Core\Contracts\Queue\QueueInterface;
+use Throwable;
 
 /**
  * Synchronous Queue
- * 
+ *
  * Executes jobs immediately without queuing.
  * Useful for development and testing.
  */
@@ -34,7 +32,7 @@ class SyncQueue implements QueueInterface
 
         try {
             $job->handle();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $job->fail($e);
             throw $e;
         }

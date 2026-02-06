@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -21,7 +18,7 @@ use Closure;
 
 /**
  * Request Timing Middleware
- * 
+ *
  * Logs request timing and adds timing headers for observability.
  * Required for Phase 2 observability requirements.
  */
@@ -31,17 +28,17 @@ class RequestTimingMiddleware implements MiddlewareInterface
     {
         $startTime = microtime(true);
         $startMemory = memory_get_usage(true);
-        
+
         // Execute the request
         $response = $next($request);
-        
+
         // Calculate metrics
         $duration = (microtime(true) - $startTime) * 1000;
         $memoryUsed = memory_get_usage(true) - $startMemory;
-        
+
         // Log the request timing
         $this->logRequestTiming($request, $response, $duration, $memoryUsed);
-        
+
         return $response;
     }
 
@@ -51,7 +48,7 @@ class RequestTimingMiddleware implements MiddlewareInterface
         float $durationMs,
         int $memoryBytes
     ): void {
-        if (!function_exists('logger')) {
+        if (! function_exists('logger')) {
             return;
         }
 

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Console\Command;
 
 /**
  * Make Seeder Command
- * 
+ *
  * Generates a new database seeder file.
  */
 class MakeSeederCommand extends Command
@@ -34,10 +31,11 @@ class MakeSeederCommand extends Command
         if ($name === null) {
             $this->error("Usage: make:seeder <name>");
             $this->line("  Example: make:seeder PostSeeder");
+
             return 1;
         }
 
-        if (!str_ends_with($name, 'Seeder')) {
+        if (! str_ends_with($name, 'Seeder')) {
             $name .= 'Seeder';
         }
 
@@ -46,8 +44,8 @@ class MakeSeederCommand extends Command
         $rootDir = $this->getRootDir();
         $seedersPath = $rootDir . '/database/seeders';
 
-        if (!is_dir($seedersPath)) {
-            mkdir($seedersPath, 0755, true);
+        if (! is_dir($seedersPath)) {
+            mkdir($seedersPath, 0o755, true);
         }
 
         $filename = "{$className}.php";
@@ -55,6 +53,7 @@ class MakeSeederCommand extends Command
 
         if (file_exists($filepath)) {
             $this->error("Seeder '{$className}' already exists.");
+
             return 1;
         }
 
@@ -62,26 +61,24 @@ class MakeSeederCommand extends Command
         $tableName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $modelName)) . 's';
 
         $content = <<<PHP
-<?php
+            <?php declare(strict_types=1);
 
-declare(strict_types=1);
+            namespace Database\\Seeders;
 
-namespace Database\\Seeders;
+            use App\\Core\\Database\\Seeder;
 
-use App\\Core\\Database\\Seeder;
-
-class {$className} extends Seeder
-{
-    public function run(): void
-    {
-        // Example:
-        // \$this->db->table('{$tableName}')->insert([
-        //     'name' => 'Example',
-        //     'created_at' => now(),
-        // ]);
-    }
-}
-PHP;
+            class {$className} extends Seeder
+            {
+                public function run(): void
+                {
+                    // Example:
+                    // \$this->db->table('{$tableName}')->insert([
+                    //     'name' => 'Example',
+                    //     'created_at' => now(),
+                    // ]);
+                }
+            }
+            PHP;
 
         file_put_contents($filepath, $content);
 

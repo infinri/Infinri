@@ -1,27 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Queue;
 
-use App\Core\Contracts\Queue\QueueInterface;
-use App\Core\Contracts\Queue\JobInterface;
 use App\Core\Contracts\Log\LoggerInterface;
+use App\Core\Contracts\Queue\JobInterface;
+use App\Core\Contracts\Queue\QueueInterface;
 use Throwable;
 
 /**
  * Queue Worker
- * 
+ *
  * Long-running worker that processes jobs from the queue.
  * Supports graceful shutdown, memory limits, and job timeouts.
  */
@@ -90,7 +87,7 @@ class QueueWorker
 
         $this->log('info', "Worker started for queue: {$queue}");
 
-        while (!$this->shouldQuit) {
+        while (! $this->shouldQuit) {
             // Check if paused
             if ($this->paused) {
                 $this->sleep($this->options['sleep']);
@@ -128,11 +125,12 @@ class QueueWorker
     {
         $job = $this->getNextJob($queue);
 
-        if (!$job) {
+        if (! $job) {
             return false;
         }
 
         $this->processJob($job);
+
         return true;
     }
 
@@ -145,6 +143,7 @@ class QueueWorker
             return $this->queue->pop($queue);
         } catch (Throwable $e) {
             $this->log('error', "Failed to get job: " . $e->getMessage());
+
             return null;
         }
     }
@@ -218,6 +217,7 @@ class QueueWorker
         // Check job limit
         if ($this->options['max_jobs'] > 0 && $this->jobsProcessed >= $this->options['max_jobs']) {
             $this->log('info', "Stopping: max jobs reached ({$this->options['max_jobs']})");
+
             return true;
         }
 
@@ -226,6 +226,7 @@ class QueueWorker
             $elapsed = microtime(true) - $this->startTime;
             if ($elapsed >= $this->options['max_time']) {
                 $this->log('info', "Stopping: max time reached ({$this->options['max_time']}s)");
+
                 return true;
             }
         }
@@ -234,6 +235,7 @@ class QueueWorker
         $memoryUsage = memory_get_usage(true) / 1024 / 1024;
         if ($memoryUsage >= $this->options['memory_limit']) {
             $this->log('info', "Stopping: memory limit reached ({$memoryUsage}MB)");
+
             return true;
         }
 
@@ -245,16 +247,16 @@ class QueueWorker
      */
     protected function registerSignalHandlers(): void
     {
-        if (!extension_loaded('pcntl')) {
+        if (! extension_loaded('pcntl')) {
             return;
         }
 
         pcntl_async_signals(true);
 
-        pcntl_signal(SIGTERM, fn() => $this->stop());
-        pcntl_signal(SIGINT, fn() => $this->stop());
-        pcntl_signal(SIGUSR2, fn() => $this->pause());
-        pcntl_signal(SIGCONT, fn() => $this->resume());
+        pcntl_signal(SIGTERM, fn () => $this->stop());
+        pcntl_signal(SIGINT, fn () => $this->stop());
+        pcntl_signal(SIGUSR2, fn () => $this->pause());
+        pcntl_signal(SIGCONT, fn () => $this->resume());
     }
 
     /**
@@ -262,7 +264,7 @@ class QueueWorker
      */
     protected function setJobTimeout(): void
     {
-        if (!extension_loaded('pcntl')) {
+        if (! extension_loaded('pcntl')) {
             return;
         }
 
@@ -274,7 +276,7 @@ class QueueWorker
      */
     protected function clearJobTimeout(): void
     {
-        if (!extension_loaded('pcntl')) {
+        if (! extension_loaded('pcntl')) {
             return;
         }
 
@@ -292,7 +294,7 @@ class QueueWorker
 
         // Use usleep for sub-second precision and signal handling
         $microseconds = $seconds * 1000000;
-        while ($microseconds > 0 && !$this->shouldQuit) {
+        while ($microseconds > 0 && ! $this->shouldQuit) {
             $sleepTime = min($microseconds, 100000); // 100ms chunks
             usleep($sleepTime);
             $microseconds -= $sleepTime;

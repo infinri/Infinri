@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use InvalidArgumentException;
 
 /**
  * URL Generator
- * 
+ *
  * Generates URLs from named routes.
  * Single Responsibility: URL generation only.
  */
@@ -26,7 +23,7 @@ class UrlGenerator
 {
     /**
      * Named routes registry
-     * 
+     *
      * @var array<string, Route>
      */
     protected array $namedRoutes = [];
@@ -74,11 +71,11 @@ class UrlGenerator
     public function generate(string $name, array $parameters = [], bool $absolute = false): string
     {
         $route = $this->namedRoutes[$name] ?? null;
-        
+
         if ($route === null) {
             throw new InvalidArgumentException("Route [{$name}] not defined.");
         }
-        
+
         return $this->buildUrl($route, $parameters, $absolute);
     }
 
@@ -90,7 +87,7 @@ class UrlGenerator
         $uri = $route->getUri();
         $routeParams = $route->getParameterNames();
         $queryParams = [];
-        
+
         // Replace route parameters
         foreach ($parameters as $key => $value) {
             if (in_array($key, $routeParams, true)) {
@@ -99,18 +96,18 @@ class UrlGenerator
                 $queryParams[$key] = $value;
             }
         }
-        
+
         // Remove unfilled optional parameters
         $uri = preg_replace('/\{[^}]+\?\}/', '', $uri);
-        
+
         // Clean up double slashes
         $uri = preg_replace('#/+#', '/', $uri);
-        
+
         // Add query string for extra parameters
-        if (!empty($queryParams)) {
+        if (! empty($queryParams)) {
             $uri .= '?' . http_build_query($queryParams);
         }
-        
+
         return $absolute ? $this->baseUrl . $uri : $uri;
     }
 

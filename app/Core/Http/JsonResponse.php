@@ -1,25 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Http;
 
-use JsonException;
 use InvalidArgumentException;
+use JsonException;
 
 /**
  * JSON Response
- * 
+ *
  * Represents an HTTP response with JSON content.
  * Extends Response for consistent behavior.
  */
@@ -40,11 +37,11 @@ class JsonResponse extends Response
         int $options = 0
     ) {
         $this->encodingOptions = $options ?: self::DEFAULT_ENCODING_OPTIONS;
-        
+
         parent::__construct('', $status, $headers);
-        
+
         $this->header('Content-Type', 'application/json');
-        
+
         if ($data !== null) {
             $this->setData($data);
         }
@@ -89,11 +86,11 @@ class JsonResponse extends Response
             'success' => false,
             'message' => $message,
         ];
-        
+
         if ($errors !== null) {
             $data['errors'] = $errors;
         }
-        
+
         return new static($data, $status);
     }
 
@@ -103,7 +100,7 @@ class JsonResponse extends Response
     public function setData(mixed $data): static
     {
         $this->data = $data;
-        
+
         return $this->updateContent();
     }
 
@@ -121,7 +118,7 @@ class JsonResponse extends Response
     public function setEncodingOptions(int $options): static
     {
         $this->encodingOptions = $options;
-        
+
         return $this->updateContent();
     }
 
@@ -171,7 +168,7 @@ class JsonResponse extends Response
                 $e
             );
         }
-        
+
         return $this->setContent($json);
     }
 
@@ -183,7 +180,7 @@ class JsonResponse extends Response
     {
         // Allow internal content setting from updateContent()
         $this->content = $content;
-        
+
         return $this;
     }
 }

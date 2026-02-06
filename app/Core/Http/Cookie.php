@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Http;
 
+use InvalidArgumentException;
+
 /**
  * HTTP Cookie
- * 
+ *
  * Represents a cookie to be sent with the response.
  * Provides a fluent interface for building cookies with secure defaults.
  */
@@ -184,12 +183,12 @@ class Cookie
 
     /**
      * Create a __Host- prefixed cookie (most secure)
-     * 
+     *
      * Requirements enforced by browsers:
      * - Must have Secure flag
      * - Must NOT have Domain attribute
      * - Path must be /
-     * 
+     *
      * Use for: session cookies, auth tokens
      */
     public static function host(string $name, string $value, int $minutes = 0): static
@@ -208,10 +207,10 @@ class Cookie
 
     /**
      * Create a __Secure- prefixed cookie
-     * 
+     *
      * Requirements enforced by browsers:
      * - Must have Secure flag
-     * 
+     *
      * Use for: sensitive cookies that need domain/path flexibility
      */
     public static function secure(string $name, string $value, int $minutes = 0, string $path = '/'): static
@@ -246,31 +245,31 @@ class Cookie
 
     /**
      * Validate that prefixed cookies meet browser requirements
-     * 
-     * @throws \InvalidArgumentException if validation fails
+     *
+     * @throws InvalidArgumentException if validation fails
      */
     public function validate(): bool
     {
         if ($this->isHostPrefixed()) {
-            if (!$this->secure) {
-                throw new \InvalidArgumentException(
+            if (! $this->secure) {
+                throw new InvalidArgumentException(
                     "__Host- cookies must have Secure flag"
                 );
             }
             if ($this->domain !== '') {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     "__Host- cookies must not have Domain attribute"
                 );
             }
             if ($this->path !== '/') {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     "__Host- cookies must have Path=/"
                 );
             }
         }
 
-        if ($this->isSecurePrefixed() && !$this->secure) {
-            throw new \InvalidArgumentException(
+        if ($this->isSecurePrefixed() && ! $this->secure) {
+            throw new InvalidArgumentException(
                 "__Secure- cookies must have Secure flag"
             );
         }
@@ -289,6 +288,7 @@ class Cookie
         if ($this->isSecurePrefixed()) {
             return substr($this->name, 9); // Remove __Secure-
         }
+
         return $this->name;
     }
 }

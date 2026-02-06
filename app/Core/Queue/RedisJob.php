@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use Throwable;
 
 /**
  * Redis Job
- * 
+ *
  * Represents a job pulled from a Redis queue with support for
  * releasing, retrying, and failure handling.
  */
@@ -116,7 +113,7 @@ class RedisJob implements JobInterface
         $jobClass = $this->getName();
         $data = $this->getData();
 
-        if (!class_exists($jobClass)) {
+        if (! class_exists($jobClass)) {
             throw new QueueException("Job class does not exist: {$jobClass}");
         }
 
@@ -165,7 +162,7 @@ class RedisJob implements JobInterface
     /**
      * Mark the job as failed
      */
-    public function fail(?\Throwable $e = null): void
+    public function fail(?Throwable $e = null): void
     {
         if ($this->failed || $this->deleted) {
             return;

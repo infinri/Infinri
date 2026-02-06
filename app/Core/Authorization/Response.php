@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -13,10 +10,10 @@ namespace App\Core\Authorization;
 
 /**
  * Authorization Result
- * 
+ *
  * Represents the result of an authorization check.
  * Allows policies to return detailed responses with messages.
- * 
+ *
  * Note: This is NOT an HTTP Response - it's the result of a permission check.
  */
 final class Response
@@ -24,7 +21,8 @@ final class Response
     private function __construct(
         private bool $allowed,
         private ?string $message = null
-    ) {}
+    ) {
+    }
 
     /**
      * Create an "allowed" response
@@ -71,7 +69,7 @@ final class Response
      */
     public function denied(): bool
     {
-        return !$this->allowed;
+        return ! $this->allowed;
     }
 
     /**

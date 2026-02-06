@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Security;
 
 /**
  * CSRF Protection
- * 
+ *
  * Handles CSRF token generation and verification.
  */
 class Csrf
@@ -43,7 +40,7 @@ class Csrf
     {
         $this->ensureSessionStarted();
 
-        if (!isset($_SESSION[self::SESSION_KEY]) || $this->isExpired()) {
+        if (! isset($_SESSION[self::SESSION_KEY]) || $this->isExpired()) {
             $this->regenerate();
         }
 
@@ -57,7 +54,7 @@ class Csrf
     {
         $this->ensureSessionStarted();
 
-        if (!isset($_SESSION[self::SESSION_KEY])) {
+        if (! isset($_SESSION[self::SESSION_KEY])) {
             return false;
         }
 
@@ -112,7 +109,7 @@ class Csrf
      */
     protected function isExpired(): bool
     {
-        if (!isset($_SESSION[self::SESSION_KEY]['expires'])) {
+        if (! isset($_SESSION[self::SESSION_KEY]['expires'])) {
             return true;
         }
 

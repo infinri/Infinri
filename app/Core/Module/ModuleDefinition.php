@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Module;
 
 /**
  * Module Definition
- * 
+ *
  * Represents a module's metadata loaded from module.php
  */
 class ModuleDefinition
@@ -82,6 +79,7 @@ class ModuleDefinition
     public function getClassName(): string
     {
         $moduleName = ucfirst($this->name);
+
         return "\\App\\Modules\\{$moduleName}\\{$moduleName}Module";
     }
 
@@ -103,6 +101,7 @@ class ModuleDefinition
         }
 
         $file = $this->getFilePath($this->eventsFile);
+
         return file_exists($file) ? (require $file) : [];
     }
 
@@ -116,6 +115,7 @@ class ModuleDefinition
         }
 
         $file = $this->getFilePath($this->configFile);
+
         return file_exists($file) ? (require $file) : [];
     }
 
@@ -129,6 +129,7 @@ class ModuleDefinition
         }
 
         $file = $this->getFilePath($this->routesFile);
+
         return file_exists($file) ? (require $file) : [];
     }
 

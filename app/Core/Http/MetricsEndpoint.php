@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Metrics\MetricsCollector;
 
 /**
  * Metrics Endpoint
- * 
+ *
  * Provides metrics in Prometheus text format for scraping.
  * Typically exposed at /metrics or /_metrics
  */
@@ -97,7 +94,7 @@ class MetricsEndpoint
         $lines[] = 'app_cache_hit_ratio ' . $summary['cache']['hit_ratio'];
 
         // Status codes
-        if (!empty($summary['status_codes'])) {
+        if (! empty($summary['status_codes'])) {
             $lines[] = '# HELP app_http_responses_total HTTP responses by status code';
             $lines[] = '# TYPE app_http_responses_total counter';
             foreach ($summary['status_codes'] as $code => $count) {
@@ -130,8 +127,9 @@ class MetricsEndpoint
 
         // Check for API key if configured
         $apiKey = $_ENV['METRICS_API_KEY'] ?? '';
-        if (!empty($apiKey)) {
+        if (! empty($apiKey)) {
             $providedKey = $_SERVER['HTTP_X_METRICS_KEY'] ?? $_GET['key'] ?? '';
+
             return hash_equals($apiKey, $providedKey);
         }
 

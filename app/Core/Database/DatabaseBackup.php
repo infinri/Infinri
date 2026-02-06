@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database;
 
 /**
  * Database Backup
- * 
+ *
  * Handles database backup operations using native dump utilities.
  * Supports PostgreSQL and MySQL.
  */
@@ -33,7 +30,7 @@ class DatabaseBackup
 
     /**
      * Create a backup of the database
-     * 
+     *
      * @return array{success: bool, path: ?string, size: ?int, error: ?string}
      */
     public function backup(): array
@@ -86,7 +83,7 @@ class DatabaseBackup
      */
     public function restore(string $backupFile): array
     {
-        if (!file_exists($backupFile)) {
+        if (! file_exists($backupFile)) {
             return ['success' => false, 'error' => 'Backup file not found'];
         }
 
@@ -117,7 +114,7 @@ class DatabaseBackup
      */
     public function listBackups(): array
     {
-        if (!is_dir($this->backupDir)) {
+        if (! is_dir($this->backupDir)) {
             return [];
         }
 
@@ -134,7 +131,7 @@ class DatabaseBackup
         }
 
         // Sort by newest first
-        usort($backups, fn($a, $b) => $b['created'] <=> $a['created']);
+        usort($backups, fn ($a, $b) => $b['created'] <=> $a['created']);
 
         return $backups;
     }
@@ -229,6 +226,7 @@ class DatabaseBackup
             $bytes /= 1024;
             $i++;
         }
+
         return round($bytes, 2) . ' ' . $units[$i];
     }
 }

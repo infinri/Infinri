@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -24,14 +21,12 @@ use Throwable;
 
 /**
  * HTTP Kernel
- * 
+ *
  * Manages the HTTP request lifecycle including middleware execution,
  * routing, and response sending. Delegates exception handling to ExceptionHandler.
  */
 class Kernel implements KernelInterface
 {
-    protected Application $app;
-    protected RouterInterface $router;
     protected ExceptionHandler $exceptionHandler;
     protected float $requestStartTime;
 
@@ -44,10 +39,10 @@ class Kernel implements KernelInterface
     /** @var array<string, array<int, string>> */
     protected array $middlewareGroups = [];
 
-    public function __construct(Application $app, RouterInterface $router)
-    {
-        $this->app = $app;
-        $this->router = $router;
+    public function __construct(
+        protected Application $app,
+        protected RouterInterface $router
+    ) {
         $this->exceptionHandler = new ExceptionHandler(config('app.debug', false));
     }
 
@@ -57,14 +52,14 @@ class Kernel implements KernelInterface
     public function handle(RequestInterface $request): ResponseInterface
     {
         $this->requestStartTime = microtime(true);
-        
+
         try {
             $this->addCorrelationId($request);
             $response = $this->sendRequestThroughRouter($request);
         } catch (Throwable $e) {
             $response = $this->exceptionHandler->handle($request, $e);
         }
-        
+
         return $this->addTimingHeaders($response);
     }
 
@@ -89,24 +84,28 @@ class Kernel implements KernelInterface
     public function setMiddleware(array $middleware): static
     {
         $this->middleware = $middleware;
+
         return $this;
     }
 
     public function setRouteMiddleware(array $middleware): static
     {
         $this->routeMiddleware = $middleware;
+
         return $this;
     }
 
     public function setMiddlewareGroups(array $groups): static
     {
         $this->middlewareGroups = $groups;
+
         return $this;
     }
 
     public function setExceptionHandler(ExceptionHandler $handler): static
     {
         $this->exceptionHandler = $handler;
+
         return $this;
     }
 
@@ -115,36 +114,36 @@ class Kernel implements KernelInterface
      */
     protected function sendRequestThroughRouter(RequestInterface $request): ResponseInterface
     {
-        return (new Pipeline($this->app))
+        return new Pipeline($this->app)
             ->send($request)
             ->through($this->gatherGlobalMiddleware())
             ->then(function (RequestInterface $request) {
                 $response = $this->router->dispatch($request);
-                
+
                 $route = $this->router->getCurrentRoute();
                 if ($route !== null) {
                     $routeMiddleware = $this->gatherRouteMiddleware($route->getMiddleware());
-                    if (!empty($routeMiddleware)) {
-                        return (new Pipeline($this->app))
+                    if (! empty($routeMiddleware)) {
+                        return new Pipeline($this->app)
                             ->send($request)
                             ->through($routeMiddleware)
-                            ->then(fn() => $response);
+                            ->then(fn () => $response);
                     }
                 }
-                
+
                 return $response;
             });
     }
 
     protected function gatherGlobalMiddleware(): array
     {
-        return array_map(fn(string $m) => $this->resolveMiddleware($m), $this->middleware);
+        return array_map(fn (string $m) => $this->resolveMiddleware($m), $this->middleware);
     }
 
     protected function gatherRouteMiddleware(array $middleware): array
     {
         $resolved = [];
-        
+
         foreach ($middleware as $name) {
             if (isset($this->middlewareGroups[$name])) {
                 $resolved = array_merge($resolved, $this->middlewareGroups[$name]);
@@ -154,8 +153,8 @@ class Kernel implements KernelInterface
                 $resolved[] = $name;
             }
         }
-        
-        return array_map(fn(string $m) => $this->resolveMiddleware($m), $resolved);
+
+        return array_map(fn (string $m) => $this->resolveMiddleware($m), $resolved);
     }
 
     protected function resolveMiddleware(string $middleware): string
@@ -163,15 +162,16 @@ class Kernel implements KernelInterface
         if (str_contains($middleware, ':')) {
             return $middleware;
         }
+
         return $this->routeMiddleware[$middleware] ?? $middleware;
     }
 
     protected function addCorrelationId(RequestInterface $request): void
     {
-        $correlationId = $request->header('X-Correlation-ID') 
+        $correlationId = $request->header('X-Correlation-ID')
             ?? $request->header('X-Request-ID')
             ?? bin2hex(random_bytes(8));
-        
+
         if ($this->app->has('logger')) {
             $logger = $this->app->make('logger');
             if (method_exists($logger, 'setCorrelationId')) {
@@ -183,7 +183,7 @@ class Kernel implements KernelInterface
     protected function addTimingHeaders(ResponseInterface $response): ResponseInterface
     {
         $duration = (microtime(true) - $this->requestStartTime) * 1000;
-        
+
         return $response
             ->header('X-Response-Time', sprintf('%.2fms', $duration))
             ->header('X-Memory-Usage', sprintf('%.2fMB', memory_get_peak_usage(true) / 1024 / 1024));
@@ -192,7 +192,7 @@ class Kernel implements KernelInterface
     protected function logRequest(RequestInterface $request, ResponseInterface $response): void
     {
         $duration = (microtime(true) - $this->requestStartTime) * 1000;
-        
+
         logger()->info('Request completed', [
             'method' => $request->method(),
             'path' => $request->path(),

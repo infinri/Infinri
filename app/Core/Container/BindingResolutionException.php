@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -32,7 +29,7 @@ class BindingResolutionException extends Exception
         parent::__construct($message);
         $this->abstract = $abstract;
         $this->reason = $reason;
-        
+
         $this->logException('error', 'Container binding resolution failed', [
             'abstract' => $abstract,
             'reason' => $reason,
@@ -53,6 +50,7 @@ class BindingResolutionException extends Exception
     public static function uninstantiable(string $abstract, ?string $reason = null): static
     {
         $message = "Target [{$abstract}] is not instantiable" . ($reason ? ": {$reason}" : '');
+
         return new static($message, $abstract, $reason);
     }
 

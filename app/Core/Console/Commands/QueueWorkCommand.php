@@ -1,27 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
-use App\Core\Queue\QueueWorker;
-use App\Core\Queue\RedisQueue;
 use App\Core\Contracts\Queue\QueueInterface;
+use App\Core\Queue\QueueWorker;
+use Throwable;
 
 /**
  * Queue Work Command
- * 
+ *
  * Starts a queue worker to process background jobs.
  */
 class QueueWorkCommand extends Command
@@ -68,6 +65,7 @@ class QueueWorkCommand extends Command
         if (env('QUEUE_CONNECTION') !== 'redis') {
             $this->error("Queue connection is not set to 'redis'. Current: " . env('QUEUE_CONNECTION', 'sync'));
             $this->line("Set QUEUE_CONNECTION=redis in your .env file to use the queue worker.");
+
             return 1;
         }
 
@@ -82,10 +80,10 @@ class QueueWorkCommand extends Command
         try {
             // Bootstrap application
             $app = \App\Core\Application::getInstance();
-            
+
             // Get queue from container
             $queueInstance = $app->make(QueueInterface::class);
-            
+
             // Create worker
             $worker = new QueueWorker($queueInstance, logger(), $options);
 
@@ -93,7 +91,7 @@ class QueueWorkCommand extends Command
                 // Process single job
                 $this->info("Processing next job...");
                 $processed = $worker->runNextJob($queue);
-                
+
                 if ($processed) {
                     $this->info("✓ Job processed successfully");
                 } else {
@@ -107,8 +105,9 @@ class QueueWorkCommand extends Command
 
             return 0;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error("Worker error: " . $e->getMessage());
+
             return 1;
         }
     }
@@ -116,23 +115,23 @@ class QueueWorkCommand extends Command
     public function getHelp(): string
     {
         return <<<HELP
-Usage: queue:work [options]
+            Usage: queue:work [options]
 
-Options:
-  --queue=NAME       Queue to process (default: default)
-  --once             Process a single job and exit
-  --sleep=SECONDS    Seconds to sleep when no jobs (default: 3)
-  --tries=NUMBER     Max retry attempts (default: 3)
-  --timeout=SECONDS  Job timeout in seconds (default: 60)
-  --memory=MB        Memory limit in MB (default: 128)
-  --max-jobs=NUMBER  Stop after processing N jobs (0 = unlimited)
-  --max-time=SECONDS Stop after running N seconds (0 = unlimited)
+            Options:
+              --queue=NAME       Queue to process (default: default)
+              --once             Process a single job and exit
+              --sleep=SECONDS    Seconds to sleep when no jobs (default: 3)
+              --tries=NUMBER     Max retry attempts (default: 3)
+              --timeout=SECONDS  Job timeout in seconds (default: 60)
+              --memory=MB        Memory limit in MB (default: 128)
+              --max-jobs=NUMBER  Stop after processing N jobs (0 = unlimited)
+              --max-time=SECONDS Stop after running N seconds (0 = unlimited)
 
-Examples:
-  php bin/console queue:work
-  php bin/console queue:work --queue=emails
-  php bin/console queue:work --once
-  php bin/console queue:work --max-jobs=100 --max-time=3600
-HELP;
+            Examples:
+              php bin/console queue:work
+              php bin/console queue:work --queue=emails
+              php bin/console queue:work --once
+              php bin/console queue:work --max-jobs=100 --max-time=3600
+            HELP;
     }
 }

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use Closure;
 
 /**
  * Provides route group management
- * 
+ *
  * Single responsibility: Route grouping with prefix, middleware, and name
  */
 trait ManagesGroups
@@ -63,6 +60,7 @@ trait ManagesGroups
             $this->pendingMiddleware,
             is_array($middleware) ? $middleware : [$middleware]
         );
+
         return $this;
     }
 
@@ -72,6 +70,7 @@ trait ManagesGroups
     public function prefix(string $prefix): static
     {
         $this->pendingPrefix = $prefix;
+
         return $this;
     }
 
@@ -81,6 +80,7 @@ trait ManagesGroups
     public function name(string $name): static
     {
         $this->pendingNamePrefix = $name;
+
         return $this;
     }
 
@@ -90,28 +90,28 @@ trait ManagesGroups
     protected function mergeGroupAttributes(array $attributes): array
     {
         $current = end($this->groupStack) ?: [];
-        
+
         // Merge prefix
         if (isset($attributes['prefix'])) {
             $currentPrefix = $current['prefix'] ?? '';
             $attributes['prefix'] = Str::joinUri($currentPrefix, $attributes['prefix']);
         }
-        
+
         // Merge middleware
         if (isset($attributes['middleware'])) {
             $currentMiddleware = $current['middleware'] ?? [];
-            $newMiddleware = is_array($attributes['middleware']) 
-                ? $attributes['middleware'] 
+            $newMiddleware = is_array($attributes['middleware'])
+                ? $attributes['middleware']
                 : [$attributes['middleware']];
             $attributes['middleware'] = array_merge($currentMiddleware, $newMiddleware);
         }
-        
+
         // Merge name prefix (as)
         if (isset($attributes['as'])) {
             $currentAs = $current['as'] ?? '';
             $attributes['as'] = $currentAs . $attributes['as'];
         }
-        
+
         return array_merge($current, $attributes);
     }
 
@@ -121,11 +121,11 @@ trait ManagesGroups
     protected function applyGroupPrefix(string $uri): string
     {
         $group = end($this->groupStack);
-        
+
         if ($group && isset($group['prefix'])) {
             return Str::joinUri($group['prefix'], $uri);
         }
-        
+
         return $uri;
     }
 
@@ -135,6 +135,7 @@ trait ManagesGroups
     protected function getGroupMiddleware(): array
     {
         $group = end($this->groupStack);
+
         return $group['middleware'] ?? [];
     }
 
@@ -144,6 +145,7 @@ trait ManagesGroups
     protected function getGroupNamePrefix(): string
     {
         $group = end($this->groupStack);
+
         return $group['as'] ?? '';
     }
 
@@ -157,11 +159,11 @@ trait ManagesGroups
             'prefix' => $this->pendingPrefix,
             'namePrefix' => $this->pendingNamePrefix,
         ];
-        
+
         $this->pendingMiddleware = [];
         $this->pendingPrefix = null;
         $this->pendingNamePrefix = null;
-        
+
         return $attributes;
     }
 }

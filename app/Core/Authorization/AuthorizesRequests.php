@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -12,17 +9,18 @@ declare(strict_types=1);
 namespace App\Core\Authorization;
 
 use App\Core\Contracts\Auth\AuthorizableInterface;
+use Throwable;
 
 /**
  * Authorizes Requests Trait
- * 
+ *
  * Use this trait in controllers to easily authorize actions.
- * 
+ *
  * Usage:
  *   class PostController
  *   {
  *       use AuthorizesRequests;
- *       
+ *
  *       public function update(int $id)
  *       {
  *           $post = Post::findOrFail($id);
@@ -35,7 +33,7 @@ trait AuthorizesRequests
 {
     /**
      * Authorize an action
-     * 
+     *
      * @throws AuthorizationException
      */
     protected function authorize(string $ability, mixed ...$arguments): Response
@@ -45,7 +43,7 @@ trait AuthorizesRequests
 
     /**
      * Authorize an action for a specific user
-     * 
+     *
      * @throws AuthorizationException
      */
     protected function authorizeForUser(AuthorizableInterface $user, string $ability, mixed ...$arguments): Response
@@ -71,11 +69,12 @@ trait AuthorizesRequests
 
     /**
      * Authorize a resource action based on the model class
-     * 
+     *
      * Automatically determines the policy based on the model.
-     * 
+     *
      * @param string $ability The ability (create, update, delete, etc.)
      * @param class-string|object $model The model class or instance
+     *
      * @throws AuthorizationException
      */
     protected function authorizeResource(string $ability, string|object $model): Response
@@ -92,7 +91,7 @@ trait AuthorizesRequests
         if (function_exists('app')) {
             try {
                 return app(Gate::class);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Fall through to global
             }
         }

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Database\Model;
 
 /**
  * Belongs To Many Relationship
- * 
+ *
  * Represents a many-to-many relationship through a pivot table.
  */
 class BelongsToMany extends Relation
@@ -52,14 +49,14 @@ class BelongsToMany extends Relation
     public function getResults(): array
     {
         $parentValue = $this->parent->getAttribute($this->parentKey);
-        
+
         if ($parentValue === null) {
             return [];
         }
 
-        $pivotColumns = empty($this->pivotColumns) 
-            ? '' 
-            : ', ' . implode(', ', array_map(fn($col) => "pivot.{$col}", $this->pivotColumns));
+        $pivotColumns = empty($this->pivotColumns)
+            ? ''
+            : ', ' . implode(', ', array_map(fn ($col) => "pivot.{$col}", $this->pivotColumns));
 
         $query = $this->related->getConnection()
             ->table($this->related->getTable() . ' as related')
@@ -75,7 +72,7 @@ class BelongsToMany extends Relation
         $results = $query->get();
 
         return array_map(
-            fn(array $attributes) => $this->related->newFromBuilder($attributes),
+            fn (array $attributes) => $this->related->newFromBuilder($attributes),
             $results
         );
     }
@@ -97,10 +94,10 @@ class BelongsToMany extends Relation
             $columns = array_keys($record);
             $placeholders = implode(', ', array_fill(0, count($columns), '?'));
             $columnList = implode(', ', $columns);
-            
+
             // Use raw INSERT without RETURNING for pivot tables
             $sql = "INSERT INTO {$this->pivotTable} ({$columnList}) VALUES ({$placeholders})";
-            
+
             $this->parent->getConnection()->statement($sql, array_values($record));
         }
     }
@@ -111,7 +108,7 @@ class BelongsToMany extends Relation
     public function detach(int|string|array|null $ids = null): int
     {
         $parentValue = $this->parent->getAttribute($this->parentKey);
-        
+
         $query = $this->parent->getConnection()
             ->table($this->pivotTable)
             ->where($this->foreignKey, $parentValue);
@@ -136,7 +133,7 @@ class BelongsToMany extends Relation
 
         // Get current IDs
         $current = array_map(
-            fn($model) => $model->getAttribute($this->localKey),
+            fn ($model) => $model->getAttribute($this->localKey),
             $this->getResults()
         );
 
@@ -145,13 +142,13 @@ class BelongsToMany extends Relation
         $toDetach = array_diff($current, $ids);
 
         // Detach
-        if (!empty($toDetach)) {
+        if (! empty($toDetach)) {
             $this->detach($toDetach);
             $changes['detached'] = array_values($toDetach);
         }
 
         // Attach
-        if (!empty($toAttach)) {
+        if (! empty($toAttach)) {
             $this->attach($toAttach);
             $changes['attached'] = array_values($toAttach);
         }
@@ -170,7 +167,7 @@ class BelongsToMany extends Relation
         ];
 
         $current = array_map(
-            fn($model) => $model->getAttribute($this->localKey),
+            fn ($model) => $model->getAttribute($this->localKey),
             $this->getResults()
         );
 

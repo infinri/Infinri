@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,21 +13,21 @@ namespace App\Core;
 
 use App\Core\Concerns\ManagesPaths;
 use App\Core\Concerns\ManagesProviders;
+use App\Core\Config\Config;
 use App\Core\Container\Container;
 use App\Core\Contracts\Config\ConfigInterface;
 use App\Core\Contracts\Container\ContainerInterface;
 use App\Core\Contracts\Log\LoggerInterface;
-use App\Core\Config\Config;
+use App\Core\Indexer\IndexerRegistry;
 use App\Core\Log\LogManager;
 use App\Core\Module\ModuleLoader;
 use App\Core\Module\ModuleRegistry;
-use App\Core\Indexer\IndexerRegistry;
 use App\Core\Support\Environment;
-use App\Core\CoreServiceProvider;
+use RuntimeException;
 
 /**
  * Application
- * 
+ *
  * The core application class that bootstraps the framework.
  * Uses traits for path and provider management (Single Responsibility).
  */
@@ -42,7 +39,7 @@ class Application extends Container
     /**
      * The Infinri framework version
      */
-    const VERSION = '0.1.0';
+    public const VERSION = '0.1.0';
 
     /**
      * The base path for the installation
@@ -72,7 +69,7 @@ class Application extends Container
     public function __construct(string $basePath)
     {
         if (static::$instance !== null) {
-            throw new \RuntimeException('Application instance already exists');
+            throw new RuntimeException('Application instance already exists');
         }
 
         $this->basePath = rtrim($basePath, '\\/');
@@ -91,7 +88,7 @@ class Application extends Container
     public static function getInstance(): static
     {
         if (static::$instance === null) {
-            throw new \RuntimeException('Application not instantiated');
+            throw new RuntimeException('Application not instantiated');
         }
 
         return static::$instance;
@@ -200,16 +197,16 @@ class Application extends Container
     protected function loadModules(): void
     {
         $this->moduleLoader = new ModuleLoader($this);
-        
+
         // Bind to container
         $this->instance(ModuleLoader::class, $this->moduleLoader);
         $this->instance(ModuleRegistry::class, $this->moduleLoader->getRegistry());
-        
+
         // Register indexer registry (modules can add their indexers)
         $this->singleton(IndexerRegistry::class, function () {
             return new IndexerRegistry();
         });
-        
+
         // Load all modules
         $this->moduleLoader->load();
     }
@@ -224,6 +221,7 @@ class Application extends Container
         if ($this->moduleLoader === null) {
             $this->moduleLoader = new ModuleLoader($this);
         }
+
         return $this->moduleLoader;
     }
 
@@ -235,10 +233,10 @@ class Application extends Container
     protected function loadEnvironment(): void
     {
         $env = new Environment($this->basePath);
-        
+
         try {
             $env->load();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // In production, we might want to handle this differently
             // For now, we'll just let it throw
             throw $e;
@@ -275,7 +273,7 @@ class Application extends Container
     protected function registerLogger(): void
     {
         $logDirectory = $this->storagePath('log');
-        
+
         $logger = new LogManager($logDirectory);
 
         // Set correlation ID if we're in a web context

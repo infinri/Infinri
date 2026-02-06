@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Database\Schema\SchemaBuilder;
 
 /**
  * Migrator
- * 
+ *
  * Handles running and rolling back database migrations.
  */
 class Migrator
@@ -96,6 +93,7 @@ class Migrator
     public function refresh(): array
     {
         $this->reset();
+
         return $this->migrate();
     }
 
@@ -128,7 +126,7 @@ class Migrator
         $instance = $this->resolve($migration);
         $instance->setConnection($this->connection);
 
-        $this->connection->transaction(function () use ($instance, $migration) {
+        $this->connection->transaction(function () use ($instance, $migration): void {
             $instance->up();
             $this->log($migration);
         });
@@ -144,7 +142,7 @@ class Migrator
         $instance = $this->resolve($migration);
         $instance->setConnection($this->connection);
 
-        $this->connection->transaction(function () use ($instance, $migration) {
+        $this->connection->transaction(function () use ($instance, $migration): void {
             $instance->down();
             $this->unlog($migration);
         });
@@ -158,8 +156,8 @@ class Migrator
     protected function resolve(string $migration): Migration
     {
         $file = $this->migrationsPath . '/' . $migration . '.php';
-        
-        if (!file_exists($file)) {
+
+        if (! file_exists($file)) {
             throw new DatabaseException("Migration file not found: {$file}");
         }
 
@@ -168,7 +166,7 @@ class Migrator
         // Convert filename to class name
         $className = $this->migrationToClassName($migration);
 
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             throw new DatabaseException("Migration class not found: {$className}");
         }
 
@@ -182,9 +180,10 @@ class Migrator
     {
         // Remove date prefix (e.g., 2025_11_27_000000_)
         $name = preg_replace('/^\d{4}_\d{2}_\d{2}_\d{6}_/', '', $migration);
-        
+
         // Convert to StudlyCase
         $words = explode('_', $name);
+
         return implode('', array_map('ucfirst', $words));
     }
 
@@ -193,7 +192,7 @@ class Migrator
      */
     protected function getAllMigrations(): array
     {
-        if (!is_dir($this->migrationsPath)) {
+        if (! is_dir($this->migrationsPath)) {
             return [];
         }
 
@@ -303,7 +302,7 @@ class Migrator
             return;
         }
 
-        $this->schema->create($this->migrationsTable, function ($table) {
+        $this->schema->create($this->migrationsTable, function ($table): void {
             $table->id();
             $table->string('migration');
             $table->integer('batch');

@@ -1,25 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Module;
 
 use App\Core\Application;
-use App\Core\Container\ServiceProvider;
 
 /**
  * Module Loader
- * 
+ *
  * Loads modules and registers their service providers, commands, and events.
  * Supports lazy loading for modules that should only load on-demand.
  */
@@ -31,24 +27,28 @@ class ModuleLoader
 
     /**
      * Loaded module commands
+     *
      * @var array<string, string>
      */
     protected array $commands = [];
 
     /**
      * Modules that have been fully loaded
+     *
      * @var array<string, bool>
      */
     protected array $loadedModules = [];
 
     /**
      * Deferred (lazy) modules awaiting load
+     *
      * @var array<string, ModuleDefinition>
      */
     protected array $deferredModules = [];
 
     /**
      * Route prefix to module mapping for lazy loading
+     *
      * @var array<string, string>
      */
     protected array $routePrefixMap = [];
@@ -69,7 +69,7 @@ class ModuleLoader
         }
 
         $this->registry->load();
-        
+
         foreach ($this->registry->getEnabled() as $module) {
             if ($module->lazy) {
                 // Defer lazy modules
@@ -113,7 +113,7 @@ class ModuleLoader
         // First load dependencies
         foreach ($module->dependencies as $dependency) {
             $depModule = $this->registry->get($dependency);
-            if ($depModule && !isset($this->loadedModules[$dependency])) {
+            if ($depModule && ! isset($this->loadedModules[$dependency])) {
                 $this->loadModule($depModule);
             }
         }
@@ -126,7 +126,7 @@ class ModuleLoader
         }
 
         // Collect commands for console registration
-        if (!$module->lazy) {
+        if (! $module->lazy) {
             foreach ($module->commands as $commandClass) {
                 if (class_exists($commandClass)) {
                     $this->commands[] = $commandClass;
@@ -135,7 +135,7 @@ class ModuleLoader
         }
 
         $this->loadedModules[$module->name] = true;
-        
+
         // Remove from deferred if it was there
         unset($this->deferredModules[$module->name]);
     }
@@ -149,11 +149,12 @@ class ModuleLoader
             return true; // Already loaded
         }
 
-        if (!isset($this->deferredModules[$name])) {
+        if (! isset($this->deferredModules[$name])) {
             return false; // Not a deferred module
         }
 
         $this->loadModule($this->deferredModules[$name]);
+
         return true;
     }
 
@@ -179,6 +180,7 @@ class ModuleLoader
 
     /**
      * Get deferred module names
+     *
      * @return string[]
      */
     public function getDeferredModules(): array
@@ -188,6 +190,7 @@ class ModuleLoader
 
     /**
      * Get loaded module names
+     *
      * @return string[]
      */
     public function getLoadedModuleNames(): array
@@ -197,14 +200,15 @@ class ModuleLoader
 
     /**
      * Get all module commands
-     * 
+     *
      * @return string[]
      */
     public function getCommands(): array
     {
-        if (!$this->loaded) {
+        if (! $this->loaded) {
             $this->load();
         }
+
         return $this->commands;
     }
 
@@ -226,14 +230,15 @@ class ModuleLoader
 
     /**
      * Get all enabled modules
-     * 
+     *
      * @return ModuleDefinition[]
      */
     public function getModules(): array
     {
-        if (!$this->loaded) {
+        if (! $this->loaded) {
             $this->load();
         }
+
         return $this->registry->getEnabled();
     }
 

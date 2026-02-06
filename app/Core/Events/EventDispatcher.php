@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,10 +13,11 @@ namespace App\Core\Events;
 
 use App\Core\Contracts\Events\EventDispatcherInterface;
 use App\Core\Contracts\Events\EventSubscriberInterface;
+use InvalidArgumentException;
 
 /**
  * Event Dispatcher
- * 
+ *
  * Dispatches events to registered listeners with priority support.
  * Supports both legacy subscribe() method and EventSubscriberInterface.
  */
@@ -27,12 +25,14 @@ class EventDispatcher implements EventDispatcherInterface
 {
     /**
      * Registered listeners grouped by event
+     *
      * @var array<string, array<int, array<callable>>>
      */
     protected array $listeners = [];
 
     /**
      * Sorted listeners cache
+     *
      * @var array<string, callable[]>
      */
     protected array $sorted = [];
@@ -66,7 +66,7 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * Register a subscriber (class with multiple listeners)
-     * 
+     *
      * Supports both:
      * - EventSubscriberInterface::getSubscribedEvents()
      * - Legacy subscribe($dispatcher) method
@@ -78,16 +78,18 @@ class EventDispatcher implements EventDispatcherInterface
         // New interface-based subscriber
         if ($subscriber instanceof EventSubscriberInterface) {
             $this->addSubscriber($subscriber);
+
             return;
         }
 
         // Legacy subscribe() method
         if (method_exists($subscriber, 'subscribe')) {
             $subscriber->subscribe($this);
+
             return;
         }
 
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             'Subscriber must implement EventSubscriberInterface or have a subscribe() method'
         );
     }
@@ -144,7 +146,7 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function hasListeners(string $event): bool
     {
-        return !empty($this->listeners[$event]);
+        return ! empty($this->listeners[$event]);
     }
 
     /**
@@ -152,11 +154,11 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function getListeners(string $event): array
     {
-        if (!isset($this->listeners[$event])) {
+        if (! isset($this->listeners[$event])) {
             return [];
         }
 
-        if (!isset($this->sorted[$event])) {
+        if (! isset($this->sorted[$event])) {
             $this->sorted[$event] = $this->sortListeners($event);
         }
 
@@ -170,6 +172,7 @@ class EventDispatcher implements EventDispatcherInterface
     {
         if ($listener === null) {
             unset($this->listeners[$event], $this->sorted[$event]);
+
             return;
         }
 

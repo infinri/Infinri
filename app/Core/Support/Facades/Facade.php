@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use RuntimeException;
 
 /**
  * Facade Base Class
- * 
+ *
  * Provides static access to services in the container
  */
 abstract class Facade
@@ -41,8 +38,9 @@ abstract class Facade
     /**
      * Get the registered name of the component
      *
-     * @return string
      * @throws RuntimeException
+     *
+     * @return string
      */
     abstract protected static function getFacadeAccessor(): string;
 
@@ -50,6 +48,7 @@ abstract class Facade
      * Set the application instance
      *
      * @param Application $app
+     *
      * @return void
      */
     public static function setFacadeApplication(Application $app): void
@@ -70,8 +69,9 @@ abstract class Facade
     /**
      * Get the application instance
      *
-     * @return Application
      * @throws RuntimeException
+     *
+     * @return Application
      */
     protected static function getFacadeApplication(): Application
     {
@@ -96,6 +96,7 @@ abstract class Facade
      * Resolve the facade root instance from the container
      *
      * @param string $name
+     *
      * @return mixed
      */
     protected static function resolveFacadeInstance(string $name): mixed
@@ -114,14 +115,16 @@ abstract class Facade
      *
      * @param string $method
      * @param array $args
-     * @return mixed
+     *
      * @throws RuntimeException
+     *
+     * @return mixed
      */
     public static function __callStatic(string $method, array $args): mixed
     {
         $instance = static::getFacadeRoot();
 
-        if (!$instance) {
+        if (! $instance) {
             $accessor = static::getFacadeAccessor();
             if (function_exists('logger')) {
                 logger()->error('Facade root not set', [

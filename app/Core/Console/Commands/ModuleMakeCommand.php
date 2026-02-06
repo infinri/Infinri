@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Console\Command;
 
 /**
  * Module Make Command
- * 
+ *
  * Generates a new module scaffold with standard directory structure.
  */
 class ModuleMakeCommand extends Command
@@ -34,6 +31,7 @@ class ModuleMakeCommand extends Command
         if ($name === null) {
             $this->error("Usage: module:make <name>");
             $this->line("  Example: module:make blog");
+
             return 1;
         }
 
@@ -45,6 +43,7 @@ class ModuleMakeCommand extends Command
 
         if (is_dir($modulePath)) {
             $this->error("Module '{$name}' already exists.");
+
             return 1;
         }
 
@@ -62,7 +61,7 @@ class ModuleMakeCommand extends Command
 
         foreach ($dirs as $dir) {
             $path = $rootDir . '/app/modules/' . $dir;
-            mkdir($path, 0755, true);
+            mkdir($path, 0o755, true);
             $this->line("  ✓ Created: {$dir}");
         }
 
@@ -87,15 +86,15 @@ class ModuleMakeCommand extends Command
     protected function createModuleFile(string $path, string $name, string $className): void
     {
         $content = <<<PHP
-<?php
-return [
-    'name' => '{$className}',
-    'version' => '1.0.0',
-    'enabled' => true,
-    'dependencies' => [],
-    'description' => '{$className} module',
-];
-PHP;
+            <?php
+            return [
+                'name' => '{$className}',
+                'version' => '1.0.0',
+                'enabled' => true,
+                'dependencies' => [],
+                'description' => '{$className} module',
+            ];
+            PHP;
         file_put_contents($path . '/module.php', $content);
         $this->line("  ✓ Created: module.php");
     }
@@ -103,9 +102,9 @@ PHP;
     protected function createIndexFile(string $path, string $name): void
     {
         $content = <<<HTML
-<h1>Welcome to {$name}</h1>
-<p>Edit this file at: app/modules/{$name}/index.php</p>
-HTML;
+            <h1>Welcome to {$name}</h1>
+            <p>Edit this file at: app/modules/{$name}/index.php</p>
+            HTML;
         file_put_contents($path . '/index.php', $content);
         $this->line("  ✓ Created: index.php");
     }
@@ -113,11 +112,11 @@ HTML;
     protected function createConfigFile(string $path): void
     {
         $content = <<<'PHP'
-<?php
-return [
-    // Module configuration
-];
-PHP;
+            <?php
+            return [
+                // Module configuration
+            ];
+            PHP;
         file_put_contents($path . '/config.php', $content);
         $this->line("  ✓ Created: config.php");
     }
@@ -125,11 +124,11 @@ PHP;
     protected function createEventsFile(string $path): void
     {
         $content = <<<'PHP'
-<?php
-return [
-    // Event listeners: 'event.name' => [Listener::class, 'method']
-];
-PHP;
+            <?php
+            return [
+                // Event listeners: 'event.name' => [Listener::class, 'method']
+            ];
+            PHP;
         file_put_contents($path . '/events.php', $content);
         $this->line("  ✓ Created: events.php");
     }
@@ -137,22 +136,22 @@ PHP;
     protected function createHooksFile(string $path, string $className): void
     {
         $content = <<<PHP
-<?php
-return [
-    'onInstall' => function() {
-        // Run when module is first installed
-    },
-    'onUpgrade' => function(string \$fromVersion, string \$toVersion) {
-        // Run when module version changes
-    },
-    'beforeSetup' => function() {
-        // Run before s:up
-    },
-    'afterSetup' => function() {
-        // Run after s:up
-    },
-];
-PHP;
+            <?php
+            return [
+                'onInstall' => function() {
+                    // Run when module is first installed
+                },
+                'onUpgrade' => function(string \$fromVersion, string \$toVersion) {
+                    // Run when module version changes
+                },
+                'beforeSetup' => function() {
+                    // Run before s:up
+                },
+                'afterSetup' => function() {
+                    // Run after s:up
+                },
+            ];
+            PHP;
         file_put_contents($path . '/hooks.php', $content);
         $this->line("  ✓ Created: hooks.php");
     }
@@ -160,27 +159,25 @@ PHP;
     protected function createServiceProvider(string $path, string $className): void
     {
         $content = <<<PHP
-<?php
+            <?php declare(strict_types=1);
 
-declare(strict_types=1);
+            namespace App\\Modules\\{$className}\\Providers;
 
-namespace App\\Modules\\{$className}\\Providers;
+            use App\\Core\\Providers\\ServiceProvider;
 
-use App\\Core\\Providers\\ServiceProvider;
+            class {$className}ServiceProvider extends ServiceProvider
+            {
+                public function register(): void
+                {
+                    // Register bindings
+                }
 
-class {$className}ServiceProvider extends ServiceProvider
-{
-    public function register(): void
-    {
-        // Register bindings
-    }
-
-    public function boot(): void
-    {
-        // Bootstrap services
-    }
-}
-PHP;
+                public function boot(): void
+                {
+                    // Bootstrap services
+                }
+            }
+            PHP;
         file_put_contents($path . '/Providers/' . $className . 'ServiceProvider.php', $content);
         $this->line("  ✓ Created: Providers/{$className}ServiceProvider.php");
     }

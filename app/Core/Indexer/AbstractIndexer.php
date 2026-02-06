@@ -1,24 +1,23 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Indexer;
 
 use App\Core\Contracts\Indexer\IndexerInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 /**
  * Abstract Indexer
- * 
+ *
  * Base class for module indexers. Provides common functionality.
  */
 abstract class AbstractIndexer implements IndexerInterface
@@ -70,12 +69,12 @@ abstract class AbstractIndexer implements IndexerInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastIndexedAt(): ?\DateTimeInterface
+    public function getLastIndexedAt(): ?DateTimeInterface
     {
         $state = $this->loadState();
-        
+
         if (isset($state['lastIndexedAt'])) {
-            return new \DateTimeImmutable($state['lastIndexedAt']);
+            return new DateTimeImmutable($state['lastIndexedAt']);
         }
 
         return null;
@@ -108,7 +107,7 @@ abstract class AbstractIndexer implements IndexerInterface
     protected function markComplete(int $count): void
     {
         $this->saveState([
-            'lastIndexedAt' => (new \DateTimeImmutable())->format('c'),
+            'lastIndexedAt' => new DateTimeImmutable()->format('c'),
             'count' => $count,
         ]);
     }
@@ -122,8 +121,8 @@ abstract class AbstractIndexer implements IndexerInterface
             return $this->statePath;
         }
 
-        $basePath = function_exists('app') 
-            ? app()->basePath() 
+        $basePath = function_exists('app')
+            ? app()->basePath()
             : dirname(__DIR__, 3);
 
         return $basePath . '/var/state/indexer_' . $this->name . '.php';
@@ -142,6 +141,7 @@ abstract class AbstractIndexer implements IndexerInterface
 
         if (file_exists($path)) {
             $this->state = require $path;
+
             return $this->state;
         }
 

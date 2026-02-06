@@ -1,26 +1,23 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
-use App\Core\Console\Command;
 use App\Core\Cache\CacheManager;
 use App\Core\Compiler\CompilerManager;
+use App\Core\Console\Command;
 
 /**
  * Cache Clear Command
- * 
+ *
  * Clears cache pools and compiled files.
  */
 class CacheClearCommand extends Command
@@ -59,12 +56,14 @@ class CacheClearCommand extends Command
         // Clear specific pool
         if ($pool !== null) {
             $this->clearPool($pool);
+
             return 0;
         }
 
         // Clear compiled files
         if ($compiled) {
             $this->clearCompiled();
+
             return 0;
         }
 
@@ -86,9 +85,10 @@ class CacheClearCommand extends Command
         $cacheManager = new CacheManager([], $this->rootDir);
         $pools = $cacheManager->getPoolNames();
 
-        if (!in_array($pool, $pools)) {
+        if (! in_array($pool, $pools)) {
             $this->error("Unknown pool: {$pool}");
             $this->line("Available pools: " . implode(', ', $pools));
+
             return;
         }
 

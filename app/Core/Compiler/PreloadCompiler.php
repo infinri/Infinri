@@ -1,22 +1,23 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Compiler;
 
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 /**
  * Preload Compiler
- * 
+ *
  * Generates a preload.php file for OPcache preloading.
  * Includes hot paths and compiled files for faster startup.
  */
@@ -116,8 +117,8 @@ class PreloadCompiler
     protected function scanDirectory(string $dir): array
     {
         $files = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS)
         );
 
         foreach ($iterator as $file) {

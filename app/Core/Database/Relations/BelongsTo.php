@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Database\Model;
 
 /**
  * Belongs To Relationship
- * 
+ *
  * Represents the inverse of a one-to-one or one-to-many relationship.
  * The foreign key is on the parent model.
  */
@@ -41,7 +38,7 @@ class BelongsTo extends Relation
     public function getResults(): ?Model
     {
         $foreignValue = $this->parent->getAttribute($this->foreignKey);
-        
+
         if ($foreignValue === null) {
             return null;
         }
@@ -57,7 +54,7 @@ class BelongsTo extends Relation
     public function associate(Model $model): Model
     {
         $this->parent->setAttribute($this->foreignKey, $model->getAttribute($this->ownerKey));
-        
+
         return $this->parent;
     }
 
@@ -67,7 +64,7 @@ class BelongsTo extends Relation
     public function dissociate(): Model
     {
         $this->parent->setAttribute($this->foreignKey, null);
-        
+
         return $this->parent;
     }
 

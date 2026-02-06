@@ -1,62 +1,34 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Cache;
 
-use App\Core\Contracts\Cache\CacheInterface;
 use App\Core\Redis\RedisManager;
 use Redis;
 use RedisException;
 
 /**
  * Redis Cache Store
- * 
+ *
  * High-performance cache store using Redis with support for
  * tags, atomic operations, and distributed caching.
  */
-class RedisStore implements CacheInterface
+class RedisStore extends AbstractCacheStore
 {
-    /**
-     * Redis manager instance
-     */
-    protected RedisManager $redis;
-
-    /**
-     * The Redis connection to use
-     */
-    protected string $connection;
-
-    /**
-     * Default TTL in seconds
-     */
-    protected int $defaultTtl;
-
-    /**
-     * Key prefix
-     */
-    protected string $prefix;
-
     public function __construct(
-        RedisManager $redis,
-        string $connection = 'cache',
-        int $defaultTtl = 3600,
-        string $prefix = 'cache:'
+        protected RedisManager $redis,
+        protected string $connection = 'cache',
+        protected int $defaultTtl = 3600,
+        protected string $prefix = 'cache:'
     ) {
-        $this->redis = $redis;
-        $this->connection = $connection;
-        $this->defaultTtl = $defaultTtl;
-        $this->prefix = $prefix;
     }
 
     /**
@@ -90,6 +62,7 @@ class RedisStore implements CacheInterface
             return $value;
         } catch (RedisException $e) {
             logger()->warning('Cache get failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return $default;
         }
     }
@@ -99,7 +72,7 @@ class RedisStore implements CacheInterface
      */
     public function put(string $key, mixed $value, ?int $ttl = null): bool
     {
-        $ttl = $ttl ?? $this->defaultTtl;
+        $ttl ??= $this->defaultTtl;
 
         try {
             if ($ttl > 0) {
@@ -109,6 +82,7 @@ class RedisStore implements CacheInterface
             return $this->redis()->set($this->key($key), $value);
         } catch (RedisException $e) {
             logger()->error('Cache put failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -118,12 +92,12 @@ class RedisStore implements CacheInterface
      */
     public function add(string $key, mixed $value, ?int $ttl = null): bool
     {
-        $ttl = $ttl ?? $this->defaultTtl;
+        $ttl ??= $this->defaultTtl;
         $prefixedKey = $this->key($key);
 
         try {
             // Use SETNX for atomic add
-            if (!$this->redis()->setnx($prefixedKey, $value)) {
+            if (! $this->redis()->setnx($prefixedKey, $value)) {
                 return false;
             }
 
@@ -135,6 +109,7 @@ class RedisStore implements CacheInterface
             return true;
         } catch (RedisException $e) {
             logger()->error('Cache add failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -148,55 +123,18 @@ class RedisStore implements CacheInterface
             return $this->redis()->set($this->key($key), $value);
         } catch (RedisException $e) {
             logger()->error('Cache forever failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
 
-    /**
-     * Get an item or store a default value
-     */
-    public function remember(string $key, ?int $ttl, callable $callback): mixed
-    {
-        $value = $this->get($key);
-
-        if ($value !== null) {
-            return $value;
-        }
-
-        $value = $callback();
-
-        $this->put($key, $value, $ttl);
-
-        return $value;
-    }
-
-    /**
-     * Get an item or store a default value forever
-     */
-    public function rememberForever(string $key, callable $callback): mixed
-    {
-        $value = $this->get($key);
-
-        if ($value !== null) {
-            return $value;
-        }
-
-        $value = $callback();
-
-        $this->forever($key, $value);
-
-        return $value;
-    }
-
-    /**
-     * Remove an item from the cache
-     */
     public function forget(string $key): bool
     {
         try {
             return $this->redis()->del($this->key($key)) > 0;
         } catch (RedisException $e) {
             logger()->warning('Cache forget failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -210,6 +148,7 @@ class RedisStore implements CacheInterface
             return $this->redis()->exists($this->key($key)) > 0;
         } catch (RedisException $e) {
             logger()->warning('Cache has check failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -223,6 +162,7 @@ class RedisStore implements CacheInterface
             return $this->redis()->incrBy($this->key($key), $value);
         } catch (RedisException $e) {
             logger()->warning('Cache increment failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -236,6 +176,7 @@ class RedisStore implements CacheInterface
             return $this->redis()->decrBy($this->key($key), $value);
         } catch (RedisException $e) {
             logger()->warning('Cache decrement failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -249,7 +190,7 @@ class RedisStore implements CacheInterface
             // Only flush keys with our prefix
             $keys = $this->redis()->keys($this->prefix . '*');
 
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 // Remove the global prefix that Redis might add
                 $this->redis()->del(...$keys);
             }
@@ -257,6 +198,7 @@ class RedisStore implements CacheInterface
             return true;
         } catch (RedisException $e) {
             logger()->error('Cache flush failed', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -266,7 +208,7 @@ class RedisStore implements CacheInterface
      */
     public function many(array $keys): array
     {
-        $prefixedKeys = array_map(fn($key) => $this->key($key), $keys);
+        $prefixedKeys = array_map(fn ($key) => $this->key($key), $keys);
 
         try {
             $values = $this->redis()->mget($prefixedKeys);
@@ -279,6 +221,7 @@ class RedisStore implements CacheInterface
             return $result;
         } catch (RedisException $e) {
             logger()->warning('Cache many get failed', ['keys' => $keys, 'error' => $e->getMessage()]);
+
             return array_fill_keys($keys, null);
         }
     }
@@ -288,7 +231,7 @@ class RedisStore implements CacheInterface
      */
     public function putMany(array $values, ?int $ttl = null): bool
     {
-        $ttl = $ttl ?? $this->defaultTtl;
+        $ttl ??= $this->defaultTtl;
 
         try {
             $redis = $this->redis();
@@ -304,9 +247,10 @@ class RedisStore implements CacheInterface
 
             $results = $redis->exec();
 
-            return !in_array(false, $results, true);
+            return ! in_array(false, $results, true);
         } catch (RedisException $e) {
             logger()->error('Cache putMany failed', ['keys' => array_keys($values), 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -318,9 +262,11 @@ class RedisStore implements CacheInterface
     {
         try {
             $ttl = $this->redis()->ttl($this->key($key));
+
             return $ttl > 0 ? $ttl : 0;
         } catch (RedisException $e) {
             logger()->warning('Cache TTL check failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return 0;
         }
     }
@@ -341,6 +287,7 @@ class RedisStore implements CacheInterface
             );
         } catch (RedisException $e) {
             logger()->warning('Cache lock acquisition failed', ['key' => $key, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -368,6 +315,7 @@ class RedisStore implements CacheInterface
             return $this->redis()->del(...$keys);
         } catch (RedisException $e) {
             logger()->warning('Cache clearByPattern failed', ['pattern' => $pattern, 'error' => $e->getMessage()]);
+
             return 0;
         }
     }
@@ -389,6 +337,7 @@ class RedisStore implements CacheInterface
             ];
         } catch (RedisException $e) {
             logger()->warning('Cache stats retrieval failed', ['error' => $e->getMessage()]);
+
             return [];
         }
     }

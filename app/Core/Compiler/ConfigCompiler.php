@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -34,24 +31,24 @@ class ConfigCompiler extends AbstractCompiler
         $config = [];
         $config = $this->loadModuleConfigs($config);
         $config = $this->loadAppConfig($config);
-        
+
         // Pre-flatten config for O(1) dot-notation access
         $flat = Arr::dot($config);
         $config['_flat'] = $flat;
-        
+
         // Save traditional cache (for fallback/compatibility)
         $this->saveToCache($config, 'Compiled Config');
-        
+
         // Generate static config class for maximum performance
         // This is THE clever optimization - OPcache interns the static array
         $this->generateStaticConfigClass($flat, $config);
-        
+
         return $config;
     }
 
     /**
      * Generate a static config class for OPcache optimization
-     * 
+     *
      * Why this is fast:
      * 1. Static class properties are stored in OPcache's interned strings table
      * 2. Access is a single FETCH_STATIC_PROP_R opcode - no function calls
@@ -61,7 +58,7 @@ class ConfigCompiler extends AbstractCompiler
     protected function generateStaticConfigClass(array $flat, array $nested): void
     {
         $staticClassPath = $this->basePath . '/var/cache/CompiledConfig.php';
-        
+
         $code = "<?php\n\n";
         $code .= "declare(strict_types=1);\n\n";
         $code .= "namespace App\\Core\\Config;\n\n";
@@ -84,11 +81,11 @@ class ConfigCompiler extends AbstractCompiler
         $code .= "    /**\n";
         $code .= "     * Full nested config (without _flat key)\n";
         $code .= "     */\n";
-        
+
         // Remove _flat from nested to avoid duplication
         unset($nested['_flat']);
         $code .= "    public static array \$nested = " . $this->exportArray($nested) . ";\n\n";
-        
+
         $code .= "    /**\n";
         $code .= "     * Get config value - O(1) lookup\n";
         $code .= "     */\n";
@@ -96,7 +93,7 @@ class ConfigCompiler extends AbstractCompiler
         $code .= "    {\n";
         $code .= "        return self::\$flat[\$key] ?? \$default;\n";
         $code .= "    }\n\n";
-        
+
         $code .= "    /**\n";
         $code .= "     * Check if config key exists - O(1) lookup\n";
         $code .= "     */\n";
@@ -105,19 +102,19 @@ class ConfigCompiler extends AbstractCompiler
         $code .= "        return isset(self::\$flat[\$key]);\n";
         $code .= "    }\n";
         $code .= "}\n";
-        
+
         // Atomic write
         $dir = dirname($staticClassPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0o755, true);
         }
-        
+
         $tempFile = $staticClassPath . '.tmp.' . getmypid();
         file_put_contents($tempFile, $code);
         rename($tempFile, $staticClassPath);
-        
+
         // Pre-compile with OPcache if available and enabled
-        if (function_exists('opcache_compile_file') 
+        if (function_exists('opcache_compile_file')
             && function_exists('opcache_get_status')
             && opcache_get_status(false) !== false
         ) {
@@ -133,11 +130,11 @@ class ConfigCompiler extends AbstractCompiler
     {
         $items = [];
         $isAssoc = array_keys($array) !== range(0, count($array) - 1);
-        
+
         foreach ($array as $key => $value) {
             $prefix = str_repeat('    ', $indent);
             $keyStr = $isAssoc ? var_export($key, true) . ' => ' : '';
-            
+
             if (is_array($value)) {
                 $items[] = $prefix . $keyStr . $this->exportArray($value, $indent + 1);
             } elseif (is_string($value)) {
@@ -150,12 +147,13 @@ class ConfigCompiler extends AbstractCompiler
                 $items[] = $prefix . $keyStr . var_export($value, true);
             }
         }
-        
+
         if (empty($items)) {
             return '[]';
         }
-        
+
         $baseIndent = str_repeat('    ', $indent - 1);
+
         return "[\n" . implode(",\n", $items) . ",\n" . $baseIndent . ']';
     }
 
@@ -166,7 +164,7 @@ class ConfigCompiler extends AbstractCompiler
         foreach ($this->registry->getEnabled() as $module) {
             $moduleConfig = $module->loadConfig();
 
-            if (!empty($moduleConfig)) {
+            if (! empty($moduleConfig)) {
                 $config['modules'][$module->name] = $moduleConfig;
 
                 if (isset($moduleConfig['_global'])) {

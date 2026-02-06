@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Console\Command;
 
 /**
  * Make Migration Command
- * 
+ *
  * Generates a new database migration file.
  */
 class MakeMigrationCommand extends Command
@@ -34,14 +31,15 @@ class MakeMigrationCommand extends Command
         if ($name === null) {
             $this->error("Usage: make:migration <name>");
             $this->line("  Example: make:migration create_users_table");
+
             return 1;
         }
 
         $rootDir = $this->getRootDir();
         $migrationsPath = $rootDir . '/database/migrations';
 
-        if (!is_dir($migrationsPath)) {
-            mkdir($migrationsPath, 0755, true);
+        if (! is_dir($migrationsPath)) {
+            mkdir($migrationsPath, 0o755, true);
         }
 
         $timestamp = date('Y_m_d_His');
@@ -50,6 +48,7 @@ class MakeMigrationCommand extends Command
 
         if (file_exists($filepath)) {
             $this->error("Migration '{$filename}' already exists.");
+
             return 1;
         }
 
@@ -84,64 +83,61 @@ class MakeMigrationCommand extends Command
     {
         $name = preg_replace('/^(create_|add_|modify_|update_|drop_)/', '', $name);
         $name = preg_replace('/(_table|_column|_index|_to_\w+|_from_\w+)$/', '', $name);
+
         return $name;
     }
 
     protected function getCreateTableTemplate(string $className, string $tableName): string
     {
         return <<<PHP
-<?php
+            <?php declare(strict_types=1);
 
-declare(strict_types=1);
+            use App\\Core\\Database\\Migration;
+            use App\\Core\\Database\\Schema\\Blueprint;
 
-use App\\Core\\Database\\Migration;
-use App\\Core\\Database\\Schema\\Blueprint;
+            return new class extends Migration
+            {
+                public function up(): void
+                {
+                    \$this->schema->create('{$tableName}', function (Blueprint \$table) {
+                        \$table->id();
+                        // Add columns here
+                        \$table->timestamps();
+                    });
+                }
 
-return new class extends Migration
-{
-    public function up(): void
-    {
-        \$this->schema->create('{$tableName}', function (Blueprint \$table) {
-            \$table->id();
-            // Add columns here
-            \$table->timestamps();
-        });
-    }
-
-    public function down(): void
-    {
-        \$this->schema->dropIfExists('{$tableName}');
-    }
-};
-PHP;
+                public function down(): void
+                {
+                    \$this->schema->dropIfExists('{$tableName}');
+                }
+            };
+            PHP;
     }
 
     protected function getModifyTableTemplate(string $className, string $tableName): string
     {
         return <<<PHP
-<?php
+            <?php declare(strict_types=1);
 
-declare(strict_types=1);
+            use App\\Core\\Database\\Migration;
+            use App\\Core\\Database\\Schema\\Blueprint;
 
-use App\\Core\\Database\\Migration;
-use App\\Core\\Database\\Schema\\Blueprint;
+            return new class extends Migration
+            {
+                public function up(): void
+                {
+                    \$this->schema->table('{$tableName}', function (Blueprint \$table) {
+                        // Add/modify columns here
+                    });
+                }
 
-return new class extends Migration
-{
-    public function up(): void
-    {
-        \$this->schema->table('{$tableName}', function (Blueprint \$table) {
-            // Add/modify columns here
-        });
-    }
-
-    public function down(): void
-    {
-        \$this->schema->table('{$tableName}', function (Blueprint \$table) {
-            // Reverse changes here
-        });
-    }
-};
-PHP;
+                public function down(): void
+                {
+                    \$this->schema->table('{$tableName}', function (Blueprint \$table) {
+                        // Reverse changes here
+                    });
+                }
+            };
+            PHP;
     }
 }

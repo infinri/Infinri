@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use Throwable;
 
 /**
  * Log Manager
- * 
+ *
  * Manages multiple log channels and routes logs appropriately.
  * Channels: exception, error, debug, info, system, security
  */
@@ -27,11 +24,11 @@ class LogManager implements LoggerInterface
 {
     /** @var array<string, LogChannel> */
     protected array $channels = [];
-    
+
     protected string $logDirectory;
     protected ?string $correlationId = null;
     protected array $globalContext = [];
-    
+
     /** Map log levels to channels */
     protected const LEVEL_CHANNELS = [
         'emergency' => 'exception',
@@ -43,7 +40,7 @@ class LogManager implements LoggerInterface
         'info' => 'info',
         'debug' => 'debug',
     ];
-    
+
     /** Available channels */
     protected const CHANNELS = [
         'exception',  // Critical errors, exceptions, crashes
@@ -79,14 +76,14 @@ class LogManager implements LoggerInterface
      */
     public function channel(string $name): LogChannel
     {
-        if (!isset($this->channels[$name])) {
+        if (! isset($this->channels[$name])) {
             // Create on demand for custom channels
             $this->channels[$name] = new LogChannel(
                 $name,
                 $this->logDirectory . '/' . $name . '.log'
             );
         }
-        
+
         return $this->channels[$name];
     }
 
@@ -147,9 +144,9 @@ class LogManager implements LoggerInterface
     {
         $exceptionContext = $this->formatException($e);
         $context = array_merge($exceptionContext, $context);
-        
+
         $this->writeToChannel('exception', 'error', $e->getMessage(), $context);
-        
+
         // Also log to error channel for visibility
         $this->writeToChannel('error', 'error', 'Exception: ' . $e->getMessage(), [
             'exception_class' => get_class($e),
@@ -266,6 +263,7 @@ class LogManager implements LoggerInterface
         if ($this->correlationId === null) {
             $this->correlationId = 'req_' . bin2hex(random_bytes(6));
         }
+
         return $this->correlationId;
     }
 

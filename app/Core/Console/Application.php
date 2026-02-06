@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console;
 
+use Throwable;
+
 /**
  * Console Application
- * 
+ *
  * Handles command-line interface operations.
  * Supports auto-discovery and self-describing commands.
  */
@@ -24,18 +23,21 @@ class Application
 {
     /**
      * Registered command classes
+     *
      * @var array<string, string>
      */
     protected array $commands = [];
 
     /**
      * Command aliases
+     *
      * @var array<string, string>
      */
     protected array $aliases = [];
 
     /**
      * Command instances (cached for metadata)
+     *
      * @var array<string, Command>
      */
     protected array $instances = [];
@@ -64,16 +66,16 @@ class Application
      */
     public function discoverCommandsIn(string $path, string $namespace): static
     {
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return $this;
         }
 
         $files = glob($path . '/*Command.php');
-        
+
         foreach ($files as $file) {
             $className = $namespace . '\\' . basename($file, '.php');
-            
-            if (!class_exists($className)) {
+
+            if (! class_exists($className)) {
                 continue;
             }
 
@@ -89,22 +91,22 @@ class Application
     public function registerClass(string $class): static
     {
         $instance = new $class();
-        
+
         // Get name from command or generate from class name
         $name = $instance->getName();
         if (empty($name)) {
             // Generate name from class: InstallCommand -> install
             $name = $this->classToName($class);
         }
-        
+
         $this->commands[$name] = $class;
         $this->instances[$name] = $instance;
-        
+
         // Register aliases
         foreach ($instance->getAliases() as $alias) {
             $this->aliases[$alias] = $name;
         }
-        
+
         return $this;
     }
 
@@ -114,22 +116,22 @@ class Application
     public function register(string $name, string $class): static
     {
         $this->commands[$name] = $class;
-        
+
         // Try to get metadata from instance if it extends Command
         try {
             $instance = new $class();
-            
+
             if ($instance instanceof Command) {
                 $this->instances[$name] = $instance;
-                
+
                 foreach ($instance->getAliases() as $alias) {
                     $this->aliases[$alias] = $name;
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Ignore if can't instantiate
         }
-        
+
         return $this;
     }
 
@@ -139,6 +141,7 @@ class Application
     public function alias(string $alias, string $command): static
     {
         $this->aliases[$alias] = $command;
+
         return $this;
     }
 
@@ -159,9 +162,10 @@ class Application
         $commandName = $this->aliases[$commandName] ?? $commandName;
 
         // Show help for unknown commands
-        if (!isset($this->commands[$commandName])) {
+        if (! isset($this->commands[$commandName])) {
             $this->error("Unknown command: {$commandName}");
             $this->line("Run 'php bin/console help' to see available commands.");
+
             return 1;
         }
 
@@ -177,19 +181,21 @@ class Application
             if ($command instanceof Command) {
                 return $command->handle($args);
             }
-            
+
             // Legacy support
             if (method_exists($command, 'execute')) {
                 return $command->execute($commandName, $args) ?? 0;
             }
 
             $this->error("Command {$commandName} is not properly implemented.");
+
             return 1;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error("Error: " . $e->getMessage());
             if (getenv('APP_DEBUG') === 'true') {
                 $this->line($e->getTraceAsString());
             }
+
             return 1;
         }
     }
@@ -208,19 +214,19 @@ class Application
     public function getCommandsMetadata(): array
     {
         $metadata = [];
-        
+
         foreach ($this->commands as $name => $class) {
             $instance = $this->instances[$name] ?? null;
-            
+
             // Only get metadata from Command instances
             $description = '';
             $aliases = [];
-            
+
             if ($instance instanceof Command) {
                 $description = $instance->getDescription();
                 $aliases = $instance->getAliases();
             }
-            
+
             $metadata[$name] = [
                 'name' => $name,
                 'class' => $class,
@@ -228,7 +234,7 @@ class Application
                 'aliases' => $aliases,
             ];
         }
-        
+
         return $metadata;
     }
 
@@ -247,6 +253,7 @@ class Application
     {
         $basename = basename(str_replace('\\', '/', $class));
         $name = str_replace('Command', '', $basename);
+
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1:$2', $name));
     }
 

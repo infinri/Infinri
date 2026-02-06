@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,22 +16,17 @@ use App\Core\Database\ModelQueryBuilder;
 
 /**
  * Base Relation
- * 
+ *
  * Base class for all model relationships.
  */
 abstract class Relation
 {
-    protected Model $parent;
-    protected Model $related;
-    protected string $foreignKey;
-    protected string $localKey;
-
-    public function __construct(Model $parent, Model $related, string $foreignKey, string $localKey)
-    {
-        $this->parent = $parent;
-        $this->related = $related;
-        $this->foreignKey = $foreignKey;
-        $this->localKey = $localKey;
+    public function __construct(
+        protected Model $parent,
+        protected Model $related,
+        protected string $foreignKey,
+        protected string $localKey
+    ) {
     }
 
     /**

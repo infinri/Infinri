@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -20,7 +17,7 @@ use Closure;
 
 /**
  * Provides HTTP method route registration
- * 
+ *
  * Single responsibility: Route registration shortcuts
  */
 trait RegistersRoutes
@@ -91,7 +88,7 @@ trait RegistersRoutes
 
     /**
      * Register a RESTful resource controller
-     * 
+     *
      * Creates the following routes:
      * - GET    /resource           -> index
      * - GET    /resource/create    -> create
@@ -101,7 +98,7 @@ trait RegistersRoutes
      * - PUT    /resource/{id}      -> update
      * - PATCH  /resource/{id}      -> update
      * - DELETE /resource/{id}      -> destroy
-     * 
+     *
      * @param string $name Resource name (e.g., 'users')
      * @param string $controller Controller class name
      * @param array $options Options: 'only', 'except', 'parameters'
@@ -109,24 +106,24 @@ trait RegistersRoutes
     public function resource(string $name, string $controller, array $options = []): void
     {
         $parameter = $options['parameters'][$name] ?? 'id';
-        
+
         $resourceActions = [
-            'index'   => ['GET', "/{$name}", 'index'],
-            'create'  => ['GET', "/{$name}/create", 'create'],
-            'store'   => ['POST', "/{$name}", 'store'],
-            'show'    => ['GET', "/{$name}/{{$parameter}}", 'show'],
-            'edit'    => ['GET', "/{$name}/{{$parameter}}/edit", 'edit'],
-            'update'  => [['PUT', 'PATCH'], "/{$name}/{{$parameter}}", 'update'],
+            'index' => ['GET', "/{$name}", 'index'],
+            'create' => ['GET', "/{$name}/create", 'create'],
+            'store' => ['POST', "/{$name}", 'store'],
+            'show' => ['GET', "/{$name}/{{$parameter}}", 'show'],
+            'edit' => ['GET', "/{$name}/{{$parameter}}/edit", 'edit'],
+            'update' => [['PUT', 'PATCH'], "/{$name}/{{$parameter}}", 'update'],
             'destroy' => ['DELETE', "/{$name}/{{$parameter}}", 'destroy'],
         ];
-        
+
         // Filter based on 'only' or 'except'
         if (isset($options['only'])) {
             $resourceActions = array_intersect_key($resourceActions, array_flip($options['only']));
         } elseif (isset($options['except'])) {
             $resourceActions = array_diff_key($resourceActions, array_flip($options['except']));
         }
-        
+
         // Register routes
         foreach ($resourceActions as $action => [$methods, $uri, $method]) {
             $methods = is_array($methods) ? $methods : [$methods];

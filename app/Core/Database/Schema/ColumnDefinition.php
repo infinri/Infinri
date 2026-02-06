@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database\Schema;
 
 /**
  * Column Definition
- * 
+ *
  * Represents a table column with its properties.
  */
 class ColumnDefinition
@@ -46,6 +43,7 @@ class ColumnDefinition
     public function nullable(bool $value = true): static
     {
         $this->nullable = $value;
+
         return $this;
     }
 
@@ -56,6 +54,7 @@ class ColumnDefinition
     {
         $this->default = $value;
         $this->hasDefault = true;
+
         return $this;
     }
 
@@ -65,6 +64,7 @@ class ColumnDefinition
     public function unsigned(bool $value = true): static
     {
         $this->unsigned = $value;
+
         return $this;
     }
 
@@ -74,6 +74,7 @@ class ColumnDefinition
     public function primary(bool $value = true): static
     {
         $this->primary = $value;
+
         return $this;
     }
 
@@ -83,6 +84,7 @@ class ColumnDefinition
     public function unique(bool $value = true): static
     {
         $this->unique = $value;
+
         return $this;
     }
 
@@ -92,6 +94,7 @@ class ColumnDefinition
     public function comment(string $comment): static
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -101,6 +104,7 @@ class ColumnDefinition
     public function after(string $column): static
     {
         $this->after = $column;
+
         return $this;
     }
 
@@ -111,6 +115,7 @@ class ColumnDefinition
     {
         $this->default = 'CURRENT_TIMESTAMP';
         $this->hasDefault = true;
+
         return $this;
     }
 
@@ -173,7 +178,7 @@ class ColumnDefinition
     {
         $sql = "\"{$this->name}\" {$this->compileType()}";
 
-        if (!$this->nullable && !$this->primary) {
+        if (! $this->nullable && ! $this->primary) {
             $sql .= ' NOT NULL';
         }
 
@@ -185,7 +190,7 @@ class ColumnDefinition
             $sql .= ' PRIMARY KEY';
         }
 
-        if ($this->unique && !$this->primary) {
+        if ($this->unique && ! $this->primary) {
             $sql .= ' UNIQUE';
         }
 

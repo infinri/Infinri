@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,10 +16,12 @@ use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
 use Closure;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Middleware Pipeline
- * 
+ *
  * Executes middleware in order, allowing each to process the request
  * before passing to the next, and process the response on the way back
  */
@@ -40,7 +39,7 @@ class Pipeline
 
     /**
      * The array of middleware pipes
-     * 
+     *
      * @var array<int, string|MiddlewareInterface|Closure>
      */
     protected array $pipes = [];
@@ -64,7 +63,7 @@ class Pipeline
     public function send(RequestInterface $passable): static
     {
         $this->passable = $passable;
-        
+
         return $this;
     }
 
@@ -74,7 +73,7 @@ class Pipeline
     public function through(array $pipes): static
     {
         $this->pipes = $pipes;
-        
+
         return $this;
     }
 
@@ -84,7 +83,7 @@ class Pipeline
     public function via(string $method): static
     {
         $this->method = $method;
-        
+
         return $this;
     }
 
@@ -98,7 +97,7 @@ class Pipeline
             $this->carry(),
             $this->prepareDestination($destination)
         );
-        
+
         return $pipeline($this->passable);
     }
 
@@ -121,20 +120,20 @@ class Pipeline
             return function (RequestInterface $passable) use ($stack, $pipe): ResponseInterface {
                 // Resolve the middleware
                 $middleware = $this->resolvePipe($pipe);
-                
+
                 if ($middleware instanceof Closure) {
                     return $middleware($passable, $stack);
                 }
-                
+
                 if ($middleware instanceof MiddlewareInterface) {
                     return $middleware->handle($passable, $stack);
                 }
-                
+
                 // Call custom method if specified
                 if (method_exists($middleware, $this->method)) {
                     return $middleware->{$this->method}($passable, $stack);
                 }
-                
+
                 $error = sprintf('Middleware %s does not have a %s method', get_class($middleware), $this->method);
                 if (function_exists('logger')) {
                     logger()->error('Middleware execution failed', [
@@ -143,7 +142,7 @@ class Pipeline
                         'error' => $error,
                     ]);
                 }
-                throw new \RuntimeException($error);
+                throw new RuntimeException($error);
             };
         };
     }
@@ -168,32 +167,32 @@ class Pipeline
         if ($pipe instanceof Closure) {
             return $pipe;
         }
-        
+
         if ($pipe instanceof MiddlewareInterface) {
             return $pipe;
         }
-        
+
         if (is_string($pipe)) {
             // Check for parameters (middleware:param1,param2)
             [$class, $parameters] = $this->parsePipeString($pipe);
-            
+
             // Resolve from container
             $instance = $this->app->make($class);
-            
+
             // If parameters were provided, wrap in a closure
-            if (!empty($parameters)) {
+            if (! empty($parameters)) {
                 return function (RequestInterface $request, Closure $next) use ($instance, $parameters): ResponseInterface {
                     return $instance->handle($request, $next, ...$parameters);
                 };
             }
-            
+
             return $instance;
         }
-        
+
         if (is_object($pipe)) {
             return $pipe;
         }
-        
+
         $error = 'Invalid middleware pipe type: ' . gettype($pipe);
         if (function_exists('logger')) {
             logger()->error('Invalid middleware configuration', [
@@ -201,20 +200,20 @@ class Pipeline
                 'error' => $error,
             ]);
         }
-        throw new \InvalidArgumentException($error);
+        throw new InvalidArgumentException($error);
     }
 
     /**
      * Parse a middleware string for class and parameters
-     * 
+     *
      * @return array{0: string, 1: array}
      */
     protected function parsePipeString(string $pipe): array
     {
         [$class, $parameters] = array_pad(explode(':', $pipe, 2), 2, '');
-        
+
         $parameters = $parameters !== '' ? explode(',', $parameters) : [];
-        
+
         return [$class, $parameters];
     }
 }

@@ -1,26 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
-use App\Core\Queue\RedisQueue;
 use App\Core\Contracts\Queue\QueueInterface;
+use App\Core\Queue\RedisQueue;
+use Throwable;
 
 /**
  * Queue Flush Command
- * 
+ *
  * Clears queue jobs.
  */
 class QueueFlushCommand extends Command
@@ -47,6 +45,7 @@ class QueueFlushCommand extends Command
 
         if (env('QUEUE_CONNECTION') !== 'redis') {
             $this->error("Queue connection is not set to 'redis'");
+
             return 1;
         }
 
@@ -54,8 +53,9 @@ class QueueFlushCommand extends Command
             $app = \App\Core\Application::getInstance();
             $queueInstance = $app->make(QueueInterface::class);
 
-            if (!$queueInstance instanceof RedisQueue) {
+            if (! $queueInstance instanceof RedisQueue) {
                 $this->error("Queue is not a Redis queue");
+
                 return 1;
             }
 
@@ -81,8 +81,9 @@ class QueueFlushCommand extends Command
 
             return 0;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error("Error: " . $e->getMessage());
+
             return 1;
         }
     }

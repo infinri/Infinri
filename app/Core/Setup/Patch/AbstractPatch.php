@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -8,14 +6,13 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
  */
-
 namespace App\Core\Setup\Patch;
 
 use App\Core\Contracts\Database\ConnectionInterface;
 
 /**
  * Abstract Patch
- * 
+ *
  * Base class for data and schema patches providing common functionality.
  */
 abstract class AbstractPatch

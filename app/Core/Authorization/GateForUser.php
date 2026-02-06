@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -15,10 +12,10 @@ use App\Core\Contracts\Auth\AuthorizableInterface;
 
 /**
  * Gate For User
- * 
+ *
  * Wraps the Gate to perform checks for a specific user
  * instead of the current authenticated user.
- * 
+ *
  * Usage:
  *   $gate->forUser($admin)->allows('delete', $post);
  */
@@ -27,7 +24,8 @@ final class GateForUser
     public function __construct(
         private Gate $gate,
         private ?AuthorizableInterface $user
-    ) {}
+    ) {
+    }
 
     /**
      * Check if the user can perform an ability
@@ -52,13 +50,13 @@ final class GateForUser
     {
         // Temporarily override the user resolver
         $originalResolver = null;
-        
+
         // Store original and set temporary resolver
         $gate = $this->gate;
         $user = $this->user;
-        
-        $gate->setUserResolver(fn() => $user);
-        
+
+        $gate->setUserResolver(fn () => $user);
+
         try {
             return $gate->check($ability, ...$arguments);
         } finally {
@@ -69,7 +67,7 @@ final class GateForUser
 
     /**
      * Authorize an ability (throws if denied)
-     * 
+     *
      * @throws AuthorizationException
      */
     public function authorize(string $ability, mixed ...$arguments): Response
@@ -87,6 +85,7 @@ final class GateForUser
                 return true;
             }
         }
+
         return false;
     }
 
@@ -100,6 +99,7 @@ final class GateForUser
                 return false;
             }
         }
+
         return true;
     }
 }

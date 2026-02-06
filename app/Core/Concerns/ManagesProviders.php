@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,10 +15,10 @@ use App\Core\Container\ServiceProvider;
 
 /**
  * Manages Providers
- * 
+ *
  * Provides service provider registration and boot logic.
  * Follows Single Responsibility Principle - only handles provider lifecycle.
- * 
+ *
  * Requires: protected bool $hasBeenBootstrapped to be defined in the using class.
  */
 trait ManagesProviders
@@ -41,7 +38,7 @@ trait ManagesProviders
      */
     public function register(ServiceProvider|string $provider, bool $force = false): ServiceProvider
     {
-        if (($registered = $this->getProvider($provider)) && !$force) {
+        if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
         }
 

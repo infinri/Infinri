@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console;
 
+use Throwable;
+
 /**
  * Base Command
- * 
+ *
  * All console commands should extend this class.
  * Commands self-describe for auto-discovery.
  */
@@ -111,11 +110,11 @@ abstract class Command
     {
         $defaultText = $default !== '' ? " [{$default}]" : '';
         echo "  {$question}{$defaultText}: ";
-        
+
         $handle = fopen('php://stdin', 'r');
         $line = trim(fgets($handle));
         fclose($handle);
-        
+
         return $line !== '' ? $line : $default;
     }
 
@@ -123,15 +122,15 @@ abstract class Command
     {
         $hint = $default ? 'Y/n' : 'y/N';
         echo "  {$question} [{$hint}]: ";
-        
+
         $handle = fopen('php://stdin', 'r');
         $line = strtolower(trim(fgets($handle)));
         fclose($handle);
-        
+
         if ($line === '') {
             return $default;
         }
-        
+
         return in_array($line, ['y', 'yes', '1', 'true']);
     }
 
@@ -147,8 +146,10 @@ abstract class Command
         if (function_exists('app')) {
             try {
                 return app()->basePath();
-            } catch (\Throwable) {}
+            } catch (Throwable) {
+            }
         }
+
         return dirname(__DIR__, 3);
     }
 }

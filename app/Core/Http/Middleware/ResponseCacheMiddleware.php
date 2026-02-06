@@ -1,28 +1,26 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Http\Middleware;
 
+use App\Core\Contracts\Cache\CacheInterface;
 use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
-use App\Core\Contracts\Cache\CacheInterface;
 use App\Core\Http\Response;
+use Closure;
 
 /**
  * Response Cache Middleware
- * 
+ *
  * Caches full HTTP responses for improved performance on
  * cacheable endpoints. Only caches GET requests and non-authenticated responses.
  */
@@ -72,10 +70,10 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     /**
      * Handle the request
      */
-    public function handle(RequestInterface $request, \Closure $next): ResponseInterface
+    public function handle(RequestInterface $request, Closure $next): ResponseInterface
     {
         // Skip if caching is disabled
-        if (!$this->config['enabled']) {
+        if (! $this->config['enabled']) {
             return $next($request);
         }
 
@@ -194,7 +192,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     {
         // Check for session cookie or authorization header
         $cookies = $request->getCookies();
-        
+
         // Check for PHP session cookie
         if (isset($cookies[session_name()])) {
             return true;
@@ -220,7 +218,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
 
         // Include sorted query string
         $query = $request->getQueryParams();
-        if (!empty($query)) {
+        if (! empty($query)) {
             ksort($query);
             $parts[] = http_build_query($query);
         }
@@ -242,7 +240,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     protected function shouldCache(ResponseInterface $response): bool
     {
         // Check status code
-        if (!in_array($response->getStatusCode(), $this->config['cacheable_status_codes'])) {
+        if (! in_array($response->getStatusCode(), $this->config['cacheable_status_codes'])) {
             return false;
         }
 
@@ -294,7 +292,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
 
         return array_filter(
             $headers,
-            fn($name) => !in_array($name, $hopByHop, true),
+            fn ($name) => ! in_array($name, $hopByHop, true),
             ARRAY_FILTER_USE_KEY
         );
     }

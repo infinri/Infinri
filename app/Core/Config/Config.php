@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,14 +16,14 @@ use App\Core\Support\Arr;
 
 /**
  * Configuration Repository
- * 
+ *
  * Manages application configuration with dot notation support.
  * Uses CompiledConfig for O(1) static access when available.
  */
 class Config implements ConfigInterface
 {
     protected array $items = [];
-    
+
     /**
      * Whether CompiledConfig is available for fast static access
      */
@@ -46,23 +43,23 @@ class Config implements ConfigInterface
         if (isset($this->items['_flat'][$key])) {
             return true;
         }
-        
+
         // Check nested items
         if (Arr::has($this->items, $key)) {
             return true;
         }
-        
+
         // Fallback: Try static config (O(1), OPcache optimized)
         if (self::isStaticConfigAvailable()) {
             return CompiledConfig::has($key);
         }
-        
+
         return false;
     }
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * Uses CompiledConfig for O(1) static lookup when available.
      * Falls back to array lookup for dynamic/runtime config.
      */
@@ -73,19 +70,19 @@ class Config implements ConfigInterface
         if (isset($this->items['_flat'][$key])) {
             return $this->items['_flat'][$key];
         }
-        
+
         // Check nested items for dynamically set nested values
         $value = Arr::get($this->items, $key);
         if ($value !== null) {
             return $value;
         }
-        
+
         // Fast path: Use static compiled config (O(1), OPcache optimized)
         // This is a single opcode - FETCH_STATIC_PROP_R
         if (self::isStaticConfigAvailable()) {
             return CompiledConfig::get($key, $default);
         }
-        
+
         return $default;
     }
 
@@ -95,11 +92,11 @@ class Config implements ConfigInterface
     private static function isStaticConfigAvailable(): bool
     {
         if (self::$staticConfigAvailable === null) {
-            self::$staticConfigAvailable = class_exists(CompiledConfig::class, false) 
-                || (file_exists(base_path('var/cache/CompiledConfig.php')) 
+            self::$staticConfigAvailable = class_exists(CompiledConfig::class, false)
+                || (file_exists(base_path('var/cache/CompiledConfig.php'))
                     && (require_once base_path('var/cache/CompiledConfig.php')) !== false);
         }
-        
+
         return self::$staticConfigAvailable;
     }
 
@@ -120,9 +117,9 @@ class Config implements ConfigInterface
 
         foreach ($keys as $k => $v) {
             Arr::set($this->items, $k, $v);
-            
+
             // Also update _flat for O(1) access on dynamic values
-            if (!isset($this->items['_flat'])) {
+            if (! isset($this->items['_flat'])) {
                 $this->items['_flat'] = [];
             }
             $this->items['_flat'][$k] = $v;

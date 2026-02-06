@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -20,7 +17,7 @@ use Closure;
 
 /**
  * Route
- * 
+ *
  * Represents a single route definition with URI pattern, methods, and action
  */
 class Route implements RouteInterface
@@ -81,7 +78,7 @@ class Route implements RouteInterface
         $this->methods = array_map('strtoupper', $methods);
         $this->uri = $this->normalizeUri($uri);
         $this->action = $action;
-        
+
         $this->extractParameterNames();
         $this->compile();
     }
@@ -124,7 +121,7 @@ class Route implements RouteInterface
     public function name(string $name): static
     {
         $this->name = $name;
-        
+
         return $this;
     }
 
@@ -143,7 +140,7 @@ class Route implements RouteInterface
     {
         $middleware = is_array($middleware) ? $middleware : [$middleware];
         $this->middleware = array_merge($this->middleware, $middleware);
-        
+
         return $this;
     }
 
@@ -167,10 +164,10 @@ class Route implements RouteInterface
         } else {
             $this->wheres[$name] = $expression;
         }
-        
+
         // Recompile with new constraints
         $this->compile();
-        
+
         return $this;
     }
 
@@ -180,13 +177,13 @@ class Route implements RouteInterface
     public function matches(string $path, string $method): bool
     {
         // Check method first (faster)
-        if (!in_array(strtoupper($method), $this->methods, true)) {
+        if (! in_array(strtoupper($method), $this->methods, true)) {
             return false;
         }
-        
+
         // Check path against compiled pattern
         $path = $this->normalizeUri($path);
-        
+
         if (preg_match($this->compiledPattern, $path, $matches)) {
             // Extract named parameters
             $this->parameters = [];
@@ -195,10 +192,10 @@ class Route implements RouteInterface
                     $this->parameters[$name] = $matches[$name];
                 }
             }
-            
+
             return true;
         }
-        
+
         return false;
     }
 
@@ -236,12 +233,13 @@ class Route implements RouteInterface
 
     /**
      * Get the first URI segment for route indexing
-     * 
+     *
      * @return string The first segment (e.g., "users" from "/users/{id}")
      */
     public function getFirstSegment(): string
     {
         $segments = explode('/', trim($this->uri, '/'));
+
         return $segments[0] ?? '';
     }
 
@@ -270,20 +268,20 @@ class Route implements RouteInterface
         $pattern = $this->uri;
         $segments = [];
         $lastPos = 0;
-        
+
         // Find all parameters and build pattern
         preg_match_all('/\{(\w+)(\?)?\}/', $pattern, $matches, PREG_OFFSET_CAPTURE);
-        
+
         foreach ($matches[0] as $i => $match) {
             $fullMatch = $match[0];
             $position = $match[1];
             $name = $matches[1][$i][0];
             $optional = isset($matches[2][$i][0]) && $matches[2][$i][0] === '?';
             $constraint = $this->wheres[$name] ?? '[^/]+';
-            
+
             // Get static segment before this parameter
             $staticSegment = substr($pattern, $lastPos, $position - $lastPos);
-            
+
             // Add parameter regex
             if ($optional) {
                 // For optional parameters, make the preceding slash optional too
@@ -302,15 +300,15 @@ class Route implements RouteInterface
                 }
                 $segments[] = "(?P<{$name}>{$constraint})";
             }
-            
+
             $lastPos = $position + strlen($fullMatch);
         }
-        
+
         // Add any remaining static segment
         if ($lastPos < strlen($pattern)) {
             $segments[] = preg_quote(substr($pattern, $lastPos), '#');
         }
-        
+
         $this->compiledPattern = '#^' . implode('', $segments) . '$#u';
     }
 
@@ -321,7 +319,7 @@ class Route implements RouteInterface
     {
         $this->uri = $this->normalizeUri($prefix . '/' . ltrim($this->uri, '/'));
         $this->compile();
-        
+
         return $this;
     }
 
@@ -333,7 +331,7 @@ class Route implements RouteInterface
         if ($this->name !== null) {
             $this->name = $prefix . $this->name;
         }
-        
+
         return $this;
     }
 }

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,26 +13,27 @@ namespace App\Core\Module;
 
 use App\Core\Contracts\Container\ContainerInterface;
 use App\Core\Contracts\Module\ModuleInterface;
+use ReflectionClass;
 
 /**
  * Abstract Module
- * 
+ *
  * Base class for all platform modules. Provides sensible defaults
  * and common functionality.
- * 
+ *
  * Modules can extend this class and override methods as needed.
- * 
+ *
  * Example:
  * ```php
  * class ContactModule extends AbstractModule
  * {
  *     protected string $name = 'contact';
  *     protected string $version = '1.0.0';
- *     
+ *
  *     protected array $providers = [
  *         ContactServiceProvider::class,
  *     ];
- *     
+ *
  *     public function boot(ContainerInterface $container): void
  *     {
  *         // Register routes, event listeners, etc.
@@ -62,18 +60,21 @@ abstract class AbstractModule implements ModuleInterface
 
     /**
      * Module dependencies
+     *
      * @var string[]
      */
     protected array $dependencies = [];
 
     /**
      * Service providers
+     *
      * @var string[]
      */
     protected array $providers = [];
 
     /**
      * Console commands
+     *
      * @var string[]
      */
     protected array $commands = [];
@@ -95,9 +96,10 @@ abstract class AbstractModule implements ModuleInterface
     {
         if (empty($this->name)) {
             // Auto-detect from class name: ContactModule -> contact
-            $className = (new \ReflectionClass($this))->getShortName();
+            $className = new ReflectionClass($this)->getShortName();
             $this->name = strtolower(str_replace('Module', '', $className));
         }
+
         return $this->name;
     }
 
@@ -185,9 +187,10 @@ abstract class AbstractModule implements ModuleInterface
     public function getPath(): string
     {
         if ($this->path === null) {
-            $reflector = new \ReflectionClass($this);
+            $reflector = new ReflectionClass($this);
             $this->path = dirname($reflector->getFileName());
         }
+
         return $this->path;
     }
 

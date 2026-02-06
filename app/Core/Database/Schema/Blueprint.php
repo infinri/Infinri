@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database\Schema;
 
 /**
  * Schema Blueprint
- * 
+ *
  * Fluent interface for defining table structure.
  */
 class Blueprint
@@ -284,6 +281,7 @@ class Blueprint
     {
         $definition = new ForeignKeyDefinition($column);
         $this->foreignKeys[] = $definition;
+
         return $definition;
     }
 
@@ -359,6 +357,7 @@ class Blueprint
     {
         $definition = new ColumnDefinition($name, $type, $parameters);
         $this->columns[] = $definition;
+
         return $definition;
     }
 

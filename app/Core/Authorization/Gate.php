@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -16,14 +13,14 @@ use Closure;
 
 /**
  * Authorization Gate
- * 
+ *
  * Central authorization service that determines if a user can perform actions.
- * 
+ *
  * Usage:
  *   $gate->define('edit-post', fn($user, $post) => $user->id === $post->user_id);
  *   $gate->allows('edit-post', $post);
  *   $gate->authorize('edit-post', $post); // throws if denied
- * 
+ *
  * With Policies:
  *   $gate->policy(Post::class, PostPolicy::class);
  *   $gate->allows('update', $post); // calls PostPolicy::update($user, $post)
@@ -32,48 +29,55 @@ final class Gate
 {
     /**
      * The user resolver callback
+     *
      * @var Closure|null
      */
     private ?Closure $userResolver = null;
 
     /**
      * Registered ability callbacks
+     *
      * @var array<string, Closure>
      */
     private array $abilities = [];
 
     /**
      * Registered policy classes
+     *
      * @var array<class-string, class-string>
      */
     private array $policies = [];
 
     /**
      * Policy instances cache
+     *
      * @var array<class-string, object>
      */
     private array $policyInstances = [];
 
     /**
      * Before callbacks (run before any check)
+     *
      * @var Closure[]
      */
     private array $beforeCallbacks = [];
 
     /**
      * After callbacks (run after any check)
+     *
      * @var Closure[]
      */
     private array $afterCallbacks = [];
 
     /**
      * Set the user resolver
-     * 
+     *
      * @param Closure $resolver Returns the current user or null
      */
     public function setUserResolver(Closure $resolver): self
     {
         $this->userResolver = $resolver;
+
         return $this;
     }
 
@@ -91,31 +95,33 @@ final class Gate
 
     /**
      * Define a new ability
-     * 
+     *
      * @param string $ability The ability name
      * @param Closure $callback Receives (user, ...args) and returns bool|Response
      */
     public function define(string $ability, Closure $callback): self
     {
         $this->abilities[$ability] = $callback;
+
         return $this;
     }
 
     /**
      * Register a policy for a model class
-     * 
+     *
      * @param class-string $model The model class
      * @param class-string $policy The policy class
      */
     public function policy(string $model, string $policy): self
     {
         $this->policies[$model] = $policy;
+
         return $this;
     }
 
     /**
      * Register multiple policies at once
-     * 
+     *
      * @param array<class-string, class-string> $policies
      */
     public function policies(array $policies): self
@@ -123,18 +129,20 @@ final class Gate
         foreach ($policies as $model => $policy) {
             $this->policy($model, $policy);
         }
+
         return $this;
     }
 
     /**
      * Register a "before" callback
-     * 
+     *
      * If this returns a non-null value, it short-circuits the check.
      * Return true to allow, false to deny, null to continue.
      */
     public function before(Closure $callback): self
     {
         $this->beforeCallbacks[] = $callback;
+
         return $this;
     }
 
@@ -144,12 +152,13 @@ final class Gate
     public function after(Closure $callback): self
     {
         $this->afterCallbacks[] = $callback;
+
         return $this;
     }
 
     /**
      * Check if the user can perform an ability
-     * 
+     *
      * @param string $ability The ability to check
      * @param mixed ...$arguments Arguments (typically the model instance)
      */
@@ -197,7 +206,7 @@ final class Gate
 
     /**
      * Authorize an ability (throws if denied)
-     * 
+     *
      * @throws AuthorizationException
      */
     public function authorize(string $ability, mixed ...$arguments): Response
@@ -215,6 +224,7 @@ final class Gate
                 return true;
             }
         }
+
         return false;
     }
 
@@ -228,6 +238,7 @@ final class Gate
                 return false;
             }
         }
+
         return true;
     }
 
@@ -275,7 +286,7 @@ final class Gate
     private function raw(string $ability, ?AuthorizableInterface $user, array $arguments): bool|Response|null
     {
         // First, try to find a policy for the first argument (if it's an object)
-        if (!empty($arguments) && is_object($arguments[0])) {
+        if (! empty($arguments) && is_object($arguments[0])) {
             $policy = $this->getPolicyFor($arguments[0]);
 
             if ($policy !== null) {
@@ -317,7 +328,7 @@ final class Gate
      */
     private function resolvePolicyInstance(string $policyClass): object
     {
-        if (!isset($this->policyInstances[$policyClass])) {
+        if (! isset($this->policyInstances[$policyClass])) {
             $this->policyInstances[$policyClass] = new $policyClass();
         }
 
@@ -347,7 +358,7 @@ final class Gate
 
     /**
      * Get all defined abilities
-     * 
+     *
      * @return string[]
      */
     public function abilities(): array

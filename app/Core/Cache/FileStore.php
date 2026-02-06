@@ -1,43 +1,30 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Cache;
 
-use App\Core\Contracts\Cache\CacheInterface;
+use Throwable;
 
 /**
  * File Cache Store
- * 
+ *
  * File-based cache implementation.
  */
-class FileStore implements CacheInterface
+class FileStore extends AbstractCacheStore
 {
-    /**
-     * Cache directory path
-     */
-    protected string $path;
-
-    /**
-     * Default TTL in seconds
-     */
-    protected int $defaultTtl;
-
-    public function __construct(string $path, int $defaultTtl = 3600)
-    {
+    public function __construct(
+        protected string $path,
+        protected int $defaultTtl = 3600
+    ) {
         $this->path = rtrim($path, '/');
-        $this->defaultTtl = $defaultTtl;
-
         ensure_directory($this->path);
     }
 
@@ -50,10 +37,12 @@ class FileStore implements CacheInterface
 
         if ($payload === null) {
             $this->recordCacheMetric(false);
+
             return $default;
         }
 
         $this->recordCacheMetric(true);
+
         return $payload['data'];
     }
 
@@ -64,8 +53,8 @@ class FileStore implements CacheInterface
     {
         if (class_exists(\App\Core\Metrics\MetricsCollector::class)) {
             try {
-                (new \App\Core\Metrics\MetricsCollector())->recordCache($hit);
-            } catch (\Throwable) {
+                new \App\Core\Metrics\MetricsCollector()->recordCache($hit);
+            } catch (Throwable) {
                 // Don't let metrics recording break cache operations
             }
         }
@@ -76,7 +65,7 @@ class FileStore implements CacheInterface
      */
     public function put(string $key, mixed $value, ?int $ttl = null): bool
     {
-        $ttl = $ttl ?? $this->defaultTtl;
+        $ttl ??= $this->defaultTtl;
         $expiration = $ttl > 0 ? time() + $ttl : 0;
 
         $payload = [
@@ -90,54 +79,6 @@ class FileStore implements CacheInterface
         return file_put_contents($path, serialize($payload), LOCK_EX) !== false;
     }
 
-    /**
-     * Store an item in the cache if it doesn't exist
-     */
-    public function add(string $key, mixed $value, ?int $ttl = null): bool
-    {
-        if ($this->has($key)) {
-            return false;
-        }
-
-        return $this->put($key, $value, $ttl);
-    }
-
-    /**
-     * Store an item in the cache forever
-     */
-    public function forever(string $key, mixed $value): bool
-    {
-        return $this->put($key, $value, 0);
-    }
-
-    /**
-     * Get an item from cache, or store the default value
-     */
-    public function remember(string $key, ?int $ttl, callable $callback): mixed
-    {
-        $value = $this->get($key);
-
-        if ($value !== null) {
-            return $value;
-        }
-
-        $value = $callback();
-        $this->put($key, $value, $ttl);
-
-        return $value;
-    }
-
-    /**
-     * Get an item from cache, or store forever
-     */
-    public function rememberForever(string $key, callable $callback): mixed
-    {
-        return $this->remember($key, 0, $callback);
-    }
-
-    /**
-     * Remove an item from the cache
-     */
     public function forget(string $key): bool
     {
         $path = $this->getPath($key);
@@ -164,7 +105,7 @@ class FileStore implements CacheInterface
     {
         $current = $this->get($key, 0);
 
-        if (!is_numeric($current)) {
+        if (! is_numeric($current)) {
             return false;
         }
 
@@ -174,59 +115,15 @@ class FileStore implements CacheInterface
         return $new;
     }
 
-    /**
-     * Decrement the value of an item
-     */
-    public function decrement(string $key, int $value = 1): int|bool
-    {
-        return $this->increment($key, -$value);
-    }
-
-    /**
-     * Clear all items from the cache
-     */
     public function flush(): bool
     {
-        if (!is_dir($this->path)) {
+        if (! is_dir($this->path)) {
             return true;
         }
 
         return clear_directory($this->path, false);
     }
 
-    /**
-     * Get multiple items from the cache
-     */
-    public function many(array $keys): array
-    {
-        $results = [];
-
-        foreach ($keys as $key) {
-            $results[$key] = $this->get($key);
-        }
-
-        return $results;
-    }
-
-    /**
-     * Store multiple items in the cache
-     */
-    public function putMany(array $values, ?int $ttl = null): bool
-    {
-        $success = true;
-
-        foreach ($values as $key => $value) {
-            if (!$this->put($key, $value, $ttl)) {
-                $success = false;
-            }
-        }
-
-        return $success;
-    }
-
-    /**
-     * Get the full path for a cache key
-     */
     protected function getPath(string $key): string
     {
         $hash = sha1($key);
@@ -242,7 +139,7 @@ class FileStore implements CacheInterface
     {
         $path = $this->getPath($key);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return null;
         }
 
@@ -254,14 +151,16 @@ class FileStore implements CacheInterface
 
         $payload = @unserialize($contents);
 
-        if ($payload === false || !is_array($payload)) {
+        if ($payload === false || ! is_array($payload)) {
             $this->forget($key);
+
             return null;
         }
 
         // Check expiration
         if ($payload['expiration'] !== 0 && $payload['expiration'] < time()) {
             $this->forget($key);
+
             return null;
         }
 

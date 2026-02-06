@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,12 +15,12 @@ use App\Core\Contracts\View\TemplateResolverInterface;
 
 /**
  * Template Resolver
- * 
+ *
  * Resolves template paths with theme fallback chain:
  * 1. Theme override: Modules/Theme/view/{area}/templates/{module}/{template}
  * 2. Module template: Modules/{Module}/view/{area}/templates/{template}
  * 3. Core fallback: Core/View/view/{area}/templates/{template}
- * 
+ *
  * This enables:
  * - Theme customization without modifying modules
  * - Module-specific templates
@@ -43,6 +40,7 @@ final class TemplateResolver implements TemplateResolverInterface
 
     /**
      * Resolved template cache
+     *
      * @var array<string, string|null>
      */
     private array $cache = [];
@@ -68,11 +66,13 @@ final class TemplateResolver implements TemplateResolverInterface
         foreach ($paths as $path) {
             if (file_exists($path)) {
                 $this->cache[$cacheKey] = $path;
+
                 return $path;
             }
         }
 
         $this->cache[$cacheKey] = null;
+
         return null;
     }
 
@@ -130,11 +130,12 @@ final class TemplateResolver implements TemplateResolverInterface
 
     /**
      * Resolve a layout file
-     * 
+     *
      * Similar to template resolution but for layout files.
-     * 
+     *
      * @param string $layout Layout name (e.g., 'default.xml', '1column.xml')
      * @param string $area Area name
+     *
      * @return string|null Resolved absolute path or null if not found
      */
     public function resolveLayout(string $layout, string $area = 'frontend'): ?string
@@ -152,9 +153,10 @@ final class TemplateResolver implements TemplateResolverInterface
 
     /**
      * Get layout resolution paths
-     * 
+     *
      * @param string $layout Layout name
      * @param string $area Area name
+     *
      * @return string[] Array of paths to check
      */
     public function getLayoutResolutionPaths(string $layout, string $area = 'frontend'): array
@@ -174,10 +176,11 @@ final class TemplateResolver implements TemplateResolverInterface
 
     /**
      * Resolve a static asset (CSS, JS, images)
-     * 
+     *
      * @param string $asset Asset path relative to web/ directory
      * @param string $module Module name
      * @param string $area Area name
+     *
      * @return string|null Resolved absolute path or null if not found
      */
     public function resolveAsset(string $asset, string $module, string $area = 'frontend'): ?string
@@ -195,10 +198,11 @@ final class TemplateResolver implements TemplateResolverInterface
 
     /**
      * Get asset resolution paths
-     * 
+     *
      * @param string $asset Asset path
      * @param string $module Module name
      * @param string $area Area name
+     *
      * @return string[] Array of paths to check
      */
     public function getAssetResolutionPaths(string $asset, string $module, string $area = 'frontend'): array

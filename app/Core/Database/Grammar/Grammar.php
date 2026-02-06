@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database\Grammar;
 
 /**
  * SQL Grammar
- * 
+ *
  * Compiles query builder components into SQL.
  * Follows Open/Closed Principle - extend for different database dialects.
  */
@@ -204,7 +201,7 @@ class Grammar
      */
     public function compileUpdate(string $table, array $columns, string $wheres): string
     {
-        $sets = array_map(fn($col) => "{$col} = ?", $columns);
+        $sets = array_map(fn ($col) => "{$col} = ?", $columns);
 
         return sprintf(
             'UPDATE %s SET %s%s',

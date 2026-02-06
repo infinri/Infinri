@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Error\HttpException;
 
 /**
  * Validation Exception
- * 
+ *
  * Thrown when validation fails. Contains the validator instance
  * with all error details. Extends HttpException for proper 422 status.
  */
@@ -32,14 +29,14 @@ class ValidationException extends HttpException
     public function __construct(Validator $validator)
     {
         $this->validator = $validator;
-        
+
         $message = 'The given data was invalid.';
         $errors = $validator->errors();
-        
-        if (!empty($errors)) {
+
+        if (! empty($errors)) {
             $message = reset($errors);
         }
-        
+
         parent::__construct(422, $message);
     }
 

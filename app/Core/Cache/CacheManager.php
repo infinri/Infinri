@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,10 +13,11 @@ namespace App\Core\Cache;
 
 use App\Core\Contracts\Cache\CacheInterface;
 use App\Core\Redis\RedisManager;
+use InvalidArgumentException;
 
 /**
  * Cache Manager
- * 
+ *
  * Manages cache stores and provides a unified interface.
  * Supports file, array, and Redis backends.
  */
@@ -32,6 +30,7 @@ class CacheManager implements CacheInterface
 
     /**
      * Resolved cache stores
+     *
      * @var array<string, CacheInterface>
      */
     protected array $stores = [];
@@ -69,13 +68,13 @@ class CacheManager implements CacheInterface
      */
     public function pool(string $name): CacheInterface
     {
-        if (!in_array($name, self::POOLS)) {
-            throw new \InvalidArgumentException("Unknown cache pool: {$name}");
+        if (! in_array($name, self::POOLS)) {
+            throw new InvalidArgumentException("Unknown cache pool: {$name}");
         }
 
         $storeKey = "pool:{$name}";
 
-        if (!isset($this->stores[$storeKey])) {
+        if (! isset($this->stores[$storeKey])) {
             $this->stores[$storeKey] = new FileStore(
                 $this->basePath . '/var/cache/' . $name,
                 $this->config['stores']['file']['ttl'] ?? 3600
@@ -102,6 +101,7 @@ class CacheManager implements CacheInterface
         foreach (self::POOLS as $pool) {
             $results[$pool] = $this->clearPool($pool);
         }
+
         return $results;
     }
 
@@ -118,9 +118,9 @@ class CacheManager implements CacheInterface
      */
     public function store(?string $name = null): CacheInterface
     {
-        $name = $name ?? $this->default;
+        $name ??= $this->default;
 
-        if (!isset($this->stores[$name])) {
+        if (! isset($this->stores[$name])) {
             $this->stores[$name] = $this->resolve($name);
         }
 
@@ -142,7 +142,7 @@ class CacheManager implements CacheInterface
             ),
             'array' => new ArrayStore(),
             'redis' => $this->createRedisStore($config),
-            default => throw new \InvalidArgumentException("Unsupported cache driver: {$driver}"),
+            default => throw new InvalidArgumentException("Unsupported cache driver: {$driver}"),
         };
     }
 

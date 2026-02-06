@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -34,7 +31,7 @@ class RouteCompiler extends AbstractCompiler
         foreach ($this->registry->getEnabled() as $module) {
             $moduleRoutes = $module->loadRoutes();
 
-            if (!empty($moduleRoutes)) {
+            if (! empty($moduleRoutes)) {
                 foreach ($moduleRoutes as $route) {
                     $route['module'] = $module->name;
                     $routes[] = $route;
@@ -43,6 +40,7 @@ class RouteCompiler extends AbstractCompiler
         }
 
         $this->saveToCache($routes, 'Compiled Routes');
+
         return $routes;
     }
 

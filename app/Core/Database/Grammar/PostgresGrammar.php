@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Database\Grammar;
 
 /**
  * PostgreSQL Grammar
- * 
+ *
  * PostgreSQL-specific SQL compilation.
  * Extends base Grammar (Open/Closed Principle).
  */
@@ -32,7 +29,7 @@ class PostgresGrammar extends Grammar
         return sprintf(
             'INSERT INTO "%s" (%s) VALUES (%s) RETURNING id',
             $table,
-            implode(', ', array_map(fn($c) => "\"{$c}\"", $columns)),
+            implode(', ', array_map(fn ($c) => "\"{$c}\"", $columns)),
             implode(', ', $placeholders)
         );
     }
@@ -55,7 +52,7 @@ class PostgresGrammar extends Grammar
         }
 
         if (str_contains($column, '.')) {
-            return implode('.', array_map(fn($p) => '"' . $p . '"', explode('.', $column)));
+            return implode('.', array_map(fn ($p) => '"' . $p . '"', explode('.', $column)));
         }
 
         return '"' . $column . '"';

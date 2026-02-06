@@ -28,6 +28,11 @@ return (new PhpCsFixer\Config())
         '@PSR12' => true,
         '@PHP84Migration' => true,
         
+        // Override PSR12 to allow declare on same line as <?php
+        'blank_line_after_opening_tag' => false,
+        'declare_strict_types' => true,
+        'blank_lines_before_namespace' => ['min_line_breaks' => 1, 'max_line_breaks' => 1],
+        
         // Imports
         'ordered_imports' => ['sort_algorithm' => 'alpha'],
         'no_unused_imports' => true,
@@ -63,7 +68,6 @@ return (new PhpCsFixer\Config())
         ],
         
         // Types
-        'declare_strict_types' => true,
         'void_return' => true,
         
         // Cleanup

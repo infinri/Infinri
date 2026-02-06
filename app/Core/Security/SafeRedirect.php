@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,12 +15,12 @@ use App\Core\Http\RedirectResponse;
 
 /**
  * Safe Redirect
- * 
+ *
  * Prevents open redirect vulnerabilities by validating redirect URLs.
- * 
+ *
  * Open redirects are used in phishing attacks where attackers send
  * links like: https://trusted.com/login?redirect=https://evil.com
- * 
+ *
  * This class ensures redirects only go to:
  * 1. Local paths (same origin)
  * 2. Explicitly whitelisted external domains
@@ -32,6 +29,7 @@ final class SafeRedirect
 {
     /**
      * Whitelisted external domains for redirects
+     *
      * @var string[]
      */
     private static array $allowedDomains = [];
@@ -73,11 +71,13 @@ final class SafeRedirect
      * @param string $url The requested redirect URL
      * @param string|null $fallback Override fallback URL
      * @param int $status HTTP status code (302, 301, 303)
+     *
      * @return RedirectResponse
      */
     public static function to(string $url, ?string $fallback = null, int $status = 302): RedirectResponse
     {
         $safeUrl = self::validate($url, $fallback);
+
         return new RedirectResponse($safeUrl, $status);
     }
 
@@ -88,11 +88,12 @@ final class SafeRedirect
      *
      * @param string $url The URL to validate
      * @param string|null $fallback Override fallback URL
+     *
      * @return string Safe URL to redirect to
      */
     public static function validate(string $url, ?string $fallback = null): string
     {
-        $fallback = $fallback ?? self::$fallbackUrl;
+        $fallback ??= self::$fallbackUrl;
 
         // Empty or whitespace-only URL
         if (trim($url) === '') {
@@ -118,17 +119,17 @@ final class SafeRedirect
         // Case 1: Absolute URL with scheme
         if (isset($parsed['scheme'])) {
             // Only allow http/https
-            if (!in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
+            if (! in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
                 return $fallback;
             }
 
             // Must have a host
-            if (!isset($parsed['host'])) {
+            if (! isset($parsed['host'])) {
                 return $fallback;
             }
 
             // Check if host is in whitelist
-            if (!self::isDomainAllowed($parsed['host'])) {
+            if (! self::isDomainAllowed($parsed['host'])) {
                 return $fallback;
             }
 
@@ -139,8 +140,8 @@ final class SafeRedirect
         if (str_starts_with($url, '//')) {
             // Extract host from protocol-relative URL
             $host = $parsed['host'] ?? null;
-            
-            if ($host === null || !self::isDomainAllowed($host)) {
+
+            if ($host === null || ! self::isDomainAllowed($host)) {
                 return $fallback;
             }
 
@@ -151,9 +152,9 @@ final class SafeRedirect
         if (str_starts_with($url, '/')) {
             // Prevent path traversal
             $normalizedPath = self::normalizePath($url);
-            
+
             // Ensure it still starts with /
-            if (!str_starts_with($normalizedPath, '/')) {
+            if (! str_starts_with($normalizedPath, '/')) {
                 return $fallback;
             }
 
@@ -170,6 +171,7 @@ final class SafeRedirect
      * Check if a URL is safe for redirect (without transforming it)
      *
      * @param string $url The URL to check
+     *
      * @return bool True if URL is safe
      */
     public static function isSafe(string $url): bool
@@ -191,7 +193,7 @@ final class SafeRedirect
         ];
 
         $lower = strtolower(trim($url));
-        
+
         foreach ($dangerous as $scheme) {
             if (str_starts_with($lower, $scheme)) {
                 return true;
@@ -248,10 +250,10 @@ final class SafeRedirect
     {
         // Remove null bytes and control characters
         $url = preg_replace('/[\x00-\x1f\x7f]/', '', $url);
-        
+
         // Trim whitespace
         $url = trim($url);
-        
+
         // Decode URL-encoded characters for validation (but keep original for return)
         // This catches encoded attacks like %2f%2f (which is //)
 
@@ -290,6 +292,7 @@ final class SafeRedirect
      *
      * @param string|null $intended User-provided redirect URL
      * @param string $default Default URL if intended is invalid
+     *
      * @return string Safe redirect URL
      */
     public static function intended(?string $intended, string $default = '/'): string
@@ -306,11 +309,13 @@ final class SafeRedirect
      *
      * @param string $param Query parameter name (default: 'redirect')
      * @param string $default Default URL if parameter is missing/invalid
+     *
      * @return RedirectResponse
      */
     public static function fromRequest(string $param = 'redirect', string $default = '/'): RedirectResponse
     {
         $url = $_GET[$param] ?? $_POST[$param] ?? null;
+
         return self::to(self::intended($url, $default));
     }
 

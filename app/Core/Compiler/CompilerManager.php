@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Module\ModuleRegistry;
 
 /**
  * Compiler Manager
- * 
+ *
  * Orchestrates all compilation tasks.
  */
 class CompilerManager
@@ -134,6 +131,7 @@ class CompilerManager
                 $this->registry
             );
         }
+
         return $this->configCompiler;
     }
 
@@ -149,6 +147,7 @@ class CompilerManager
                 $this->registry
             );
         }
+
         return $this->eventCompiler;
     }
 
@@ -164,6 +163,7 @@ class CompilerManager
                 $this->registry
             );
         }
+
         return $this->containerCompiler;
     }
 
@@ -179,6 +179,7 @@ class CompilerManager
                 $this->registry
             );
         }
+
         return $this->routeCompiler;
     }
 
@@ -194,6 +195,7 @@ class CompilerManager
                 $this->registry
             );
         }
+
         return $this->middlewareCompiler;
     }
 }

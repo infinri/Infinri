@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Queue;
 
 /**
  * Pending Dispatch
- * 
+ *
  * Represents a job waiting to be dispatched.
  */
 class PendingDispatch
@@ -34,6 +31,7 @@ class PendingDispatch
     public function onQueue(string $queue): static
     {
         $this->job->onQueue($queue);
+
         return $this;
     }
 
@@ -43,6 +41,7 @@ class PendingDispatch
     public function onConnection(string $connection): static
     {
         $this->job->onConnection($connection);
+
         return $this;
     }
 

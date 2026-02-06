@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -8,7 +6,6 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
  */
-
 namespace App\Core\Setup;
 
 use App\Core\Contracts\Database\ConnectionInterface;
@@ -16,7 +13,7 @@ use App\Core\Database\Schema\SchemaBuilder;
 
 /**
  * Patch Registry
- * 
+ *
  * Tracks which patches have been applied to prevent re-running them.
  * Similar to Magento's patch_list table.
  */
@@ -43,7 +40,7 @@ class PatchRegistry
             return;
         }
 
-        $this->schema->create($this->tableName, function ($table) {
+        $this->schema->create($this->tableName, function ($table): void {
             $table->id();
             $table->string('patch_name', 255)->unique();
             $table->string('patch_type', 20); // 'data' or 'schema'
@@ -58,6 +55,7 @@ class PatchRegistry
     public function isApplied(string $patchClass): bool
     {
         $this->load();
+
         return isset($this->appliedPatches[$patchClass]);
     }
 
@@ -67,13 +65,13 @@ class PatchRegistry
     public function isAliasApplied(array $aliases): bool
     {
         $this->load();
-        
+
         foreach ($aliases as $alias) {
             if (isset($this->appliedPatches[$alias])) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -96,6 +94,7 @@ class PatchRegistry
     public function getAppliedPatches(): array
     {
         $this->load();
+
         return array_keys($this->appliedPatches);
     }
 

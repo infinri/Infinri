@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,26 +15,13 @@ use App\Core\Contracts\Container\ContainerInterface;
 
 /**
  * Service Provider Base Class
- * 
+ *
  * All service providers must extend this class
  */
 abstract class ServiceProvider
 {
-    /**
-     * The container instance
-     *
-     * @var ContainerInterface
-     */
-    protected ContainerInterface $app;
-
-    /**
-     * Create a new service provider instance
-     *
-     * @param ContainerInterface $app
-     */
-    public function __construct(ContainerInterface $app)
+    public function __construct(protected ContainerInterface $app)
     {
-        $this->app = $app;
     }
 
     /**
@@ -85,17 +69,18 @@ abstract class ServiceProvider
 
     /**
      * Get a configuration value
-     * 
+     *
      * @param string $key Config key (dot notation)
      * @param mixed $default Default value if not found
+     *
      * @return mixed
      */
     protected function config(string $key, mixed $default = null): mixed
     {
-        if (!$this->app->has('config')) {
+        if (! $this->app->has('config')) {
             return $default;
         }
-        
+
         return $this->app->get('config')->get($key, $default);
     }
 }

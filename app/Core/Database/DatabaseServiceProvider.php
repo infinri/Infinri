@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use App\Core\Contracts\Database\ConnectionInterface;
 
 /**
  * Database Service Provider
- * 
+ *
  * Registers database services in the container.
  */
 class DatabaseServiceProvider extends ServiceProvider
@@ -64,7 +61,7 @@ class DatabaseServiceProvider extends ServiceProvider
         config([
             'database' => [
                 'default' => env('DB_CONNECTION', 'pgsql'),
-                
+
                 'connections' => [
                     'pgsql' => [
                         'driver' => 'pgsql',
@@ -78,7 +75,7 @@ class DatabaseServiceProvider extends ServiceProvider
                         'timezone' => env('APP_TIMEZONE', 'UTC'),
                         'prefix' => env('DB_PREFIX', ''),
                     ],
-                    
+
                     'testing' => [
                         'driver' => 'pgsql',
                         'host' => env('DB_TEST_HOST', 'localhost'),

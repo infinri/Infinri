@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,13 +13,13 @@ namespace App\Core\Database;
 
 use App\Core\Contracts\Database\ConnectionInterface;
 use App\Core\Contracts\Database\QueryBuilderInterface;
-use App\Core\Database\Concerns\BuildsWheres;
 use App\Core\Database\Concerns\BuildsJoins;
+use App\Core\Database\Concerns\BuildsWheres;
 use App\Core\Database\Grammar\Grammar;
 
 /**
  * Query Builder
- * 
+ *
  * Provides a fluent interface for building SQL queries.
  * Uses traits for WHERE and JOIN building (Single Responsibility).
  * Uses Grammar for SQL compilation (Open/Closed).
@@ -59,12 +56,14 @@ class QueryBuilder implements QueryBuilderInterface
     public function table(string $table): static
     {
         $this->table = $this->connection->getTablePrefix() . $table;
+
         return $this;
     }
 
     public function select(string|array $columns = ['*']): static
     {
         $this->columns = is_array($columns) ? $columns : func_get_args();
+
         return $this;
     }
 
@@ -72,6 +71,7 @@ class QueryBuilder implements QueryBuilderInterface
     {
         $this->columns[] = $expression;
         $this->bindings['select'] = array_merge($this->bindings['select'], $bindings);
+
         return $this;
     }
 
@@ -81,12 +81,14 @@ class QueryBuilder implements QueryBuilderInterface
             'column' => $column,
             'direction' => strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC',
         ];
+
         return $this;
     }
 
     public function groupBy(string|array $columns): static
     {
         $this->groups = array_merge($this->groups, is_array($columns) ? $columns : [$columns]);
+
         return $this;
     }
 
@@ -104,18 +106,21 @@ class QueryBuilder implements QueryBuilderInterface
         ];
 
         $this->bindings['having'][] = $value;
+
         return $this;
     }
 
     public function limit(int $limit): static
     {
         $this->limitValue = $limit;
+
         return $this;
     }
 
     public function offset(int $offset): static
     {
         $this->offsetValue = $offset;
+
         return $this;
     }
 
@@ -130,6 +135,7 @@ class QueryBuilder implements QueryBuilderInterface
     {
         $this->limit(1);
         $results = $this->get();
+
         return $results[0] ?? null;
     }
 
@@ -139,6 +145,7 @@ class QueryBuilder implements QueryBuilderInterface
         $this->columns = ['COUNT(*) as aggregate'];
         $result = $this->first();
         $this->columns = $original;
+
         return (int) ($result['aggregate'] ?? 0);
     }
 
@@ -151,6 +158,7 @@ class QueryBuilder implements QueryBuilderInterface
     {
         $columns = array_keys($values);
         $sql = $this->grammar->compileInsert($this->table, $columns);
+
         return $this->connection->insert($sql, array_values($values));
     }
 
@@ -163,7 +171,7 @@ class QueryBuilder implements QueryBuilderInterface
         $columns = array_keys($values[0]);
         $placeholders = '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
         $allPlaceholders = implode(', ', array_fill(0, count($values), $placeholders));
-        
+
         $sql = sprintf(
             'INSERT INTO %s (%s) VALUES %s',
             $this->table,
@@ -185,6 +193,7 @@ class QueryBuilder implements QueryBuilderInterface
         $wheres = $this->grammar->compileWheres($this->wheres);
         $sql = $this->grammar->compileUpdate($this->table, $columns, $wheres);
         $bindings = array_merge(array_values($values), $this->bindings['where']);
+
         return $this->connection->update($sql, $bindings);
     }
 
@@ -192,6 +201,7 @@ class QueryBuilder implements QueryBuilderInterface
     {
         $wheres = $this->grammar->compileWheres($this->wheres);
         $sql = $this->grammar->compileDelete($this->table, $wheres);
+
         return $this->connection->delete($sql, $this->bindings['where']);
     }
 
@@ -255,6 +265,7 @@ class QueryBuilder implements QueryBuilderInterface
             'where' => [],
             'having' => [],
         ];
+
         return $this;
     }
 }

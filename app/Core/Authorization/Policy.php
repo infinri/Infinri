@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -15,13 +12,13 @@ use App\Core\Contracts\Auth\AuthorizableInterface;
 
 /**
  * Base Policy Class
- * 
+ *
  * Extend this class to create resource-specific authorization policies.
- * 
+ *
  * Policy methods receive the user and model, returning bool or Response:
  * - true / Response::allow() = authorized
  * - false / Response::deny() = denied
- * 
+ *
  * Standard CRUD methods:
  * - viewAny(user) - list/index
  * - view(user, model) - show single
@@ -30,7 +27,7 @@ use App\Core\Contracts\Auth\AuthorizableInterface;
  * - delete(user, model) - delete
  * - restore(user, model) - restore soft-deleted
  * - forceDelete(user, model) - permanently delete
- * 
+ *
  * Example:
  *   class PostPolicy extends Policy
  *   {
@@ -44,7 +41,7 @@ abstract class Policy
 {
     /**
      * Run before any other authorization checks
-     * 
+     *
      * Return true to allow all, false to deny all, null to continue.
      * Use for admin bypass or global rules.
      */
@@ -65,7 +62,7 @@ abstract class Policy
         }
 
         $ownerId = $model->$ownerKey ?? ($model->getAttribute($ownerKey) ?? null);
-        
+
         return $ownerId !== null && $user->getAuthIdentifier() == $ownerId;
     }
 
@@ -97,7 +94,7 @@ abstract class Policy
         }
 
         foreach ($roles as $role) {
-            if (!$user->hasRole($role)) {
+            if (! $user->hasRole($role)) {
                 return false;
             }
         }

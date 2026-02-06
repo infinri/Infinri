@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use App\Core\Application;
 use App\Core\Console\Commands\AssetsPublishCommand;

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Http\Concerns;
 
 /**
  * Provides input handling methods for Request
- * 
+ *
  * Extracts input-related functionality to keep Request focused on
  * core HTTP request representation (SRP).
  */
@@ -27,9 +24,9 @@ trait InteractsWithInput
      */
     public function input(string $key, mixed $default = null): mixed
     {
-        return $this->query->get($key) 
-            ?? $this->request->get($key) 
-            ?? $this->getJsonInput($key) 
+        return $this->query->get($key)
+            ?? $this->request->get($key)
+            ?? $this->getJsonInput($key)
             ?? $default;
     }
 
@@ -82,8 +79,8 @@ trait InteractsWithInput
      */
     public function has(string $key): bool
     {
-        return $this->query->has($key) 
-            || $this->request->has($key) 
+        return $this->query->has($key)
+            || $this->request->has($key)
             || array_key_exists($key, $this->getJsonInputAll());
     }
 
@@ -93,7 +90,7 @@ trait InteractsWithInput
     public function filled(string $key): bool
     {
         $value = $this->input($key);
-        
+
         return $value !== null && $value !== '' && $value !== [];
     }
 
@@ -119,7 +116,7 @@ trait InteractsWithInput
     public function string(string $key, string $default = ''): string
     {
         $value = $this->input($key, $default);
-        
+
         return is_scalar($value) ? (string) $value : $default;
     }
 
@@ -128,10 +125,10 @@ trait InteractsWithInput
      */
     protected function getJsonInput(string $key): mixed
     {
-        if (!$this->isJson()) {
+        if (! $this->isJson()) {
             return null;
         }
-        
+
         return $this->getJsonInputAll()[$key] ?? null;
     }
 
@@ -148,13 +145,13 @@ trait InteractsWithInput
         if ($this->jsonInputCache !== null) {
             return $this->jsonInputCache;
         }
-        
-        if (!$this->isJson() || $this->content === null) {
+
+        if (! $this->isJson() || $this->content === null) {
             return $this->jsonInputCache = [];
         }
-        
+
         $data = json_decode($this->content, true);
-        
+
         return $this->jsonInputCache = is_array($data) ? $data : [];
     }
 }

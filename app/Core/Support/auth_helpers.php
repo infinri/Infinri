@@ -1,24 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 
 // ==================== Authorization Helpers ====================
 
-if (!function_exists('gate')) {
+if (! function_exists('gate')) {
     /**
      * Get the Gate instance
-     * 
+     *
      * @return \App\Core\Authorization\Gate
      */
     function gate(): \App\Core\Authorization\Gate
@@ -27,12 +24,13 @@ if (!function_exists('gate')) {
     }
 }
 
-if (!function_exists('can')) {
+if (! function_exists('can')) {
     /**
      * Check if the current user can perform an ability
-     * 
+     *
      * @param string $ability The ability to check
      * @param mixed ...$arguments Arguments (typically the model)
+     *
      * @return bool
      */
     function can(string $ability, mixed ...$arguments): bool
@@ -41,12 +39,13 @@ if (!function_exists('can')) {
     }
 }
 
-if (!function_exists('cannot')) {
+if (! function_exists('cannot')) {
     /**
      * Check if the current user cannot perform an ability
-     * 
+     *
      * @param string $ability The ability to check
      * @param mixed ...$arguments Arguments (typically the model)
+     *
      * @return bool
      */
     function cannot(string $ability, mixed ...$arguments): bool
@@ -55,14 +54,16 @@ if (!function_exists('cannot')) {
     }
 }
 
-if (!function_exists('authorize')) {
+if (! function_exists('authorize')) {
     /**
      * Authorize an ability (throws AuthorizationException if denied)
-     * 
+     *
      * @param string $ability The ability to check
      * @param mixed ...$arguments Arguments (typically the model)
-     * @return \App\Core\Authorization\Response
+     *
      * @throws \App\Core\Authorization\AuthorizationException
+     *
+     * @return \App\Core\Authorization\Response
      */
     function authorize(string $ability, mixed ...$arguments): \App\Core\Authorization\Response
     {

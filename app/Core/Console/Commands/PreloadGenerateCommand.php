@@ -1,25 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Console\Commands;
 
-use App\Core\Console\Command;
 use App\Core\Compiler\PreloadCompiler;
+use App\Core\Console\Command;
 
 /**
  * Preload Generate Command
- * 
+ *
  * Generates preload.php for OPcache preloading.
  */
 class PreloadGenerateCommand extends Command

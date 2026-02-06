@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -23,7 +20,7 @@ use JsonSerializable;
 
 /**
  * Active Record Model
- * 
+ *
  * Base class for all database models implementing the Active Record pattern.
  */
 abstract class Model implements JsonSerializable
@@ -127,6 +124,7 @@ abstract class Model implements JsonSerializable
     public static function query(): ModelQueryBuilder
     {
         $instance = new static();
+
         return new ModelQueryBuilder($instance);
     }
 
@@ -167,6 +165,7 @@ abstract class Model implements JsonSerializable
     {
         $model = new static($attributes);
         $model->save();
+
         return $model;
     }
 
@@ -194,7 +193,7 @@ abstract class Model implements JsonSerializable
         }
 
         $attributes = $this->attributes;
-        
+
         // Remove primary key if auto-incrementing
         if ($this->incrementing) {
             unset($attributes[$this->primaryKey]);
@@ -245,7 +244,7 @@ abstract class Model implements JsonSerializable
      */
     public function delete(): bool
     {
-        if (!$this->exists) {
+        if (! $this->exists) {
             return false;
         }
 
@@ -264,7 +263,7 @@ abstract class Model implements JsonSerializable
      */
     public function refresh(): static
     {
-        if (!$this->exists) {
+        if (! $this->exists) {
             return $this;
         }
 

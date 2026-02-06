@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,7 +16,7 @@ use Closure;
 
 /**
  * Schema Builder
- * 
+ *
  * Provides methods for creating and modifying database tables.
  */
 class SchemaBuilder
@@ -100,7 +97,7 @@ class SchemaBuilder
     {
         $sql = sprintf('DROP TABLE IF EXISTS "%s"', $table);
         $this->connection->statement($sql);
-        
+
         $this->logSchemaChange('Dropped table', $table);
     }
 
@@ -119,7 +116,7 @@ class SchemaBuilder
     {
         $sql = sprintf('ALTER TABLE "%s" RENAME TO "%s"', $from, $to);
         $this->connection->statement($sql);
-        
+
         $this->logSchemaChange('Renamed table', "{$from} -> {$to}");
     }
 
@@ -193,7 +190,7 @@ class SchemaBuilder
     protected function compileCreate(Blueprint $blueprint): string
     {
         $columns = [];
-        
+
         foreach ($blueprint->getColumns() as $column) {
             $columns[] = $column->toSql();
         }

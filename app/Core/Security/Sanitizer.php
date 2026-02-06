@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Security;
 
 /**
  * Input Sanitizer
- * 
+ *
  * Sanitizes user input to prevent XSS and other attacks.
  */
 class Sanitizer
@@ -116,20 +113,20 @@ class Sanitizer
     {
         // Remove null bytes
         $value = self::nullBytes($value);
-        
+
         // Normalize slashes first
         $value = str_replace('\\', '/', $value);
-        
+
         // Remove directory traversal patterns iteratively to prevent bypass
         // e.g., "..../" becomes "../" after single pass, so we loop
         do {
             $prev = $value;
             $value = str_replace(['../', '..'], '', $value);
         } while ($prev !== $value);
-        
+
         // Remove multiple slashes
         $value = preg_replace('#/+#', '/', $value);
-        
+
         return $value;
     }
 
@@ -140,13 +137,13 @@ class Sanitizer
     {
         // Remove path components
         $value = basename($value);
-        
+
         // Remove null bytes
         $value = self::nullBytes($value);
-        
+
         // Remove dangerous characters
         $value = preg_replace('/[^a-zA-Z0-9._-]/', '', $value);
-        
+
         return $value;
     }
 
@@ -159,11 +156,11 @@ class Sanitizer
             if (is_array($value)) {
                 return self::array($value, $method);
             }
-            
+
             if (is_string($value)) {
                 return self::$method($value);
             }
-            
+
             return $value;
         }, $values);
     }

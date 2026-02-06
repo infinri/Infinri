@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Metrics;
 
+use DateTime;
+
 /**
  * Metrics Collector
- * 
+ *
  * Collects basic application metrics: request counts, response times, errors.
  * Stores in file cache for simplicity (can be upgraded to Redis/Prometheus).
  */
@@ -39,9 +38,9 @@ class MetricsCollector
         $this->load();
 
         $hour = date('Y-m-d-H');
-        
+
         // Initialize hour bucket if needed
-        if (!isset($this->metrics['hours'][$hour])) {
+        if (! isset($this->metrics['hours'][$hour])) {
             $this->metrics['hours'][$hour] = [
                 'requests' => 0,
                 'errors' => 0,
@@ -118,8 +117,8 @@ class MetricsCollector
             'current_hour' => [
                 'requests' => $hourData['requests'] ?? 0,
                 'errors' => $hourData['errors'] ?? 0,
-                'avg_duration_ms' => ($hourData['requests'] ?? 0) > 0 
-                    ? round((($hourData['duration_sum'] ?? 0) / $hourData['requests']) * 1000, 2) 
+                'avg_duration_ms' => ($hourData['requests'] ?? 0) > 0
+                    ? round((($hourData['duration_sum'] ?? 0) / $hourData['requests']) * 1000, 2)
                     : 0,
                 'max_duration_ms' => round(($hourData['duration_max'] ?? 0) * 1000, 2),
             ],
@@ -146,7 +145,7 @@ class MetricsCollector
         $this->load();
 
         $result = [];
-        $now = new \DateTime();
+        $now = new DateTime();
 
         for ($i = 0; $i < $hours; $i++) {
             $hour = $now->format('Y-m-d-H');
@@ -169,7 +168,7 @@ class MetricsCollector
     {
         $this->load();
 
-        $cutoff = (new \DateTime())->modify("-{$daysToKeep} days")->format('Y-m-d');
+        $cutoff = new DateTime()->modify("-{$daysToKeep} days")->format('Y-m-d');
         $removed = 0;
 
         if (isset($this->metrics['hours'])) {
@@ -182,6 +181,7 @@ class MetricsCollector
         }
 
         $this->save();
+
         return $removed;
     }
 

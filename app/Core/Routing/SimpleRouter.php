@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -18,7 +15,7 @@ use App\Core\Module\ModuleRenderer;
 
 /**
  * Simple Router
- * 
+ *
  * Lightweight router for module-based routing.
  * Provides fluent API for defining routes to modules.
  */
@@ -99,6 +96,7 @@ class SimpleRouter
         foreach (['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as $method) {
             $this->addRoute($method, $path, $handler);
         }
+
         return $this;
     }
 
@@ -108,6 +106,7 @@ class SimpleRouter
     protected function addRoute(string $method, string $path, callable|string $handler): static
     {
         $this->routes[$method][$path] = $handler;
+
         return $this;
     }
 
@@ -121,6 +120,7 @@ class SimpleRouter
         if ($handler === null) {
             http_response_code(404);
             $this->execute($notFoundHandler);
+
             return;
         }
 

@@ -1,27 +1,24 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Http;
 
 use App\Core\Contracts\Http\RequestInterface;
-use App\Core\Http\Concerns\InteractsWithInput;
 use App\Core\Http\Concerns\InteractsWithContentTypes;
+use App\Core\Http\Concerns\InteractsWithInput;
 use App\Core\Support\Str;
 
 /**
  * HTTP Request
- * 
+ *
  * Represents an incoming HTTP request with convenient access methods.
  * Uses traits to separate concerns and reduce class size.
  */
@@ -57,7 +54,7 @@ class Request implements RequestInterface
         $this->cookies = new ParameterBag($cookies);
         $this->headers = new HeaderBag($this->extractHeaders($server));
         $this->content = $content;
-        
+
         $this->method = $this->resolveMethod();
         $this->pathInfo = $this->resolvePath();
     }
@@ -88,7 +85,7 @@ class Request implements RequestInterface
         ?string $content = null
     ): static {
         $server = array_merge(self::getDefaultServerVars(), $server);
-        
+
         $parsedUrl = parse_url($uri);
         $path = $parsedUrl['path'] ?? '/';
         $queryString = $parsedUrl['query'] ?? '';
@@ -155,6 +152,7 @@ class Request implements RequestInterface
     public function fullUrl(): string
     {
         $queryString = $this->server->get('QUERY_STRING', '');
+
         return $queryString !== '' ? $this->url() . '?' . $queryString : $this->url();
     }
 
@@ -166,6 +164,7 @@ class Request implements RequestInterface
     public function secure(): bool
     {
         $https = $this->server->get('HTTPS');
+
         return $https !== null && $https !== 'off';
     }
 
@@ -182,12 +181,14 @@ class Request implements RequestInterface
         foreach ($this->headers->all() as $key => $values) {
             $headers[$key] = $values[0] ?? null;
         }
+
         return $headers;
     }
 
     public function bearerToken(): ?string
     {
         $header = $this->header('authorization', '');
+
         return str_starts_with($header, 'Bearer ') ? substr($header, 7) : null;
     }
 
@@ -199,6 +200,7 @@ class Request implements RequestInterface
         if ($forwardedFor !== null) {
             return trim(explode(',', $forwardedFor)[0]);
         }
+
         return $this->server->get('REMOTE_ADDR', '127.0.0.1');
     }
 
@@ -214,12 +216,14 @@ class Request implements RequestInterface
         if ($key === null) {
             return $this->routeParameters;
         }
+
         return $this->routeParameters[$key] ?? $default;
     }
 
     public function setRouteParameters(array $parameters): static
     {
         $this->routeParameters = $parameters;
+
         return $this;
     }
 
@@ -235,6 +239,7 @@ class Request implements RequestInterface
     protected function getSchemeAndHttpHost(): string
     {
         $scheme = $this->secure() ? 'https' : 'http';
+
         return $scheme . '://' . $this->server->get('HTTP_HOST', 'localhost');
     }
 
@@ -248,21 +253,22 @@ class Request implements RequestInterface
                 $headers[Str::serverKeyToHeader($key)] = $value;
             }
         }
+
         return $headers;
     }
 
     protected function resolveMethod(): string
     {
         $method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
-        
+
         if ($method === 'POST') {
-            $override = $this->server->get('HTTP_X_HTTP_METHOD_OVERRIDE') 
+            $override = $this->server->get('HTTP_X_HTTP_METHOD_OVERRIDE')
                 ?? $this->request->get('_method');
             if ($override !== null) {
                 $method = strtoupper($override);
             }
         }
-        
+
         return $method;
     }
 
@@ -270,6 +276,7 @@ class Request implements RequestInterface
     {
         $requestUri = $this->server->get('REQUEST_URI', '/');
         $path = parse_url($requestUri, PHP_URL_PATH) ?? '/';
+
         return $path === '' ? '/' : $path;
     }
 }

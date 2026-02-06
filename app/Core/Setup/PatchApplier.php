@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -8,17 +6,18 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
  */
-
 namespace App\Core\Setup;
 
 use App\Core\Contracts\Database\ConnectionInterface;
+use App\Core\Module\ModuleRegistry;
 use App\Core\Setup\Patch\DataPatchInterface;
 use App\Core\Setup\Patch\SchemaPatchInterface;
-use App\Core\Module\ModuleRegistry;
+use ReflectionClass;
+use Throwable;
 
 /**
  * Patch Applier
- * 
+ *
  * Discovers and applies pending patches from all enabled modules.
  * Handles dependency resolution and execution order.
  */
@@ -42,7 +41,7 @@ class PatchApplier
 
     /**
      * Apply all pending patches
-     * 
+     *
      * @return array Applied patches info
      */
     public function applyAll(): array
@@ -59,7 +58,7 @@ class PatchApplier
             try {
                 $this->applyPatch($patchInfo, 'schema');
                 $results['schema'][] = $patchInfo['class'];
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $results['errors'][] = [
                     'patch' => $patchInfo['class'],
                     'error' => $e->getMessage(),
@@ -74,7 +73,7 @@ class PatchApplier
             try {
                 $this->applyPatch($patchInfo, 'data');
                 $results['data'][] = $patchInfo['class'];
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $results['errors'][] = [
                     'patch' => $patchInfo['class'],
                     'error' => $e->getMessage(),
@@ -106,31 +105,31 @@ class PatchApplier
 
         foreach ($this->modules->getEnabled() as $module) {
             $patchDir = $module->path . '/Setup/Data';
-            
+
             if ($interface === SchemaPatchInterface::class) {
                 $patchDir = $module->path . '/Setup/Schema';
             }
 
-            if (!is_dir($patchDir)) {
+            if (! is_dir($patchDir)) {
                 continue;
             }
 
             foreach (glob($patchDir . '/*.php') as $file) {
                 $className = $this->getClassNameFromFile($file, $module->name);
-                
+
                 if ($className === null) {
                     continue;
                 }
 
                 require_once $file;
 
-                if (!class_exists($className)) {
+                if (! class_exists($className)) {
                     continue;
                 }
 
-                $reflection = new \ReflectionClass($className);
-                
-                if (!$reflection->implementsInterface($interface)) {
+                $reflection = new ReflectionClass($className);
+
+                if (! $reflection->implementsInterface($interface)) {
                     continue;
                 }
 
@@ -169,7 +168,7 @@ class PatchApplier
         $resolved = [];
         $seen = [];
 
-        $resolve = function (array $patch) use (&$resolve, &$resolved, &$seen, $patches) {
+        $resolve = function (array $patch) use (&$resolve, &$resolved, &$seen, $patches): void {
             if (isset($seen[$patch['class']])) {
                 return;
             }
@@ -205,7 +204,7 @@ class PatchApplier
 
         $instance = new $className($this->connection);
 
-        $this->connection->transaction(function () use ($instance, $className, $type, $module) {
+        $this->connection->transaction(function () use ($instance, $className, $type, $module): void {
             $instance->apply();
             $this->registry->markApplied($className, $type, $module);
         });
@@ -222,7 +221,7 @@ class PatchApplier
         $relativePath = str_replace(base_path('app/Modules/' . $moduleName . '/'), '', $file);
         $relativePath = str_replace('.php', '', $relativePath);
         $namespace = 'App\\Modules\\' . $moduleName . '\\' . str_replace('/', '\\', $relativePath);
-        
+
         // Extract just the directory structure for namespace
         $parts = explode('/', dirname($relativePath));
         $namespace = 'App\\Modules\\' . $moduleName . '\\' . implode('\\', $parts) . '\\' . $filename;

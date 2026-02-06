@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
@@ -13,7 +10,7 @@ namespace App\Core\Contracts\Auth;
 
 /**
  * Authorizable Interface
- * 
+ *
  * Implement this on your User model to enable authorization checks.
  */
 interface AuthorizableInterface

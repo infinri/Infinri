@@ -1,22 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Module;
 
+use RuntimeException;
+use Throwable;
+
 /**
  * Module Registry
- * 
+ *
  * Scans, registers, and caches module metadata.
  * Handles dependency ordering and module state.
  */
@@ -24,12 +24,14 @@ class ModuleRegistry
 {
     /**
      * Registered modules (keyed by name)
+     *
      * @var array<string, ModuleDefinition>
      */
     protected array $modules = [];
 
     /**
      * Modules in dependency-sorted order
+     *
      * @var string[]
      */
     protected array $loadOrder = [];
@@ -67,6 +69,7 @@ class ModuleRegistry
         // Try to load from cache
         if ($this->loadFromCache()) {
             $this->loaded = true;
+
             return;
         }
 
@@ -74,7 +77,7 @@ class ModuleRegistry
         $this->scan();
         $this->resolveLoadOrder();
         $this->saveToCache();
-        
+
         $this->loaded = true;
     }
 
@@ -85,13 +88,13 @@ class ModuleRegistry
     {
         $this->modules = [];
 
-        if (!is_dir($this->modulesPath)) {
+        if (! is_dir($this->modulesPath)) {
             return;
         }
 
         $dirs = array_filter(
             scandir($this->modulesPath),
-            fn($d) => $d !== '.' && $d !== '..' && is_dir($this->modulesPath . '/' . $d)
+            fn ($d) => $d !== '.' && $d !== '..' && is_dir($this->modulesPath . '/' . $d)
         );
 
         foreach ($dirs as $dir) {
@@ -104,7 +107,7 @@ class ModuleRegistry
             } else {
                 // Fallback: check for legacy *Module.php class file
                 $legacyFile = $modulePath . '/' . ucfirst($dir) . 'Module.php';
-                if (!file_exists($legacyFile)) {
+                if (! file_exists($legacyFile)) {
                     continue; // Not a valid module
                 }
                 $data = ['name' => $dir];
@@ -125,7 +128,7 @@ class ModuleRegistry
         $unresolved = [];
 
         foreach ($this->modules as $name => $module) {
-            if ($module->enabled && !isset($resolved[$name])) {
+            if ($module->enabled && ! isset($resolved[$name])) {
                 $this->resolveDependencies($name, $resolved, $unresolved);
             }
         }
@@ -140,17 +143,17 @@ class ModuleRegistry
 
         $module = $this->modules[$name] ?? null;
         if ($module === null) {
-            throw new \RuntimeException("Module not found: {$name}");
+            throw new RuntimeException("Module not found: {$name}");
         }
 
         foreach ($module->dependencies as $dependency) {
-            if (!isset($this->modules[$dependency])) {
-                throw new \RuntimeException("Module '{$name}' depends on missing module: {$dependency}");
+            if (! isset($this->modules[$dependency])) {
+                throw new RuntimeException("Module '{$name}' depends on missing module: {$dependency}");
             }
 
-            if (!isset($resolved[$dependency])) {
+            if (! isset($resolved[$dependency])) {
                 if (isset($unresolved[$dependency])) {
-                    throw new \RuntimeException("Circular dependency detected: {$name} <-> {$dependency}");
+                    throw new RuntimeException("Circular dependency detected: {$name} <-> {$dependency}");
                 }
                 $this->resolveDependencies($dependency, $resolved, $unresolved);
             }
@@ -163,28 +166,32 @@ class ModuleRegistry
 
     /**
      * Get all registered modules
+     *
      * @return array<string, ModuleDefinition>
      */
     public function all(): array
     {
         $this->load();
+
         return $this->modules;
     }
 
     /**
      * Get enabled modules in load order
+     *
      * @return ModuleDefinition[]
      */
     public function getEnabled(): array
     {
         $this->load();
-        
+
         $enabled = [];
         foreach ($this->loadOrder as $name) {
             if (isset($this->modules[$name]) && $this->modules[$name]->enabled) {
                 $enabled[] = $this->modules[$name];
             }
         }
+
         return $enabled;
     }
 
@@ -194,6 +201,7 @@ class ModuleRegistry
     public function get(string $name): ?ModuleDefinition
     {
         $this->load();
+
         return $this->modules[$name] ?? null;
     }
 
@@ -203,6 +211,7 @@ class ModuleRegistry
     public function has(string $name): bool
     {
         $this->load();
+
         return isset($this->modules[$name]);
     }
 
@@ -212,6 +221,7 @@ class ModuleRegistry
     public function getLoadOrder(): array
     {
         $this->load();
+
         return $this->loadOrder;
     }
 
@@ -221,8 +231,8 @@ class ModuleRegistry
     public function enable(string $name): bool
     {
         $this->load();
-        
-        if (!isset($this->modules[$name])) {
+
+        if (! isset($this->modules[$name])) {
             return false;
         }
 
@@ -234,6 +244,7 @@ class ModuleRegistry
 
         // Rebuild registry
         $this->rebuild();
+
         return true;
     }
 
@@ -243,8 +254,8 @@ class ModuleRegistry
     public function disable(string $name): bool
     {
         $this->load();
-        
-        if (!isset($this->modules[$name])) {
+
+        if (! isset($this->modules[$name])) {
             return false;
         }
 
@@ -256,6 +267,7 @@ class ModuleRegistry
 
         // Rebuild registry
         $this->rebuild();
+
         return true;
     }
 
@@ -266,7 +278,7 @@ class ModuleRegistry
     {
         $content = file_get_contents($path);
         $replacement = "'enabled' => " . ($enabled ? 'true' : 'false');
-        
+
         // Replace existing enabled line
         $content = preg_replace(
             "/'enabled'\s*=>\s*(true|false)/",
@@ -285,11 +297,11 @@ class ModuleRegistry
         $this->loaded = false;
         $this->modules = [];
         $this->loadOrder = [];
-        
+
         $this->scan();
         $this->resolveLoadOrder();
         $this->saveToCache();
-        
+
         $this->loaded = true;
     }
 
@@ -309,27 +321,29 @@ class ModuleRegistry
      */
     protected function loadFromCache(): bool
     {
-        if (!file_exists($this->cachePath)) {
+        if (! file_exists($this->cachePath)) {
             return false;
         }
 
         try {
             $data = require $this->cachePath;
-            
-            if (!is_array($data) || !isset($data['modules'], $data['loadOrder'])) {
+
+            if (! is_array($data) || ! isset($data['modules'], $data['loadOrder'])) {
                 return false;
             }
 
             foreach ($data['modules'] as $name => $moduleData) {
                 $this->modules[$name] = ModuleDefinition::fromArray($moduleData);
             }
-            
+
             $this->loadOrder = $data['loadOrder'];
+
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if (function_exists('logger')) {
                 logger()->warning('Module registry cache load failed', ['error' => $e->getMessage()]);
             }
+
             return false;
         }
     }
@@ -340,8 +354,8 @@ class ModuleRegistry
     protected function saveToCache(): void
     {
         $cacheDir = dirname($this->cachePath);
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0755, true);
+        if (! is_dir($cacheDir)) {
+            mkdir($cacheDir, 0o755, true);
         }
 
         $modules = [];
@@ -349,7 +363,7 @@ class ModuleRegistry
             $modules[$name] = $module->toArray();
         }
 
-        $content = "<?php\n\n// Generated: " . date('Y-m-d H:i:s') . "\n// DO NOT EDIT\n\nreturn " 
+        $content = "<?php\n\n// Generated: " . date('Y-m-d H:i:s') . "\n// DO NOT EDIT\n\nreturn "
             . var_export([
                 'modules' => $modules,
                 'loadOrder' => $this->loadOrder,

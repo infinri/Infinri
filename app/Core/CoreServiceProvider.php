@@ -1,13 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -24,7 +22,7 @@ use App\Core\Session\SessionManager;
 
 /**
  * Core Service Provider
- * 
+ *
  * Registers core framework services in the container.
  * Centralizes service registration to enforce DI principles.
  */
@@ -61,7 +59,7 @@ class CoreServiceProvider extends ServiceProvider
 
     protected function registerSecurityServices(): void
     {
-        $this->app->singleton(Csrf::class, fn() => new Csrf());
+        $this->app->singleton(Csrf::class, fn () => new Csrf());
         $this->app->alias(Csrf::class, 'csrf');
 
         $this->app->singleton(RateLimiter::class, function ($app) {
@@ -74,13 +72,13 @@ class CoreServiceProvider extends ServiceProvider
 
     protected function registerSessionServices(): void
     {
-        $this->app->singleton(SessionManager::class, fn() => new SessionManager());
+        $this->app->singleton(SessionManager::class, fn () => new SessionManager());
         $this->app->alias(SessionManager::class, 'session');
     }
 
     protected function registerAuthorizationServices(): void
     {
-        $this->app->singleton(Gate::class, fn() => new Gate());
+        $this->app->singleton(Gate::class, fn () => new Gate());
         $this->app->alias(Gate::class, 'gate');
     }
 

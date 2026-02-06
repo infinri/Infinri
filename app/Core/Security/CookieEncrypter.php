@@ -1,24 +1,23 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Security;
 
 use App\Core\Http\Cookie;
+use JsonException;
+use RuntimeException;
 
 /**
  * Cookie Encrypter
- * 
+ *
  * Provides signing (HMAC) and encryption (AES-256-GCM) for cookies.
  * Enterprise-grade cookie security with tamper detection.
  */
@@ -41,6 +40,7 @@ class CookieEncrypter
 
     /**
      * Cookies that should not be encrypted (e.g., CSRF token for JS access)
+     *
      * @var string[]
      */
     private array $except = [];
@@ -51,7 +51,7 @@ class CookieEncrypter
         $this->except = $except;
 
         if (strlen($this->key) < 32) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Cookie encryption key must be at least 32 characters. ' .
                 'Set APP_KEY in your .env file.'
             );
@@ -64,7 +64,7 @@ class CookieEncrypter
     private function getKeyFromEnv(): string
     {
         $key = env('APP_KEY', '');
-        
+
         // Handle base64 encoded keys (Laravel-style)
         if (str_starts_with($key, 'base64:')) {
             $key = base64_decode(substr($key, 7));
@@ -75,7 +75,7 @@ class CookieEncrypter
 
     /**
      * Encrypt a cookie value
-     * 
+     *
      * Structure: base64(iv + ciphertext + tag + hmac)
      */
     public function encrypt(string $value): string
@@ -95,7 +95,7 @@ class CookieEncrypter
         );
 
         if ($ciphertext === false) {
-            throw new \RuntimeException('Cookie encryption failed');
+            throw new RuntimeException('Cookie encryption failed');
         }
 
         // Combine: IV + ciphertext + tag
@@ -123,7 +123,7 @@ class CookieEncrypter
         $payload = substr($decoded, 0, -32);
 
         // Verify HMAC first
-        if (!$this->verifySignature($payload, $hmac)) {
+        if (! $this->verifySignature($payload, $hmac)) {
             return null; // Tampered
         }
 
@@ -146,7 +146,7 @@ class CookieEncrypter
 
     /**
      * Sign a value (HMAC only, no encryption)
-     * 
+     *
      * Use for cookies that need tamper protection but not confidentiality.
      * Returns: value|signature
      */
@@ -161,6 +161,7 @@ class CookieEncrypter
     public function signValue(string $value): string
     {
         $signature = base64_encode($this->sign($value));
+
         return $value . '|' . $signature;
     }
 
@@ -178,7 +179,7 @@ class CookieEncrypter
         [$value, $signature] = $parts;
         $expectedSignature = base64_encode($this->sign($value));
 
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (! hash_equals($expectedSignature, $signature)) {
             return null; // Tampered
         }
 
@@ -191,6 +192,7 @@ class CookieEncrypter
     public function verifySignature(string $value, string $signature): bool
     {
         $expected = $this->sign($value);
+
         return hash_equals($expected, $signature);
     }
 
@@ -207,7 +209,7 @@ class CookieEncrypter
      */
     public function shouldEncrypt(string $cookieName): bool
     {
-        return !in_array($cookieName, $this->except, true);
+        return ! in_array($cookieName, $this->except, true);
     }
 
     /**
@@ -217,6 +219,7 @@ class CookieEncrypter
     {
         $cookies = is_array($cookies) ? $cookies : [$cookies];
         $this->except = array_merge($this->except, $cookies);
+
         return $this;
     }
 
@@ -230,7 +233,7 @@ class CookieEncrypter
 
     /**
      * Encrypt cookie data with metadata (Laravel-style)
-     * 
+     *
      * Stores value with expiration for additional validation.
      */
     public function encryptWithMeta(string $value, ?int $expires = null): string
@@ -257,7 +260,7 @@ class CookieEncrypter
 
         try {
             $data = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
+        } catch (JsonException) {
             return null;
         }
 

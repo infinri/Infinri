@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Contracts\Queue;
 
+use Throwable;
+
 /**
  * Job Contract
- * 
+ *
  * Defines the interface for queue jobs.
  */
 interface JobInterface
@@ -54,7 +53,7 @@ interface JobInterface
     /**
      * Mark the job as failed
      */
-    public function fail(?\Throwable $e = null): void;
+    public function fail(?Throwable $e = null): void;
 
     /**
      * Determine if the job has been deleted or released

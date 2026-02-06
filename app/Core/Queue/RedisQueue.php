@@ -1,28 +1,25 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Queue;
 
-use App\Core\Contracts\Queue\QueueInterface;
 use App\Core\Contracts\Queue\JobInterface;
+use App\Core\Contracts\Queue\QueueInterface;
 use App\Core\Redis\RedisManager;
 use Redis;
 use RedisException;
 
 /**
  * Redis Queue
- * 
+ *
  * Reliable queue implementation using Redis with support for
  * delayed jobs, retries, and dead letter queues.
  */
@@ -123,6 +120,7 @@ class RedisQueue implements QueueInterface
 
         try {
             $this->redis()->rPush($this->queueKey($queue), $payload);
+
             return $this->getJobId($payload);
         } catch (RedisException $e) {
             throw new QueueException("Failed to push job to queue: " . $e->getMessage(), 0, $e);
@@ -139,6 +137,7 @@ class RedisQueue implements QueueInterface
 
         try {
             $this->redis()->zAdd($this->delayedKey($queue), $availableAt, $payload);
+
             return $this->getJobId($payload);
         } catch (RedisException $e) {
             throw new QueueException("Failed to push delayed job to queue: " . $e->getMessage(), 0, $e);
@@ -184,6 +183,7 @@ class RedisQueue implements QueueInterface
             return (int) $this->redis()->lLen($this->queueKey($queue));
         } catch (RedisException $e) {
             logger()->warning('Queue size check failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return 0;
         }
     }
@@ -197,9 +197,11 @@ class RedisQueue implements QueueInterface
             $this->redis()->del($this->queueKey($queue));
             $this->redis()->del($this->delayedKey($queue));
             $this->redis()->del($this->reservedKey($queue));
+
             return true;
         } catch (RedisException $e) {
             logger()->error('Queue clear failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -375,6 +377,7 @@ class RedisQueue implements QueueInterface
     protected function getJobId(string $payload): string
     {
         $data = json_decode($payload, true);
+
         return $data['id'] ?? '';
     }
 
@@ -385,9 +388,11 @@ class RedisQueue implements QueueInterface
     {
         try {
             $jobs = $this->redis()->lRange($this->failedKey($queue), 0, $limit - 1);
-            return array_map(fn($j) => json_decode($j, true), $jobs);
+
+            return array_map(fn ($j) => json_decode($j, true), $jobs);
         } catch (RedisException $e) {
             logger()->warning('Queue failed jobs retrieval failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return [];
         }
     }
@@ -419,6 +424,7 @@ class RedisQueue implements QueueInterface
             return true;
         } catch (RedisException $e) {
             logger()->error('Queue retry failed job failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -430,9 +436,11 @@ class RedisQueue implements QueueInterface
     {
         try {
             $this->redis()->del($this->failedKey($queue));
+
             return true;
         } catch (RedisException $e) {
             logger()->error('Queue flush failed jobs failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -451,6 +459,7 @@ class RedisQueue implements QueueInterface
             ];
         } catch (RedisException $e) {
             logger()->warning('Queue stats retrieval failed', ['queue' => $queue, 'error' => $e->getMessage()]);
+
             return ['pending' => 0, 'delayed' => 0, 'reserved' => 0, 'failed' => 0];
         }
     }

@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -16,7 +13,7 @@ namespace App\Core\Validation;
 
 /**
  * Validator
- * 
+ *
  * Fluent input validation with common rules.
  */
 class Validator
@@ -53,11 +50,11 @@ class Validator
     public static function make(array $data, array $rules = [], array $messages = []): static
     {
         $validator = new static($data, $messages);
-        
+
         foreach ($rules as $field => $rule) {
             $validator->applyRules($field, $rule);
         }
-        
+
         return $validator;
     }
 
@@ -67,15 +64,15 @@ class Validator
     public function required(string|array $fields): static
     {
         $fields = is_array($fields) ? $fields : [$fields];
-        
+
         foreach ($fields as $field) {
-            if (!isset($this->data[$field]) || $this->isEmpty($this->data[$field])) {
+            if (! isset($this->data[$field]) || $this->isEmpty($this->data[$field])) {
                 $this->addError($field, 'required', "{$this->formatField($field)} is required");
             } else {
                 $this->validated[$field] = $this->sanitize($this->data[$field]);
             }
         }
-        
+
         return $this;
     }
 
@@ -85,11 +82,11 @@ class Validator
     public function email(string $field): static
     {
         if ($this->hasValue($field)) {
-            if (!filter_var($this->data[$field], FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($this->data[$field], FILTER_VALIDATE_EMAIL)) {
                 $this->addError($field, 'email', 'Please enter a valid email address');
             }
         }
-        
+
         return $this;
     }
 
@@ -99,11 +96,11 @@ class Validator
     public function url(string $field): static
     {
         if ($this->hasValue($field)) {
-            if (!filter_var($this->data[$field], FILTER_VALIDATE_URL)) {
+            if (! filter_var($this->data[$field], FILTER_VALIDATE_URL)) {
                 $this->addError($field, 'url', 'Please enter a valid URL');
             }
         }
-        
+
         return $this;
     }
 
@@ -115,7 +112,7 @@ class Validator
         if ($this->hasValue($field) && strlen($this->data[$field]) < $min) {
             $this->addError($field, 'min', "{$this->formatField($field)} must be at least {$min} characters");
         }
-        
+
         return $this;
     }
 
@@ -127,7 +124,7 @@ class Validator
         if ($this->hasValue($field) && strlen($this->data[$field]) > $max) {
             $this->addError($field, 'max', "{$this->formatField($field)} must be less than {$max} characters");
         }
-        
+
         return $this;
     }
 
@@ -136,10 +133,10 @@ class Validator
      */
     public function numeric(string $field): static
     {
-        if ($this->hasValue($field) && !is_numeric($this->data[$field])) {
+        if ($this->hasValue($field) && ! is_numeric($this->data[$field])) {
             $this->addError($field, 'numeric', "{$this->formatField($field)} must be a number");
         }
-        
+
         return $this;
     }
 
@@ -148,10 +145,10 @@ class Validator
      */
     public function integer(string $field): static
     {
-        if ($this->hasValue($field) && !filter_var($this->data[$field], FILTER_VALIDATE_INT)) {
+        if ($this->hasValue($field) && ! filter_var($this->data[$field], FILTER_VALIDATE_INT)) {
             $this->addError($field, 'integer', "{$this->formatField($field)} must be an integer");
         }
-        
+
         return $this;
     }
 
@@ -163,7 +160,7 @@ class Validator
         if ($this->hasValue($field) && is_numeric($this->data[$field]) && $this->data[$field] < $min) {
             $this->addError($field, 'min_value', "{$this->formatField($field)} must be at least {$min}");
         }
-        
+
         return $this;
     }
 
@@ -175,7 +172,7 @@ class Validator
         if ($this->hasValue($field) && is_numeric($this->data[$field]) && $this->data[$field] > $max) {
             $this->addError($field, 'max_value', "{$this->formatField($field)} must be at most {$max}");
         }
-        
+
         return $this;
     }
 
@@ -184,10 +181,10 @@ class Validator
      */
     public function in(string $field, array $allowed): static
     {
-        if ($this->hasValue($field) && !in_array($this->data[$field], $allowed, true)) {
+        if ($this->hasValue($field) && ! in_array($this->data[$field], $allowed, true)) {
             $this->addError($field, 'in', "{$this->formatField($field)} must be one of: " . implode(', ', $allowed));
         }
-        
+
         return $this;
     }
 
@@ -196,10 +193,10 @@ class Validator
      */
     public function regex(string $field, string $pattern): static
     {
-        if ($this->hasValue($field) && !preg_match($pattern, $this->data[$field])) {
+        if ($this->hasValue($field) && ! preg_match($pattern, $this->data[$field])) {
             $this->addError($field, 'regex', "{$this->formatField($field)} format is invalid");
         }
-        
+
         return $this;
     }
 
@@ -211,7 +208,7 @@ class Validator
         if ($this->hasValue($field) && ($this->data[$field] ?? null) !== ($this->data[$otherField] ?? null)) {
             $this->addError($field, 'same', "{$this->formatField($field)} must match {$this->formatField($otherField)}");
         }
-        
+
         return $this;
     }
 
@@ -220,7 +217,7 @@ class Validator
      */
     public function fails(): bool
     {
-        return !empty($this->errors);
+        return ! empty($this->errors);
     }
 
     /**
@@ -254,11 +251,11 @@ class Validator
     {
         // Include optional fields that passed
         foreach ($this->data as $key => $value) {
-            if (!isset($this->validated[$key]) && !isset($this->errors[$key]) && !$this->isEmpty($value)) {
+            if (! isset($this->validated[$key]) && ! isset($this->errors[$key]) && ! $this->isEmpty($value)) {
                 $this->validated[$key] = $this->sanitize($value);
             }
         }
-        
+
         return $this->validated;
     }
 
@@ -268,15 +265,15 @@ class Validator
     protected function applyRules(string $field, string $rules): void
     {
         $ruleList = explode('|', $rules);
-        
+
         foreach ($ruleList as $rule) {
             $params = [];
-            
+
             if (str_contains($rule, ':')) {
                 [$rule, $paramStr] = explode(':', $rule, 2);
                 $params = explode(',', $paramStr);
             }
-            
+
             match ($rule) {
                 'required' => $this->required($field),
                 'email' => $this->email($field),
@@ -307,7 +304,7 @@ class Validator
      */
     protected function hasValue(string $field): bool
     {
-        return isset($this->data[$field]) && !$this->isEmpty($this->data[$field]);
+        return isset($this->data[$field]) && ! $this->isEmpty($this->data[$field]);
     }
 
     /**
@@ -326,7 +323,7 @@ class Validator
         if (is_string($value)) {
             return trim($value);
         }
-        
+
         return $value;
     }
 

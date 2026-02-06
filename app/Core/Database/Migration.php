@@ -1,25 +1,22 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Database;
 
-use App\Core\Database\Schema\SchemaBuilder;
 use App\Core\Contracts\Database\ConnectionInterface;
+use App\Core\Database\Schema\SchemaBuilder;
 
 /**
  * Migration Base Class
- * 
+ *
  * Base class for database migrations.
  */
 abstract class Migration

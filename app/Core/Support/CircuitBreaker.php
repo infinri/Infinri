@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
@@ -19,10 +16,10 @@ use Throwable;
 
 /**
  * Circuit Breaker
- * 
+ *
  * Implements the circuit breaker pattern for external service calls.
  * Prevents cascading failures by failing fast when a service is unhealthy.
- * 
+ *
  * States:
  * - CLOSED: Normal operation, requests go through
  * - OPEN: Service is failing, requests fail immediately
@@ -62,12 +59,14 @@ class CircuitBreaker
 
     /**
      * Execute a call through the circuit breaker
-     * 
+     *
      * @param string $service Service identifier
      * @param callable $operation The operation to execute
      * @param callable|null $fallback Fallback if circuit is open or operation fails
-     * @return mixed
+     *
      * @throws CircuitBreakerOpenException If circuit is open and no fallback
+     *
+     * @return mixed
      */
     public function call(string $service, callable $operation, ?callable $fallback = null): mixed
     {
@@ -100,8 +99,8 @@ class CircuitBreaker
      * Handle operation failure
      */
     protected function handleFailure(
-        string $service, 
-        ?Throwable $exception, 
+        string $service,
+        ?Throwable $exception,
         ?callable $fallback,
         string $reason
     ): mixed {

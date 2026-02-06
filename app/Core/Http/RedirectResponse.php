@@ -1,22 +1,21 @@
-<?php
-
-declare(strict_types=1);
-
+<?php declare(strict_types=1);
 
 /**
  * Infinri Framework
  *
  * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
  * @license   Proprietary - All Rights Reserved
- * 
+ *
  * This source code is proprietary and confidential. Unauthorized copying,
  * modification, distribution, or use is strictly prohibited. See LICENSE.
  */
 namespace App\Core\Http;
 
+use InvalidArgumentException;
+
 /**
  * Redirect Response
- * 
+ *
  * Represents an HTTP redirect response
  */
 class RedirectResponse extends Response
@@ -32,7 +31,7 @@ class RedirectResponse extends Response
     public function __construct(string $url, int $status = 302, array $headers = [])
     {
         parent::__construct('', $status, $headers);
-        
+
         $this->setTargetUrl($url);
     }
 
@@ -75,12 +74,12 @@ class RedirectResponse extends Response
     public function setTargetUrl(string $url): static
     {
         if ($url === '') {
-            throw new \InvalidArgumentException('Cannot redirect to an empty URL.');
+            throw new InvalidArgumentException('Cannot redirect to an empty URL.');
         }
-        
+
         $this->targetUrl = $url;
         $this->header('Location', $url);
-        
+
         // Set content for browsers that don't follow redirects
         $this->setContent(sprintf(
             '<!DOCTYPE html>
@@ -96,9 +95,9 @@ class RedirectResponse extends Response
 </html>',
             htmlspecialchars($url, ENT_QUOTES, 'UTF-8')
         ));
-        
+
         $this->header('Content-Type', 'text/html; charset=UTF-8');
-        
+
         return $this;
     }
 
@@ -116,7 +115,7 @@ class RedirectResponse extends Response
     public function withQuery(array $query): static
     {
         $separator = str_contains($this->targetUrl, '?') ? '&' : '?';
-        
+
         return $this->setTargetUrl($this->targetUrl . $separator . http_build_query($query));
     }
 
