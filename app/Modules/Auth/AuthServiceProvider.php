@@ -101,9 +101,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected function registerPasswordHasher(): void
     {
-        $this->app->singleton(PasswordHasher::class, function ($app) {
-            $config = $app->has('config') ? $app->get('config') : null;
-            $hashConfig = $config?->get('auth.hashing', []) ?? [];
+        $this->app->singleton(PasswordHasher::class, function () {
+            $hashConfig = $this->config('auth.hashing', []);
 
             return new PasswordHasher([
                 'driver' => $hashConfig['driver'] ?? 'argon2id',
@@ -119,8 +118,7 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerRateLimiter(): void
     {
         $this->app->singleton(LoginRateLimiter::class, function ($app) {
-            $config = $app->has('config') ? $app->get('config') : null;
-            $throttleConfig = $config?->get('auth.throttle', []) ?? [];
+            $throttleConfig = $this->config('auth.throttle', []);
             $cache = $app->has('cache') ? $app->get('cache') : null;
 
             return new LoginRateLimiter($cache, [
@@ -152,8 +150,7 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerUserRepository(): void
     {
         $this->app->singleton(UserRepositoryInterface::class, function ($app) {
-            $config = $app->has('config') ? $app->get('config') : null;
-            $providerConfig = $config?->get('auth.providers.users', []) ?? [];
+            $providerConfig = $this->config('auth.providers.users', []);
             $modelClass = $providerConfig['model'] ?? \App\Modules\Auth\Models\User::class;
 
             // Inject PasswordService if available
@@ -214,8 +211,7 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerPasswordResetService(): void
     {
         $this->app->singleton(PasswordResetService::class, function ($app) {
-            $config = $app->has('config') ? $app->get('config') : null;
-            $resetConfig = $config?->get('auth.passwords', []) ?? [];
+            $resetConfig = $this->config('auth.passwords', []);
 
             return new PasswordResetService(
                 $app->get(UserRepositoryInterface::class),
@@ -289,8 +285,7 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerEmailVerificationService(): void
     {
         $this->app->singleton(EmailVerificationService::class, function ($app) {
-            $config = $app->has('config') ? $app->get('config') : null;
-            $verificationConfig = $config?->get('auth.verification', []) ?? [];
+            $verificationConfig = $this->config('auth.verification', []);
 
             return new EmailVerificationService(
                 $app->get(UserRepositoryInterface::class),

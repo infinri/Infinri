@@ -14,50 +14,52 @@ declare(strict_types=1);
  */
 namespace App\Core\Http\Middleware;
 
+use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
+use App\Core\Http\JsonResponse;
+use App\Core\Http\HttpStatus;
 use App\Core\Security\Csrf;
+use Closure;
 
 /**
  * Verify CSRF Token Middleware
  * 
  * Thin wrapper around Core\Security\Csrf for middleware pipeline.
  */
-class VerifyCsrfToken
+class VerifyCsrfToken implements MiddlewareInterface
 {
     protected Csrf $csrf;
     protected array $except;
 
     public function __construct(?Csrf $csrf = null, array $except = [])
     {
-        $this->csrf = $csrf ?? new Csrf();
+        $this->csrf = $csrf ?? app(Csrf::class);
         $this->except = $except;
     }
 
-    public function handle(RequestInterface $request, callable $next): ResponseInterface
+    public function handle(RequestInterface $request, Closure $next): ResponseInterface
     {
         if ($this->shouldVerify($request) && !$this->tokensMatch($request)) {
-            http_response_code(419);
-            header('Content-Type: application/json');
-            echo json_encode([
+            return new JsonResponse([
                 'error' => 'CSRF token mismatch',
                 'message' => 'The page has expired. Please refresh and try again.',
-            ]);
-            exit;
+            ], HttpStatus::PAGE_EXPIRED);
         }
 
         $response = $next($request);
 
         // Add XSRF-TOKEN cookie for JS frameworks
-        setcookie('XSRF-TOKEN', $this->csrf->token(), [
-            'expires' => 0,
-            'path' => '/',
-            'httponly' => false,
-            'samesite' => 'Strict',
-            'secure' => isset($_SERVER['HTTPS']),
-        ]);
-
-        return $response;
+        return $response->cookie(
+            'XSRF-TOKEN',
+            $this->csrf->token(),
+            0,
+            '/',
+            '',
+            $request->secure(),
+            false,
+            'Strict'
+        );
     }
 
     protected function shouldVerify(RequestInterface $request): bool

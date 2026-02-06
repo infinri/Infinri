@@ -46,6 +46,7 @@ final class HttpStatus
     public const FORBIDDEN = 403;
     public const NOT_FOUND = 404;
     public const METHOD_NOT_ALLOWED = 405;
+    public const PAGE_EXPIRED = 419;
     public const UNPROCESSABLE_ENTITY = 422;
     public const TOO_MANY_REQUESTS = 429;
 
@@ -75,6 +76,7 @@ final class HttpStatus
         403 => 'Forbidden',
         404 => 'Not Found',
         405 => 'Method Not Allowed',
+        419 => 'Page Expired',
         422 => 'Unprocessable Entity',
         429 => 'Too Many Requests',
         500 => 'Internal Server Error',

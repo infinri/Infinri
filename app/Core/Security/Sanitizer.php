@@ -117,11 +117,15 @@ class Sanitizer
         // Remove null bytes
         $value = self::nullBytes($value);
         
-        // Remove directory traversal
-        $value = str_replace(['../', '..\\', '..'], '', $value);
-        
-        // Normalize slashes
+        // Normalize slashes first
         $value = str_replace('\\', '/', $value);
+        
+        // Remove directory traversal patterns iteratively to prevent bypass
+        // e.g., "..../" becomes "../" after single pass, so we loop
+        do {
+            $prev = $value;
+            $value = str_replace(['../', '..'], '', $value);
+        } while ($prev !== $value);
         
         // Remove multiple slashes
         $value = preg_replace('#/+#', '/', $value);

@@ -82,4 +82,20 @@ abstract class ServiceProvider
     {
         return false;
     }
+
+    /**
+     * Get a configuration value
+     * 
+     * @param string $key Config key (dot notation)
+     * @param mixed $default Default value if not found
+     * @return mixed
+     */
+    protected function config(string $key, mixed $default = null): mixed
+    {
+        if (!$this->app->has('config')) {
+            return $default;
+        }
+        
+        return $this->app->get('config')->get($key, $default);
+    }
 }

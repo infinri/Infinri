@@ -4,8 +4,7 @@
   "type": "project",
   "license": "MIT",
   "require": {
-    "php": ">=8.1",
-    "getbrevo/brevo-php": "^2.0",
+    "php": ">=8.4",
     "guzzlehttp/guzzle": "^7.10",
     "nyholm/psr7": "^1.8",
     "spiral/roadrunner-http": "^3.5",
@@ -31,7 +30,10 @@
       "App\\Modules\\": "app/Modules/"
     },
     "files": [
-      "app/Core/Support/helpers.php"
+      "app/Core/Support/helpers.php",
+      "app/Core/Support/security_helpers.php",
+      "app/Core/Support/cookie_helpers.php",
+      "app/Core/Support/auth_helpers.php"
     ]
   },
   "autoload-dev": {
@@ -49,7 +51,6 @@
     "sort-packages": true
   },
   "scripts": {
-    "fix-brevo": "php fix-brevo-php84.php",
     "s:up": "php bin/console setup:update",
     "minify": "php bin/console setup:minify"
   },

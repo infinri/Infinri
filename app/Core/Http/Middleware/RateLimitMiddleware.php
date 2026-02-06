@@ -14,17 +14,20 @@ declare(strict_types=1);
  */
 namespace App\Core\Http\Middleware;
 
+use App\Core\Contracts\Http\MiddlewareInterface;
 use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
+use App\Core\Http\JsonResponse;
+use App\Core\Http\HttpStatus;
 use App\Core\Security\RateLimiter;
-use App\Core\Cache\FileStore;
+use Closure;
 
 /**
  * Rate Limit Middleware
  * 
  * Thin wrapper around Core\Security\RateLimiter for middleware pipeline.
  */
-class RateLimitMiddleware
+class RateLimitMiddleware implements MiddlewareInterface
 {
     protected RateLimiter $limiter;
     protected int $maxAttempts;
@@ -37,10 +40,10 @@ class RateLimitMiddleware
     ) {
         $this->maxAttempts = $maxAttempts;
         $this->decaySeconds = $decaySeconds;
-        $this->limiter = $limiter ?? $this->createDefaultLimiter();
+        $this->limiter = $limiter ?? app(RateLimiter::class);
     }
 
-    public function handle(RequestInterface $request, callable $next): ResponseInterface
+    public function handle(RequestInterface $request, Closure $next): ResponseInterface
     {
         $key = $this->resolveKey($request);
 
@@ -65,45 +68,22 @@ class RateLimitMiddleware
     {
         $remaining = $this->limiter->retriesLeft($key, $this->maxAttempts);
         
-        http_response_code(429);
-        header('Content-Type: application/json');
-        header("Retry-After: {$this->decaySeconds}");
-        header("X-RateLimit-Limit: {$this->maxAttempts}");
-        header("X-RateLimit-Remaining: {$remaining}");
-
-        echo json_encode([
+        return (new JsonResponse([
             'error' => 'Too Many Requests',
             'message' => 'Rate limit exceeded. Please try again later.',
             'retry_after' => $this->decaySeconds,
-        ]);
-
-        exit;
+        ], HttpStatus::TOO_MANY_REQUESTS))
+            ->header('Retry-After', (string) $this->decaySeconds)
+            ->header('X-RateLimit-Limit', (string) $this->maxAttempts)
+            ->header('X-RateLimit-Remaining', (string) $remaining);
     }
 
     protected function addHeaders(ResponseInterface $response, string $key): ResponseInterface
     {
         $remaining = $this->limiter->retriesLeft($key, $this->maxAttempts);
 
-        header("X-RateLimit-Limit: {$this->maxAttempts}");
-        header("X-RateLimit-Remaining: {$remaining}");
-
-        return $response;
-    }
-
-    protected function createDefaultLimiter(): RateLimiter
-    {
-        $cachePath = $this->getCachePath();
-        $cache = new FileStore($cachePath);
-        return new RateLimiter($cache);
-    }
-
-    protected function getCachePath(): string
-    {
-        if (function_exists('app')) {
-            try {
-                return app()->basePath('var/cache/rate_limits');
-            } catch (\Throwable) {}
-        }
-        return dirname(__DIR__, 4) . '/var/cache/rate_limits';
+        return $response
+            ->header('X-RateLimit-Limit', (string) $this->maxAttempts)
+            ->header('X-RateLimit-Remaining', (string) $remaining);
     }
 }

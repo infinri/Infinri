@@ -36,7 +36,7 @@ class VerifyCsrfTokenTest extends TestCase
     #[Test]
     public function get_requests_are_not_verified(): void
     {
-        $middleware = new VerifyCsrfToken();
+        $middleware = new VerifyCsrfToken(new Csrf());
         $request = $this->createRequest('GET', '/');
         
         $called = false;
@@ -51,7 +51,7 @@ class VerifyCsrfTokenTest extends TestCase
     #[Test]
     public function head_requests_are_not_verified(): void
     {
-        $middleware = new VerifyCsrfToken();
+        $middleware = new VerifyCsrfToken(new Csrf());
         $request = $this->createRequest('HEAD', '/');
         
         $called = false;
@@ -66,7 +66,7 @@ class VerifyCsrfTokenTest extends TestCase
     #[Test]
     public function options_requests_are_not_verified(): void
     {
-        $middleware = new VerifyCsrfToken();
+        $middleware = new VerifyCsrfToken(new Csrf());
         $request = $this->createRequest('OPTIONS', '/');
         
         $called = false;
@@ -81,7 +81,7 @@ class VerifyCsrfTokenTest extends TestCase
     #[Test]
     public function excepted_paths_bypass_verification(): void
     {
-        $middleware = new VerifyCsrfToken(null, ['/api/*', '/webhook']);
+        $middleware = new VerifyCsrfToken(new Csrf(), ['/api/*', '/webhook']);
         $request = $this->createRequest('POST', '/api/users');
         
         $called = false;
@@ -96,7 +96,7 @@ class VerifyCsrfTokenTest extends TestCase
     #[Test]
     public function exact_except_path_bypasses_verification(): void
     {
-        $middleware = new VerifyCsrfToken(null, ['/webhook']);
+        $middleware = new VerifyCsrfToken(new Csrf(), ['/webhook']);
         $request = $this->createRequest('POST', '/webhook');
         
         $called = false;

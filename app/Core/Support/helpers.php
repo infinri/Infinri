@@ -2,6 +2,23 @@
 
 declare(strict_types=1);
 
+
+/**
+ * Infinri Framework - Core Helpers
+ *
+ * Core application helpers: environment, container, config, paths, logging, database, cache, session.
+ * 
+ * @copyright Copyright (c) 2024-2025 Lucio Saldivar / Infinri
+ * @license   Proprietary - All Rights Reserved
+ * 
+ * This source code is proprietary and confidential. Unauthorized copying,
+ * modification, distribution, or use is strictly prohibited. See LICENSE.
+ * 
+ * @see security_helpers.php - CSRF, rate limiting, CSP, safe redirects
+ * @see cookie_helpers.php - Cookie management helpers
+ * @see auth_helpers.php - Authorization (gate, can, cannot, authorize)
+ */
+
 if (!function_exists('env')) {
     /**
      * Gets the value of an environment variable
@@ -37,7 +54,7 @@ if (!function_exists('app')) {
      * @param array $parameters
      * @return mixed|\App\Core\Application
      */
-    function app(?string $abstract = null, array $parameters = [])
+    function app(?string $abstract = null, array $parameters = []): mixed
     {
         if ($abstract === null) {
             return \App\Core\Application::getInstance();
@@ -130,19 +147,29 @@ if (!function_exists('clear_directory')) {
         if (!is_dir($dir)) {
             return false;
         }
+        
+        $success = true;
         $items = new \FilesystemIterator($dir);
+        
         foreach ($items as $item) {
+            $path = $item->getPathname();
+            
             if ($item->isDir() && !$item->isLink()) {
-                // Recursively clear and remove subdirectory
-                clear_directory($item->getPathname(), false);
+                if (!clear_directory($path, false)) {
+                    $success = false;
+                }
             } else {
-                @unlink($item->getPathname());
+                if (!unlink($path) && file_exists($path)) {
+                    $success = false;
+                }
             }
         }
-        if (!$preserve) {
-            @rmdir($dir);
+        
+        if (!$preserve && !rmdir($dir) && is_dir($dir)) {
+            $success = false;
         }
-        return true;
+        
+        return $success;
     }
 }
 
@@ -150,11 +177,11 @@ if (!function_exists('logger')) {
     /**
      * Get the logger instance or log a message
      *
-     * @param string|null $message
-     * @param array $context
-     * @return \App\Core\Log\LogManager|void
+     * @param string|null $message Message to log (null to get logger instance)
+     * @param array $context Log context
+     * @return \App\Core\Log\LogManager|null Logger instance when $message is null, null after logging
      */
-    function logger(?string $message = null, array $context = [])
+    function logger(?string $message = null, array $context = []): ?\App\Core\Log\LogManager
     {
         $logger = app(\App\Core\Contracts\Log\LoggerInterface::class);
 
@@ -163,6 +190,7 @@ if (!function_exists('logger')) {
         }
 
         $logger->info($message, $context);
+        return null;
     }
 }
 
@@ -193,7 +221,7 @@ if (!function_exists('db')) {
      * @param string|null $connection
      * @return \App\Core\Database\DatabaseManager|\App\Core\Contracts\Database\ConnectionInterface
      */
-    function db(?string $connection = null)
+    function db(?string $connection = null): \App\Core\Database\DatabaseManager|\App\Core\Contracts\Database\ConnectionInterface
     {
         $manager = app(\App\Core\Database\DatabaseManager::class);
         
@@ -215,41 +243,13 @@ if (!function_exists('cache')) {
      */
     function cache(?string $key = null, mixed $default = null): mixed
     {
-        static $manager = null;
-        
-        if ($manager === null) {
-            $manager = new \App\Core\Cache\CacheManager([
-                'default' => 'file',
-                'stores' => [
-                    'file' => [
-                        'driver' => 'file',
-                        'path' => app()->storagePath('cache'),
-                    ],
-                    'array' => [
-                        'driver' => 'array',
-                    ],
-                ],
-            ]);
-        }
+        $manager = app(\App\Core\Cache\CacheManager::class);
         
         if ($key === null) {
             return $manager;
         }
         
         return $manager->get($key, $default);
-    }
-}
-
-if (!function_exists('e')) {
-    /**
-     * Escape HTML special characters (shorthand for sanitize)
-     *
-     * @param string $value
-     * @return string
-     */
-    function e(string $value): string
-    {
-        return \App\Core\Security\Sanitizer::html($value);
     }
 }
 
@@ -263,121 +263,13 @@ if (!function_exists('session')) {
      */
     function session(?string $key = null, mixed $default = null): mixed
     {
-        static $manager = null;
-        
-        if ($manager === null) {
-            $manager = new \App\Core\Session\SessionManager();
-        }
+        $manager = app(\App\Core\Session\SessionManager::class);
         
         if ($key === null) {
             return $manager;
         }
         
         return $manager->get($key, $default);
-    }
-}
-
-if (!function_exists('csrf_token')) {
-    /**
-     * Get the CSRF token
-     *
-     * @return string
-     */
-    function csrf_token(): string
-    {
-        static $csrf = null;
-        
-        if ($csrf === null) {
-            $csrf = new \App\Core\Security\Csrf();
-        }
-        
-        return $csrf->token();
-    }
-}
-
-if (!function_exists('csrf_field')) {
-    /**
-     * Get the CSRF hidden input field
-     *
-     * @return string
-     */
-    function csrf_field(): string
-    {
-        static $csrf = null;
-        
-        if ($csrf === null) {
-            $csrf = new \App\Core\Security\Csrf();
-        }
-        
-        return $csrf->field();
-    }
-}
-
-if (!function_exists('csrf_verify')) {
-    /**
-     * Verify a CSRF token
-     *
-     * @param string $token
-     * @return bool
-     */
-    function csrf_verify(string $token): bool
-    {
-        static $csrf = null;
-        
-        if ($csrf === null) {
-            $csrf = new \App\Core\Security\Csrf();
-        }
-        
-        return $csrf->verify($token);
-    }
-}
-
-if (!function_exists('rate_limit')) {
-    /**
-     * Check rate limit for a key
-     *
-     * @param string $key Unique identifier (e.g., IP address)
-     * @param int $maxAttempts Maximum attempts allowed
-     * @param int $decaySeconds Time window in seconds
-     * @return bool True if allowed, false if rate limited
-     */
-    function rate_limit(string $key, int $maxAttempts = 5, int $decaySeconds = 300): bool
-    {
-        static $limiter = null;
-        
-        if ($limiter === null) {
-            $limiter = new \App\Core\Security\RateLimiter(
-                new \App\Core\Cache\FileStore(
-                    (function_exists('app') ? app()->storagePath('cache/rate_limits') : sys_get_temp_dir() . '/rate_limits')
-                )
-            );
-        }
-        
-        return !$limiter->tooManyAttempts($key, $maxAttempts);
-    }
-}
-
-if (!function_exists('rate_limit_hit')) {
-    /**
-     * Record a rate limit hit
-     *
-     * @param string $key
-     * @param int $decaySeconds
-     * @return int Current attempt count
-     */
-    function rate_limit_hit(string $key, int $decaySeconds = 300): int
-    {
-        static $limiter = null;
-        
-        if ($limiter === null) {
-            $limiter = new \App\Core\Security\RateLimiter(
-                new \App\Core\Cache\FileStore(
-                    (function_exists('app') ? app()->storagePath('cache/rate_limits') : sys_get_temp_dir() . '/rate_limits')
-                )
-            );
-        }
-        
-        return $limiter->hit($key, $decaySeconds);
     }
 }
 
@@ -393,39 +285,6 @@ if (!function_exists('validator')) {
     function validator(array $data, array $rules = [], array $messages = []): \App\Core\Validation\Validator
     {
         return \App\Core\Validation\Validator::make($data, $rules, $messages);
-    }
-}
-
-if (!function_exists('csp_nonce')) {
-    /**
-     * Get the CSP nonce for inline scripts/styles
-     *
-     * @return string|null
-     */
-    function csp_nonce(): ?string
-    {
-        // Check if nonce is already stored in app
-        $app = app();
-        
-        if ($app->bound('csp.nonce')) {
-            return $app->make('csp.nonce');
-        }
-        
-        // Fallback to GLOBALS for backwards compatibility
-        return $GLOBALS['cspNonce'] ?? null;
-    }
-}
-
-if (!function_exists('csp_nonce_attr')) {
-    /**
-     * Get the CSP nonce as an HTML attribute string
-     *
-     * @return string Empty string if no nonce, or ' nonce="..."' 
-     */
-    function csp_nonce_attr(): string
-    {
-        $nonce = csp_nonce();
-        return $nonce ? ' nonce="' . e($nonce) . '"' : '';
     }
 }
 
@@ -467,302 +326,3 @@ if (!function_exists('meta')) {
     }
 }
 
-// ==================== Cookie Helpers ====================
-
-if (!function_exists('cookie')) {
-    /**
-     * Create a new cookie instance or get a cookie value
-     * 
-     * @param string|null $name Cookie name (null to get CookieFactory)
-     * @param string $value Cookie value
-     * @param int $minutes Expiration in minutes (0 = session)
-     * @param array $options Additional options (path, domain, secure, httpOnly, sameSite)
-     * @return \App\Core\Http\Cookie|string|null
-     */
-    function cookie(
-        ?string $name = null,
-        string $value = '',
-        int $minutes = 0,
-        array $options = []
-    ): \App\Core\Http\Cookie|string|null {
-        // If no name, return null (could return factory in future)
-        if ($name === null) {
-            return null;
-        }
-        
-        // If only name provided, get the cookie value from request
-        if ($value === '' && $minutes === 0 && empty($options)) {
-            return cookie_get($name);
-        }
-        
-        // Create a new cookie
-        return \App\Core\Http\Cookie::make($name, $value, array_merge(['minutes' => $minutes], $options));
-    }
-}
-
-if (!function_exists('cookie_get')) {
-    /**
-     * Get a cookie value with validation and type safety
-     * 
-     * @param string $name Cookie name
-     * @param mixed $default Default value if cookie doesn't exist
-     * @return mixed Sanitized cookie value
-     */
-    function cookie_get(string $name, mixed $default = null): mixed
-    {
-        $value = $_COOKIE[$name] ?? null;
-        
-        if ($value === null) {
-            return $default;
-        }
-        
-        // Basic sanitization - trim whitespace
-        if (is_string($value)) {
-            $value = trim($value);
-            
-            // Return default for empty strings
-            if ($value === '') {
-                return $default;
-            }
-        }
-        
-        return $value;
-    }
-}
-
-if (!function_exists('cookie_string')) {
-    /**
-     * Get a cookie as a validated string
-     * 
-     * @param string $name Cookie name
-     * @param string $default Default value
-     * @param int $maxLength Maximum allowed length (0 = no limit)
-     * @return string
-     */
-    function cookie_string(string $name, string $default = '', int $maxLength = 0): string
-    {
-        $value = cookie_get($name, $default);
-        
-        if (!is_string($value)) {
-            return $default;
-        }
-        
-        // Enforce max length if specified
-        if ($maxLength > 0 && strlen($value) > $maxLength) {
-            return $default;
-        }
-        
-        return $value;
-    }
-}
-
-if (!function_exists('cookie_int')) {
-    /**
-     * Get a cookie as a validated integer
-     * 
-     * @param string $name Cookie name
-     * @param int $default Default value
-     * @param int|null $min Minimum allowed value
-     * @param int|null $max Maximum allowed value
-     * @return int
-     */
-    function cookie_int(string $name, int $default = 0, ?int $min = null, ?int $max = null): int
-    {
-        $value = cookie_get($name);
-        
-        if ($value === null || !is_numeric($value)) {
-            return $default;
-        }
-        
-        $intValue = (int) $value;
-        
-        // Validate range
-        if ($min !== null && $intValue < $min) {
-            return $default;
-        }
-        if ($max !== null && $intValue > $max) {
-            return $default;
-        }
-        
-        return $intValue;
-    }
-}
-
-if (!function_exists('cookie_bool')) {
-    /**
-     * Get a cookie as a validated boolean
-     * 
-     * @param string $name Cookie name
-     * @param bool $default Default value
-     * @return bool
-     */
-    function cookie_bool(string $name, bool $default = false): bool
-    {
-        $value = cookie_get($name);
-        
-        if ($value === null) {
-            return $default;
-        }
-        
-        // Handle common boolean representations
-        $trueValues = ['1', 'true', 'yes', 'on'];
-        $falseValues = ['0', 'false', 'no', 'off'];
-        
-        $lower = strtolower((string) $value);
-        
-        if (in_array($lower, $trueValues, true)) {
-            return true;
-        }
-        if (in_array($lower, $falseValues, true)) {
-            return false;
-        }
-        
-        return $default;
-    }
-}
-
-if (!function_exists('cookie_json')) {
-    /**
-     * Get a cookie as decoded JSON
-     * 
-     * @param string $name Cookie name
-     * @param array $default Default value
-     * @return array
-     */
-    function cookie_json(string $name, array $default = []): array
-    {
-        $value = cookie_get($name);
-        
-        if ($value === null || !is_string($value)) {
-            return $default;
-        }
-        
-        try {
-            $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-            return is_array($decoded) ? $decoded : $default;
-        } catch (\JsonException) {
-            return $default;
-        }
-    }
-}
-
-if (!function_exists('cookie_forget')) {
-    /**
-     * Create a cookie that forgets/deletes an existing cookie
-     * 
-     * @param string $name Cookie name
-     * @param string $path Cookie path
-     * @return \App\Core\Http\Cookie
-     */
-    function cookie_forget(string $name, string $path = '/'): \App\Core\Http\Cookie
-    {
-        return \App\Core\Http\Cookie::forget($name, $path);
-    }
-}
-
-// ==================== Safe Redirect Helpers ====================
-
-if (!function_exists('safe_redirect')) {
-    /**
-     * Create a safe redirect response (prevents open redirect attacks)
-     * 
-     * @param string $url The requested redirect URL
-     * @param string $fallback Fallback URL if requested URL is invalid
-     * @param int $status HTTP status code
-     * @return \App\Core\Http\RedirectResponse
-     */
-    function safe_redirect(string $url, string $fallback = '/', int $status = 302): \App\Core\Http\RedirectResponse
-    {
-        return \App\Core\Security\SafeRedirect::to($url, $fallback, $status);
-    }
-}
-
-if (!function_exists('safe_redirect_intended')) {
-    /**
-     * Redirect to the intended URL from request, with validation
-     * 
-     * @param string $param Request parameter name (default: 'redirect')
-     * @param string $default Default URL if parameter is missing/invalid
-     * @return \App\Core\Http\RedirectResponse
-     */
-    function safe_redirect_intended(string $param = 'redirect', string $default = '/'): \App\Core\Http\RedirectResponse
-    {
-        return \App\Core\Security\SafeRedirect::fromRequest($param, $default);
-    }
-}
-
-if (!function_exists('is_safe_redirect_url')) {
-    /**
-     * Check if a URL is safe for redirect
-     * 
-     * @param string $url The URL to check
-     * @return bool True if URL is safe
-     */
-    function is_safe_redirect_url(string $url): bool
-    {
-        return \App\Core\Security\SafeRedirect::isSafe($url);
-    }
-}
-
-// ==================== Authorization Helpers ====================
-
-if (!function_exists('gate')) {
-    /**
-     * Get the Gate instance
-     * 
-     * @return \App\Core\Authorization\Gate
-     */
-    function gate(): \App\Core\Authorization\Gate
-    {
-        static $gate = null;
-        
-        if ($gate === null) {
-            $gate = new \App\Core\Authorization\Gate();
-        }
-        
-        return $gate;
-    }
-}
-
-if (!function_exists('can')) {
-    /**
-     * Check if the current user can perform an ability
-     * 
-     * @param string $ability The ability to check
-     * @param mixed ...$arguments Arguments (typically the model)
-     * @return bool
-     */
-    function can(string $ability, mixed ...$arguments): bool
-    {
-        return gate()->allows($ability, ...$arguments);
-    }
-}
-
-if (!function_exists('cannot')) {
-    /**
-     * Check if the current user cannot perform an ability
-     * 
-     * @param string $ability The ability to check
-     * @param mixed ...$arguments Arguments (typically the model)
-     * @return bool
-     */
-    function cannot(string $ability, mixed ...$arguments): bool
-    {
-        return gate()->denies($ability, ...$arguments);
-    }
-}
-
-if (!function_exists('authorize')) {
-    /**
-     * Authorize an ability (throws AuthorizationException if denied)
-     * 
-     * @param string $ability The ability to check
-     * @param mixed ...$arguments Arguments (typically the model)
-     * @return \App\Core\Authorization\Response
-     * @throws \App\Core\Authorization\AuthorizationException
-     */
-    function authorize(string $ability, mixed ...$arguments): \App\Core\Authorization\Response
-    {
-        return gate()->authorize($ability, ...$arguments);
-    }
-}

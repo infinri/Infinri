@@ -14,6 +14,7 @@ declare(strict_types=1);
  */
 namespace Tests\Unit\Support;
 
+use App\Core\Application;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -22,6 +23,16 @@ use PHPUnit\Framework\TestCase;
  */
 class SecurityHelpersTest extends TestCase
 {
+    protected static ?Application $app = null;
+
+    public static function setUpBeforeClass(): void
+    {
+        if (self::$app === null) {
+            self::$app = new Application(dirname(__DIR__, 3));
+            self::$app->bootstrap();
+        }
+    }
+
     protected function setUp(): void
     {
         $_SESSION = [];

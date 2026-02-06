@@ -230,10 +230,12 @@ class RateLimitMiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function constructor_creates_default_limiter(): void
+    public function constructor_accepts_injected_limiter(): void
     {
-        // Test that the middleware works without passing a limiter
-        $middleware = new RateLimitMiddleware(60, 60);
+        // Test that the middleware works with an injected limiter
+        $cache = $this->createMock(CacheInterface::class);
+        $limiter = new RateLimiter($cache);
+        $middleware = new RateLimitMiddleware(60, 60, $limiter);
         
         $this->assertInstanceOf(RateLimitMiddleware::class, $middleware);
     }

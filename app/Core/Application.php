@@ -17,7 +17,6 @@ namespace App\Core;
 use App\Core\Concerns\ManagesPaths;
 use App\Core\Concerns\ManagesProviders;
 use App\Core\Container\Container;
-use App\Core\Container\ServiceProvider;
 use App\Core\Contracts\Config\ConfigInterface;
 use App\Core\Contracts\Container\ContainerInterface;
 use App\Core\Contracts\Log\LoggerInterface;
@@ -27,6 +26,7 @@ use App\Core\Module\ModuleLoader;
 use App\Core\Module\ModuleRegistry;
 use App\Core\Indexer\IndexerRegistry;
 use App\Core\Support\Environment;
+use App\Core\CoreServiceProvider;
 
 /**
  * Application
@@ -162,6 +162,9 @@ class Application extends Container
 
         // Register logger
         $this->registerLogger();
+
+        // Register core services (cache, session, security, auth)
+        $this->register(CoreServiceProvider::class);
 
         // Load modules and their service providers
         $this->loadModules();

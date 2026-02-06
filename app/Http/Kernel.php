@@ -14,48 +14,58 @@ declare(strict_types=1);
  */
 namespace App\Http;
 
+use App\Core\Application;
+use App\Core\Contracts\Routing\RouterInterface;
 use App\Core\Http\Kernel as BaseKernel;
 
 /**
  * Application HTTP Kernel
  * 
- * Configures middleware for the application
+ * Loads middleware configuration from middleware.php (single source of truth).
  */
 class Kernel extends BaseKernel
 {
-    /**
-     * Global middleware that runs on every request
-     * 
-     * @var array<int, string>
-     */
-    protected array $middleware = [
-        \App\Http\Middleware\TrimStrings::class,
-    ];
+    public function __construct(Application $app, RouterInterface $router)
+    {
+        parent::__construct($app, $router);
+        $this->loadMiddlewareConfig();
+    }
 
     /**
-     * Route middleware (named middleware that can be assigned to routes)
-     * 
-     * @var array<string, string>
+     * Load middleware configuration from middleware.php
      */
-    protected array $routeMiddleware = [
-        // 'auth' => \App\Http\Middleware\Authenticate::class,
-        // 'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        // 'throttle' => \App\Http\Middleware\ThrottleRequests::class,
-    ];
+    protected function loadMiddlewareConfig(): void
+    {
+        $config = require __DIR__ . '/middleware.php';
+
+        // Load global middleware (sorted by priority descending)
+        if (!empty($config['global'])) {
+            $this->middleware = $this->sortByPriority($config['global']);
+        }
+
+        // Load middleware groups
+        if (!empty($config['web'])) {
+            $this->middlewareGroups['web'] = $this->sortByPriority($config['web']);
+        }
+        if (!empty($config['api'])) {
+            $this->middlewareGroups['api'] = $this->sortByPriority($config['api']);
+        }
+
+        // Load aliases as route middleware
+        if (!empty($config['aliases'])) {
+            $this->routeMiddleware = $config['aliases'];
+        }
+    }
 
     /**
-     * Middleware groups
+     * Sort middleware by priority (higher runs first) and return class names
      * 
-     * @var array<string, array<int, string>>
+     * @param array<string, array{priority?: int, args?: array}> $middleware
+     * @return array<int, string>
      */
-    protected array $middlewareGroups = [
-        'web' => [
-            // \App\Http\Middleware\EncryptCookies::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
-        ],
-        
-        'api' => [
-            // 'throttle:60,1',
-        ],
-    ];
+    protected function sortByPriority(array $middleware): array
+    {
+        uasort($middleware, fn($a, $b) => ($b['priority'] ?? 0) <=> ($a['priority'] ?? 0));
+        return array_keys($middleware);
+    }
 }
