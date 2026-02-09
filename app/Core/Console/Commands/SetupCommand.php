@@ -174,12 +174,12 @@ class SetupCommand extends Command
 
     protected function parseFlags(array $args): void
     {
-        $this->skipDb = in_array('--skip-db', $args);
-        $this->skipCompile = in_array('--skip-compile', $args);
-        $this->skipCache = in_array('--skip-cache', $args);
-        $this->skipHooks = in_array('--skip-hooks', $args);
-        $this->noBackup = in_array('--no-backup', $args);
-        $this->dryRun = in_array('--dry-run', $args);
+        $this->skipDb = in_array('--skip-db', $args, true);
+        $this->skipCompile = in_array('--skip-compile', $args, true);
+        $this->skipCache = in_array('--skip-cache', $args, true);
+        $this->skipHooks = in_array('--skip-hooks', $args, true);
+        $this->noBackup = in_array('--no-backup', $args, true);
+        $this->dryRun = in_array('--dry-run', $args, true);
 
         // Parse --env=value
         foreach ($args as $arg) {
@@ -513,16 +513,24 @@ class SetupCommand extends Command
         return end($parts);
     }
 
-    protected function backupDatabase(): void
+    /**
+     * Get database configuration from environment
+     */
+    protected function getDatabaseConfig(): array
     {
-        $config = [
+        return [
             'driver' => $this->env->get('DB_CONNECTION', 'pgsql'),
             'host' => $this->env->get('DB_HOST', '127.0.0.1'),
-            'port' => $this->env->get('DB_PORT', '5432'),
+            'port' => (int) $this->env->get('DB_PORT', '5432'),
             'database' => $this->env->get('DB_DATABASE'),
             'username' => $this->env->get('DB_USERNAME'),
             'password' => $this->env->get('DB_PASSWORD'),
         ];
+    }
+
+    protected function backupDatabase(): void
+    {
+        $config = $this->getDatabaseConfig();
 
         $backup = new DatabaseBackup($config);
         $result = $backup->backup();
@@ -537,16 +545,7 @@ class SetupCommand extends Command
 
     protected function createDatabaseConnection(): Connection
     {
-        $config = [
-            'driver' => $this->env->get('DB_CONNECTION', 'pgsql'),
-            'host' => $this->env->get('DB_HOST', '127.0.0.1'),
-            'port' => (int) $this->env->get('DB_PORT', '5432'),
-            'database' => $this->env->get('DB_DATABASE'),
-            'username' => $this->env->get('DB_USERNAME'),
-            'password' => $this->env->get('DB_PASSWORD'),
-        ];
-
-        return new Connection($config);
+        return new Connection($this->getDatabaseConfig());
     }
 
     protected function clearCaches(): void

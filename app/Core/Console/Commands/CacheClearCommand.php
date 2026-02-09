@@ -85,7 +85,7 @@ class CacheClearCommand extends Command
         $cacheManager = new CacheManager([], $this->rootDir);
         $pools = $cacheManager->getPoolNames();
 
-        if (! in_array($pool, $pools)) {
+        if (! in_array($pool, $pools, true)) {
             $this->error("Unknown pool: {$pool}");
             $this->line("Available pools: " . implode(', ', $pools));
 

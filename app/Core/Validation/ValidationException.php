@@ -33,7 +33,7 @@ class ValidationException extends HttpException
         $message = 'The given data was invalid.';
         $errors = $validator->errors();
 
-        if (! empty($errors)) {
+        if ($errors !== []) {
             $message = reset($errors);
         }
 

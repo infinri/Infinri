@@ -44,7 +44,7 @@ class MigrateResetStateCommand extends Command
         $this->line();
 
         // Require confirmation unless --force
-        if (! in_array('--force', $args) && ! in_array('-f', $args)) {
+        if (! in_array('--force', $args, true) && ! in_array('-f', $args, true)) {
             $this->warn("⚠️  Only reset state after manually fixing the issue!");
             $this->line();
             $this->line("Have you:");

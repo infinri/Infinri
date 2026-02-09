@@ -168,10 +168,7 @@ class LogChannel
      */
     protected function ensureDirectoryExists(): void
     {
-        $directory = dirname($this->path);
-        if (! is_dir($directory)) {
-            mkdir($directory, 0o755, true);
-        }
+        ensure_directory(dirname($this->path));
     }
 
     /**

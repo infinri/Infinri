@@ -33,7 +33,7 @@ if (! function_exists('cookie')) {
             return null;
         }
 
-        if ($value === '' && $minutes === 0 && empty($options)) {
+        if ($value === '' && $minutes === 0 && $options === []) {
             return cookie_get($name);
         }
 

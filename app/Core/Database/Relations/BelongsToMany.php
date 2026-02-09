@@ -54,7 +54,7 @@ class BelongsToMany extends Relation
             return [];
         }
 
-        $pivotColumns = empty($this->pivotColumns)
+        $pivotColumns = $this->pivotColumns === []
             ? ''
             : ', ' . implode(', ', array_map(fn ($col) => "pivot.{$col}", $this->pivotColumns));
 
@@ -172,7 +172,7 @@ class BelongsToMany extends Relation
         );
 
         foreach ($ids as $id) {
-            if (in_array($id, $current)) {
+            if (in_array($id, $current, true)) {
                 $this->detach($id);
                 $changes['detached'][] = $id;
             } else {

@@ -88,7 +88,7 @@ class Environment
         // Skip comments and empty lines
         $line = trim($line);
 
-        if (empty($line) || str_starts_with($line, '#')) {
+        if ($line === '' || str_starts_with($line, '#')) {
             return;
         }
 

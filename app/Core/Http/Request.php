@@ -177,12 +177,7 @@ class Request implements RequestInterface
 
     public function headers(): array
     {
-        $headers = [];
-        foreach ($this->headers->all() as $key => $values) {
-            $headers[$key] = $values[0] ?? null;
-        }
-
-        return $headers;
+        return $this->headers->toFlatArray();
     }
 
     public function bearerToken(): ?string

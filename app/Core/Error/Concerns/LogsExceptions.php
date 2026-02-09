@@ -23,12 +23,8 @@ trait LogsExceptions
      */
     protected function logException(string $level, string $message, array $context = []): void
     {
-        if (! function_exists('logger')) {
-            return;
-        }
-
         try {
-            logger()->$level($message, $context);
+            safe_log($level, $message, $context);
         } catch (Throwable) {
             // Silently fail if logging not available
         }

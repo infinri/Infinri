@@ -59,7 +59,6 @@ class FacadeTest extends TestCase
     {
         $reflection = new \ReflectionClass(Application::class);
         $property = $reflection->getProperty('instance');
-        $property->setAccessible(true);
         $property->setValue(null, null);
     }
 
@@ -183,7 +182,6 @@ class FacadeTest extends TestCase
         // Clear the static app property using reflection
         $reflection = new \ReflectionClass(Facade::class);
         $property = $reflection->getProperty('app');
-        $property->setAccessible(true);
         $property->setValue(null, null);
         
         // Now ConfigFacade should fall back to Application::getInstance()

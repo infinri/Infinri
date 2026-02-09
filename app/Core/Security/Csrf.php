@@ -11,6 +11,8 @@
  */
 namespace App\Core\Security;
 
+use App\Core\Support\Str;
+
 /**
  * CSRF Protection
  *
@@ -72,7 +74,7 @@ class Csrf
     {
         $this->ensureSessionStarted();
 
-        $token = bin2hex(random_bytes(32));
+        $token = Str::randomHex(32);
 
         $_SESSION[self::SESSION_KEY] = [
             'token' => $token,

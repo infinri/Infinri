@@ -103,7 +103,7 @@ class RateLimitMiddlewareTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->method('get')->willReturn(0);
         $cache->expects($this->once())
-            ->method('put');
+            ->method('increment');
         
         $limiter = new RateLimiter($cache);
         $middleware = new RateLimitMiddleware(60, 60, $limiter);

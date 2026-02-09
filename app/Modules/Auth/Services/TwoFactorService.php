@@ -10,6 +10,7 @@
 namespace App\Modules\Auth\Services;
 
 use App\Modules\Auth\Contracts\AuthenticatableInterface;
+use App\Core\Support\Str;
 use App\Modules\Auth\Contracts\UserRepositoryInterface;
 
 /**
@@ -182,7 +183,7 @@ class TwoFactorService
         $codes = [];
         
         for ($i = 0; $i < $this->recoveryCodeCount; $i++) {
-            $codes[] = strtoupper(bin2hex(random_bytes((int) ($this->recoveryCodeLength / 2))));
+            $codes[] = strtoupper(Str::randomHex((int) ($this->recoveryCodeLength / 2)));
         }
 
         return $codes;

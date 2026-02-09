@@ -13,6 +13,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Console\Application;
 use App\Core\Console\Commands\AssetsPublishCommand;
+use App\Core\Console\Commands\AssetsClearCommand;
 use App\Core\Console\Commands\AssetsBuildCommand;
 
 try {
@@ -20,9 +21,10 @@ try {
     
     // Register Core asset commands
     $app->register('assets:publish', AssetsPublishCommand::class);
-    $app->register('assets:clear', AssetsPublishCommand::class);
+    $app->register('assets:clear', AssetsClearCommand::class);
     $app->register('assets:build', AssetsBuildCommand::class);
     $app->alias('a:pub', 'assets:publish');
+    $app->alias('a:clear', 'assets:clear');
     $app->alias('a:build', 'assets:build');
     
     $exitCode = $app->run($argv);

@@ -137,12 +137,7 @@ class Response implements ResponseInterface
      */
     public function getHeaders(): array
     {
-        $headers = [];
-        foreach ($this->headers->all() as $key => $values) {
-            $headers[$key] = $values[0] ?? null;
-        }
-
-        return $headers;
+        return $this->headers->toFlatArray();
     }
 
     /**

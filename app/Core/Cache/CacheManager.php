@@ -68,7 +68,7 @@ class CacheManager implements CacheInterface
      */
     public function pool(string $name): CacheInterface
     {
-        if (! in_array($name, self::POOLS)) {
+        if (! in_array($name, self::POOLS, true)) {
             throw new InvalidArgumentException("Unknown cache pool: {$name}");
         }
 

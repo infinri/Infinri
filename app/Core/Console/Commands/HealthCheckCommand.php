@@ -31,7 +31,7 @@ class HealthCheckCommand extends Command
 
     public function handle(array $args = []): int
     {
-        $verbose = in_array('--verbose', $args) || in_array('-v', $args);
+        $verbose = in_array('--verbose', $args, true) || in_array('-v', $args, true);
 
         $this->line("System Health Check");
         $this->line(str_repeat('═', 50));

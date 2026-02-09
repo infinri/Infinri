@@ -75,7 +75,7 @@ trait HasAttributes
      */
     protected function isFillable(string $key): bool
     {
-        if (in_array($key, $this->fillable)) {
+        if (in_array($key, $this->fillable, true)) {
             return true;
         }
 
@@ -83,7 +83,7 @@ trait HasAttributes
             return false;
         }
 
-        return ! in_array($key, $this->guarded);
+        return ! in_array($key, $this->guarded, true);
     }
 
     /**
@@ -195,12 +195,12 @@ trait HasAttributes
 
         foreach ($this->attributes as $key => $value) {
             // Skip hidden attributes
-            if (in_array($key, $this->hidden)) {
+            if (in_array($key, $this->hidden, true)) {
                 continue;
             }
 
             // If visible is set, only include those
-            if (! empty($this->visible) && ! in_array($key, $this->visible)) {
+            if (! empty($this->visible) && ! in_array($key, $this->visible, true)) {
                 continue;
             }
 

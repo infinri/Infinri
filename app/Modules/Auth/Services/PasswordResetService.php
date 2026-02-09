@@ -11,6 +11,7 @@ namespace App\Modules\Auth\Services;
 
 use App\Modules\Auth\Contracts\AuthenticatableInterface;
 use App\Modules\Auth\Contracts\UserRepositoryInterface;
+use App\Core\Support\Str;
 use App\Modules\Auth\Security\PasswordHasher;
 
 /**
@@ -118,7 +119,7 @@ class PasswordResetService
      */
     protected function createToken(string $email): string
     {
-        return bin2hex(random_bytes(32));
+        return Str::randomHex(32);
     }
 
     /**

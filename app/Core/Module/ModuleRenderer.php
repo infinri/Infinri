@@ -36,23 +36,19 @@ class ModuleRenderer
     }
 
     /**
-     * Render a module with layout
+     * Render a module with layout and return the content
      */
-    public function render(string $module): void
+    public function render(string $module): string
     {
         // Security: Validate module name
         if (! preg_match('/^[a-z0-9_-]+$/', $module)) {
-            $this->renderError(500);
-
-            return;
+            return $this->renderError(500);
         }
 
         $modulePath = $this->modulesPath . "/{$module}/index.php";
 
         if (! file_exists($modulePath)) {
-            $this->renderError(404);
-
-            return;
+            return $this->renderError(404);
         }
 
         // Capture module content
@@ -61,16 +57,14 @@ class ModuleRenderer
         $content = ob_get_clean();
 
         // Render with layout
-        $this->renderWithLayout($content);
+        return $this->renderWithLayout($content);
     }
 
     /**
-     * Render error page
+     * Render error page and return the content
      */
-    public function renderError(int $code, ?string $type = null): void
+    public function renderError(int $code, ?string $type = null): string
     {
-        http_response_code($code);
-
         $type ??= match ($code) {
             400 => '400',
             404 => '404',
@@ -84,8 +78,7 @@ class ModuleRenderer
         $errorModulePath = $this->modulesPath . "/error/index.php";
 
         if (! file_exists($errorModulePath)) {
-            echo "Error {$code}";
-            exit;
+            return "Error {$code}";
         }
 
         // Capture error module content
@@ -94,28 +87,30 @@ class ModuleRenderer
         $content = ob_get_clean();
 
         // Render with layout
-        $this->renderWithLayout($content);
-        exit;
+        return $this->renderWithLayout($content);
     }
 
     /**
      * Render maintenance page
      */
-    public function renderMaintenance(): void
+    public function renderMaintenance(): string
     {
-        $this->renderError(503, 'maintenance');
+        return $this->renderError(503, 'maintenance');
     }
 
     /**
-     * Render content with layout
+     * Render content with layout and return as string
      */
-    protected function renderWithLayout(string $content): void
+    protected function renderWithLayout(string $content): string
     {
         if (file_exists($this->layoutPath)) {
+            ob_start();
             require $this->layoutPath;
-        } else {
-            echo $content;
+
+            return ob_get_clean();
         }
+
+        return $content;
     }
 
     /**

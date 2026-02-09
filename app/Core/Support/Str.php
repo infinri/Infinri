@@ -209,6 +209,84 @@ final class Str
     }
 
     /**
+     * Basic English pluralization with common inflection rules
+     */
+    public static function pluralize(string $value): string
+    {
+        $irregulars = [
+            'person' => 'people',
+            'child' => 'children',
+            'man' => 'men',
+            'woman' => 'women',
+            'mouse' => 'mice',
+            'goose' => 'geese',
+            'ox' => 'oxen',
+            'datum' => 'data',
+            'criterion' => 'criteria',
+            'medium' => 'media',
+        ];
+
+        $lower = strtolower($value);
+        if (isset($irregulars[$lower])) {
+            return $irregulars[$lower];
+        }
+
+        // Already plural common patterns
+        if (preg_match('/(s|sh|ch|x|z)es$/', $lower) || str_ends_with($lower, 'ies')) {
+            return $value;
+        }
+
+        // Rules ordered by specificity
+        if (str_ends_with($lower, 'y') && ! preg_match('/[aeiou]y$/', $lower)) {
+            return substr($value, 0, -1) . 'ies';
+        }
+
+        if (preg_match('/(s|sh|ch|x|z)$/', $lower)) {
+            return $value . 'es';
+        }
+
+        if (str_ends_with($lower, 'f')) {
+            return substr($value, 0, -1) . 'ves';
+        }
+
+        if (str_ends_with($lower, 'fe')) {
+            return substr($value, 0, -2) . 'ves';
+        }
+
+        return $value . 's';
+    }
+
+    /**
+     * Format bytes into a human-readable string (KB, MB, GB, etc.)
+     *
+     * @param int $bytes Number of bytes
+     * @param int $decimals Decimal places
+     */
+    public static function formatBytes(int $bytes, int $decimals = 2): string
+    {
+        if ($bytes <= 0) {
+            return '0B';
+        }
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = (int) floor(log($bytes, 1024));
+
+        return round($bytes / (1024 ** $i), $decimals) . $units[$i];
+    }
+
+    /**
+     * Generate a random hex string (cryptographically secure)
+     *
+     * Centralizes bin2hex(random_bytes()) usage across the codebase.
+     *
+     * @param int $bytes Number of random bytes (output will be 2x this length)
+     */
+    public static function randomHex(int $bytes = 16): string
+    {
+        return bin2hex(random_bytes($bytes));
+    }
+
+    /**
      * Check if string starts with any of the given values
      */
     public static function startsWithAny(string $haystack, array $needles): bool

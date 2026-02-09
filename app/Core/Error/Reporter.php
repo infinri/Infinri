@@ -121,20 +121,7 @@ class Reporter
      */
     protected function formatTrace(Throwable $e): array
     {
-        $trace = [];
-        foreach ($e->getTrace() as $i => $frame) {
-            $trace[] = sprintf(
-                '#%d %s:%d %s%s%s()',
-                $i,
-                $frame['file'] ?? 'unknown',
-                $frame['line'] ?? 0,
-                $frame['class'] ?? '',
-                $frame['type'] ?? '',
-                $frame['function'] ?? 'unknown'
-            );
-        }
-
-        return $trace;
+        return Handler::formatTraceArray($e);
     }
 
     /**

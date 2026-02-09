@@ -191,13 +191,11 @@ trait DispatchesRoutes
         }
 
         $error = 'Invalid route action type: ' . gettype($action);
-        if (function_exists('logger')) {
-            logger()->error('Invalid route action', [
-                'action_type' => gettype($action),
-                'path' => $request->path(),
-                'method' => $request->method(),
-            ]);
-        }
+        safe_log('error', 'Invalid route action', [
+            'action_type' => gettype($action),
+            'path' => $request->path(),
+            'method' => $request->method(),
+        ]);
         throw new RuntimeException($error);
     }
 
@@ -223,12 +221,10 @@ trait DispatchesRoutes
         }
 
         $error = 'Invalid response type returned from route action: ' . gettype($result);
-        if (function_exists('logger')) {
-            logger()->error('Invalid route response', [
-                'response_type' => gettype($result),
-                'route' => $this->currentRoute?->getUri(),
-            ]);
-        }
+        safe_log('error', 'Invalid route response', [
+            'response_type' => gettype($result),
+            'route' => $this->currentRoute?->getUri(),
+        ]);
         throw new RuntimeException($error);
     }
 }

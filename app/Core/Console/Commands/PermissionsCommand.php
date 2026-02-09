@@ -72,8 +72,8 @@ class PermissionsCommand extends Command
 
         // Set var/sessions group to www-data for PHP-FPM access
         $sessionsPath = $this->rootDir . '/var/sessions';
-        if (file_exists($sessionsPath)) {
-            @chgrp($sessionsPath, 'www-data');
+        if (file_exists($sessionsPath) && $this->groupExists('www-data')) {
+            chgrp($sessionsPath, 'www-data');
             echo "  ✓ Set var/sessions group to www-data" . PHP_EOL;
         }
 
@@ -88,5 +88,15 @@ class PermissionsCommand extends Command
 
         echo str_repeat('=', 50) . PHP_EOL;
         echo "✅ Permissions updated successfully!" . PHP_EOL;
+    }
+
+    protected function groupExists(string $group): bool
+    {
+        if (! function_exists('posix_getgrnam') || posix_getgrnam($group) === false) {
+            return false;
+        }
+
+        // Only root can chgrp to arbitrary groups
+        return function_exists('posix_geteuid') && posix_geteuid() === 0;
     }
 }

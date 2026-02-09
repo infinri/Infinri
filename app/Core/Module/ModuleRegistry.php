@@ -340,9 +340,7 @@ class ModuleRegistry
 
             return true;
         } catch (Throwable $e) {
-            if (function_exists('logger')) {
-                logger()->warning('Module registry cache load failed', ['error' => $e->getMessage()]);
-            }
+            safe_log('warning', 'Module registry cache load failed', ['error' => $e->getMessage()]);
 
             return false;
         }
@@ -353,23 +351,15 @@ class ModuleRegistry
      */
     protected function saveToCache(): void
     {
-        $cacheDir = dirname($this->cachePath);
-        if (! is_dir($cacheDir)) {
-            mkdir($cacheDir, 0o755, true);
-        }
-
         $modules = [];
         foreach ($this->modules as $name => $module) {
             $modules[$name] = $module->toArray();
         }
 
-        $content = "<?php\n\n// Generated: " . date('Y-m-d H:i:s') . "\n// DO NOT EDIT\n\nreturn "
-            . var_export([
-                'modules' => $modules,
-                'loadOrder' => $this->loadOrder,
-            ], true) . ";\n";
-
-        file_put_contents($this->cachePath, $content);
+        save_php_array($this->cachePath, [
+            'modules' => $modules,
+            'loadOrder' => $this->loadOrder,
+        ], 'Module Registry Cache - DO NOT EDIT');
     }
 
     protected function getDefaultModulesPath(): string

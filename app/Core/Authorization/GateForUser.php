@@ -48,20 +48,18 @@ final class GateForUser
      */
     public function check(string $ability, mixed ...$arguments): Response
     {
-        // Temporarily override the user resolver
-        $originalResolver = null;
-
-        // Store original and set temporary resolver
         $gate = $this->gate;
         $user = $this->user;
 
+        // Save the original resolver before overriding
+        $originalResolver = $gate->getUserResolver();
         $gate->setUserResolver(fn () => $user);
 
         try {
             return $gate->check($ability, ...$arguments);
         } finally {
-            // Note: In a full implementation, you'd restore the original resolver
-            // For now, this works for the common use case
+            // Restore the original resolver so shared Gate instance isn't corrupted
+            $gate->setUserResolver($originalResolver);
         }
     }
 

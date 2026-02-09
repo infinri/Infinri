@@ -202,6 +202,39 @@ if (! function_exists('logger')) {
     }
 }
 
+if (! function_exists('safe_log')) {
+    /**
+     * Log a message only if the logger is available
+     *
+     * Centralizes the function_exists('logger') guard pattern
+     * used throughout the codebase for code that may run before bootstrap.
+     *
+     * @param string $level Log level (info, warning, error, debug)
+     * @param string $message Log message
+     * @param array $context Log context
+     */
+    function safe_log(string $level, string $message, array $context = []): void
+    {
+        if (! function_exists('logger')) {
+            return;
+        }
+
+        $log = logger();
+
+        match ($level) {
+            'emergency' => $log->emergency($message, $context),
+            'alert' => $log->alert($message, $context),
+            'critical' => $log->critical($message, $context),
+            'error' => $log->error($message, $context),
+            'warning' => $log->warning($message, $context),
+            'notice' => $log->notice($message, $context),
+            'info' => $log->info($message, $context),
+            'debug' => $log->debug($message, $context),
+            default => $log->info($message, $context),
+        };
+    }
+}
+
 if (! function_exists('log_system')) {
     /**
      * Log a system event

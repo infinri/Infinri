@@ -11,7 +11,9 @@
  */
 namespace App\Core\Session;
 
+use App\Core\Redis\Concerns\UsesRedis;
 use App\Core\Redis\RedisManager;
+use App\Core\Support\Str;
 use Redis;
 use RedisException;
 use SessionHandlerInterface;
@@ -29,19 +31,12 @@ class RedisSessionHandler implements
     SessionIdInterface,
     SessionUpdateTimestampHandlerInterface
 {
-    /**
-     * Redis manager instance
-     */
+    use UsesRedis;
+
     protected RedisManager $redis;
 
-    /**
-     * The Redis connection to use
-     */
     protected string $connection;
 
-    /**
-     * Session key prefix
-     */
     protected string $prefix;
 
     /**
@@ -71,22 +66,6 @@ class RedisSessionHandler implements
         $this->prefix = $prefix;
         $this->ttl = $ttl;
         $this->lockTimeout = $lockTimeout;
-    }
-
-    /**
-     * Get the Redis connection
-     */
-    protected function redis(): Redis
-    {
-        return $this->redis->connection($this->connection);
-    }
-
-    /**
-     * Get the session key
-     */
-    protected function key(string $sessionId): string
-    {
-        return $this->prefix . $sessionId;
     }
 
     /**
@@ -129,7 +108,7 @@ class RedisSessionHandler implements
 
             return $data === false ? '' : $data;
         } catch (RedisException $e) {
-            logger()->warning('Session read failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+            $this->logRedisError('Session read', $e, ['session_id' => $id]);
 
             return '';
         }
@@ -143,7 +122,7 @@ class RedisSessionHandler implements
         try {
             return $this->redis()->setex($this->key($id), $this->ttl, $data);
         } catch (RedisException $e) {
-            logger()->error('Session write failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+            $this->logRedisError('Session write', $e, ['session_id' => $id], 'error');
 
             return false;
         }
@@ -162,7 +141,7 @@ class RedisSessionHandler implements
 
             return true;
         } catch (RedisException $e) {
-            logger()->error('Session destroy failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+            $this->logRedisError('Session destroy', $e, ['session_id' => $id], 'error');
 
             return false;
         }
@@ -182,7 +161,7 @@ class RedisSessionHandler implements
      */
     public function create_sid(): string
     {
-        return bin2hex(random_bytes(32));
+        return Str::randomHex(32);
     }
 
     /**
@@ -203,7 +182,7 @@ class RedisSessionHandler implements
             // Just update the TTL
             return $this->redis()->expire($this->key($id), $this->ttl);
         } catch (RedisException $e) {
-            logger()->warning('Session timestamp update failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+            $this->logRedisError('Session timestamp update', $e, ['session_id' => $id]);
 
             return false;
         }
@@ -231,7 +210,7 @@ class RedisSessionHandler implements
                     return true;
                 }
             } catch (RedisException $e) {
-                logger()->debug('Session lock attempt failed, retrying', ['error' => $e->getMessage()]);
+                $this->logRedisError('Session lock attempt', $e, [], 'debug');
             }
 
             // Wait 100ms before retrying
@@ -260,7 +239,7 @@ class RedisSessionHandler implements
                 $this->redis()->del($this->lockKey);
             }
         } catch (RedisException $e) {
-            logger()->debug('Session lock release failed', ['error' => $e->getMessage()]);
+            $this->logRedisError('Session lock release', $e, [], 'debug');
         }
 
         $this->lockKey = null;
@@ -298,7 +277,7 @@ class RedisSessionHandler implements
         try {
             return $this->redis()->exists($this->key($id)) > 0;
         } catch (RedisException $e) {
-            logger()->warning('Session exists check failed', ['session_id' => $id, 'error' => $e->getMessage()]);
+            $this->logRedisError('Session exists check', $e, ['session_id' => $id]);
 
             return false;
         }
@@ -310,16 +289,21 @@ class RedisSessionHandler implements
     public function getAllSessionIds(): array
     {
         try {
-            $keys = $this->redis()->keys($this->prefix . '*');
             $lockPrefix = $this->prefix . 'lock:';
+            $ids = [];
+            $iterator = null;
 
-            // Filter out lock keys and remove prefix
-            return array_values(array_filter(array_map(
-                fn ($key) => str_starts_with($key, $lockPrefix) ? null : substr($key, strlen($this->prefix)),
-                $keys
-            )));
+            while (($keys = $this->redis()->scan($iterator, $this->prefix . '*', 100)) !== false) {
+                foreach ($keys as $key) {
+                    if (! str_starts_with($key, $lockPrefix)) {
+                        $ids[] = substr($key, strlen($this->prefix));
+                    }
+                }
+            }
+
+            return $ids;
         } catch (RedisException $e) {
-            logger()->warning('Failed to get session IDs', ['error' => $e->getMessage()]);
+            $this->logRedisError('Get session IDs', $e);
 
             return [];
         }
@@ -339,14 +323,19 @@ class RedisSessionHandler implements
     public function destroyAll(): int
     {
         try {
-            $keys = $this->redis()->keys($this->prefix . '*');
-            if (empty($keys)) {
-                return 0;
+            $redis = $this->redis();
+            $deleted = 0;
+            $iterator = null;
+
+            while (($keys = $redis->scan($iterator, $this->prefix . '*', 100)) !== false) {
+                if (! empty($keys)) {
+                    $deleted += $redis->del(...$keys);
+                }
             }
 
-            return $this->redis()->del(...$keys);
+            return $deleted;
         } catch (RedisException $e) {
-            logger()->error('Failed to destroy all sessions', ['error' => $e->getMessage()]);
+            $this->logRedisError('Destroy all sessions', $e, [], 'error');
 
             return 0;
         }

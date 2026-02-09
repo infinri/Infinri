@@ -11,6 +11,7 @@
  */
 namespace App\Core\Console;
 
+use App\Core\Console\Concerns\WritesOutput;
 use Throwable;
 
 /**
@@ -21,6 +22,7 @@ use Throwable;
  */
 abstract class Command
 {
+    use WritesOutput;
     /**
      * Command name (e.g., 'setup:install')
      */
@@ -77,26 +79,6 @@ abstract class Command
     // Output Helpers
     // =========================================================================
 
-    protected function line(string $message = ''): void
-    {
-        echo $message . PHP_EOL;
-    }
-
-    protected function info(string $message): void
-    {
-        echo "\033[32m{$message}\033[0m" . PHP_EOL;
-    }
-
-    protected function error(string $message): void
-    {
-        echo "\033[31m{$message}\033[0m" . PHP_EOL;
-    }
-
-    protected function warn(string $message): void
-    {
-        echo "\033[33m{$message}\033[0m" . PHP_EOL;
-    }
-
     protected function header(string $text): void
     {
         $length = strlen($text) + 4;
@@ -131,7 +113,51 @@ abstract class Command
             return $default;
         }
 
-        return in_array($line, ['y', 'yes', '1', 'true']);
+        return in_array($line, ['y', 'yes', '1', 'true'], true);
+    }
+
+    protected function askSecret(string $question): string
+    {
+        echo "  {$question}: ";
+
+        if (strncasecmp(PHP_OS, 'WIN', 3) !== 0) {
+            system('stty -echo');
+            $handle = fopen('php://stdin', 'r');
+            $line = trim(fgets($handle));
+            fclose($handle);
+            system('stty echo');
+            echo "\n";
+        } else {
+            $handle = fopen('php://stdin', 'r');
+            $line = trim(fgets($handle));
+            fclose($handle);
+        }
+
+        return $line;
+    }
+
+    protected function choice(string $question, array $options, string $default): string
+    {
+        echo "  {$question}:\n";
+        foreach ($options as $i => $option) {
+            $marker = $option === $default ? '●' : '○';
+            echo "    {$marker} " . ($i + 1) . ". {$option}\n";
+        }
+
+        $defaultIndex = array_search($default, $options, true) + 1;
+        echo "  Select [" . $defaultIndex . "]: ";
+
+        $handle = fopen('php://stdin', 'r');
+        $line = trim(fgets($handle));
+        fclose($handle);
+
+        if ($line === '') {
+            return $default;
+        }
+
+        $index = (int) $line - 1;
+
+        return $options[$index] ?? $default;
     }
 
     // =========================================================================

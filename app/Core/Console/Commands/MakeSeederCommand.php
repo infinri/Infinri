@@ -12,6 +12,7 @@
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
+use App\Core\Console\Concerns\GeneratesFiles;
 
 /**
  * Make Seeder Command
@@ -20,18 +21,15 @@ use App\Core\Console\Command;
  */
 class MakeSeederCommand extends Command
 {
+    use GeneratesFiles;
     protected string $name = 'make:seeder';
     protected string $description = 'Generate a new database seeder';
     protected array $aliases = [];
 
     public function handle(array $args = []): int
     {
-        $name = $args[0] ?? null;
-
+        $name = $this->requireArgument($args, 0, 'make:seeder <name>', 'make:seeder PostSeeder');
         if ($name === null) {
-            $this->error("Usage: make:seeder <name>");
-            $this->line("  Example: make:seeder PostSeeder");
-
             return 1;
         }
 
@@ -39,21 +37,12 @@ class MakeSeederCommand extends Command
             $name .= 'Seeder';
         }
 
-        $className = str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $name)));
-
-        $rootDir = $this->getRootDir();
-        $seedersPath = $rootDir . '/database/seeders';
-
-        if (! is_dir($seedersPath)) {
-            mkdir($seedersPath, 0o755, true);
-        }
-
+        $className = $this->toClassName($name);
+        $seedersPath = $this->getRootDir() . '/database/seeders';
         $filename = "{$className}.php";
         $filepath = $seedersPath . '/' . $filename;
 
-        if (file_exists($filepath)) {
-            $this->error("Seeder '{$className}' already exists.");
-
+        if ($this->pathExists($filepath, "Seeder '{$className}'")) {
             return 1;
         }
 
@@ -80,7 +69,7 @@ class MakeSeederCommand extends Command
             }
             PHP;
 
-        file_put_contents($filepath, $content);
+        $this->writeFile($filepath, $content);
 
         $this->info("✓ Created seeder: {$filename}");
         $this->line("  Path: database/seeders/{$filename}");

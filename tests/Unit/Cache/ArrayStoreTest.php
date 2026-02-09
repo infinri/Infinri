@@ -222,7 +222,6 @@ class ArrayStoreTest extends TestCase
         // Use reflection to directly set an expired item
         $reflection = new \ReflectionClass($store);
         $property = $reflection->getProperty('storage');
-        $property->setAccessible(true);
         $property->setValue($store, [
             'expired_key' => [
                 'value' => 'test',

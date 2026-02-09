@@ -32,13 +32,13 @@ class RateLimiterTest extends TestCase
     public function hit_increments_attempts(): void
     {
         $this->cache->expects($this->once())
-            ->method('get')
-            ->with('rate_limit:test_key', 0)
-            ->willReturn(0);
+            ->method('add')
+            ->with('rate_limit:test_key', 0, 60);
 
         $this->cache->expects($this->once())
-            ->method('put')
-            ->with('rate_limit:test_key', 1, 60);
+            ->method('increment')
+            ->with('rate_limit:test_key')
+            ->willReturn(1);
 
         $result = $this->limiter->hit('test_key');
         
@@ -48,11 +48,14 @@ class RateLimiterTest extends TestCase
     #[Test]
     public function hit_uses_custom_decay_seconds(): void
     {
-        $this->cache->method('get')->willReturn(0);
+        $this->cache->expects($this->once())
+            ->method('add')
+            ->with('rate_limit:test_key', 0, 300);
 
         $this->cache->expects($this->once())
-            ->method('put')
-            ->with('rate_limit:test_key', 1, 300);
+            ->method('increment')
+            ->with('rate_limit:test_key')
+            ->willReturn(1);
 
         $this->limiter->hit('test_key', 300);
     }

@@ -48,10 +48,6 @@ class RequestTimingMiddleware implements MiddlewareInterface
         float $durationMs,
         int $memoryBytes
     ): void {
-        if (! function_exists('logger')) {
-            return;
-        }
-
         $context = [
             'method' => $request->method(),
             'path' => $request->path(),
@@ -63,13 +59,13 @@ class RequestTimingMiddleware implements MiddlewareInterface
             'user_agent' => $request->userAgent(),
         ];
 
-        // Log to info channel for normal requests
+        // Log to appropriate channel based on status code
         if ($response->getStatusCode() < 400) {
-            logger()->info('Request completed', $context);
+            safe_log('info', 'Request completed', $context);
         } elseif ($response->getStatusCode() < 500) {
-            logger()->warning('Client error response', $context);
+            safe_log('warning', 'Client error response', $context);
         } else {
-            logger()->error('Server error response', $context);
+            safe_log('error', 'Server error response', $context);
         }
     }
 }

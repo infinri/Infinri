@@ -29,19 +29,13 @@ class AssetsPublishCommand extends Command
 
     public function handle(array $args = []): int
     {
-        $command = $args[0] ?? 'assets:publish';
-
-        return match ($command) {
-            'assets:publish', 'a:pub' => $this->publishAssets(),
-            'assets:clear' => $this->clearAssets(),
-            default => $this->publishAssets(),
-        };
+        return $this->publishAssets();
     }
 
     /**
      * Publish all assets
      */
-    private function publishAssets(): int
+    protected function publishAssets(): int
     {
         $this->line("📦 Publishing Assets");
         $this->line(str_repeat('─', 50) . "\n");
@@ -72,7 +66,7 @@ class AssetsPublishCommand extends Command
     /**
      * Publish Core view assets
      */
-    private function publishCoreAssets(): void
+    protected function publishCoreAssets(): void
     {
         $this->line("📁 Core Assets");
 
@@ -94,7 +88,7 @@ class AssetsPublishCommand extends Command
     /**
      * Publish Theme module assets
      */
-    private function publishThemeAssets(): void
+    protected function publishThemeAssets(): void
     {
         $themeViewDir = app_path('Modules/Theme/view');
         $pubAssetsDir = public_path('assets');
@@ -119,7 +113,7 @@ class AssetsPublishCommand extends Command
     /**
      * Publish module assets (excluding Theme)
      */
-    private function publishModuleAssets(): void
+    protected function publishModuleAssets(): void
     {
         $modulesDir = app_path('Modules');
         $pubAssetsDir = public_path('assets');
@@ -164,7 +158,7 @@ class AssetsPublishCommand extends Command
     /**
      * Clear published assets
      */
-    private function clearAssets(bool $preserveDist = false): int
+    protected function clearAssets(bool $preserveDist = false): int
     {
         $pubAssetsDir = public_path('assets');
 
@@ -198,7 +192,7 @@ class AssetsPublishCommand extends Command
     /**
      * Copy directory recursively
      */
-    private function copyDirectory(string $source, string $destination): void
+    protected function copyDirectory(string $source, string $destination): void
     {
         if (! is_dir($source)) {
             return;
@@ -225,7 +219,7 @@ class AssetsPublishCommand extends Command
     /**
      * Remove directory recursively
      */
-    private function removeDirectory(string $dir): void
+    protected function removeDirectory(string $dir): void
     {
         if (! is_dir($dir)) {
             return;
@@ -250,10 +244,8 @@ class AssetsPublishCommand extends Command
     /**
      * Ensure directory exists
      */
-    private function ensureDirectory(string $dir): void
+    protected function ensureDirectory(string $dir): void
     {
-        if (! is_dir($dir)) {
-            mkdir($dir, 0o755, true);
-        }
+        ensure_directory($dir);
     }
 }

@@ -11,6 +11,7 @@
  */
 namespace App\Core\Cache;
 
+use App\Core\Redis\Concerns\UsesRedis;
 use App\Core\Redis\RedisManager;
 use Redis;
 use RedisException;
@@ -23,28 +24,14 @@ use RedisException;
  */
 class RedisStore extends AbstractCacheStore
 {
+    use UsesRedis;
+
     public function __construct(
         protected RedisManager $redis,
         protected string $connection = 'cache',
         protected int $defaultTtl = 3600,
         protected string $prefix = 'cache:'
     ) {
-    }
-
-    /**
-     * Get the Redis connection
-     */
-    protected function redis(): Redis
-    {
-        return $this->redis->connection($this->connection);
-    }
-
-    /**
-     * Get the prefixed key
-     */
-    protected function key(string $key): string
-    {
-        return $this->prefix . $key;
     }
 
     /**
@@ -61,7 +48,7 @@ class RedisStore extends AbstractCacheStore
 
             return $value;
         } catch (RedisException $e) {
-            logger()->warning('Cache get failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache get', $e, ['key' => $key]);
 
             return $default;
         }
@@ -81,7 +68,7 @@ class RedisStore extends AbstractCacheStore
 
             return $this->redis()->set($this->key($key), $value);
         } catch (RedisException $e) {
-            logger()->error('Cache put failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache put', $e, ['key' => $key], 'error');
 
             return false;
         }
@@ -108,7 +95,7 @@ class RedisStore extends AbstractCacheStore
 
             return true;
         } catch (RedisException $e) {
-            logger()->error('Cache add failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache add', $e, ['key' => $key], 'error');
 
             return false;
         }
@@ -122,7 +109,7 @@ class RedisStore extends AbstractCacheStore
         try {
             return $this->redis()->set($this->key($key), $value);
         } catch (RedisException $e) {
-            logger()->error('Cache forever failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache forever', $e, ['key' => $key], 'error');
 
             return false;
         }
@@ -133,7 +120,7 @@ class RedisStore extends AbstractCacheStore
         try {
             return $this->redis()->del($this->key($key)) > 0;
         } catch (RedisException $e) {
-            logger()->warning('Cache forget failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache forget', $e, ['key' => $key]);
 
             return false;
         }
@@ -147,7 +134,7 @@ class RedisStore extends AbstractCacheStore
         try {
             return $this->redis()->exists($this->key($key)) > 0;
         } catch (RedisException $e) {
-            logger()->warning('Cache has check failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache has check', $e, ['key' => $key]);
 
             return false;
         }
@@ -161,7 +148,7 @@ class RedisStore extends AbstractCacheStore
         try {
             return $this->redis()->incrBy($this->key($key), $value);
         } catch (RedisException $e) {
-            logger()->warning('Cache increment failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache increment', $e, ['key' => $key]);
 
             return false;
         }
@@ -175,7 +162,7 @@ class RedisStore extends AbstractCacheStore
         try {
             return $this->redis()->decrBy($this->key($key), $value);
         } catch (RedisException $e) {
-            logger()->warning('Cache decrement failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache decrement', $e, ['key' => $key]);
 
             return false;
         }
@@ -187,17 +174,9 @@ class RedisStore extends AbstractCacheStore
     public function flush(): bool
     {
         try {
-            // Only flush keys with our prefix
-            $keys = $this->redis()->keys($this->prefix . '*');
-
-            if (! empty($keys)) {
-                // Remove the global prefix that Redis might add
-                $this->redis()->del(...$keys);
-            }
-
-            return true;
+            return $this->deleteByPattern($this->prefix . '*') !== false;
         } catch (RedisException $e) {
-            logger()->error('Cache flush failed', ['error' => $e->getMessage()]);
+            $this->logRedisError('Cache flush', $e, [], 'error');
 
             return false;
         }
@@ -220,7 +199,7 @@ class RedisStore extends AbstractCacheStore
 
             return $result;
         } catch (RedisException $e) {
-            logger()->warning('Cache many get failed', ['keys' => $keys, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache many get', $e, ['keys' => $keys]);
 
             return array_fill_keys($keys, null);
         }
@@ -249,7 +228,7 @@ class RedisStore extends AbstractCacheStore
 
             return ! in_array(false, $results, true);
         } catch (RedisException $e) {
-            logger()->error('Cache putMany failed', ['keys' => array_keys($values), 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache putMany', $e, ['keys' => array_keys($values)], 'error');
 
             return false;
         }
@@ -265,7 +244,7 @@ class RedisStore extends AbstractCacheStore
 
             return $ttl > 0 ? $ttl : 0;
         } catch (RedisException $e) {
-            logger()->warning('Cache TTL check failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache TTL check', $e, ['key' => $key]);
 
             return 0;
         }
@@ -286,7 +265,7 @@ class RedisStore extends AbstractCacheStore
                 ['NX', 'EX' => $seconds]
             );
         } catch (RedisException $e) {
-            logger()->warning('Cache lock acquisition failed', ['key' => $key, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache lock acquisition', $e, ['key' => $key]);
 
             return false;
         }
@@ -306,18 +285,32 @@ class RedisStore extends AbstractCacheStore
     public function clearByPattern(string $pattern): int
     {
         try {
-            $keys = $this->redis()->keys($this->key($pattern));
-
-            if (empty($keys)) {
-                return 0;
-            }
-
-            return $this->redis()->del(...$keys);
+            return $this->deleteByPattern($this->key($pattern));
         } catch (RedisException $e) {
-            logger()->warning('Cache clearByPattern failed', ['pattern' => $pattern, 'error' => $e->getMessage()]);
+            $this->logRedisError('Cache clearByPattern', $e, ['pattern' => $pattern]);
 
             return 0;
         }
+    }
+
+    /**
+     * Delete all keys matching a pattern using SCAN (non-blocking)
+     *
+     * Uses SCAN instead of KEYS to avoid O(N) blocking in production.
+     */
+    protected function deleteByPattern(string $pattern): int
+    {
+        $redis = $this->redis();
+        $deleted = 0;
+        $iterator = null;
+
+        while (($keys = $redis->scan($iterator, $pattern, 100)) !== false) {
+            if (! empty($keys)) {
+                $deleted += $redis->del(...$keys);
+            }
+        }
+
+        return $deleted;
     }
 
     /**
@@ -336,7 +329,7 @@ class RedisStore extends AbstractCacheStore
                 'uptime_seconds' => $info['uptime_in_seconds'] ?? 0,
             ];
         } catch (RedisException $e) {
-            logger()->warning('Cache stats retrieval failed', ['error' => $e->getMessage()]);
+            $this->logRedisError('Cache stats retrieval', $e);
 
             return [];
         }

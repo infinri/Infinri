@@ -217,7 +217,7 @@ class Validator
      */
     public function fails(): bool
     {
-        return ! empty($this->errors);
+        return $this->errors !== [];
     }
 
     /**
@@ -225,7 +225,7 @@ class Validator
      */
     public function passes(): bool
     {
-        return empty($this->errors);
+        return $this->errors === [];
     }
 
     /**

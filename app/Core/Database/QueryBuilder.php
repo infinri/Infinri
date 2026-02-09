@@ -164,7 +164,7 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function insertMany(array $values): int
     {
-        if (empty($values)) {
+        if ($values === []) {
             return 0;
         }
 

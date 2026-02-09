@@ -12,6 +12,7 @@
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
+use App\Core\Console\Concerns\GeneratesFiles;
 
 /**
  * Make Migration Command
@@ -20,51 +21,35 @@ use App\Core\Console\Command;
  */
 class MakeMigrationCommand extends Command
 {
+    use GeneratesFiles;
     protected string $name = 'make:migration';
     protected string $description = 'Generate a new database migration';
     protected array $aliases = [];
 
     public function handle(array $args = []): int
     {
-        $name = $args[0] ?? null;
-
+        $name = $this->requireArgument($args, 0, 'make:migration <name>', 'make:migration create_users_table');
         if ($name === null) {
-            $this->error("Usage: make:migration <name>");
-            $this->line("  Example: make:migration create_users_table");
-
             return 1;
         }
 
-        $rootDir = $this->getRootDir();
-        $migrationsPath = $rootDir . '/database/migrations';
-
-        if (! is_dir($migrationsPath)) {
-            mkdir($migrationsPath, 0o755, true);
-        }
-
+        $migrationsPath = $this->getRootDir() . '/database/migrations';
         $timestamp = date('Y_m_d_His');
         $filename = "{$timestamp}_{$name}.php";
         $filepath = $migrationsPath . '/' . $filename;
 
-        if (file_exists($filepath)) {
-            $this->error("Migration '{$filename}' already exists.");
-
+        if ($this->pathExists($filepath, "Migration '{$filename}'")) {
             return 1;
         }
 
-        $className = $this->getClassName($name);
+        $className = $this->toClassName($name);
         $content = $this->getMigrationTemplate($className, $name);
-        file_put_contents($filepath, $content);
+        $this->writeFile($filepath, $content);
 
         $this->info("✓ Created migration: {$filename}");
         $this->line("  Path: database/migrations/{$filename}");
 
         return 0;
-    }
-
-    protected function getClassName(string $name): string
-    {
-        return str_replace(' ', '', ucwords(str_replace('_', ' ', $name)));
     }
 
     protected function getMigrationTemplate(string $className, string $name): string

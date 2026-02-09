@@ -41,7 +41,7 @@ class ConfigValidator
             $this->validateField($key, $value, $rules);
         }
 
-        return empty($this->errors);
+        return $this->errors === [];
     }
 
     /**
@@ -183,7 +183,7 @@ class ConfigValidator
      */
     public function passes(): bool
     {
-        return empty($this->errors);
+        return $this->errors === [];
     }
 
     /**
@@ -191,6 +191,6 @@ class ConfigValidator
      */
     public function fails(): bool
     {
-        return ! empty($this->errors);
+        return $this->errors !== [];
     }
 }

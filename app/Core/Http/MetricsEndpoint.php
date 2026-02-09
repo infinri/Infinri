@@ -121,7 +121,7 @@ class MetricsEndpoint
     {
         // Allow from localhost
         $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-        if (in_array($ip, ['127.0.0.1', '::1'])) {
+        if (in_array($ip, ['127.0.0.1', '::1'], true)) {
             return true;
         }
 

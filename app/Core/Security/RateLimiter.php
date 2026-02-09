@@ -50,12 +50,14 @@ class RateLimiter
     {
         $cacheKey = $this->prefix . $key;
 
-        $attempts = $this->cache->get($cacheKey, 0);
-        $attempts++;
+        // add() only sets the key if it doesn't exist — establishes the decay window once
+        // Subsequent calls leave the existing TTL untouched
+        $this->cache->add($cacheKey, 0, $decaySeconds);
 
-        $this->cache->put($cacheKey, $attempts, $decaySeconds);
+        // increment() is atomic on Redis and does not reset TTL
+        $attempts = $this->cache->increment($cacheKey);
 
-        return $attempts;
+        return $attempts !== false ? $attempts : 1;
     }
 
     /**

@@ -111,7 +111,7 @@ class Migrator
         foreach ($all as $migration) {
             $status[] = [
                 'migration' => $migration,
-                'ran' => in_array($migration, $ran),
+                'ran' => in_array($migration, $ran, true),
             ];
         }
 

@@ -52,7 +52,7 @@ class ModuleDisableCommand extends Command
 
         // Prevent disabling core modules
         $coreModules = ['error', 'home'];
-        if (in_array($moduleName, $coreModules)) {
+        if (in_array($moduleName, $coreModules, true)) {
             $this->error("Cannot disable core module: {$moduleName}");
 
             return 1;

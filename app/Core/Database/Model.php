@@ -99,7 +99,7 @@ abstract class Model implements JsonSerializable
         }
 
         // Convert class name to snake_case and pluralize
-        return Str::snake(Str::classBasename($this)) . 's';
+        return Str::pluralize(Str::snake(Str::classBasename($this)));
     }
 
     /**
@@ -220,7 +220,7 @@ abstract class Model implements JsonSerializable
     {
         $dirty = $this->getDirty();
 
-        if (empty($dirty)) {
+        if ($dirty === []) {
             return true;
         }
 

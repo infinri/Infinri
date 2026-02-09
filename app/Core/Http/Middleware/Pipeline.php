@@ -135,13 +135,11 @@ class Pipeline
                 }
 
                 $error = sprintf('Middleware %s does not have a %s method', get_class($middleware), $this->method);
-                if (function_exists('logger')) {
-                    logger()->error('Middleware execution failed', [
-                        'middleware' => get_class($middleware),
-                        'method' => $this->method,
-                        'error' => $error,
-                    ]);
-                }
+                safe_log('error', 'Middleware execution failed', [
+                    'middleware' => get_class($middleware),
+                    'method' => $this->method,
+                    'error' => $error,
+                ]);
                 throw new RuntimeException($error);
             };
         };
@@ -194,12 +192,10 @@ class Pipeline
         }
 
         $error = 'Invalid middleware pipe type: ' . gettype($pipe);
-        if (function_exists('logger')) {
-            logger()->error('Invalid middleware configuration', [
-                'pipe_type' => gettype($pipe),
-                'error' => $error,
-            ]);
-        }
+        safe_log('error', 'Invalid middleware configuration', [
+            'pipe_type' => gettype($pipe),
+            'error' => $error,
+        ]);
         throw new InvalidArgumentException($error);
     }
 

@@ -12,6 +12,7 @@
 namespace App\Core\Console\Commands;
 
 use App\Core\Console\Command;
+use App\Core\Console\Concerns\GeneratesFiles;
 
 /**
  * Module Make Command
@@ -20,18 +21,15 @@ use App\Core\Console\Command;
  */
 class ModuleMakeCommand extends Command
 {
+    use GeneratesFiles;
     protected string $name = 'module:make';
     protected string $description = 'Generate a new module scaffold';
     protected array $aliases = ['make:module'];
 
     public function handle(array $args = []): int
     {
-        $name = $args[0] ?? null;
-
+        $name = $this->requireArgument($args, 0, 'module:make <name>', 'module:make blog');
         if ($name === null) {
-            $this->error("Usage: module:make <name>");
-            $this->line("  Example: module:make blog");
-
             return 1;
         }
 
@@ -41,9 +39,7 @@ class ModuleMakeCommand extends Command
         $rootDir = $this->getRootDir();
         $modulePath = $rootDir . '/app/modules/' . $name;
 
-        if (is_dir($modulePath)) {
-            $this->error("Module '{$name}' already exists.");
-
+        if ($this->pathExists($modulePath, "Module '{$name}'")) {
             return 1;
         }
 
@@ -61,7 +57,7 @@ class ModuleMakeCommand extends Command
 
         foreach ($dirs as $dir) {
             $path = $rootDir . '/app/modules/' . $dir;
-            mkdir($path, 0o755, true);
+            ensure_directory($path);
             $this->line("  ✓ Created: {$dir}");
         }
 
@@ -95,8 +91,7 @@ class ModuleMakeCommand extends Command
                 'description' => '{$className} module',
             ];
             PHP;
-        file_put_contents($path . '/module.php', $content);
-        $this->line("  ✓ Created: module.php");
+        $this->writeFile($path . '/module.php', $content, 'module.php');
     }
 
     protected function createIndexFile(string $path, string $name): void
@@ -105,8 +100,7 @@ class ModuleMakeCommand extends Command
             <h1>Welcome to {$name}</h1>
             <p>Edit this file at: app/modules/{$name}/index.php</p>
             HTML;
-        file_put_contents($path . '/index.php', $content);
-        $this->line("  ✓ Created: index.php");
+        $this->writeFile($path . '/index.php', $content, 'index.php');
     }
 
     protected function createConfigFile(string $path): void
@@ -117,8 +111,7 @@ class ModuleMakeCommand extends Command
                 // Module configuration
             ];
             PHP;
-        file_put_contents($path . '/config.php', $content);
-        $this->line("  ✓ Created: config.php");
+        $this->writeFile($path . '/config.php', $content, 'config.php');
     }
 
     protected function createEventsFile(string $path): void
@@ -129,8 +122,7 @@ class ModuleMakeCommand extends Command
                 // Event listeners: 'event.name' => [Listener::class, 'method']
             ];
             PHP;
-        file_put_contents($path . '/events.php', $content);
-        $this->line("  ✓ Created: events.php");
+        $this->writeFile($path . '/events.php', $content, 'events.php');
     }
 
     protected function createHooksFile(string $path, string $className): void
@@ -152,8 +144,7 @@ class ModuleMakeCommand extends Command
                 },
             ];
             PHP;
-        file_put_contents($path . '/hooks.php', $content);
-        $this->line("  ✓ Created: hooks.php");
+        $this->writeFile($path . '/hooks.php', $content, 'hooks.php');
     }
 
     protected function createServiceProvider(string $path, string $className): void
@@ -178,7 +169,6 @@ class ModuleMakeCommand extends Command
                 }
             }
             PHP;
-        file_put_contents($path . '/Providers/' . $className . 'ServiceProvider.php', $content);
-        $this->line("  ✓ Created: Providers/{$className}ServiceProvider.php");
+        $this->writeFile($path . '/Providers/' . $className . 'ServiceProvider.php', $content, "Providers/{$className}ServiceProvider.php");
     }
 }

@@ -146,7 +146,7 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function hasListeners(string $event): bool
     {
-        return ! empty($this->listeners[$event]);
+        return isset($this->listeners[$event]) && $this->listeners[$event] !== [];
     }
 
     /**

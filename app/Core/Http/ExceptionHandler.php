@@ -165,13 +165,11 @@ class ExceptionHandler
 
         // Fallback to direct logging
         try {
-            if (function_exists('logger')) {
-                logger()->error($e->getMessage(), array_merge([
-                    'exception' => get_class($e),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ], $context));
-            }
+            safe_log('error', $e->getMessage(), array_merge([
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], $context));
         } catch (Throwable $logError) {
             error_log(sprintf(
                 '[EXCEPTION] %s: %s in %s:%d',

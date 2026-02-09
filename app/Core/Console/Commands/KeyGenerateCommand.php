@@ -33,8 +33,8 @@ class KeyGenerateCommand extends Command
 
     public function handle(array $args = []): int
     {
-        $showOnly = in_array('--show', $args);
-        $force = in_array('--force', $args);
+        $showOnly = in_array('--show', $args, true);
+        $force = in_array('--force', $args, true);
 
         // Generate the key
         $key = CookieEncrypter::generateKey();

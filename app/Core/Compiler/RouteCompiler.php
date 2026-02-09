@@ -31,7 +31,7 @@ class RouteCompiler extends AbstractCompiler
         foreach ($this->registry->getEnabled() as $module) {
             $moduleRoutes = $module->loadRoutes();
 
-            if (! empty($moduleRoutes)) {
+            if ($moduleRoutes !== []) {
                 foreach ($moduleRoutes as $route) {
                     $route['module'] = $module->name;
                     $routes[] = $route;

@@ -48,17 +48,23 @@ class TestFactoryPage extends Model
 
 class FactoryIntegrationTest extends TestCase
 {
+    use RequiresDatabase;
+
     private static ?Application $app = null;
 
     protected function setUp(): void
     {
         $this->bootApplication();
+        $this->skipIfNoDB();
         $connection = self::$app->make(DatabaseManager::class)->connection();
         $connection->statement("DELETE FROM pages WHERE title LIKE 'Test Page%'");
     }
 
     protected function tearDown(): void
     {
+        if (! self::$dbAvailable || self::$app === null) {
+            return;
+        }
         $connection = self::$app->make(DatabaseManager::class)->connection();
         $connection->statement("DELETE FROM pages WHERE title LIKE 'Test Page%'");
     }
@@ -70,7 +76,6 @@ class FactoryIntegrationTest extends TestCase
 
             $reflection = new \ReflectionClass(Application::class);
             $instance = $reflection->getProperty('instance');
-            $instance->setAccessible(true);
             $instance->setValue(null, null);
 
             self::$app = new Application($basePath);

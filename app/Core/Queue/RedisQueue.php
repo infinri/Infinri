@@ -14,6 +14,7 @@ namespace App\Core\Queue;
 use App\Core\Contracts\Queue\JobInterface;
 use App\Core\Contracts\Queue\QueueInterface;
 use App\Core\Redis\RedisManager;
+use App\Core\Support\Str;
 use Redis;
 use RedisException;
 
@@ -368,7 +369,7 @@ class RedisQueue implements QueueInterface
      */
     protected function generateJobId(): string
     {
-        return 'job_' . bin2hex(random_bytes(16));
+        return 'job_' . Str::randomHex(16);
     }
 
     /**

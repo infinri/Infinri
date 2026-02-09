@@ -61,7 +61,7 @@ class VerifyCsrfToken implements MiddlewareInterface
 
     protected function shouldVerify(RequestInterface $request): bool
     {
-        if (! in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        if (! in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
             return false;
         }
 

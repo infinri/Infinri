@@ -115,7 +115,7 @@ final class Arr
      */
     public static function isAssoc(array $array): bool
     {
-        if (empty($array)) {
+        if ($array === []) {
             return false;
         }
 

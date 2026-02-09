@@ -50,7 +50,7 @@ class Grammar
      */
     protected function compileJoins(array $joins): string
     {
-        if (empty($joins)) {
+        if ($joins === []) {
             return '';
         }
 
@@ -74,7 +74,7 @@ class Grammar
      */
     public function compileWheres(array $wheres): string
     {
-        if (empty($wheres)) {
+        if ($wheres === []) {
             return '';
         }
 
@@ -116,7 +116,7 @@ class Grammar
      */
     protected function compileGroups(array $groups): string
     {
-        if (empty($groups)) {
+        if ($groups === []) {
             return '';
         }
 
@@ -128,7 +128,7 @@ class Grammar
      */
     protected function compileHavings(array $havings): string
     {
-        if (empty($havings)) {
+        if ($havings === []) {
             return '';
         }
 
@@ -145,7 +145,7 @@ class Grammar
      */
     protected function compileOrders(array $orders): string
     {
-        if (empty($orders)) {
+        if ($orders === []) {
             return '';
         }
 

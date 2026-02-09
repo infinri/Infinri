@@ -20,12 +20,15 @@ use PHPUnit\Framework\TestCase;
 
 class ConnectionIntegrationTest extends TestCase
 {
+    use RequiresDatabase;
+
     private static ?Application $app = null;
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->bootApplication();
+        $this->skipIfNoDB();
         
         $this->connection = new Connection([
             'driver' => 'pgsql',
@@ -41,12 +44,11 @@ class ConnectionIntegrationTest extends TestCase
     {
         if (self::$app === null) {
             $basePath = dirname(__DIR__, 3);
-            
+
             $reflection = new \ReflectionClass(Application::class);
             $instance = $reflection->getProperty('instance');
-            $instance->setAccessible(true);
             $instance->setValue(null, null);
-            
+
             self::$app = new Application($basePath);
             self::$app->bootstrap();
         }

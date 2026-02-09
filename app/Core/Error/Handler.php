@@ -164,9 +164,19 @@ class Handler
     }
 
     /**
-     * Format stack trace
+     * Format stack trace (instance wrapper)
      */
     protected function formatTrace(Throwable $e): array
+    {
+        return self::formatTraceArray($e);
+    }
+
+    /**
+     * Format stack trace as an array of strings
+     *
+     * Shared implementation — also used by Reporter.
+     */
+    public static function formatTraceArray(Throwable $e): array
     {
         $trace = [];
         foreach ($e->getTrace() as $i => $frame) {

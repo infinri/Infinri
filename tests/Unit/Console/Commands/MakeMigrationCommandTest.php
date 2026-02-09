@@ -97,8 +97,7 @@ class MakeMigrationCommandTest extends TestCase
         
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('getClassName');
-        $method->setAccessible(true);
+        $method = $reflection->getMethod('toClassName');
         
         $result = $method->invoke($command, 'create_users_table');
         
@@ -113,7 +112,6 @@ class MakeMigrationCommandTest extends TestCase
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($command);
         $method = $reflection->getMethod('getMigrationTemplate');
-        $method->setAccessible(true);
         
         $result = $method->invoke($command, 'CreateUsersTable', 'create_users_table');
         
@@ -129,7 +127,6 @@ class MakeMigrationCommandTest extends TestCase
         
         $reflection = new \ReflectionClass($command);
         $method = $reflection->getMethod('guessTableName');
-        $method->setAccessible(true);
         
         $this->assertSame('users', $method->invoke($command, 'create_users_table'));
         $this->assertSame('column', $method->invoke($command, 'add_column_to_posts'));
@@ -142,7 +139,6 @@ class MakeMigrationCommandTest extends TestCase
         
         $reflection = new \ReflectionClass($command);
         $method = $reflection->getMethod('getCreateTableTemplate');
-        $method->setAccessible(true);
         
         $result = $method->invoke($command, 'CreateUsersTable', 'users');
         
@@ -157,7 +153,6 @@ class MakeMigrationCommandTest extends TestCase
         
         $reflection = new \ReflectionClass($command);
         $method = $reflection->getMethod('getModifyTableTemplate');
-        $method->setAccessible(true);
         
         $result = $method->invoke($command, 'AddEmailToUsers', 'users');
         

@@ -11,23 +11,13 @@
  */
 namespace App\Core\Http;
 
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
-
 /**
  * Parameter Bag
  *
  * Container for request parameters with convenient access methods
  */
-class ParameterBag implements IteratorAggregate, Countable
+class ParameterBag extends AbstractBag
 {
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $parameters = [];
-
     /**
      * Create a new parameter bag
      *
@@ -35,27 +25,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function __construct(array $parameters = [])
     {
-        $this->parameters = $parameters;
-    }
-
-    /**
-     * Get all parameters
-     *
-     * @return array<string, mixed>
-     */
-    public function all(): array
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * Get parameter keys
-     *
-     * @return array<int, string>
-     */
-    public function keys(): array
-    {
-        return array_keys($this->parameters);
+        $this->items = $parameters;
     }
 
     /**
@@ -65,7 +35,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function replace(array $parameters): void
     {
-        $this->parameters = $parameters;
+        $this->items = $parameters;
     }
 
     /**
@@ -75,7 +45,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function add(array $parameters): void
     {
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->items = array_merge($this->items, $parameters);
     }
 
     /**
@@ -88,7 +58,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        return $this->parameters[$key] ?? $default;
+        return $this->items[$key] ?? $default;
     }
 
     /**
@@ -99,7 +69,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function set(string $key, mixed $value): void
     {
-        $this->parameters[$key] = $value;
+        $this->items[$key] = $value;
     }
 
     /**
@@ -111,7 +81,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function has(string $key): bool
     {
-        return array_key_exists($key, $this->parameters);
+        return array_key_exists($key, $this->items);
     }
 
     /**
@@ -121,7 +91,7 @@ class ParameterBag implements IteratorAggregate, Countable
      */
     public function remove(string $key): void
     {
-        unset($this->parameters[$key]);
+        unset($this->items[$key]);
     }
 
     /**
@@ -165,25 +135,5 @@ class ParameterBag implements IteratorAggregate, Countable
         $value = $this->get($key, $default);
 
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $default;
-    }
-
-    /**
-     * Get iterator
-     *
-     * @return Traversable<string, mixed>
-     */
-    public function getIterator(): Traversable
-    {
-        return new ArrayIterator($this->parameters);
-    }
-
-    /**
-     * Get count
-     *
-     * @return int
-     */
-    public function count(): int
-    {
-        return count($this->parameters);
     }
 }

@@ -22,18 +22,24 @@ use PHPUnit\Framework\TestCase;
 
 class ModelIntegrationTest extends TestCase
 {
+    use RequiresDatabase;
+
     private static ?Application $app = null;
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->bootApplication();
+        $this->skipIfNoDB();
         $this->setupDatabase();
         $this->cleanTable();
     }
 
     protected function tearDown(): void
     {
+        if (! self::$dbAvailable || ! isset($this->connection)) {
+            return;
+        }
         $this->cleanTable();
     }
 
@@ -45,7 +51,6 @@ class ModelIntegrationTest extends TestCase
             // Reset singleton for fresh test
             $reflection = new \ReflectionClass(Application::class);
             $instance = $reflection->getProperty('instance');
-            $instance->setAccessible(true);
             $instance->setValue(null, null);
             
             self::$app = new Application($basePath);

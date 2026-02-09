@@ -12,23 +12,14 @@
 namespace App\Core\Http;
 
 use App\Core\Support\Str;
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
 
 /**
  * Header Bag
  *
  * Container for HTTP headers with case-insensitive access
  */
-class HeaderBag implements IteratorAggregate, Countable
+class HeaderBag extends AbstractBag
 {
-    /**
-     * @var array<string, array<int, string>>
-     */
-    protected array $headers = [];
-
     /**
      * @var array<string, string>
      */
@@ -47,33 +38,13 @@ class HeaderBag implements IteratorAggregate, Countable
     }
 
     /**
-     * Get all headers
-     *
-     * @return array<string, array<int, string>>
-     */
-    public function all(): array
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Get header keys
-     *
-     * @return array<int, string>
-     */
-    public function keys(): array
-    {
-        return array_keys($this->headers);
-    }
-
-    /**
      * Replace all headers
      *
      * @param array<string, string|array<int, string>> $headers
      */
     public function replace(array $headers): void
     {
-        $this->headers = [];
+        $this->items = [];
         $this->add($headers);
     }
 
@@ -101,11 +72,11 @@ class HeaderBag implements IteratorAggregate, Countable
     {
         $key = $this->normalizeKey($key);
 
-        if (! array_key_exists($key, $this->headers)) {
+        if (! array_key_exists($key, $this->items)) {
             return $default;
         }
 
-        return $this->headers[$key][0] ?? $default;
+        return $this->items[$key][0] ?? $default;
     }
 
     /**
@@ -120,10 +91,10 @@ class HeaderBag implements IteratorAggregate, Countable
         $key = $this->normalizeKey($key);
         $values = is_array($values) ? array_values($values) : [$values];
 
-        if ($replace || ! isset($this->headers[$key])) {
-            $this->headers[$key] = $values;
+        if ($replace || ! isset($this->items[$key])) {
+            $this->items[$key] = $values;
         } else {
-            $this->headers[$key] = array_merge($this->headers[$key], $values);
+            $this->items[$key] = array_merge($this->items[$key], $values);
         }
     }
 
@@ -136,7 +107,7 @@ class HeaderBag implements IteratorAggregate, Countable
      */
     public function has(string $key): bool
     {
-        return array_key_exists($this->normalizeKey($key), $this->headers);
+        return array_key_exists($this->normalizeKey($key), $this->items);
     }
 
     /**
@@ -147,7 +118,22 @@ class HeaderBag implements IteratorAggregate, Countable
     public function remove(string $key): void
     {
         $key = $this->normalizeKey($key);
-        unset($this->headers[$key]);
+        unset($this->items[$key]);
+    }
+
+    /**
+     * Get all headers as a flat key => value array (first value only)
+     *
+     * @return array<string, string|null>
+     */
+    public function toFlatArray(): array
+    {
+        $headers = [];
+        foreach ($this->items as $key => $values) {
+            $headers[$key] = $values[0] ?? null;
+        }
+
+        return $headers;
     }
 
     /**
@@ -173,26 +159,6 @@ class HeaderBag implements IteratorAggregate, Countable
     }
 
     /**
-     * Get iterator
-     *
-     * @return Traversable<string, array<int, string>>
-     */
-    public function getIterator(): Traversable
-    {
-        return new ArrayIterator($this->headers);
-    }
-
-    /**
-     * Get count
-     *
-     * @return int
-     */
-    public function count(): int
-    {
-        return count($this->headers);
-    }
-
-    /**
      * Normalize header key (lowercase with dashes)
      *
      * @param string $key
@@ -213,7 +179,7 @@ class HeaderBag implements IteratorAggregate, Countable
     {
         $headers = [];
 
-        foreach ($this->headers as $name => $values) {
+        foreach ($this->items as $name => $values) {
             $name = Str::headerToHttpFormat($name);
             foreach ($values as $value) {
                 $headers[] = "$name: $value";

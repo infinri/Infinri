@@ -126,13 +126,11 @@ abstract class Facade
 
         if (! $instance) {
             $accessor = static::getFacadeAccessor();
-            if (function_exists('logger')) {
-                logger()->error('Facade root not set', [
-                    'facade' => static::class,
-                    'accessor' => $accessor,
-                    'method' => $method,
-                ]);
-            }
+            safe_log('error', 'Facade root not set', [
+                'facade' => static::class,
+                'accessor' => $accessor,
+                'method' => $method,
+            ]);
             throw new RuntimeException("A facade root has not been set for [{$accessor}].");
         }
 

@@ -67,7 +67,7 @@ class CookieEncrypter
 
         // Handle base64 encoded keys (Laravel-style)
         if (str_starts_with($key, 'base64:')) {
-            $key = base64_decode(substr($key, 7));
+            $key = base64_decode(substr($key, 7), true);
         }
 
         return $key;

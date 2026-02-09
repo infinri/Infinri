@@ -176,7 +176,7 @@ class InstallCommand extends Command
         $domain = strtolower(trim($domain));
 
         // Localhost - no session domain needed
-        if (in_array($domain, ['localhost', '127.0.0.1', '::1']) || filter_var($domain, FILTER_VALIDATE_IP)) {
+        if (in_array($domain, ['localhost', '127.0.0.1', '::1'], true) || filter_var($domain, FILTER_VALIDATE_IP)) {
             return '';
         }
 
@@ -317,52 +317,4 @@ class InstallCommand extends Command
         echo "\n";
     }
 
-    // =========================================================================
-    // Additional UI Helpers (not in base Command)
-    // =========================================================================
-
-    protected function askSecret(string $question): string
-    {
-        echo "  {$question}: ";
-
-        // Try to hide input on Unix systems
-        if (strncasecmp(PHP_OS, 'WIN', 3) !== 0) {
-            system('stty -echo');
-            $handle = fopen('php://stdin', 'r');
-            $line = trim(fgets($handle));
-            fclose($handle);
-            system('stty echo');
-            echo "\n";
-        } else {
-            $handle = fopen('php://stdin', 'r');
-            $line = trim(fgets($handle));
-            fclose($handle);
-        }
-
-        return $line;
-    }
-
-    protected function choice(string $question, array $options, string $default): string
-    {
-        echo "  {$question}:\n";
-        foreach ($options as $i => $option) {
-            $marker = $option === $default ? '●' : '○';
-            echo "    {$marker} " . ($i + 1) . ". {$option}\n";
-        }
-
-        $defaultIndex = array_search($default, $options) + 1;
-        echo "  Select [" . $defaultIndex . "]: ";
-
-        $handle = fopen('php://stdin', 'r');
-        $line = trim(fgets($handle));
-        fclose($handle);
-
-        if ($line === '') {
-            return $default;
-        }
-
-        $index = (int)$line - 1;
-
-        return $options[$index] ?? $default;
-    }
 }

@@ -32,7 +32,7 @@ class CodeStatsCommand extends Command
     public function handle(array $args = []): int
     {
         $rootDir = $this->getRootDir();
-        $verbose = in_array('--verbose', $args) || in_array('-v', $args);
+        $verbose = in_array('--verbose', $args, true) || in_array('-v', $args, true);
 
         $this->line("Code Statistics");
         $this->line(str_repeat('═', 60));

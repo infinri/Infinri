@@ -94,7 +94,7 @@ abstract class AbstractModule implements ModuleInterface
      */
     public function getName(): string
     {
-        if (empty($this->name)) {
+        if ($this->name === '') {
             // Auto-detect from class name: ContactModule -> contact
             $className = new ReflectionClass($this)->getShortName();
             $this->name = strtolower(str_replace('Module', '', $className));

@@ -14,6 +14,7 @@ use App\Core\Http\Cookie;
 use App\Modules\Auth\Contracts\AuthenticatableInterface;
 use App\Modules\Auth\Contracts\GuardInterface;
 use App\Modules\Auth\Contracts\UserRepositoryInterface;
+use App\Core\Support\Str;
 use App\Modules\Auth\Security\PasswordHasher;
 
 /**
@@ -371,7 +372,7 @@ class SessionGuard implements GuardInterface
      */
     protected function cycleRememberToken(AuthenticatableInterface $user): void
     {
-        $token = bin2hex(random_bytes(32));
+        $token = Str::randomHex(32);
         $user->setRememberToken($token);
         $this->provider->updateRememberToken($user, $token);
     }

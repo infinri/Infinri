@@ -23,12 +23,15 @@ use PHPUnit\Framework\TestCase;
 
 class DatabaseManagerIntegrationTest extends TestCase
 {
+    use RequiresDatabase;
+
     private static ?Application $app = null;
     private DatabaseManager $manager;
 
     protected function setUp(): void
     {
         $this->bootApplication();
+        $this->skipIfNoDB();
         $this->manager = self::$app->make(DatabaseManager::class);
     }
 
@@ -39,7 +42,6 @@ class DatabaseManagerIntegrationTest extends TestCase
 
             $reflection = new \ReflectionClass(Application::class);
             $instance = $reflection->getProperty('instance');
-            $instance->setAccessible(true);
             $instance->setValue(null, null);
 
             self::$app = new Application($basePath);

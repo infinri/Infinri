@@ -73,7 +73,7 @@ class MetricsShowCommand extends Command
         }
 
         // Show hourly if --hourly flag
-        if (in_array('--hourly', $args) || in_array('-h', $args)) {
+        if (in_array('--hourly', $args, true) || in_array('-h', $args, true)) {
             $this->line("\n📅 Last 24 Hours");
             $hourly = $collector->getHourlyMetrics(24);
             foreach ($hourly as $hour => $data) {

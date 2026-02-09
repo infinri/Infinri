@@ -33,7 +33,6 @@ class ModuleLoaderTest extends TestCase
         // Reset singleton
         $reflection = new \ReflectionClass(Application::class);
         $property = $reflection->getProperty('instance');
-        $property->setAccessible(true);
         $property->setValue(null, null);
         
         $this->app = new Application($this->tempDir);
@@ -43,7 +42,6 @@ class ModuleLoaderTest extends TestCase
     {
         $reflection = new \ReflectionClass(Application::class);
         $property = $reflection->getProperty('instance');
-        $property->setAccessible(true);
         $property->setValue(null, null);
         
         $this->removeDirectory($this->tempDir);

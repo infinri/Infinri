@@ -23,6 +23,7 @@ use App\Core\Log\LogManager;
 use App\Core\Module\ModuleLoader;
 use App\Core\Module\ModuleRegistry;
 use App\Core\Support\Environment;
+use App\Core\Support\Str;
 use RuntimeException;
 
 /**
@@ -296,7 +297,7 @@ class Application extends Container
      */
     protected function generateRequestId(): string
     {
-        return 'req_' . bin2hex(random_bytes(6));
+        return 'req_' . Str::randomHex(6);
     }
 
     /**

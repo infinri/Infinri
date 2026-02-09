@@ -37,8 +37,8 @@ class IndexReindexCommand extends Command
     {
         // Parse arguments
         $indexerName = $args[0] ?? null;
-        $listOnly = in_array('--list', $args) || in_array('-l', $args);
-        $clearFirst = in_array('--clear', $args) || in_array('-c', $args);
+        $listOnly = in_array('--list', $args, true) || in_array('-l', $args, true);
+        $clearFirst = in_array('--clear', $args, true) || in_array('-c', $args, true);
 
         // List indexers
         if ($listOnly || $indexerName === 'list') {

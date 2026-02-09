@@ -17,54 +17,19 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Testable subclass that prevents exit calls
+ * Testable subclass that tracks error codes
  */
 class TestableModuleRenderer extends ModuleRenderer
 {
-    public bool $exitCalled = false;
-    public int $exitCode = 0;
-    
-    public function renderError(int $code, ?string $type = null): void
+    public bool $errorRendered = false;
+    public int $errorCode = 0;
+
+    public function renderError(int $code, ?string $type = null): string
     {
-        // Don't call http_response_code in CLI
-        // http_response_code($code);
-        $this->exitCode = $code;
-        
-        $type = $type ?? match ($code) {
-            400 => '400',
-            404 => '404',
-            500, 503 => '500',
-            default => '404'
-        };
+        $this->errorCode = $code;
+        $this->errorRendered = true;
 
-        $errorModulePath = $this->getModulesPath() . "/error/index.php";
-
-        if (!file_exists($errorModulePath)) {
-            echo "Error {$code}";
-            $this->exitCalled = true;
-            return; // Instead of exit
-        }
-
-        // Capture error module content
-        $errorType = $type;
-        ob_start();
-        require $errorModulePath;
-        $content = ob_get_clean();
-
-        // Render with layout
-        $this->renderWithLayoutPublic($content);
-        $this->exitCalled = true;
-        // Instead of exit
-    }
-    
-    public function renderWithLayoutPublic(string $content): void
-    {
-        $layoutPath = $this->getLayoutPath();
-        if (file_exists($layoutPath)) {
-            require $layoutPath;
-        } else {
-            echo $content;
-        }
+        return parent::renderError($code, $type);
     }
 }
 
@@ -155,9 +120,7 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new ModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
-        ob_start();
-        $renderer->render('test');
-        $output = ob_get_clean();
+        $output = $renderer->render('test');
         
         $this->assertStringContainsString('Module Content', $output);
     }
@@ -171,9 +134,7 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new ModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/nonexistent_layout.php');
         
-        ob_start();
-        $renderer->render('test');
-        $output = ob_get_clean();
+        $output = $renderer->render('test');
         
         $this->assertSame('Direct Output', $output);
     }
@@ -203,9 +164,7 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new ModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/nonexistent.php');
         
-        ob_start();
-        $renderer->render('valid-module_123');
-        $output = ob_get_clean();
+        $output = $renderer->render('valid-module_123');
         
         $this->assertSame('Valid', $output);
     }
@@ -226,12 +185,10 @@ class ModuleRendererTest extends TestCase
     {
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
-        ob_start();
-        $renderer->render('../invalid');
-        $output = ob_get_clean();
+        $output = $renderer->render('../invalid');
         
-        $this->assertTrue($renderer->exitCalled);
-        $this->assertSame(500, $renderer->exitCode);
+        $this->assertTrue($renderer->errorRendered);
+        $this->assertSame(500, $renderer->errorCode);
         $this->assertStringContainsString('Error 500', $output);
     }
 
@@ -240,12 +197,10 @@ class ModuleRendererTest extends TestCase
     {
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
-        ob_start();
-        $renderer->render('nonexistent');
-        $output = ob_get_clean();
+        $output = $renderer->render('nonexistent');
         
-        $this->assertTrue($renderer->exitCalled);
-        $this->assertSame(404, $renderer->exitCode);
+        $this->assertTrue($renderer->errorRendered);
+        $this->assertSame(404, $renderer->errorCode);
         $this->assertStringContainsString('Error 404', $output);
     }
 
@@ -258,11 +213,9 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/nonexistent.php');
         
-        ob_start();
-        $renderer->renderError(404);
-        $output = ob_get_clean();
+        $output = $renderer->renderError(404);
         
-        $this->assertTrue($renderer->exitCalled);
+        $this->assertTrue($renderer->errorRendered);
         $this->assertStringContainsString('Custom Error: 404', $output);
     }
 
@@ -272,25 +225,19 @@ class ModuleRendererTest extends TestCase
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
         // Test 400 error
-        $renderer->exitCalled = false;
-        ob_start();
+        $renderer->errorRendered = false;
         $renderer->renderError(400);
-        ob_get_clean();
-        $this->assertSame(400, $renderer->exitCode);
+        $this->assertSame(400, $renderer->errorCode);
         
         // Test 503 error (should map to '500' type)
-        $renderer->exitCalled = false;
-        ob_start();
+        $renderer->errorRendered = false;
         $renderer->renderError(503);
-        ob_get_clean();
-        $this->assertSame(503, $renderer->exitCode);
+        $this->assertSame(503, $renderer->errorCode);
         
         // Test unknown error code (defaults to 404 type)
-        $renderer->exitCalled = false;
-        ob_start();
+        $renderer->errorRendered = false;
         $renderer->renderError(418); // I'm a teapot
-        ob_get_clean();
-        $this->assertSame(418, $renderer->exitCode);
+        $this->assertSame(418, $renderer->errorCode);
     }
 
     #[Test]
@@ -302,9 +249,7 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/nonexistent.php');
         
-        ob_start();
-        $renderer->renderError(503, 'maintenance');
-        $output = ob_get_clean();
+        $output = $renderer->renderError(503, 'maintenance');
         
         $this->assertStringContainsString('Type: maintenance', $output);
     }
@@ -314,12 +259,10 @@ class ModuleRendererTest extends TestCase
     {
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
-        ob_start();
-        $renderer->renderMaintenance();
-        $output = ob_get_clean();
+        $output = $renderer->renderMaintenance();
         
-        $this->assertTrue($renderer->exitCalled);
-        $this->assertSame(503, $renderer->exitCode);
+        $this->assertTrue($renderer->errorRendered);
+        $this->assertSame(503, $renderer->errorCode);
     }
 
     #[Test]
@@ -334,9 +277,7 @@ class ModuleRendererTest extends TestCase
         
         $renderer = new TestableModuleRenderer($this->tempDir . '/modules', $this->tempDir . '/layout.php');
         
-        ob_start();
-        $renderer->renderError(404);
-        $output = ob_get_clean();
+        $output = $renderer->renderError(404);
         
         $this->assertStringContainsString('Error Content', $output);
     }

@@ -11,6 +11,8 @@
  */
 namespace App\Core\Security;
 
+use InvalidArgumentException;
+
 /**
  * Input Sanitizer
  *
@@ -117,11 +119,12 @@ class Sanitizer
         // Normalize slashes first
         $value = str_replace('\\', '/', $value);
 
-        // Remove directory traversal patterns iteratively to prevent bypass
+        // Remove directory traversal sequences iteratively to prevent bypass
         // e.g., "..../" becomes "../" after single pass, so we loop
+        // Only strip '../' and '..\' — not bare '..' which can appear in legitimate filenames
         do {
             $prev = $value;
-            $value = str_replace(['../', '..'], '', $value);
+            $value = str_replace(['../', '..\\'], '', $value);
         } while ($prev !== $value);
 
         // Remove multiple slashes
@@ -148,10 +151,24 @@ class Sanitizer
     }
 
     /**
+     * Allowed sanitizer methods for dynamic dispatch
+     */
+    private const ALLOWED_METHODS = [
+        'html', 'attr', 'js', 'url', 'email', 'strip',
+        'alphanum', 'slug', 'nullBytes', 'path', 'filename',
+    ];
+
+    /**
      * Sanitize array of values
      */
     public static function array(array $values, string $method = 'html'): array
     {
+        if (! in_array($method, self::ALLOWED_METHODS, true)) {
+            throw new InvalidArgumentException(
+                "Invalid sanitizer method: {$method}. Allowed: " . implode(', ', self::ALLOWED_METHODS)
+            );
+        }
+
         return array_map(function ($value) use ($method) {
             if (is_array($value)) {
                 return self::array($value, $method);

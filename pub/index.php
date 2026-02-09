@@ -3,7 +3,9 @@ declare(strict_types=1);
 /**
  * Front Controller
  *
- * Application entry point with security headers and routing
+ * Application entry point — routes all requests through the Kernel
+ * middleware pipeline for consistent security headers, session handling,
+ * CSRF verification, and request lifecycle management.
  *
  * @package App
  */
@@ -12,123 +14,107 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../app/Core/bootstrap.php';
 
-use App\Core\Routing\SimpleRouter;
+use App\Core\Contracts\Routing\RouterInterface;
+use App\Core\Http\Kernel;
+use App\Core\Http\Middleware\SecurityHeadersMiddleware;
+use App\Core\Http\Middleware\StartSession;
+use App\Core\Http\Middleware\VerifyCsrfToken;
 use App\Core\Http\Request;
+use App\Core\Http\WebExceptionHandler;
+use App\Core\Module\ModuleRenderer;
+use App\Core\Routing\Router;
 
-// Generate CSP nonce for inline styles and scripts (before any output)
-$cspNonce = base64_encode(random_bytes(16));
+// ─── Environment ───────────────────────────────────────────────
 
-// Store nonce in container for access via csp_nonce() helper
-$app->instance('csp.nonce', $cspNonce);
-
-// Build CSP header with nonce
-$cspHeader = "Content-Security-Policy: default-src 'self'; img-src 'self' data:; " .
-    "style-src 'self' 'nonce-{$cspNonce}'; " .
-    "script-src 'self' 'nonce-{$cspNonce}' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; " .
-    "frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/; " .
-    "connect-src 'self' https://www.google.com/recaptcha/; " .
-    "base-uri 'self'; frame-ancestors 'none'; form-action 'self'";
-
-// Security Headers (must be before any output)
-header($cspHeader);
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-
-// HSTS only in production with HTTPS
-if (env('HTTPS_ONLY', false) && env('APP_ENV', 'production') === 'production') {
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-}
-
-// Enable gzip compression for faster page loads
-if (!ob_start('ob_gzhandler')) {
-    ob_start();
-}
-
-// Configure session
-$sessionPath = dirname(__DIR__) . '/var/sessions';
-$sessionLifetime = (int) env('SESSION_LIFETIME', 7200);
-$sessionDomain = env('SESSION_DOMAIN', '');
 $isProduction = env('APP_ENV', 'production') === 'production';
 $secureCookie = $isProduction || (bool) env('HTTPS_ONLY', false);
 
-session_save_path($sessionPath);
-ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
-ini_set('session.gc_probability', '1');
-ini_set('session.gc_divisor', '100');
-ini_set('session.cookie_secure', $secureCookie ? '1' : '0');
-ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_samesite', 'Strict');
+// ─── CSP Nonce ─────────────────────────────────────────────────
 
-session_set_cookie_params([
-    'lifetime' => $sessionLifetime,
-    'path' => '/',
-    'domain' => $sessionDomain,
-    'secure' => $secureCookie,
-    'httponly' => true,
-    'samesite' => 'Strict'
+$cspNonce = SecurityHeadersMiddleware::generateNonce();
+$app->instance('csp.nonce', $cspNonce);
+
+// ─── Router + Routes ───────────────────────────────────────────
+
+$router = new Router($app);
+$app->instance(RouterInterface::class, $router);
+
+// Load route definitions
+require __DIR__ . '/../routes/web.php';
+
+// ─── Kernel with Middleware ────────────────────────────────────
+
+$kernel = new Kernel($app, $router);
+
+// Use WebExceptionHandler for styled error pages via ModuleRenderer
+$exceptionHandler = new WebExceptionHandler(config('app.debug', false));
+$exceptionHandler->setRenderer(new ModuleRenderer());
+$kernel->setExceptionHandler($exceptionHandler);
+
+$kernel->setMiddleware([
+    SecurityHeadersMiddleware::class,
+    StartSession::class,
+    VerifyCsrfToken::class,
 ]);
 
-// Handle internal metrics endpoint (before session/CSRF overhead)
-$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-if ($requestUri === '/_metrics' || str_starts_with($requestUri, '/_metrics?')) {
-    $metricsEndpoint = new \App\Core\Http\MetricsEndpoint();
-    if ($metricsEndpoint->authorize()) {
-        $metricsEndpoint->handle();
-        exit;
-    }
-    http_response_code(403);
-    echo 'Forbidden';
-    exit;
-}
+// Configure middleware instances in the container
+$app->instance(SecurityHeadersMiddleware::class, new SecurityHeadersMiddleware([
+    'hsts' => $secureCookie && $isProduction,
+    'csp_nonce' => $cspNonce,
+    'headers' => [
+        'Content-Security-Policy' => SecurityHeadersMiddleware::buildCsp([
+            'script-src' => "'self' 'nonce-{$cspNonce}' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
+            'style-src' => "'self' 'nonce-{$cspNonce}'",
+            'frame-src' => "https://www.google.com/recaptcha/ https://recaptcha.google.com/",
+            'connect-src' => "'self' https://www.google.com/recaptcha/",
+        ], $cspNonce),
+    ],
+]));
 
-// Capture request and store in container
-$request = Request::capture();
-$app->instance(Request::class, $request);
+$app->instance(StartSession::class, new StartSession(
+    lifetime: (int) env('SESSION_LIFETIME', 7200),
+    domain: env('SESSION_DOMAIN', ''),
+    secure: $secureCookie,
+    savePath: dirname(__DIR__) . '/var/sessions'
+));
 
-// Load configuration into container
+$app->instance(VerifyCsrfToken::class, new VerifyCsrfToken(
+    except: ['/_metrics']
+));
+
+// ─── Load Config ───────────────────────────────────────────────
+
 $configArray = require __DIR__ . '/../app/config.php';
 $app->instance('config.array', $configArray);
 
-// Generate CSRF token (will call session_start())
-csrf_token();
+// ─── Assets (development only) ─────────────────────────────────
 
-// Initialize AssetManager with CSP nonce
 $assets = app(\App\Core\View\Asset\AssetManager::class);
 $assets->setNonce($cspNonce);
 
-// Register assets (development only - production uses minified bundles)
 if (!$isProduction) {
     // Core CSS
     $assets->addCss('/assets/core/base/css/_reset.css');
     $assets->addCss('/assets/core/base/css/_variables.css');
     $assets->addCss('/assets/core/base/css/components.css');
     $assets->addCss('/assets/core/frontend/css/layout.css');
-    
+
     // Theme CSS (from Modules/Theme)
     $assets->addCss('/assets/theme/frontend/css/theme.css');
-    
+
     // Core JS
     $assets->addJs('/assets/core/base/js/core.js');
-    
+
     // Theme JS (from Modules/Theme)
     $assets->addJs('/assets/theme/frontend/js/theme.js');
 }
 
-// Define routes
-$router = new SimpleRouter();
+// ─── Handle Request ────────────────────────────────────────────
 
-$router->get('/', 'home')
-       ->get('/about', 'about')
-       ->get('/services', 'services')
-       ->get('/contact', 'contact')
-       ->post('/contact', 'contact')
-       ->get('/terms', 'legal')
-       ->get('/privacy', 'legal')
-       ->get('/cookies', 'legal')
-       ->get('/disclaimer', 'legal')
-       ->get('/refund', 'legal');
+$request = Request::capture();
+$app->instance(Request::class, $request);
 
-// Dispatch
-$router->dispatch('error');
+$response = $kernel->handle($request);
+$response->send();
+
+$kernel->terminate($request, $response);

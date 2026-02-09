@@ -12,6 +12,7 @@
 namespace App\Core\Log;
 
 use App\Core\Contracts\Log\LoggerInterface;
+use App\Core\Support\Str;
 use Throwable;
 
 /**
@@ -261,7 +262,7 @@ class LogManager implements LoggerInterface
     public function getCorrelationId(): string
     {
         if ($this->correlationId === null) {
-            $this->correlationId = 'req_' . bin2hex(random_bytes(6));
+            $this->correlationId = 'req_' . Str::randomHex(6);
         }
 
         return $this->correlationId;

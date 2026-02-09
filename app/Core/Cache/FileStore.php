@@ -47,16 +47,29 @@ class FileStore extends AbstractCacheStore
     }
 
     /**
+     * Shared MetricsCollector instance
+     */
+    protected static ?\App\Core\Metrics\MetricsCollector $metricsCollector = null;
+
+    /**
      * Record cache hit/miss metric
      */
     protected function recordCacheMetric(bool $hit): void
     {
-        if (class_exists(\App\Core\Metrics\MetricsCollector::class)) {
-            try {
-                new \App\Core\Metrics\MetricsCollector()->recordCache($hit);
-            } catch (Throwable) {
-                // Don't let metrics recording break cache operations
+        if (! class_exists(\App\Core\Metrics\MetricsCollector::class)) {
+            return;
+        }
+
+        try {
+            if (self::$metricsCollector === null) {
+                self::$metricsCollector = function_exists('app') && app()->has(\App\Core\Metrics\MetricsCollector::class)
+                    ? app(\App\Core\Metrics\MetricsCollector::class)
+                    : new \App\Core\Metrics\MetricsCollector();
             }
+
+            self::$metricsCollector->recordCache($hit);
+        } catch (Throwable) {
+            // Don't let metrics recording break cache operations
         }
     }
 
@@ -149,7 +162,7 @@ class FileStore extends AbstractCacheStore
             return null;
         }
 
-        $payload = @unserialize($contents);
+        $payload = @unserialize($contents, ['allowed_classes' => false]);
 
         if ($payload === false || ! is_array($payload)) {
             $this->forget($key);

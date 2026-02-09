@@ -17,6 +17,7 @@ use App\Core\Contracts\Http\RequestInterface;
 use App\Core\Contracts\Http\ResponseInterface;
 use App\Core\Contracts\Routing\RouterInterface;
 use App\Core\Http\Middleware\Pipeline;
+use App\Core\Support\Str;
 use Throwable;
 
 /**
@@ -170,7 +171,7 @@ class Kernel implements KernelInterface
     {
         $correlationId = $request->header('X-Correlation-ID')
             ?? $request->header('X-Request-ID')
-            ?? bin2hex(random_bytes(8));
+            ?? Str::randomHex(8);
 
         if ($this->app->has('logger')) {
             $logger = $this->app->make('logger');

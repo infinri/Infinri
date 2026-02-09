@@ -88,7 +88,7 @@ class MiddlewareCompiler extends AbstractCompiler
                         $priority = 0;
                     }
 
-                    if (! in_array($class, $compiled[$group])) {
+                    if (! in_array($class, $compiled[$group], true)) {
                         $compiled[$group][] = $class;
                         $compiled['priority'][$class] = $priority;
                     }

@@ -132,7 +132,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
 
         if ($cacheControl) {
             $directives = array_map('trim', explode(',', $cacheControl));
-            if (in_array('no-cache', $directives) || in_array('no-store', $directives)) {
+            if (in_array('no-cache', $directives, true) || in_array('no-store', $directives, true)) {
                 return true;
             }
         }
@@ -240,7 +240,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     protected function shouldCache(ResponseInterface $response): bool
     {
         // Check status code
-        if (! in_array($response->getStatusCode(), $this->config['cacheable_status_codes'])) {
+        if (! in_array($response->getStatusCode(), $this->config['cacheable_status_codes'], true)) {
             return false;
         }
 
@@ -248,7 +248,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         $cacheControl = $response->getHeader('Cache-Control');
         if ($cacheControl) {
             $directives = array_map('trim', explode(',', $cacheControl));
-            if (in_array('private', $directives) || in_array('no-store', $directives)) {
+            if (in_array('private', $directives, true) || in_array('no-store', $directives, true)) {
                 return false;
             }
         }

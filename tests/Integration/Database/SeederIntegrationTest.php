@@ -57,12 +57,15 @@ class ChildSeeder extends Seeder
 
 class SeederIntegrationTest extends TestCase
 {
+    use RequiresDatabase;
+
     private static ?Application $app = null;
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->bootApplication();
+        $this->skipIfNoDB();
         $this->connection = self::$app->make(DatabaseManager::class)->connection();
     }
 
@@ -73,7 +76,6 @@ class SeederIntegrationTest extends TestCase
 
             $reflection = new \ReflectionClass(Application::class);
             $instance = $reflection->getProperty('instance');
-            $instance->setAccessible(true);
             $instance->setValue(null, null);
 
             self::$app = new Application($basePath);

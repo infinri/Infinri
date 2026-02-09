@@ -82,6 +82,14 @@ final class Gate
     }
 
     /**
+     * Get the current user resolver
+     */
+    public function getUserResolver(): ?Closure
+    {
+        return $this->userResolver;
+    }
+
+    /**
      * Resolve the current user
      */
     public function resolveUser(): ?AuthorizableInterface

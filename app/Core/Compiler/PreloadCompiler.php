@@ -37,7 +37,6 @@ class PreloadCompiler
         'app/Core/Http/Request.php',
         'app/Core/Http/Response.php',
         'app/Core/Routing/Router.php',
-        'app/Core/Routing/SimpleRouter.php',
         'app/Core/Module/ModuleRegistry.php',
         'app/Core/Module/ModuleDefinition.php',
         'app/Core/Module/ModuleLoader.php',

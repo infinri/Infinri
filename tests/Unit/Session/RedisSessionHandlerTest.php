@@ -430,10 +430,15 @@ describe('RedisSessionHandler with mocks', function () {
             'session:lock:' . str_repeat('c', 64), // should be filtered
         ];
         
-        $this->mockRedis->shouldReceive('keys')
-            ->once()
-            ->with('session:*')
-            ->andReturn($keys);
+        $this->mockRedis->shouldReceive('scan')
+            ->twice()
+            ->andReturnUsing(function (&$iterator) use ($keys) {
+                if ($iterator === null) {
+                    $iterator = 0;
+                    return $keys;
+                }
+                return false;
+            });
         
         $handler = new RedisSessionHandler($this->mockManager);
         $ids = $handler->getAllSessionIds();
@@ -443,7 +448,7 @@ describe('RedisSessionHandler with mocks', function () {
     });
     
     it('returns empty array on getAllSessionIds error', function () {
-        $this->mockRedis->shouldReceive('keys')
+        $this->mockRedis->shouldReceive('scan')
             ->once()
             ->andThrow(new \RedisException('Keys error'));
         
@@ -460,9 +465,15 @@ describe('RedisSessionHandler with mocks', function () {
             'session:' . str_repeat('b', 64),
         ];
         
-        $this->mockRedis->shouldReceive('keys')
-            ->once()
-            ->andReturn($keys);
+        $this->mockRedis->shouldReceive('scan')
+            ->twice()
+            ->andReturnUsing(function (&$iterator) use ($keys) {
+                if ($iterator === null) {
+                    $iterator = 0;
+                    return $keys;
+                }
+                return false;
+            });
         
         $handler = new RedisSessionHandler($this->mockManager);
         $count = $handler->getActiveSessionCount();
@@ -476,9 +487,15 @@ describe('RedisSessionHandler with mocks', function () {
             'session:' . str_repeat('b', 64),
         ];
         
-        $this->mockRedis->shouldReceive('keys')
-            ->once()
-            ->andReturn($keys);
+        $this->mockRedis->shouldReceive('scan')
+            ->twice()
+            ->andReturnUsing(function (&$iterator) use ($keys) {
+                if ($iterator === null) {
+                    $iterator = 0;
+                    return $keys;
+                }
+                return false;
+            });
         $this->mockRedis->shouldReceive('del')
             ->once()
             ->andReturn(2);
@@ -490,9 +507,9 @@ describe('RedisSessionHandler with mocks', function () {
     });
     
     it('returns 0 when no sessions to destroy', function () {
-        $this->mockRedis->shouldReceive('keys')
+        $this->mockRedis->shouldReceive('scan')
             ->once()
-            ->andReturn([]);
+            ->andReturn(false);
         
         $handler = new RedisSessionHandler($this->mockManager);
         $count = $handler->destroyAll();
@@ -501,7 +518,7 @@ describe('RedisSessionHandler with mocks', function () {
     });
     
     it('returns 0 on destroyAll error', function () {
-        $this->mockRedis->shouldReceive('keys')
+        $this->mockRedis->shouldReceive('scan')
             ->once()
             ->andThrow(new \RedisException('Keys error'));
         

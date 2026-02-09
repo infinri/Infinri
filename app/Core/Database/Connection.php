@@ -15,6 +15,7 @@ use App\Core\Contracts\Database\ConnectionInterface;
 use PDO;
 use PDOException;
 use PDOStatement;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -93,18 +94,37 @@ class Connection implements ConnectionInterface
     {
         // Set timezone if specified
         if (isset($this->config['timezone'])) {
-            $this->pdo->exec("SET TIME ZONE '{$this->config['timezone']}'");
+            $timezone = $this->validateConfigValue($this->config['timezone'], '/^[A-Za-z0-9_\/\+\-:]+$/');
+            $this->pdo->exec("SET TIME ZONE '{$timezone}'");
         }
 
         // Set charset if specified
         if (isset($this->config['charset'])) {
-            $this->pdo->exec("SET NAMES '{$this->config['charset']}'");
+            $charset = $this->validateConfigValue($this->config['charset'], '/^[A-Za-z0-9_\-]+$/');
+            $this->pdo->exec("SET NAMES '{$charset}'");
         }
 
         // Set search path for PostgreSQL
         if (isset($this->config['schema'])) {
-            $this->pdo->exec("SET search_path TO {$this->config['schema']}");
+            $schema = $this->validateConfigValue($this->config['schema'], '/^[A-Za-z0-9_,\s]+$/');
+            $this->pdo->exec("SET search_path TO {$schema}");
         }
+    }
+
+    /**
+     * Validate a config value against a whitelist pattern to prevent SQL injection
+     *
+     * @throws RuntimeException if value contains unsafe characters
+     */
+    protected function validateConfigValue(string $value, string $pattern): string
+    {
+        if (! preg_match($pattern, $value)) {
+            throw new RuntimeException(
+                "Invalid database config value: contains unsafe characters"
+            );
+        }
+
+        return $value;
     }
 
     public function query(string $sql, array $bindings = []): PDOStatement
@@ -319,8 +339,8 @@ class Connection implements ConnectionInterface
         }
 
         // Log slow queries (> 100ms)
-        if ($time > 0.1 && function_exists('logger')) {
-            logger()->warning('Slow query detected', [
+        if ($time > 0.1) {
+            safe_log('warning', 'Slow query detected', [
                 'query' => $sql,
                 'bindings' => $bindings,
                 'time_ms' => round($time * 1000, 2),
@@ -329,35 +349,31 @@ class Connection implements ConnectionInterface
 
         // Log to query channel if available
         if ($time > 0 && function_exists('logger')) {
-            $logger = logger();
-            if (method_exists($logger, 'query')) {
-                $logger->query($sql, $bindings, $time);
+            $queryLogger = logger();
+            if (method_exists($queryLogger, 'query')) {
+                $queryLogger->query($sql, $bindings, $time);
             }
         }
     }
 
     protected function logConnectionError(PDOException $e): void
     {
-        if (function_exists('logger')) {
-            logger()->error('Database connection failed', [
-                'connection' => $this->name,
-                'driver' => $this->getDriverName(),
-                'database' => $this->getDatabaseName(),
-                'error' => $e->getMessage(),
-                'code' => $e->getCode(),
-            ]);
-        }
+        safe_log('error', 'Database connection failed', [
+            'connection' => $this->name,
+            'driver' => $this->getDriverName(),
+            'database' => $this->getDatabaseName(),
+            'error' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ]);
     }
 
     protected function logQueryError(string $sql, array $bindings, PDOException $e): void
     {
-        if (function_exists('logger')) {
-            logger()->error('Database query failed', [
-                'query' => $sql,
-                'bindings' => $bindings,
-                'error' => $e->getMessage(),
-                'code' => $e->getCode(),
-            ]);
-        }
+        safe_log('error', 'Database query failed', [
+            'query' => $sql,
+            'bindings' => $bindings,
+            'error' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ]);
     }
 }

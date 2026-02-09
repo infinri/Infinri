@@ -30,7 +30,7 @@ class ModuleListCommand extends Command
         $registry = new ModuleRegistry();
 
         // Check for --rebuild flag
-        if (in_array('--rebuild', $args) || in_array('-r', $args)) {
+        if (in_array('--rebuild', $args, true) || in_array('-r', $args, true)) {
             $this->line("Rebuilding module registry...");
             $registry->rebuild();
             $this->info("✓ Registry rebuilt");

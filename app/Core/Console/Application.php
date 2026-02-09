@@ -11,6 +11,7 @@
  */
 namespace App\Core\Console;
 
+use App\Core\Console\Concerns\WritesOutput;
 use Throwable;
 
 /**
@@ -21,6 +22,7 @@ use Throwable;
  */
 class Application
 {
+    use WritesOutput;
     /**
      * Registered command classes
      *
@@ -94,7 +96,7 @@ class Application
 
         // Get name from command or generate from class name
         $name = $instance->getName();
-        if (empty($name)) {
+        if ($name === '' || $name === null) {
             // Generate name from class: InstallCommand -> install
             $name = $this->classToName($class);
         }
@@ -257,13 +259,4 @@ class Application
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1:$2', $name));
     }
 
-    protected function line(string $message): void
-    {
-        echo $message . PHP_EOL;
-    }
-
-    protected function error(string $message): void
-    {
-        echo "\033[31m{$message}\033[0m" . PHP_EOL;
-    }
 }

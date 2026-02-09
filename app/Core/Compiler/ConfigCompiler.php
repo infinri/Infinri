@@ -148,7 +148,7 @@ class ConfigCompiler extends AbstractCompiler
             }
         }
 
-        if (empty($items)) {
+        if ($items === []) {
             return '[]';
         }
 
@@ -164,7 +164,7 @@ class ConfigCompiler extends AbstractCompiler
         foreach ($this->registry->getEnabled() as $module) {
             $moduleConfig = $module->loadConfig();
 
-            if (! empty($moduleConfig)) {
+            if ($moduleConfig !== []) {
                 $config['modules'][$module->name] = $moduleConfig;
 
                 if (isset($moduleConfig['_global'])) {
