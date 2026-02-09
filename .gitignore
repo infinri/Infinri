@@ -61,7 +61,6 @@ composer.phar
 # Testing & Analysis
 .phpunit.result.cache
 /coverage/
-/phpstan.neon
 /phpstan.neon.dist
 .phpunit.cache/
 .pest/
