@@ -174,7 +174,7 @@ class RedisStore extends AbstractCacheStore
     public function flush(): bool
     {
         try {
-            return $this->deleteByPattern($this->prefix . '*') !== false;
+            return $this->deleteByPattern($this->prefix . '*') >= 0;
         } catch (RedisException $e) {
             $this->logRedisError('Cache flush', $e, [], 'error');
 

@@ -122,7 +122,7 @@ if (! function_exists('csp_nonce_attr')) {
     {
         $nonce = csp_nonce();
 
-        return $nonce ? ' nonce="' . e($nonce) . '"' : '';
+        return $nonce !== null ? ' nonce="' . e($nonce) . '"' : '';
     }
 }
 

@@ -137,4 +137,14 @@ interface RequestInterface
      * Set route parameters
      */
     public function setRouteParameters(array $parameters): static;
+
+    /**
+     * Get all query string parameters
+     */
+    public function getQueryParams(): array;
+
+    /**
+     * Get all cookies
+     */
+    public function getCookies(): array;
 }

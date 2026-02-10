@@ -148,7 +148,7 @@ class ExceptionHandler
     protected function logException(Throwable $e, ?RequestInterface $request = null): void
     {
         $context = [
-            'request' => $request ? [
+            'request' => $request !== null ? [
                 'method' => $request->method(),
                 'path' => $request->path(),
                 'ip' => $request->ip(),
@@ -157,7 +157,7 @@ class ExceptionHandler
         ];
 
         // Use Core Error Handler if available
-        if ($this->errorHandler) {
+        if ($this->errorHandler !== null) {
             $this->errorHandler->report($e, $context);
 
             return;

@@ -115,4 +115,9 @@ interface ConnectionInterface
      * Get the table prefix
      */
     public function getTablePrefix(): string;
+
+    /**
+     * Get a query builder instance for a table
+     */
+    public function table(string $table): \App\Core\Database\QueryBuilder;
 }

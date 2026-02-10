@@ -206,7 +206,7 @@ class AssetsPublishCommand extends Command
         );
 
         foreach ($iterator as $item) {
-            $destPath = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+            $destPath = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathname();
 
             if ($item->isDir()) {
                 $this->ensureDirectory($destPath);

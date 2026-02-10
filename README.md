@@ -1,8 +1,8 @@
 # Infinri
 
-**A modular PHP platform built with SEI-compliant architecture.**
+**A modular PHP platform built from scratch with SEI-compliant architecture.**
 
-Designed for maintainability, security, and performance. The core framework is complete — modules are the next development phase.
+Designed for maintainability, security, and performance — no framework dependencies, pure PHP engineering. The core framework powers a modular platform where every subsystem is handcrafted, tested, and documented.
 
 ---
 
@@ -10,163 +10,181 @@ Designed for maintainability, security, and performance. The core framework is c
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| **Phase 1: Core Framework** | ✅ Complete | DI Container, Router, Events, Config, Cache, Session |
-| **Phase 2: Platform Contracts** | ✅ Complete | ModuleInterface, EventSubscriberInterface, TemplateResolver |
-| **Phase 3: Module Development** | 🚧 Next | Business logic modules (Blog, Auth, CMS, etc.) |
+| **Phase 1: Core Framework** | ✅ Complete | DI Container, Router, Events, Config, Cache, Session, Database, Queue |
+| **Phase 2: Platform Contracts** | ✅ Complete | 22 interfaces defining the public API surface |
+| **Phase 3: Module Development** | 🔨 In Progress | Auth (complete), Admin, Forms, SEO, Marketing, Theme |
+| **Phase 4: Business Modules** | 🗓 Planned | Blog, CMS, Media, Analytics |
 
 ---
 
 ## Project Metrics
 
-### Codebase Size
+### Codebase
 
 | Category | Files | Lines of Code |
 |----------|-------|---------------|
-| **Core Framework** | 166 | 25,017 |
-| **Application Total** | 205 | 28,943 |
-| **Test Suite** | 144 | 26,501 |
-| **Total (with tests)** | 349 | 55,444 |
+| **Core Framework** | 212 | 34,466 |
+| **Application Total** | 265 | 41,855 |
+| **Test Suite** | 179 | 40,161 |
+| **Grand Total** | 444 | 82,016 |
 
-### Test Coverage
-
-| Metric | Value |
-|--------|-------|
-| **Total Tests** | 2,263 |
-| **Assertions** | 3,531 |
-| **Test Duration** | ~39s |
-
-### Production Footprint
+### Test Suite
 
 | Metric | Value |
 |--------|-------|
-| **App Size (production)** | 3.4 MB |
-| **Vendor (production)** | 20 MB |
-| **Vendor (with dev)** | 76 MB |
-| **Production Dependencies** | 29 packages |
-| **Dev Dependencies** | 72 packages |
+| **Total Tests** | 2,314 |
+| **Assertions** | 3,476 |
+| **Test Duration** | ~38s |
+| **Test Types** | Unit, Integration, Benchmark |
 
-### Runtime Performance
-
-| Metric | Value | Rating |
-|--------|-------|--------|
-| **Autoload Time** | ~9ms | ✅ Excellent |
-| **Bootstrap Time** | ~2ms | ✅ Excellent |
-| **Total Boot Time** | ~11ms | ✅ Excellent |
-| **Config Boot (cached)** | 108 µs | ✅ < 150µs goal |
-| **Memory (boot)** | 4 MB | ✅ Excellent |
-| **Peak Memory** | 6 MB | ✅ Excellent |
-
-### Architecture Components
+### Architecture
 
 | Component | Count |
 |-----------|-------|
-| **Contracts (Interfaces)** | 21 |
-| **Console Commands** | 19 |
-| **Feature Modules** | 8 |
-| **ADRs (Design Decisions)** | 10 |
+| **Contracts (Interfaces)** | 22 |
+| **Console Commands** | 25 |
+| **Platform Modules** | 6 |
+| **Architecture Docs** | 18 |
 
 ---
 
 ## Architecture
 
-### Core Design (SEI-Compliant)
+### Core Design Principles (SEI-Compliant)
 
 - **Layers + Microkernel** — Core defines interfaces, modules implement them
-- **Dependency Inversion** — Dependencies flow downward only
-- **Formal Contracts** — `ModuleInterface`, `EventSubscriberInterface`, `TemplateResolverInterface`
+- **Dependency Inversion** — All dependencies flow inward toward abstractions
+- **Formal Contracts** — 22 interfaces define the entire public API surface
 - **Theme Fallback Chain** — Theme → Module → Core template resolution
+- **Compiled Infrastructure** — Config, routes, containers, and middleware are compiled to static PHP for production
 
-### Quality Attributes Achieved
+### Quality Attributes
 
-| Attribute | Status | Implementation |
+| Attribute | Rating | Implementation |
 |-----------|--------|----------------|
-| **Modifiability** | ⭐ Excellent | DI, interfaces, service providers |
-| **Performance** | ⭐ Excellent | O(1) routing, 108µs config, 11ms boot |
-| **Security** | ⭐ Excellent | CSRF, rate limiting, input validation |
-| **Testability** | ⭐ Excellent | 2,263 tests, pure PHP, DI |
-| **Deployability** | ⭐ Excellent | 3.4MB footprint, predictable |
-| **Reusability** | ⭐ Very High | Contracts and providers |
-| **Integrability** | ⭐ High | Modules plug in easily |
+| **Modifiability** | ⭐ Excellent | DI container, 22 interfaces, service providers |
+| **Performance** | ⭐ Excellent | O(1) routing, 108µs config, ~11ms boot |
+| **Security** | ⭐ Excellent | CSRF, rate limiting, CSP nonces, cookie encryption |
+| **Testability** | ⭐ Excellent | 2,314 tests, pure PHP, full DI |
+| **Deployability** | ⭐ Excellent | RoadRunner long-running process, Docker-ready |
+| **Reusability** | ⭐ Very High | Contract-driven, provider-based architecture |
+| **Integrability** | ⭐ High | Module system with dependency resolution |
 
 ---
 
 ## Performance Benchmarks
 
-*Benchmarked on PHP 8.4.15 — November 2025*
+*Benchmarked on PHP 8.5.2*
 
-### Routing Performance
+### Routing
 
 | Metric | Value | Rating |
 |--------|-------|--------|
 | **Scaling Pattern** | O(1) Constant | ✅ Excellent |
-| **Efficiency Score** | 11.25 | ✅ Excellent |
-| **Static Routes** | ~21 µs (47,955 ops/sec) | ✅ |
-| **Dynamic Routes** | ~22 µs (45,696 ops/sec) | ✅ |
-| **1000 Routes (any position)** | ~20 µs | ✅ Consistent |
-| **Position Sensitivity** | ~1x | ✅ No impact |
+| **Static Routes** | ~1.3 µs (782,426 ops/sec) | ✅ |
+| **Dynamic Routes** | ~1.5 µs (650,648 ops/sec) | ✅ |
+| **1000 Routes (any position)** | ~2.4 µs | ✅ Consistent |
+| **Position Sensitivity** | 1.06x | ✅ No degradation |
 
-**Optimization:** Indexed route storage with O(1) static lookup and O(k) dynamic segment matching.
+Indexed route storage with O(1) static lookup and O(k) dynamic segment matching.
 
-### Config Performance
-
-| Metric | Value | Rating |
-|--------|-------|--------|
-| **First Load** | 108 µs | ✅ < 150µs goal |
-| **Subsequent Access** | 0.36 µs | ✅ 84x faster |
-| **Direct Static Access** | 0.05 µs | ✅ 602x faster |
-
-**Optimization:** Static compiled config class with OPcache interning.
-
-### Middleware Performance
+### Configuration
 
 | Metric | Value | Rating |
 |--------|-------|--------|
-| **Per-Layer Cost** | 2.64 µs | ✅ < 30µs goal |
-| **10 Middleware Stack** | 35 µs | ✅ Excellent |
-| **SecurityHeaders** | 32 µs | ✅ |
+| **Single File Load** | 6.4 µs | ✅ |
+| **All Config Files** | 19.9 µs | ✅ |
+| **Direct Array Access** | 48 ns | ✅ |
+| **Dot Notation Access** | 217 ns | ✅ |
+| **Cached Config Read** | 10.1 µs | ✅ |
+
+Static compiled config class with OPcache interning.
+
+### Middleware Pipeline
+
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **Per-Layer Cost** | 0.25 µs | ✅ < 30µs goal |
+| **10 Middleware Stack** | 3.54 µs | ✅ Excellent |
+
+### Runtime
+
+| Metric | Value | Rating |
+|--------|-------|--------|
+| **Bootstrap Time** | 0.12 ms | ✅ Excellent |
+| **Container Singleton** | 0.09 µs (11.3M ops/sec) | ✅ |
+| **Container Factory** | 0.26 µs (3.9M ops/sec) | ✅ |
+| **Event Dispatch (10 listeners)** | 0.08 µs (12.8M ops/sec) | ✅ |
+| **Memory Pattern** | Stable (no leaks) | ✅ Excellent |
 
 ### Full Benchmark Suite
 
 | Suite | Status | Duration |
 |-------|--------|----------|
-| autoloader | ✅ | 0.72s |
-| module | ✅ | 0.21s |
-| middleware | ✅ | 0.45s |
-| routing | ✅ | 0.49s |
-| database | ✅ | 4.37s |
-| reflection | ✅ | 0.05s |
-| serialization | ✅ | 2.69s |
-| config | ✅ | 0.33s |
-| error | ✅ | 0.23s |
-| io | ✅ | 1.28s |
-| longrunning | ✅ | 0.23s |
-| security | ✅ | 0.17s |
-| framework | ✅ | 0.02s |
+| autoloader | ✅ | 0.46s |
+| module | ✅ | 0.09s |
+| middleware | ✅ | 0.09s |
+| routing | ✅ | 0.06s |
+| database | ✅ | 0.02s |
+| reflection | ✅ | <0.01s |
+| serialization | ✅ | 1.19s |
+| config | ✅ | 0.13s |
+| error | ✅ | 0.02s |
+| io | ✅ | 0.75s |
+| longrunning | ✅ | 0.03s |
+| security | ✅ | 0.02s |
+| framework | ✅ | <0.01s |
 
-**Total:** 13 suites, 0 failures, 11.25s
+**13 suites, 0 failures, 2.86s total**
 
 ---
 
 ## Quick Start
+
+### Docker (Recommended)
+
+```bash
+git clone https://github.com/infinri/Infinri.git
+cd Infinri
+cp .env.example .env
+docker compose up -d
+```
+
+Access at **http://localhost** — includes RoadRunner, PostgreSQL, Redis, and Caddy.
+
+### Native
 
 ```bash
 git clone https://github.com/infinri/Infinri.git
 cd Infinri
 composer install
 cp .env.example .env
-# Edit .env with your configuration
-php bin/console s:up  # Setup project
+php bin/console s:up
+rr serve -c .rr.yaml
 ```
 
-### Commands
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full production deployment instructions.
+
+### CLI Commands
 
 | Command | Alias | Description |
 |---------|-------|-------------|
 | `setup:update` | `s:up` | Full project setup (cache, assets, preload) |
-| `assets:publish` | - | Publish module assets to pub/ |
-| `assets:build` | - | Build production bundles (requires Node.js) |
-| `cache:clear` | - | Clear all caches |
-| `preload:generate` | - | Generate OPcache preload file |
+| `setup:install` | `s:i` | Initial installation wizard |
+| `cache:clear` | — | Clear all caches |
+| `module:list` | — | List all modules and their status |
+| `module:enable` | — | Enable a module |
+| `module:disable` | — | Disable a module |
+| `module:make` | — | Scaffold a new module |
+| `assets:publish` | — | Publish module assets to pub/ |
+| `assets:build` | — | Build production bundles (requires Node.js) |
+| `preload:generate` | — | Generate OPcache preload file |
+| `key:generate` | — | Generate application encryption key |
+| `health:check` | — | Run application health checks |
+| `queue:work` | — | Process queued jobs |
+| `queue:status` | — | Show queue status |
+| `metrics:show` | — | Display application metrics |
+| `code:stats` | — | Show codebase statistics |
 
 ---
 
@@ -174,88 +192,129 @@ php bin/console s:up  # Setup project
 
 ```
 app/
-├── Core/               Framework kernel (25,017 LOC)
-│   ├── Application.php     Application bootstrap
-│   ├── Container/          DI container with autowiring
-│   ├── Contracts/          21 interfaces (public API)
-│   ├── Router/             HTTP routing
-│   ├── Events/             Event dispatcher + subscribers
-│   ├── Cache/              File-based caching
-│   ├── Config/             Configuration management
-│   ├── Console/            19 CLI commands
-│   ├── Module/             Module system + registry
-│   ├── View/               Layout engine + TemplateResolver
-│   └── ...
-├── modules/            Feature modules (8 modules)
-│   ├── head/           Navigation header
-│   ├── footer/         Site footer
-│   ├── home/           Landing page
-│   ├── about/          About section
-│   ├── contact/        Contact form
-│   ├── legal/          Legal pages
-│   └── error/          Error pages
-├── Modules/            Platform modules
-│   ├── Theme/          Theme assets and overrides
-│   └── Mail/           Email service (Brevo)
-bin/                    Console entry point
-config/                 Configuration files
-docs/                   Architecture documentation (12 docs)
-pub/                    Web root
-tests/                  Test suite (2,263 tests)
-var/                    Runtime data (cache, logs, sessions)
+├── Core/                   Framework kernel (212 files, 34K LOC)
+│   ├── Application.php         Application bootstrap & lifecycle
+│   ├── Authorization/          Gate, policies, RBAC
+│   ├── Cache/                  File, Redis, and Array stores
+│   ├── Compiler/               Config, container, route, event compilers
+│   ├── Config/                 Configuration management
+│   ├── Console/                25 CLI commands
+│   ├── Container/              IoC container with autowiring
+│   ├── Contracts/              22 interfaces (public API)
+│   ├── Database/               Query builder, models, relations, migrations
+│   ├── Error/                  Exception handling
+│   ├── Events/                 Event dispatcher + subscribers
+│   ├── Http/                   Request/Response, middleware pipeline
+│   ├── Indexer/                Search indexer system
+│   ├── Log/                    Structured logging
+│   ├── Metrics/                Application metrics collection
+│   ├── Module/                 Module loader, registry, renderer
+│   ├── Queue/                  Redis-backed job queue
+│   ├── Redis/                  Redis manager with connection pooling
+│   ├── Routing/                O(1) router with groups & middleware
+│   ├── Security/               CSRF, rate limiting, encryption
+│   ├── Session/                Session management (file + Redis)
+│   ├── Setup/                  Schema management & data patches
+│   ├── Support/                Helpers, utilities, environment
+│   ├── Validation/             Input validation
+│   └── View/                   Layout engine, template resolver, assets
+├── Http/                   Application HTTP kernel & middleware
+├── Modules/                Platform modules
+│   ├── Admin/                  Administration panel
+│   ├── Auth/                   Authentication & authorization (2FA, guards)
+│   ├── Forms/                  Form handling
+│   ├── Marketing/              Marketing tools
+│   ├── Seo/                    SEO management
+│   └── Theme/                  Theme assets and overrides
+├── Providers/              Service providers (Redis, View)
+└── config.php              Application configuration
+bin/                        Console entry point
+config/                     Site configuration (meta, services)
+database/                   Migrations and seeders
+docs/                       Architecture documentation (18 docs)
+docker/                     Docker configuration
+pub/                        Web root (public assets, entry point)
+routes/                     Route definitions
+tests/                      Test suite (179 files, 40K LOC)
+var/                        Runtime data (cache, logs, sessions, state)
 ```
 
 ---
 
-## Module Development (Next Phase)
+## Core Subsystems
 
-The core framework is complete. Modules are the next development focus.
+### DI Container
+Full IoC container with constructor autowiring, singleton management, circular dependency detection, and method injection via reflection.
 
-### Creating a Module
+### Router
+O(1) static route lookup and O(k) dynamic segment matching. Supports route groups, named routes, URL generation, middleware attachment, and parameter constraints.
 
-```php
-use App\Core\Module\AbstractModule;
-use App\Core\Contracts\Container\ContainerInterface;
+### Module System
+Modules are self-contained feature packages with service providers, dependency resolution, lazy loading, and enable/disable lifecycle. The registry supports caching, topological dependency sorting, and cycle detection.
 
-class BlogModule extends AbstractModule
-{
-    protected string $name = 'blog';
-    protected string $version = '1.0.0';
-    protected array $dependencies = ['database', 'cache'];
-    protected array $providers = [BlogServiceProvider::class];
-    protected array $commands = [BlogImportCommand::class];
-    
-    public function boot(ContainerInterface $container): void
-    {
-        // Register routes
-        $router = $container->make(RouterInterface::class);
-        $router->get('/blog', [BlogController::class, 'index']);
-        
-        // Register event subscribers
-        $dispatcher = $container->make(EventDispatcherInterface::class);
-        $dispatcher->addSubscriber(new BlogEventSubscriber());
-    }
-}
-```
+### Database
+Complete database layer with PDO-based connection management, fluent query builder, model system with relations (HasOne, HasMany, BelongsTo, BelongsToMany), schema management, migrations, seeders, and factory support for testing.
+
+### Event System
+Priority-based event dispatcher with subscriber support, stoppable events, and both interface-based and legacy subscription patterns.
+
+### Queue
+Redis-backed job queue with retry logic, delayed jobs, failure tracking, and a dedicated worker process.
+
+### View Engine
+Layout-based rendering with template resolver, block inheritance, asset management (CSS/JS with CSP nonce support), and meta tag management.
+
+---
+
+## Module Architecture
+
+Modules follow the service provider pattern. Each module can include routes, controllers, models, views, middleware, commands, and database schemas.
 
 ### Module Lifecycle
 
 ```
-Discovery → Validation → Registration → Boot
-    │           │            │           │
-    │           │            │           └─→ Routes, events, config
-    │           │            └─→ Bind services to container
-    │           └─→ Resolve dependencies, detect cycles
-    └─→ Scan directories, load module.php
+Discovery → Dependency Resolution → Registration → Boot
+    │              │                      │           │
+    │              │                      │           └── Routes, events, middleware
+    │              │                      └── Bind services to container
+    │              └── Topological sort, cycle detection
+    └── Scan directories, load module.php
 ```
+
+### Creating a Module
+
+```bash
+php bin/console module:make MyModule
+```
+
+Or manually create `app/Modules/MyModule/` with a service provider:
+
+```php
+namespace App\Modules\MyModule;
+
+use App\Core\Container\ServiceProvider;
+
+class MyModuleServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        // Bind interfaces to implementations
+    }
+
+    public function boot(): void
+    {
+        // Load routes, register events, middleware
+    }
+}
+```
+
+See [MODULE-ARCHITECTURE.md](MODULE-ARCHITECTURE.md) for the complete module development guide.
 
 ### Planned Modules
 
-- [ ] **Auth** — User authentication and authorization
 - [ ] **Blog** — Posts, categories, tags
 - [ ] **CMS** — Page management
 - [ ] **Media** — File uploads and management
-- [ ] **SEO** — Meta tags, sitemaps
 - [ ] **Analytics** — Usage tracking
 
 ---
@@ -264,59 +323,75 @@ Discovery → Validation → Registration → Boot
 
 | Layer | Technology |
 |-------|------------|
-| **Runtime** | PHP 8.4 (strict types) |
-| **Web Server** | Caddy 2.x (HTTP/2, auto-HTTPS) |
+| **Language** | PHP 8.4 (strict types, readonly, enums, fibers) |
+| **App Server** | RoadRunner 2024.x (long-running PHP workers) |
+| **Web Server** | Caddy 2.x (HTTP/2, automatic HTTPS) |
 | **Database** | PostgreSQL 16 |
-| **Cache** | File-based (Redis-ready) |
-| **Email** | Brevo API |
+| **Cache / Queue / Sessions** | Redis 7 |
+| **Email** | Symfony Mailer (Brevo API) |
+| **HTTP Client** | Guzzle 7 |
 | **Testing** | PestPHP + PHPUnit |
-| **Assets** | esbuild via Node.js |
+| **Static Analysis** | PHPStan (strict rules) |
+| **Code Style** | PHP-CS-Fixer |
+| **Asset Build** | clean-css + terser (Node.js, build-time only) |
+| **CI/CD** | GitHub Actions (tests, static analysis, code style) |
+| **Containerization** | Docker + Docker Compose |
 
 ---
 
 ## Documentation
 
-Comprehensive architecture documentation in `docs/`:
+Comprehensive SEI-style architecture documentation in [`docs/`](docs/):
 
 | Document | Purpose |
 |----------|---------|
-| `01-module-view.md` | Component decomposition, layer rules |
-| `02-component-connector-view.md` | Runtime behavior, request flows |
-| `03-allocation-view.md` | Deployment mapping |
-| `04-quality-scenarios.md` | SEI quality attribute scenarios |
-| `05-atam-evaluation.md` | Architecture tradeoff analysis |
-| `06-architecture-patterns.md` | Patterns and tactics |
-| `07-design-decisions.md` | 10 ADRs with rationale |
-| `10-theming-strategy.md` | Theme fallback system |
+| [`01-module-view.md`](docs/01-module-view.md) | Component decomposition and layer rules |
+| [`02-component-connector-view.md`](docs/02-component-connector-view.md) | Runtime behavior and request flows |
+| [`03-allocation-view.md`](docs/03-allocation-view.md) | Deployment mapping |
+| [`04-quality-scenarios.md`](docs/04-quality-scenarios.md) | SEI quality attribute scenarios |
+| [`05-atam-evaluation.md`](docs/05-atam-evaluation.md) | Architecture tradeoff analysis |
+| [`06-architecture-patterns.md`](docs/06-architecture-patterns.md) | Patterns and architectural tactics |
+| [`07-design-decisions.md`](docs/07-design-decisions.md) | ADRs with rationale |
+| [`08-observability-requirements.md`](docs/08-observability-requirements.md) | Logging, metrics, health checks |
+| [`09-first-migration-contact.md`](docs/09-first-migration-contact.md) | Migration strategy |
+| [`10-theming-strategy.md`](docs/10-theming-strategy.md) | Theme fallback system |
+| [`11-theming-strategy-v2.md`](docs/11-theming-strategy-v2.md) | Enhanced theming approach |
+| [`13-extension-points.md`](docs/13-extension-points.md) | Plugin and extension mechanisms |
+| [`14-operations-guide.md`](docs/14-operations-guide.md) | Operational procedures |
+| [`SECURITY-AUDIT.md`](docs/SECURITY-AUDIT.md) | Security audit findings |
+
+See also: [DEPLOYMENT.md](DEPLOYMENT.md) | [MODULE-ARCHITECTURE.md](MODULE-ARCHITECTURE.md)
 
 ---
 
 ## Security
 
-- **CSRF Protection** — Token verification on all forms
-- **Rate Limiting** — Configurable per-endpoint limits
-- **Input Validation** — Strict validation with sanitization
-- **XSS Prevention** — Output encoding
-- **HTTPS Enforcement** — Production auto-redirect
-- **Session Security** — Secure cookies, regeneration
+- **CSRF Protection** — Token verification on all state-changing requests
+- **Rate Limiting** — Configurable per-endpoint limits with Redis backing
+- **Content Security Policy** — Per-request nonce generation for scripts and styles
+- **Cookie Encryption** — All cookies encrypted with application key
+- **Input Validation** — Strict validation with sanitization via Symfony Validator
+- **XSS Prevention** — Output encoding with `e()` helper
+- **HTTPS Enforcement** — Automatic redirect in production
+- **Session Security** — Secure cookies, regeneration on authentication, Redis storage
+- **Security Headers** — X-Frame-Options, X-Content-Type-Options, Referrer-Policy, HSTS
 
 ---
 
 ## License
 
 **Proprietary Software** — All Rights Reserved  
-Copyright (c) 2024-2025 Lucio Saldivar / Infinri
+Copyright (c) 2024-2026 Lucio Saldivar / Infinri
 
-This software is the exclusive property of Lucio Saldivar / Infinri. Unauthorized 
-copying, distribution, modification, or use is strictly prohibited.
+This software is the exclusive property of Lucio Saldivar / Infinri. Unauthorized copying, distribution, modification, or use is strictly prohibited.
 
-| Document | Purpose |
-|----------|---------|
+| Document | Description |
+|----------|-------------|
 | [LICENSE](LICENSE) | Full proprietary license terms |
 | [LEGAL.md](docs/LEGAL.md) | Terms of access and legal notices |
-| [CONTRIBUTOR-AGREEMENT.md](docs/CONTRIBUTOR-AGREEMENT.md) | Collaborator/contractor terms |
+| [CONTRIBUTOR-AGREEMENT.md](docs/CONTRIBUTOR-AGREEMENT.md) | Collaborator and contractor terms |
 
-For licensing inquiries: legal@infinri.com
+For licensing inquiries: **legal@infinri.com**
 
 ---
 

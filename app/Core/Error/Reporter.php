@@ -106,7 +106,7 @@ class Reporter
 
         $message = sprintf(
             '%s[%s] %s in %s:%d',
-            $prefix ? "[$prefix] " : '',
+            $prefix !== '' ? "[$prefix] " : '',
             get_class($e),
             $e->getMessage(),
             $e->getFile(),

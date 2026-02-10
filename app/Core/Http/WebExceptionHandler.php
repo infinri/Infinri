@@ -41,7 +41,7 @@ class WebExceptionHandler extends ExceptionHandler
             ], HttpStatus::NOT_FOUND);
         }
 
-        if ($this->renderer) {
+        if ($this->renderer !== null) {
             $content = $this->renderer->renderError(404);
 
             return Response::make($content, HttpStatus::NOT_FOUND)->asHtml();
@@ -52,7 +52,7 @@ class WebExceptionHandler extends ExceptionHandler
 
     protected function htmlErrorResponse(Throwable $e): Response
     {
-        if ($this->renderer && ! $this->debug) {
+        if ($this->renderer !== null && ! $this->debug) {
             $content = $this->renderer->renderError(500);
 
             return Response::make($content, HttpStatus::INTERNAL_SERVER_ERROR)->asHtml();

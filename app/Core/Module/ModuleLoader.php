@@ -113,7 +113,7 @@ class ModuleLoader
         // First load dependencies
         foreach ($module->dependencies as $dependency) {
             $depModule = $this->registry->get($dependency);
-            if ($depModule && ! isset($this->loadedModules[$dependency])) {
+            if ($depModule !== null && ! isset($this->loadedModules[$dependency])) {
                 $this->loadModule($depModule);
             }
         }

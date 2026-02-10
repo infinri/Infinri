@@ -67,6 +67,7 @@ composer.phar
 test-*.php
 check-*.php
 patches.lock.json
+tests/results/
 
 # Backup & Temporary Files
 *.backup

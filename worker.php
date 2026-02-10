@@ -28,7 +28,7 @@ $worker = Worker::create();
 $psrWorker = new PSR7Worker($worker, $factory, $factory, $factory);
 
 // Boot the application once (stays in memory)
-$app = require_once __DIR__ . '/bootstrap/app.php';
+$app = require_once __DIR__ . '/app/Core/bootstrap.php';
 
 // Process requests in a loop
 while (true) {

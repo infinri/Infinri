@@ -102,7 +102,7 @@ if (! function_exists('base_path')) {
     {
         $basePath = defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__, 3);
 
-        return $basePath . ($path ? DIRECTORY_SEPARATOR . $path : '');
+        return $basePath . ($path !== '' ? DIRECTORY_SEPARATOR . $path : '');
     }
 }
 
@@ -248,11 +248,11 @@ if (! function_exists('log_system')) {
     {
         $logger = logger();
 
-        if ($logger instanceof \App\Core\Log\LogManager) {
-            $logger->system($message, $context);
-        } else {
-            $logger->info('[SYSTEM] ' . $message, $context);
+        if ($logger === null) {
+            return;
         }
+
+        $logger->system($message, $context);
     }
 }
 
@@ -344,7 +344,7 @@ if (! function_exists('app_path')) {
      */
     function app_path(string $path = ''): string
     {
-        return base_path('app' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return base_path('app' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 }
 
@@ -358,7 +358,7 @@ if (! function_exists('public_path')) {
      */
     function public_path(string $path = ''): string
     {
-        return base_path('pub' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return base_path('pub' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 }
 

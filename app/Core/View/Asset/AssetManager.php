@@ -369,7 +369,7 @@ final class AssetManager
             return '';
         }
 
-        $nonceAttr = $this->cspNonce ? ' nonce="' . e($this->cspNonce) . '"' : '';
+        $nonceAttr = $this->cspNonce !== null ? ' nonce="' . e($this->cspNonce) . '"' : '';
 
         return '<style' . $nonceAttr . '>' . $css . '</style>' . PHP_EOL;
     }
@@ -389,7 +389,7 @@ final class AssetManager
             return '';
         }
 
-        $nonceAttr = $this->cspNonce ? ' nonce="' . e($this->cspNonce) . '"' : '';
+        $nonceAttr = $this->cspNonce !== null ? ' nonce="' . e($this->cspNonce) . '"' : '';
 
         return '<script' . $nonceAttr . '>' . $script . '</script>' . PHP_EOL;
     }

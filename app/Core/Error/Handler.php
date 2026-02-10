@@ -59,7 +59,7 @@ class Handler
 
         // Run custom handlers
         foreach ($this->handlers as $type => $handler) {
-            if ($e instanceof $type) {
+            if (is_a($e, $type)) {
                 $handler($e, $context);
 
                 return;
@@ -156,7 +156,7 @@ class Handler
             $data['trace'] = $this->formatTrace($e);
         }
 
-        if ($e->getPrevious()) {
+        if ($e->getPrevious() !== null) {
             $data['previous'] = $this->toArray($e->getPrevious(), $includeTrace);
         }
 
@@ -187,7 +187,7 @@ class Handler
                 $frame['line'] ?? 0,
                 $frame['class'] ?? '',
                 $frame['type'] ?? '',
-                $frame['function'] ?? 'unknown'
+                $frame['function']
             );
         }
 

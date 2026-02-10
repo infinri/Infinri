@@ -71,7 +71,7 @@ class SecurityHeadersMiddleware
         }
 
         // Add HSTS if enabled and request is HTTPS
-        if ($this->enableHsts && $request->isSecure()) {
+        if ($this->enableHsts && $request->secure()) {
             $hsts = 'max-age=31536000; includeSubDomains';
             if (method_exists($response, 'header')) {
                 $response->header('Strict-Transport-Security', $hsts);
@@ -88,7 +88,7 @@ class SecurityHeadersMiddleware
      */
     protected function replacePlaceholders(string $value): string
     {
-        if ($this->cspNonce && str_contains($value, '{nonce}')) {
+        if ($this->cspNonce !== null && str_contains($value, '{nonce}')) {
             $value = str_replace('{nonce}', $this->cspNonce, $value);
         }
 
@@ -140,8 +140,8 @@ class SecurityHeadersMiddleware
     {
         $defaults = [
             'default-src' => "'self'",
-            'script-src' => "'self'" . ($nonce ? " 'nonce-{$nonce}'" : ''),
-            'style-src' => "'self'" . ($nonce ? " 'nonce-{$nonce}'" : ''),
+            'script-src' => "'self'" . ($nonce !== null ? " 'nonce-{$nonce}'" : ''),
+            'style-src' => "'self'" . ($nonce !== null ? " 'nonce-{$nonce}'" : ''),
             'img-src' => "'self' data:",
             'font-src' => "'self'",
             'connect-src' => "'self'",

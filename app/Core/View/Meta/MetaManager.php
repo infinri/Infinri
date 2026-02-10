@@ -14,21 +14,21 @@ final class MetaManager
     /**
      * Meta tag storage
      *
-     * @var array<string, string>
+     * @var array<string, string|null>
      */
     private array $tags = [];
 
     /**
      * Open Graph tags
      *
-     * @var array<string, string>
+     * @var array<string, string|null>
      */
     private array $openGraph = [];
 
     /**
      * Twitter Card tags
      *
-     * @var array<string, string>
+     * @var array<string, string|null>
      */
     private array $twitter = [];
 
@@ -144,7 +144,7 @@ final class MetaManager
      */
     public function getTitle(): string
     {
-        if ($this->appendSuffix && $this->titleSuffix) {
+        if ($this->appendSuffix && $this->titleSuffix !== '') {
             return $this->title . $this->titleSuffix;
         }
 
@@ -406,7 +406,7 @@ final class MetaManager
 
         // Standard meta tags
         foreach ($this->tags as $name => $content) {
-            if ($content !== '' && $content !== null) {
+            if ($content !== null && $content !== '') {
                 $output .= '<meta name="' . e($name) . '" content="' . e($content) . '">' . PHP_EOL;
             }
         }
@@ -423,14 +423,14 @@ final class MetaManager
 
         // Open Graph
         foreach ($this->openGraph as $property => $content) {
-            if ($content !== '' && $content !== null) {
+            if ($content !== null && $content !== '') {
                 $output .= '<meta property="' . e($property) . '" content="' . e($content) . '">' . PHP_EOL;
             }
         }
 
         // Twitter Cards
         foreach ($this->twitter as $name => $content) {
-            if ($content !== '' && $content !== null) {
+            if ($content !== null && $content !== '') {
                 $output .= '<meta name="' . e($name) . '" content="' . e($content) . '">' . PHP_EOL;
             }
         }

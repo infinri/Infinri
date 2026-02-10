@@ -50,7 +50,7 @@ abstract class AbstractPatch
             [$data[$uniqueColumn]]
         );
 
-        if ($exists) {
+        if ($exists !== null) {
             return false;
         }
 

@@ -70,7 +70,7 @@ class EncryptCookies implements MiddlewareInterface
     {
         $decrypted = [];
 
-        foreach ($request->cookies->all() as $name => $value) {
+        foreach ($request->getCookies() as $name => $value) {
             if ($this->isDisabled($name)) {
                 $decrypted[$name] = $value;
                 continue;

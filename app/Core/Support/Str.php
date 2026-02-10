@@ -176,7 +176,7 @@ final class Str
     public static function slug(string $value, string $separator = '-'): string
     {
         $value = preg_replace('/[^\pL\d]+/u', $separator, $value);
-        $value = preg_replace('/[' . preg_quote($separator) . ']+/u', $separator, $value);
+        $value = preg_replace('/[' . preg_quote($separator, '/') . ']+/u', $separator, $value);
 
         return strtolower(trim($value, $separator));
     }

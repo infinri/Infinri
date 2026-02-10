@@ -49,7 +49,7 @@ class BindingResolutionException extends Exception
 
     public static function uninstantiable(string $abstract, ?string $reason = null): static
     {
-        $message = "Target [{$abstract}] is not instantiable" . ($reason ? ": {$reason}" : '');
+        $message = "Target [{$abstract}] is not instantiable" . ($reason !== null ? ": {$reason}" : '');
 
         return new static($message, $abstract, $reason);
     }

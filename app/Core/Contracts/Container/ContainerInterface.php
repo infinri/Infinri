@@ -57,7 +57,7 @@ interface ContainerInterface
      * @param string $abstract The abstract type to resolve
      * @param array $parameters Optional parameters for construction
      *
-     * @throws BindingResolutionException
+     * @throws \App\Core\Container\BindingResolutionException
      *
      * @return mixed The resolved instance
      */
@@ -81,6 +81,24 @@ interface ContainerInterface
      * @return bool
      */
     public function bound(string $abstract): bool;
+
+    /**
+     * Check if a binding exists (PSR-11 compatible)
+     *
+     * @param string $id The identifier to check
+     *
+     * @return bool
+     */
+    public function has(string $id): bool;
+
+    /**
+     * Get a binding by identifier (PSR-11 compatible)
+     *
+     * @param string $id The identifier to retrieve
+     *
+     * @return mixed
+     */
+    public function get(string $id): mixed;
 
     /**
      * Determine if a type has been resolved

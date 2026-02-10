@@ -38,7 +38,7 @@ trait ManagesProviders
      */
     public function register(ServiceProvider|string $provider, bool $force = false): ServiceProvider
     {
-        if (($registered = $this->getProvider($provider)) && ! $force) {
+        if (($registered = $this->getProvider($provider)) !== null && ! $force) {
             return $registered;
         }
 
@@ -95,9 +95,7 @@ trait ManagesProviders
      */
     protected function bootProvider(ServiceProvider $provider): void
     {
-        if (method_exists($provider, 'boot')) {
-            $provider->boot();
-        }
+        $provider->boot();
     }
 
     /**

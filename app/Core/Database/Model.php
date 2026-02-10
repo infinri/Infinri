@@ -94,7 +94,7 @@ abstract class Model implements JsonSerializable
      */
     public function getTable(): string
     {
-        if ($this->table) {
+        if ($this->table !== '') {
             return $this->table;
         }
 
@@ -269,7 +269,7 @@ abstract class Model implements JsonSerializable
 
         $fresh = static::find($this->getKey());
 
-        if ($fresh) {
+        if ($fresh !== null) {
             $this->attributes = $fresh->attributes;
             $this->original = $fresh->original;
         }

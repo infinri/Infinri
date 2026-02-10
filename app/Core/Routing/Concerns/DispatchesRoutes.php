@@ -93,7 +93,7 @@ trait DispatchesRoutes
         }
 
         // 2. Try dynamic route lookup by first segment - O(k)
-        $firstSegment = explode('/', trim($normalizedPath, '/'))[0] ?? '';
+        $firstSegment = explode('/', trim($normalizedPath, '/'))[0];
         if (isset($this->dynamicRoutes[$method][$firstSegment])) {
             foreach ($this->dynamicRoutes[$method][$firstSegment] as $route) {
                 if ($route->matches($normalizedPath, $method)) {
@@ -122,7 +122,7 @@ trait DispatchesRoutes
     {
         $methods = [];
         $normalizedPath = Str::normalizeUri($path);
-        $firstSegment = explode('/', trim($normalizedPath, '/'))[0] ?? '';
+        $firstSegment = explode('/', trim($normalizedPath, '/'))[0];
 
         // Check static routes for all methods
         foreach (['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as $method) {
@@ -183,7 +183,7 @@ trait DispatchesRoutes
             return $this->app->call([$instance, $method], ['request' => $request]);
         }
 
-        if (is_string($action) && str_contains($action, '@')) {
+        if (str_contains($action, '@')) {
             [$controller, $method] = explode('@', $action, 2);
             $instance = $this->app->make($controller);
 

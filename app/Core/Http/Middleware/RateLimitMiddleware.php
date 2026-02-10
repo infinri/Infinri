@@ -53,7 +53,7 @@ class RateLimitMiddleware implements MiddlewareInterface
 
     protected function resolveKey(RequestInterface $request): string
     {
-        $ip = $request->ip() ?? 'unknown';
+        $ip = $request->ip();
 
         return sha1($ip . '|' . $request->path());
     }

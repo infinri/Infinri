@@ -119,7 +119,8 @@ class EnvManager
         $missing = [];
 
         foreach ($required as $key) {
-            if ($this->get($key) === null || $this->get($key) === '') {
+            $value = $this->get($key);
+            if ($value === '') {
                 $missing[] = $key;
             }
         }

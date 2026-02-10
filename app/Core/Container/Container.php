@@ -134,6 +134,22 @@ class Container implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    public function has(string $id): bool
+    {
+        return $this->bound($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get(string $id): mixed
+    {
+        return $this->make($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function bound(string $abstract): bool
     {
         return isset($this->bindings[$abstract])
@@ -411,18 +427,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Check if a binding or instance exists
-     *
-     * @param string $abstract
-     *
-     * @return bool
-     */
-    public function has(string $abstract): bool
-    {
-        return $this->bound($abstract) || isset($this->instances[$abstract]);
-    }
-
-    /**
      * Call a callable with dependency injection
      *
      * @param callable|array $callback The callable to invoke
@@ -457,7 +461,7 @@ class Container implements ContainerInterface
             return new ReflectionFunction($callback);
         }
 
-        if (is_string($callback) && function_exists($callback)) {
+        if (is_string($callback)) {
             return new ReflectionFunction($callback);
         }
 

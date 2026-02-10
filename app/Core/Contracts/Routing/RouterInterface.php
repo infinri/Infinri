@@ -81,4 +81,9 @@ interface RouterInterface
      * Get all registered routes
      */
     public function getRoutes(): array;
+
+    /**
+     * Get the currently dispatched route
+     */
+    public function getCurrentRoute(): ?RouteInterface;
 }

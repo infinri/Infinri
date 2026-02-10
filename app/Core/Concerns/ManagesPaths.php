@@ -26,7 +26,7 @@ trait ManagesPaths
      */
     public function basePath(string $path = ''): string
     {
-        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . $path : '');
+        return $this->basePath . ($path !== '' ? DIRECTORY_SEPARATOR . $path : '');
     }
 
     /**
@@ -34,7 +34,7 @@ trait ManagesPaths
      */
     public function appPath(string $path = ''): string
     {
-        return $this->basePath('app' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('app' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**
@@ -42,7 +42,7 @@ trait ManagesPaths
      */
     public function storagePath(string $path = ''): string
     {
-        return $this->basePath('var' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('var' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**
@@ -50,7 +50,7 @@ trait ManagesPaths
      */
     public function publicPath(string $path = ''): string
     {
-        return $this->basePath('pub' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('pub' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**
@@ -58,7 +58,7 @@ trait ManagesPaths
      */
     public function configPath(string $path = ''): string
     {
-        return $this->basePath('config' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('config' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**
@@ -66,7 +66,7 @@ trait ManagesPaths
      */
     public function databasePath(string $path = ''): string
     {
-        return $this->basePath('database' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('database' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     /**
@@ -74,6 +74,6 @@ trait ManagesPaths
      */
     public function resourcePath(string $path = ''): string
     {
-        return $this->basePath('resources' . ($path ? DIRECTORY_SEPARATOR . $path : ''));
+        return $this->basePath('resources' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 }

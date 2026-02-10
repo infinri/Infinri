@@ -75,10 +75,10 @@ class ModuleListCommand extends Command
             if (! empty($module->commands)) {
                 $features[] = 'C';
             }
-            if ($module->eventsFile) {
+            if ($module->eventsFile !== null) {
                 $features[] = 'E';
             }
-            if ($module->configFile) {
+            if ($module->configFile !== null) {
                 $features[] = 'F';
             }
             $featureStr = implode('', $features) ?: '-';

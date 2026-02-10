@@ -168,7 +168,7 @@ class RedisJob implements JobInterface
             return;
         }
 
-        $message = $e ? $e->getMessage() . "\n" . $e->getTraceAsString() : 'Unknown error';
+        $message = $e !== null ? $e->getMessage() . "\n" . $e->getTraceAsString() : 'Unknown error';
 
         $this->queue->fail(
             $this->payload,

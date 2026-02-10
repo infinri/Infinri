@@ -180,11 +180,6 @@ class Application extends Container
                 'base_path' => $this->basePath,
                 'modules_loaded' => count($this->getModuleLoader()->getModules()),
             ]);
-        } else {
-            $logger->info('Application bootstrapped', [
-                'version' => $this->version(),
-                'environment' => env('APP_ENV', 'production'),
-            ]);
         }
 
         $this->hasBeenBootstrapped = true;

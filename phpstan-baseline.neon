@@ -1,6 +1,18 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Core\\Application\:\:getInstance\(\) should return static\(App\\Core\\Application\) but returns App\\Core\\Application\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Core/Application.php
+
+		-
+			message: '#^Trait App\\Core\\Authorization\\AuthorizesRequests is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Core/Authorization/AuthorizesRequests.php
+
+		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
 			identifier: empty.notAllowed
 			count: 1
@@ -163,6 +175,12 @@ parameters:
 			path: app/Core/Database/Model.php
 
 		-
+			message: '#^Method App\\Core\\Database\\Model\:\:find\(\) should return static\(App\\Core\\Database\\Model\)\|null but returns App\\Core\\Database\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Core/Database/Model.php
+
+		-
 			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
 			identifier: ternary.condNotBoolean
 			count: 1
@@ -265,12 +283,6 @@ parameters:
 			path: app/Core/Http/Middleware/Pipeline.php
 
 		-
-			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-			identifier: empty.notAllowed
-			count: 1
-			path: app/Core/Http/Middleware/ResponseCacheMiddleware.php
-
-		-
 			message: '#^Only booleans are allowed in &&, mixed given on the left side\.$#'
 			identifier: booleanAnd.leftNotBoolean
 			count: 1
@@ -353,24 +365,6 @@ parameters:
 			identifier: staticMethod.dynamicName
 			count: 1
 			path: app/Core/Security/Sanitizer.php
-
-		-
-			message: '#^Access to an undefined property App\\Core\\Session\\RedisSessionHandler\:\:\$connection\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Core/Session/RedisSessionHandler.php
-
-		-
-			message: '#^Access to an undefined property App\\Core\\Session\\RedisSessionHandler\:\:\$prefix\.$#'
-			identifier: property.notFound
-			count: 7
-			path: app/Core/Session/RedisSessionHandler.php
-
-		-
-			message: '#^Access to an undefined property App\\Core\\Session\\RedisSessionHandler\:\:\$redis\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Core/Session/RedisSessionHandler.php
 
 		-
 			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'

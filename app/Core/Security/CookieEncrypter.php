@@ -265,7 +265,7 @@ class CookieEncrypter
         }
 
         // Check expiration if set
-        if (isset($data['e']) && $data['e'] !== null && $data['e'] < time()) {
+        if (isset($data['e']) && $data['e'] < time()) {
             return null; // Expired
         }
 

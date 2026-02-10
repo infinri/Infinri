@@ -102,7 +102,7 @@ class QueueWorker
             // Try to get a job
             $job = $this->getNextJob($queue);
 
-            if ($job) {
+            if ($job !== null) {
                 $this->processJob($job);
                 $this->jobsProcessed++;
             } else {
@@ -125,7 +125,7 @@ class QueueWorker
     {
         $job = $this->getNextJob($queue);
 
-        if (! $job) {
+        if ($job === null) {
             return false;
         }
 
@@ -332,7 +332,7 @@ class QueueWorker
      */
     protected function log(string $level, string $message, array $context = []): void
     {
-        if ($this->logger) {
+        if ($this->logger !== null) {
             $this->logger->$level($message, $context);
         }
     }

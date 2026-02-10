@@ -158,7 +158,7 @@ class RedisQueue implements QueueInterface
             // For non-blocking, use LPOP
             $payload = $this->redis()->lPop($this->queueKey($queue));
 
-            if ($payload === false || $payload === null) {
+            if ($payload === false) {
                 return null;
             }
 
@@ -388,7 +388,7 @@ class RedisQueue implements QueueInterface
     public function failed(?string $queue = null, int $limit = 100): array
     {
         try {
-            $jobs = $this->redis()->lRange($this->failedKey($queue), 0, $limit - 1);
+            $jobs = $this->redis()->lrange($this->failedKey($queue), 0, $limit - 1);
 
             return array_map(fn ($j) => json_decode($j, true), $jobs);
         } catch (RedisException $e) {
@@ -404,7 +404,7 @@ class RedisQueue implements QueueInterface
     public function retryFailed(int $index, ?string $queue = null): bool
     {
         try {
-            $job = $this->redis()->lIndex($this->failedKey($queue), $index);
+            $job = $this->redis()->lindex($this->failedKey($queue), $index);
 
             if ($job === false) {
                 return false;
@@ -417,7 +417,7 @@ class RedisQueue implements QueueInterface
             $newPayload = json_encode($data);
 
             // Remove from failed queue
-            $this->redis()->lRem($this->failedKey($queue), 1, $job);
+            $this->redis()->lrem($this->failedKey($queue), $job, 1);
 
             // Push to main queue
             $this->redis()->rPush($this->queueKey($queue), $newPayload);

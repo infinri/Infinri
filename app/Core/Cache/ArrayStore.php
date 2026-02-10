@@ -33,7 +33,7 @@ class ArrayStore extends AbstractCacheStore
     {
         $this->storage[$key] = [
             'value' => $value,
-            'expiration' => $ttl ? time() + $ttl : 0,
+            'expiration' => $ttl !== null ? time() + $ttl : 0,
         ];
 
         return true;

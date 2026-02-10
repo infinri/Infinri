@@ -240,7 +240,7 @@ class Route implements RouteInterface
     {
         $segments = explode('/', trim($this->uri, '/'));
 
-        return $segments[0] ?? '';
+        return $segments[0];
     }
 
     /**
@@ -257,7 +257,7 @@ class Route implements RouteInterface
     protected function extractParameterNames(): void
     {
         preg_match_all('/\{(\w+)\??}/', $this->uri, $matches);
-        $this->parameterNames = $matches[1] ?? [];
+        $this->parameterNames = $matches[1];
     }
 
     /**

@@ -43,7 +43,7 @@ class HelpCommand extends Command
         $this->line();
 
         // Get commands from application if available
-        if ($this->app) {
+        if ($this->app !== null) {
             $this->displayDynamicCommands();
         } else {
             $this->displayStaticCommands();

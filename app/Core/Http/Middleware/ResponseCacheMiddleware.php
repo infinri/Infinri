@@ -78,7 +78,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         }
 
         // Only cache GET requests
-        if ($request->getMethod() !== 'GET') {
+        if ($request->method() !== 'GET') {
             return $next($request);
         }
 
@@ -88,7 +88,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         }
 
         // Skip excluded paths
-        if ($this->isExcludedPath($request->getPath())) {
+        if ($this->isExcludedPath($request->path())) {
             return $next($request);
         }
 
@@ -128,16 +128,16 @@ class ResponseCacheMiddleware implements MiddlewareInterface
      */
     protected function hasNoCacheHeaders(RequestInterface $request): bool
     {
-        $cacheControl = $request->getHeader('Cache-Control');
+        $cacheControl = $request->header('Cache-Control');
 
-        if ($cacheControl) {
+        if ($cacheControl !== null) {
             $directives = array_map('trim', explode(',', $cacheControl));
             if (in_array('no-cache', $directives, true) || in_array('no-store', $directives, true)) {
                 return true;
             }
         }
 
-        return $request->getHeader('Pragma') === 'no-cache';
+        return $request->header('Pragma') === 'no-cache';
     }
 
     /**
@@ -199,7 +199,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         }
 
         // Check for authorization header
-        if ($request->getHeader('Authorization')) {
+        if ($request->header('Authorization') !== null) {
             return true;
         }
 
@@ -212,21 +212,21 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     protected function generateCacheKey(RequestInterface $request): string
     {
         $parts = [
-            $request->getMethod(),
-            $request->getPath(),
+            $request->method(),
+            $request->path(),
         ];
 
         // Include sorted query string
         $query = $request->getQueryParams();
-        if (! empty($query)) {
+        if ($query !== []) {
             ksort($query);
             $parts[] = http_build_query($query);
         }
 
         // Include vary-by headers
         foreach ($this->config['vary_by'] as $header) {
-            $value = $request->getHeader($header);
-            if ($value) {
+            $value = $request->header($header);
+            if ($value !== null) {
                 $parts[] = $header . ':' . $value;
             }
         }
@@ -246,7 +246,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
 
         // Check response cache-control headers
         $cacheControl = $response->getHeader('Cache-Control');
-        if ($cacheControl) {
+        if ($cacheControl !== null) {
             $directives = array_map('trim', explode(',', $cacheControl));
             if (in_array('private', $directives, true) || in_array('no-store', $directives, true)) {
                 return false;
@@ -254,7 +254,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         }
 
         // Check for Set-Cookie header (indicates session/personalization)
-        if ($response->getHeader('Set-Cookie')) {
+        if ($response->getHeader('Set-Cookie') !== null) {
             return false;
         }
 
@@ -269,7 +269,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         $cached = [
             'status' => $response->getStatusCode(),
             'headers' => $this->filterHeaders($response->getHeaders()),
-            'body' => $response->getBody(),
+            'body' => $response->getContent(),
             'cached_at' => time(),
         ];
 
@@ -304,7 +304,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
     {
         $cacheControl = $response->getHeader('Cache-Control');
 
-        if ($cacheControl) {
+        if ($cacheControl !== null) {
             // Look for max-age directive
             if (preg_match('/max-age=(\d+)/', $cacheControl, $matches)) {
                 return (int) $matches[1];
@@ -318,7 +318,7 @@ class ResponseCacheMiddleware implements MiddlewareInterface
 
         // Check Expires header
         $expires = $response->getHeader('Expires');
-        if ($expires) {
+        if ($expires !== null) {
             $expiresTime = strtotime($expires);
             if ($expiresTime !== false && $expiresTime > time()) {
                 return $expiresTime - time();
@@ -340,8 +340,8 @@ class ResponseCacheMiddleware implements MiddlewareInterface
         );
 
         // Add cache hit header
-        $response = $response->withHeader('X-Cache', 'HIT');
-        $response = $response->withHeader('X-Cache-Age', (string) (time() - $cached['cached_at']));
+        $response->header('X-Cache', 'HIT');
+        $response->header('X-Cache-Age', (string) (time() - $cached['cached_at']));
 
         return $response;
     }

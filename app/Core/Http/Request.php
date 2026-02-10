@@ -222,6 +222,18 @@ class Request implements RequestInterface
         return $this;
     }
 
+    // ==================== Query & Cookie Access ====================
+
+    public function getQueryParams(): array
+    {
+        return $this->query->all();
+    }
+
+    public function getCookies(): array
+    {
+        return $this->cookies->all();
+    }
+
     // ==================== Raw Content ====================
 
     public function getContent(): ?string

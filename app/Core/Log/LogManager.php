@@ -223,7 +223,7 @@ class LogManager implements LoggerInterface
             $trace[] = [
                 'index' => $i,
                 'file' => ($frame['file'] ?? 'unknown') . ':' . ($frame['line'] ?? 0),
-                'call' => ($frame['class'] ?? '') . ($frame['type'] ?? '') . ($frame['function'] ?? 'unknown'),
+                'call' => ($frame['class'] ?? '') . ($frame['type'] ?? '') . $frame['function'],
                 'args_count' => count($frame['args'] ?? []),
             ];
         }
@@ -240,7 +240,8 @@ class LogManager implements LoggerInterface
         ];
 
         // Include previous exception if exists
-        if ($previous = $e->getPrevious()) {
+        $previous = $e->getPrevious();
+        if ($previous !== null) {
             $context['previous_exception'] = [
                 'class' => get_class($previous),
                 'message' => $previous->getMessage(),

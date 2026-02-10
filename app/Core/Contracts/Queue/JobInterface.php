@@ -56,6 +56,16 @@ interface JobInterface
     public function fail(?Throwable $e = null): void;
 
     /**
+     * Get the job display name
+     */
+    public function getName(): string;
+
+    /**
+     * Get the number of times the job has been attempted
+     */
+    public function getAttempts(): int;
+
+    /**
      * Determine if the job has been deleted or released
      */
     public function isDeletedOrReleased(): bool;

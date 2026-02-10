@@ -165,7 +165,7 @@ class SetupCommand extends Command
         echo "  • Environment: {$appEnv}\n";
         echo "  • Version: {$appVersion}\n";
 
-        if ($gitHash) {
+        if ($gitHash !== null) {
             echo "  • Git: {$gitHash}\n";
         }
 
@@ -200,7 +200,7 @@ class SetupCommand extends Command
         echo "  • PHP: {$phpVersion}\n";
         echo "  • Environment: {$appEnv}\n";
 
-        if ($gitHash) {
+        if ($gitHash !== null) {
             echo "  • Git: {$gitHash}\n";
         }
 
